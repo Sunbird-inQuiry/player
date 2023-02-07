@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: circleci/node:12.20.2-browsers
+      - image: circleci/node:14.21.2-browsers
     steps:
       - checkout
       - run:
@@ -27,16 +27,6 @@ jobs:
       - run:
           name: Test QuML
           command: npm run test-lib-ci
-      - run:
-          name: Install Node.js v14 with build in nvm tool
-          command: |
-            export NVM_DIR="/opt/circleci/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-            nvm install v14 && nvm use 14 && nvm alias default 14
-            node -v
-      - run:
-          name: Alter Node version
-          command: 'node --version'
       - run:
           name: Install sonar scanner
           command: 'npm install -i -g sonarqube-scanner'
