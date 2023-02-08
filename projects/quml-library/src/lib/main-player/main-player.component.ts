@@ -92,6 +92,7 @@ export class MainPlayerComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     this.isInitialized = true;
 
+    console.log('playerConfig: ', this.playerConfig);
     if (this.playerConfig) {
       if (typeof this.playerConfig === 'string') {
         try {
