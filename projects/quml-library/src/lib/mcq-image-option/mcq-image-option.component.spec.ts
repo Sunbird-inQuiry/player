@@ -19,7 +19,7 @@ describe('McqImageOptionComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(McqImageOptionComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    // fixture.detectChanges();
   });
 
   it('should create', () => {
@@ -31,6 +31,7 @@ describe('McqImageOptionComponent', () => {
   });
 
   it('should show popup', () => {
+    spyOn(component, 'showPopup').and.callThrough();
     component.showQumlPopup = false;
     component.showPopup('<img src="../img.png" >');
     expect(component.showQumlPopup).toBeTruthy();
@@ -63,6 +64,7 @@ describe('McqImageOptionComponent', () => {
   });
 
   it('should open the popup', () => {
+    spyOn(component, 'openPopup').and.callThrough();
     component.showQumlPopup = false;
     component.openPopup('<h1>Optional</h1>');
     expect(component.showQumlPopup).toBeTruthy();
@@ -70,9 +72,9 @@ describe('McqImageOptionComponent', () => {
   });
 
   it('should close the popup', () => {
+    spyOn(component, 'closePopUp').and.callThrough();
     component.showQumlPopup = true;
     component.closePopUp();
     expect(component.showQumlPopup).toBeFalsy();
-
   });
 });

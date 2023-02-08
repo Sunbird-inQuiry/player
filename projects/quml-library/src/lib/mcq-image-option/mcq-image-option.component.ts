@@ -11,6 +11,7 @@ export class McqImageOptionComponent {
   @Input() mcqQuestion: any;
   @Input() solutions: any;
   @Input() mcqOption: any;
+  @Input() cardinality: string;
   @Output() imgOptionSelected = new EventEmitter();
 
   showPopup(image) {

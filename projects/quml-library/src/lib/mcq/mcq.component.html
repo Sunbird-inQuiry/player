@@ -5,7 +5,7 @@
     </div>
     <div class="quml-mcq--option">
         <quml-mcq-option [mcqOptions]="options" [replayed]="replayed" [cardinality]="cardinality"
-            [solutions]="solutions" [layout]="layout" (optionSelected)="getSelectedOptionAndResult($event)"
+            [solutions]="solutions" [layout]="layout" [numberOfCorrectOptions]="numberOfCorrectOptions" (optionSelected)="getSelectedOptionAndResult($event)"
             (showPopup)="showPopup()" [tryAgain]="tryAgain"></quml-mcq-option>
     </div>
 </div>
@@ -17,7 +17,8 @@
     </div>
     <div class="quml-mcq--option">
         <quml-mcq-option [mcqOptions]="options" [replayed]="replayed" [cardinality]="cardinality" [layout]="layout"
-            [solutions]="solutions" (optionSelected)="getSelectedOptionAndResult($event)" [tryAgain]="tryAgain">
+            [solutions]="solutions" (optionSelected)="getSelectedOptionAndResult($event)" [tryAgain]="tryAgain"
+            [numberOfCorrectOptions]="numberOfCorrectOptions">
         </quml-mcq-option>
     </div>
 </div>
@@ -30,7 +31,8 @@
         </div>
         <div class="quml-mcq--option">
             <quml-mcq-option [shuffleOptions]="shuffleOptions" [mcqOptions]="options" [replayed]="replayed" [cardinality]="cardinality"
-                [solutions]="solutions" (optionSelected)="getSelectedOptionAndResult($event)" [layout]="layout" [tryAgain]="tryAgain">
+                [solutions]="solutions" (optionSelected)="getSelectedOptionAndResult($event)" [layout]="layout" [tryAgain]="tryAgain"
+                [numberOfCorrectOptions]="numberOfCorrectOptions">
             </quml-mcq-option>
         </div>
     </div>
@@ -44,7 +46,8 @@
         </div>
         <div class="quml-mcq--option">
             <quml-mcq-option [mcqOptions]="options" [replayed]="replayed" [cardinality]="cardinality"
-                [solutions]="solutions" (optionSelected)="getSelectedOptionAndResult($event)" [layout]="layout" [tryAgain]="tryAgain">
+                [solutions]="solutions" (optionSelected)="getSelectedOptionAndResult($event)" [layout]="layout"
+                [tryAgain]="tryAgain" [numberOfCorrectOptions]="numberOfCorrectOptions">
             </quml-mcq-option>
         </div>
     </div>
@@ -57,7 +60,8 @@
     </div>
     <div class="columnBlock quml-mcq--option">
         <quml-mcq-option [mcqOptions]="options" [replayed]="replayed" [cardinality]="cardinality"
-            [solutions]="solutions" [layout]="layout" (optionSelected)="getSelectedOptionAndResult($event)" [tryAgain]="tryAgain">
+            [solutions]="solutions" [layout]="layout" (optionSelected)="getSelectedOptionAndResult($event)"
+            [tryAgain]="tryAgain" [numberOfCorrectOptions]="numberOfCorrectOptions">
         </quml-mcq-option>
     </div>
 </div>

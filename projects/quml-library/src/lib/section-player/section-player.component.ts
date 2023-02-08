@@ -718,7 +718,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       }
       this.optionSelectedObj = undefined;
     } else if ((isQuestionSkipAllowed) || isSubjectiveQuestion || onStartPage || isActive) {
-      this.nextSlide();
+      this.nextSlide(); // here problem for multiselect on unselection next side is coming
     } else if (this.startPageInstruction && !this.optionSelectedObj && !this.active && !this.allowSkip &&
       this.myCarousel.getCurrentSlideIndex() > 0 && this.utilService.getQuestionType(this.questions, currentIndex) === 'MCQ'
       && this.utilService.canGo(this.progressBarClass[this.myCarousel.getCurrentSlideIndex()])) {
