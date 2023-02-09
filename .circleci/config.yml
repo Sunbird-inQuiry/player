@@ -6,7 +6,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Check current version of node
+          name: Check Node version
           command: node -v
       - restore_cache:
           keys:
@@ -25,8 +25,14 @@ jobs:
           paths:
             - node_modules
       - run:
-          name: Test QuML
+          name: Executing test cases
           command: npm run test-lib-ci
+      - run:
+          name: Install sonar scanner
+          command: 'sudo npm install -i -g sonarqube-scanner'
+      - run:
+          name: Run Sonar scanner
+          command: sonar-scanner
       - run:
           name: Publish to NPM
           command: |
