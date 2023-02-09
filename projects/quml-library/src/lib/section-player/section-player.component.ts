@@ -115,13 +115,14 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.viewerService.qumlPlayerEvent
       .pipe(takeUntil(this.destroy$))
       .subscribe((res) => {
+        console.log('res', res);
         this.playerEvent.emit(res);
       });
 
     this.viewerService.qumlQuestionEvent
       .pipe(takeUntil(this.destroy$))
       .subscribe((res) => {
-
+        console.log('res', res);
         if (res?.error) {
           const { traceId } = this.sectionConfig?.config;
           if (navigator.onLine && this.viewerService.isAvailableLocally) {
