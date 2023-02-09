@@ -99,7 +99,6 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
   ) { }
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.printMessage();
     /* istanbul ignore else */
     if (changes && Object.values(changes)[0].firstChange) {
       this.subscribeToEvents();
@@ -141,7 +140,6 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
         }
         const unCommonQuestions = _.xorBy(this.questions, res.questions, 'identifier');
         this.questions = _.uniqBy(this.questions.concat(unCommonQuestions), 'identifier');
-        this.printQuestions(this.questions);
         this.sortQuestions();
         this.viewerService.updateSectionQuestions(this.sectionConfig.metadata.identifier, this.questions);
         this.cdRef.detectChanges();
@@ -165,10 +163,6 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
         }
         this.removeAttribute();
       });
-  }
-
-  printFirstQuestion(question) {
-    console.log('question', question);
   }
 
   private setConfig() {
@@ -257,13 +251,6 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       this.initializeTimer = true;
     }
     this.initialTime = this.initialSlideDuration = new Date().getTime();
-  }
-
-  printQuestions(questions) {
-    console.log('questions', questions);
-    if (questions.length > 1) {
-      this.printFirstQuestion(questions[0])
-    }
   }
 
   removeAttribute() {
@@ -881,18 +868,6 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
 
   viewHint() {
     this.viewerService.raiseHeartBeatEvent(eventName.viewHint, TelemetryType.interact, this.myCarousel.getCurrentSlideIndex());
-  }
-
-  printMessage() {
-    const array = [1,5,7,9,2,14,13]
-    for(let i=0; i<array.length; i++) {
-      if (array[i] %2 === 0) {
-        console.log('Even number', array[i]);
-        
-      }
-    }
-    console.log('testing coverage');
-    
   }
 
   onAnswerKeyDown(event: KeyboardEvent) {
