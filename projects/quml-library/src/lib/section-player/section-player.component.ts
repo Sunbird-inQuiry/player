@@ -99,6 +99,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
   ) { }
 
   ngOnChanges(changes: SimpleChanges): void {
+    this.printMessage();
     /* istanbul ignore else */
     if (changes && Object.values(changes)[0].firstChange) {
       this.subscribeToEvents();
@@ -880,6 +881,18 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
 
   viewHint() {
     this.viewerService.raiseHeartBeatEvent(eventName.viewHint, TelemetryType.interact, this.myCarousel.getCurrentSlideIndex());
+  }
+
+  printMessage() {
+    const array = [1,5,7,9,2,14,13]
+    for(let i=0; i<array.length; i++) {
+      if (array[i] %2 === 0) {
+        console.log('Even number', array[i]);
+        
+      }
+    }
+    console.log('testing coverage');
+    
   }
 
   onAnswerKeyDown(event: KeyboardEvent) {
