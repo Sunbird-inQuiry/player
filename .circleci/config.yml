@@ -25,7 +25,7 @@ jobs:
           paths:
             - node_modules
       - run:
-          name: Executing QuML lib test cases
+          name: Executing test cases
           command: npm run test-lib-ci
       - run:
           name: Install sonar scanner
