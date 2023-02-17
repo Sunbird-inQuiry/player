@@ -1,5 +1,5 @@
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync,  ComponentFixture, TestBed } from '@angular/core/testing';
 import { DomSanitizer } from '@angular/platform-browser';
 
 import { McqComponent } from './mcq.component';
@@ -156,7 +156,7 @@ describe('McqComponent', () => {
     }
   ]
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [McqComponent],
       schemas: [NO_ERRORS_SCHEMA]
@@ -175,15 +175,35 @@ describe('McqComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should set layout to IMAGEGRID', () => {
+    component.question.templateId = 'mcq-horizontal';
+    component.ngOnInit();
+    expect(component.layout).toBe('IMAGEGRID');
+  });
+  it('should set layout to IMAGEQAGRID', () => {
+    component.question.templateId = 'mcq-vertical-split';
+    component.ngOnInit();
+    expect(component.layout).toBe('IMAGEQAGRID');
+  });
+  it('should set layout to MULTIIMAGEGRID', () => {
+    component.question.templateId = 'mcq-grid-split';
+    component.ngOnInit();
+    expect(component.layout).toBe('MULTIIMAGEGRID');
+  });
+  it('should not set any layout', () => {
+    component.question.templateId = 'mcq';
+    component.ngOnInit();
+    expect(component.layout).toBeUndefined;
+  });
   it('should return a element on view init', () => {
-    spyOn(document, 'getElementsByClassName').and.returnValue([document.createElement('div')]);
+    spyOn(document, 'getElementsByClassName').and.returnValue([document.createElement('div')] as any);
     component.ngAfterViewInit();
     expect(document.getElementsByClassName).toHaveBeenCalled();
   });
 
   it('should init the options', () => {
     component.options = options;
-    const domSanitizer = TestBed.get(DomSanitizer);
+    const domSanitizer = TestBed.inject(DomSanitizer);
     spyOn(domSanitizer, 'sanitize');
     component.initOptions();
     expect(domSanitizer.sanitize).toHaveBeenCalled();
@@ -206,5 +226,28 @@ describe('McqComponent', () => {
     component.showQumlPopup = true;
     component.closePopUp();
     component.showQumlPopup = false;
+  });
+  it('should not set solutions', () => {
+    component.question.solutions = undefined;
+    component.ngOnInit();
+    expect(component.solutions).toEqual([]);
+  });
+
+  it('should call replaceLatexText', () => {
+    component.identifier = 'do_123';
+    const element = document.createElement('div');
+    const mathElement = document.createElement('div');
+    mathElement.classList.add('mathText');
+    element.appendChild(mathElement);
+    spyOn(document, 'getElementById').and.returnValue(element);
+    spyOn(document, 'getElementsByClassName').and.returnValue([element] as any);
+    // @ts-ignore
+    window.katex = {
+      render: () => { }
+    }
+    spyOn((window as any).katex, 'render');
+    component.replaceLatexText();
+    expect(document.getElementById).toHaveBeenCalled();
+    expect((window as any).katex.render).toHaveBeenCalled();
   });
 });

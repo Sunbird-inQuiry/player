@@ -56,8 +56,11 @@ export class ViewerService {
     this.src = config.metadata.artifactUrl || '';
     this.questionSetId = config.metadata.identifier;
 
-    if (config.context.userData) {
-      this.userName = config.context.userData.firstName + ' ' + config.context.userData.lastName;
+    /* istanbul ignore else */
+    if (config?.context?.userData) {
+      const firstName = config.context.userData?.firstName ?? '';
+      const lastName = config.context.userData?.lastName ?? '';
+      this.userName = firstName + ' ' + lastName;
     }
     this.metaData = {
       pagesHistory: [],
@@ -291,5 +294,10 @@ export class ViewerService {
 
   getSectionQuestions(id: string) {
     return this.sectionQuestions.find(section => section.id === id)?.questions || [];
+  }
+
+  pauseVideo() {
+    const videoElements = Array.from(document.getElementsByTagName('video') as HTMLCollectionOf<Element>);
+    videoElements.forEach((element: HTMLVideoElement) => element.pause());
   }
 }

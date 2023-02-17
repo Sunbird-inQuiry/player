@@ -178,7 +178,7 @@
     }
 
     figure.image img {
-      width: 100%;
+      width: auto;
     }
 
     figure.image.resize-original img {
@@ -211,11 +211,6 @@
     figure.image.resize-100 {
       width: 100%;
       height: auto;
-    }
-
-    .solution-options figure.image {
-      width: 7.5rem !important;
-      height: 7.5rem !important;
     }
 
     figure.table table {
@@ -387,10 +382,6 @@
     p span i,
     p i {
       font-style: italic;
-    }
-
-    p {
-      line-height: normal;
     }
 
   }

@@ -1,5 +1,5 @@
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync,  ComponentFixture, TestBed } from '@angular/core/testing';
 import { SafeHtmlPipe } from '../pipes/safe-html/safe-html.pipe';
 
 import { McqOptionComponent } from './mcq-option.component';
@@ -8,7 +8,7 @@ describe('McqOptionComponent', () => {
   let component: McqOptionComponent;
   let fixture: ComponentFixture<McqOptionComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [McqOptionComponent, SafeHtmlPipe],
       schemas: [NO_ERRORS_SCHEMA]
@@ -75,7 +75,8 @@ describe('McqOptionComponent', () => {
   });
 
   it('should emit the event for the selected option for multiple cardinality', () => {
-    const event = new MouseEvent('click');
+    let event = new MouseEvent('click');
+    event.stopImmediatePropagation = () => {};
     const mcqOptions = [{
       "label": "<p>Rahul Gandhi</p>",
       "value": 1
@@ -87,12 +88,6 @@ describe('McqOptionComponent', () => {
     component.mcqOptions = mcqOptions;
     component.onOptionSelect(event, mcqOptions[1], 1);
     expect(component.mcqOptions[1].selected).toBe(true);
-  });
-
-  it('should emit event for the selected option', () => {
-    spyOn(component, 'onOptionSelect');
-    component.onImageOptionSelected({ option: { 'label': 'option1', value: 1 } });
-    expect(component.onOptionSelect).toHaveBeenCalled();
   });
 
   it('should show the popup', () => {

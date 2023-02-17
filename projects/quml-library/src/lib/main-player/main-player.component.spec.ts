@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SunbirdPlayerSdkModule } from '@project-sunbird/sunbird-player-sdk-v9';
 import { QuestionCursor } from './../quml-question-cursor.service';
 import { QumlLibraryService } from '../quml-library.service';
@@ -9,12 +9,17 @@ import { MainPlayerComponent } from './main-player.component';
 import { ViewerService } from '../services/viewer-service/viewer-service';
 import { fakeMainProgressBar, fakeSections, playerConfig, singleContent } from './main-player.component.spec.data';
 import { UtilService } from '../util-service';
+import { of } from 'rxjs';
 
 describe('MainPlayerComponent', () => {
   let component: MainPlayerComponent;
   let fixture: ComponentFixture<MainPlayerComponent>;
 
-  beforeEach(async(() => {
+  const myCarousel = jasmine.createSpyObj("CarouselComponent", {
+    "getCurrentSlideIndex": 1, "selectSlide": {}, "move": {}, isLast: false
+  });
+
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [MainPlayerComponent],
       imports: [
@@ -56,14 +61,13 @@ describe('MainPlayerComponent', () => {
   });
 
   it('should initialize the sections, if available', () => {
-    const viewerService = TestBed.get(ViewerService);
+    const viewerService = TestBed.inject(ViewerService);
     component.playerConfig = playerConfig;
     spyOn<any>(component, 'getMultilevelSection');
     spyOn(component, 'setInitialScores');
     component.initializeSections();
     expect(component['getMultilevelSection']).toHaveBeenCalled();
     expect(component.setInitialScores).toHaveBeenCalled();
-    expect(component.isFirstSection).toBe(true);
   });
 
   it('should set config for the question set', () => {
@@ -94,7 +98,7 @@ describe('MainPlayerComponent', () => {
   });
 
   it('should emit the max attempt event when attempts are about to exhaust', () => {
-    const viewerService = TestBed.get(ViewerService);
+    const viewerService = TestBed.inject(ViewerService);
     component.playerConfig = playerConfig;
     component.playerConfig.metadata.currentAttempt = 2;
     component.attempts = {
@@ -110,7 +114,7 @@ describe('MainPlayerComponent', () => {
 
 
   it('should emit the max attempt event when all the attempts are exhausted', () => {
-    const viewerService = TestBed.get(ViewerService);
+    const viewerService = TestBed.inject(ViewerService);
     component.playerConfig = playerConfig;
     component.playerConfig.metadata.currentAttempt = 3;
     component.attempts = {
@@ -132,13 +136,16 @@ describe('MainPlayerComponent', () => {
   })
 
   it('should show scoreboard', () => {
+    const viewerService = TestBed.inject(ViewerService);
     component.parentConfig.isSectionsAvailable = true;
     spyOn(component, 'getActiveSectionIndex').and.returnValue(0);
     spyOn(component, 'updateSectionScore');
+    spyOn(viewerService, 'pauseVideo');
     component.onShowScoreBoard({});
     expect(component.getActiveSectionIndex).toHaveBeenCalled();
     expect(component.updateSectionScore).toHaveBeenCalledWith(0);
     expect(component.loadScoreBoard).toBeTruthy();
+    expect(viewerService.pauseVideo).toHaveBeenCalled();
 
   });
 
@@ -185,7 +192,7 @@ describe('MainPlayerComponent', () => {
       score: 2,
       slideIndex: 2,
     }
-    const utilService = TestBed.get(UtilService);
+    const utilService = TestBed.inject(UtilService);
     component.isDurationExpired = false;
     spyOn(utilService, 'sumObjectsByKey').and.returnValue(event.summary);
     spyOn(component, 'prepareEnd');
@@ -210,7 +217,7 @@ describe('MainPlayerComponent', () => {
       slideIndex: 2,
       jumpToSection: true
     }
-    const utilService = TestBed.get(UtilService);
+    const utilService = TestBed.inject(UtilService);
     component.isDurationExpired = false;
     component.mainProgressBar = fakeMainProgressBar;
     spyOn(utilService, 'sumObjectsByKey').and.returnValue(event.summary);
@@ -224,16 +231,19 @@ describe('MainPlayerComponent', () => {
 
   it('should calculate the final score and time spent before end event generated and when submit page is available', () => {
     component.parentConfig.requiresSubmit = true;
+    const viewerService = TestBed.inject(ViewerService);
     spyOn(component, 'calculateScore');
     spyOn(component, 'setDurationSpent');
+    spyOn(viewerService, 'pauseVideo');
     component.prepareEnd({});
     expect(component.calculateScore).toHaveBeenCalled();
     expect(component.setDurationSpent).toHaveBeenCalled();
     expect(component.loadScoreBoard).toBeTruthy();
+    expect(viewerService.pauseVideo).toHaveBeenCalled();
   });
 
   it('should calculate the final score and time spent before end event generated and when submit page is not available', () => {
-    const viewerService = TestBed.get(ViewerService);
+    const viewerService = TestBed.inject(ViewerService);
     component.parentConfig.requiresSubmit = false;
     spyOn(component, 'calculateScore');
     spyOn(component, 'setDurationSpent');
@@ -251,10 +261,10 @@ describe('MainPlayerComponent', () => {
   });
 
   it('should replay the content and do necessary operations', () => {
-    const viewerService = TestBed.get(ViewerService);
+    const viewerService = TestBed.inject(ViewerService);
     component.parentConfig.isReplayed = false;
     component.attempts = { max: 3, current: 2 }
-    spyOn(component, 'initializeSections').and.returnValue(true);
+    spyOn(component, 'initializeSections');
     spyOn(viewerService, 'generateMaxAttemptEvents');
     spyOn(component.playerEvent, 'emit');
     spyOn(viewerService, 'raiseHeartBeatEvent');
@@ -270,13 +280,13 @@ describe('MainPlayerComponent', () => {
     component.totalNoOfQuestions = 0;
     component.mainProgressBar = [];
     component.sections = fakeSections;
-    component.setInitialScores();
+    component.setInitialScores(0);
     expect(component.totalNoOfQuestions).toEqual(4);
     expect(component.mainProgressBar.length).toBe(2);
   });
 
   it('should call exit the content player and do necessary clean up', () => {
-    const viewerService = TestBed.get(ViewerService);
+    const viewerService = TestBed.inject(ViewerService);
     spyOn(component, 'calculateScore');
     spyOn(viewerService, 'raiseHeartBeatEvent');
     spyOn(viewerService, 'raiseSummaryEvent');
@@ -293,7 +303,7 @@ describe('MainPlayerComponent', () => {
   it('should call play method', () => {
     component.attempts = { max: 3, current: 3 }
     component.isEndEventRaised = false;
-    const viewerService = TestBed.get(ViewerService);
+    const viewerService = TestBed.inject(ViewerService);
     viewerService.metaData = {
       progressBar: fakeMainProgressBar
     }
@@ -308,7 +318,7 @@ describe('MainPlayerComponent', () => {
   });
 
   it('should not raise end event if already raised', () => {
-    const viewerService = TestBed.get(ViewerService);
+    const viewerService = TestBed.inject(ViewerService);
     component.isEndEventRaised = true;
     spyOn(viewerService, 'raiseEndEvent');
     component.raiseEndEvent(4, true, 4);
@@ -316,7 +326,7 @@ describe('MainPlayerComponent', () => {
   });
 
   it('should raise an end event, if not not raised', () => {
-    const viewerService = TestBed.get(ViewerService);
+    const viewerService = TestBed.inject(ViewerService);
     viewerService.metaData = {
       progressBar: [],
     };
@@ -327,11 +337,11 @@ describe('MainPlayerComponent', () => {
   });
 
   it('should call setDurationSpent', () => {
-    const viewerService = TestBed.get(ViewerService);
+    const viewerService = TestBed.inject(ViewerService);
     viewerService.metaData = {
       duration: 0,
     };
-    const utilService = TestBed.get(UtilService);
+    const utilService = TestBed.inject(UtilService);
     component.playerConfig = playerConfig;
     component.initialTime = new Date().getTime() - 1000;
     spyOn(utilService, 'getTimeSpentText').and.returnValue('01:00');
@@ -346,7 +356,7 @@ describe('MainPlayerComponent', () => {
   });
 
   it('should call onScoreBoardSubmitted', () => {
-    const viewerService = TestBed.get(ViewerService);
+    const viewerService = TestBed.inject(ViewerService);
     component.endPageReached = false;
     spyOn(component, 'getSummaryObject');
     spyOn(component, 'setDurationSpent');
@@ -396,14 +406,14 @@ describe('MainPlayerComponent', () => {
   });
 
   it('should call playNextContent', () => {
-    const viewerService = TestBed.get(ViewerService);
+    const viewerService = TestBed.inject(ViewerService);
     spyOn(viewerService, 'raiseHeartBeatEvent').and.returnValue(null);
     component.playNextContent({ type: 'NEXT_CONTENT_PLAY', identifier: 'do_123' });
     expect(viewerService.raiseHeartBeatEvent).toHaveBeenCalled();
   });
 
   it('should call ngOnDestroy', () => {
-    const viewerService = TestBed.get(ViewerService);
+    const viewerService = TestBed.inject(ViewerService);
     component.totalVisitedQuestion = 4;
     component.endPageReached = true;
     component.finalScore = 4;
@@ -414,10 +424,12 @@ describe('MainPlayerComponent', () => {
       wrong: 0
     };
     component.isSummaryEventRaised = false;
+    component.subscription = of(1, 2, 3).subscribe();
     spyOn(component, 'calculateScore');
     spyOn<any>(component, 'getSummaryObject');
-    spyOn(viewerService, 'raiseSummaryEvent').and.returnValue({});
+    spyOn(viewerService, 'raiseSummaryEvent');
     spyOn(component, 'raiseEndEvent');
+    spyOn(component.subscription, 'unsubscribe');
     component.ngOnDestroy();
     expect(component.calculateScore).toHaveBeenCalled();
     expect(component.getSummaryObject).toHaveBeenCalled();
@@ -428,13 +440,13 @@ describe('MainPlayerComponent', () => {
       wrong: 0
     });
     expect(component.raiseEndEvent).toHaveBeenCalledWith(4, true, 4);
+    expect(component.subscription.unsubscribe).toHaveBeenCalled();
   });
 
-  it('should show error if the the mutltilevel sections are present', () => {
+  it('should show error if the the multilevel sections are present', () => {
     component.playerConfig = playerConfig;
     component.playerConfig.metadata.children[0].children[0].children = [];
     component.initializeSections();
-    console.log('isMultiLevelSection', component.isMultiLevelSection);
     expect(component.isMultiLevelSection).toBe(true);
     expect(component.contentError).toEqual({
       messageHeader: 'Unable to load content',
@@ -443,9 +455,51 @@ describe('MainPlayerComponent', () => {
   });
 
   it('should initialize the sections, if not available', () => {
-    const viewerService = TestBed.get(ViewerService);
+    const viewerService = TestBed.inject(ViewerService);
     component.playerConfig = playerConfig;
     component.playerConfig.metadata = singleContent;
     component.initializeSections();
   });
+
+  it('should handle sideBarEvents', () => {
+    const viewerService = TestBed.inject(ViewerService);
+    spyOn(component, 'handleSideBarAccessibility');
+    spyOn(viewerService, 'raiseHeartBeatEvent');
+    component.sectionPlayer = {} as any;
+    component.sectionPlayer.myCarousel = myCarousel;
+    const event = { event: new KeyboardEvent('keydown', {}), type: 'CLOSE_MENU' }
+    component.sideBarEvents(event);
+    expect(component['handleSideBarAccessibility']).toHaveBeenCalled();
+    expect(viewerService['raiseHeartBeatEvent']).toHaveBeenCalled();
+  });
+
+  it('should call toggleScreenRotate', () => {
+    const viewerService = TestBed.inject(ViewerService);
+    spyOn(viewerService, 'raiseHeartBeatEvent');
+    component.sectionPlayer = {} as any;
+    component.sectionPlayer.myCarousel = myCarousel;
+    component.toggleScreenRotate();
+    expect(viewerService.raiseHeartBeatEvent).toHaveBeenCalledWith('DEVICE_ROTATION_CLICKED', 'interact', 2);
+  });
+
+  it('should handle close the menu with Accessibility', () => {
+    component.playerConfig = playerConfig;
+    component.disabledHandle = {
+      disengage: () => { }
+    };
+    component.subscription = of(1, 2, 3).subscribe();
+    component.handleSideBarAccessibility({ type: 'CLOSE_MENU' });
+    expect(component.disabledHandle).toBeNull();
+    expect(component.subscription).toBeNull();
+  });
+
+  it('should call calculateScore', () => {
+    component.mainProgressBar = fakeMainProgressBar;
+    spyOn(component, 'generateOutComeLabel');
+    const score = component.calculateScore();
+    expect(component.generateOutComeLabel).toHaveBeenCalled();
+    expect(score).toEqual(2);
+  });
+
+
 });

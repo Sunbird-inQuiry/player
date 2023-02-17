@@ -1,5 +1,5 @@
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync,  ComponentFixture, fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
 import { of } from 'rxjs';
 
 import { AlertComponent } from './alert.component';
@@ -8,7 +8,7 @@ describe('AlertComponent', () => {
   let component: AlertComponent;
   let fixture: ComponentFixture<AlertComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [AlertComponent],
       schemas: [NO_ERRORS_SCHEMA]
@@ -65,4 +65,25 @@ describe('AlertComponent', () => {
     expect(component.previousActiveElement.focus).toHaveBeenCalled();
     expect(component.subscription.unsubscribe).toHaveBeenCalled();
   });
+
+  it('should focus on wrong button if selected', fakeAsync(() => {
+    const element = document.createElement('div');
+    spyOn(document, 'querySelector').and.returnValue(element);
+    component.alertType = 'wrong';
+    component.ngAfterViewInit();
+    tick(201);
+    expect(document.querySelector).toHaveBeenCalled();
+    flush();
+  }));
+
+  it('should focus on correct button if selected', fakeAsync(() => {
+    const element = document.createElement('div');
+    spyOn(document, 'querySelector').and.returnValue(element);
+    component.alertType = 'correct';
+    component.showSolutionButton = true;
+    component.ngAfterViewInit();
+    tick(201);
+    expect(document.querySelector).toHaveBeenCalled();
+    flush();
+  }));
 });

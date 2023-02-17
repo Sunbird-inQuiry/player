@@ -1,17 +1,19 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from "@angular/core";
-import { QuestionCursor } from '@project-sunbird/sunbird-quml-player-v9';
+import { QuestionCursor } from '@project-sunbird/sunbird-quml-player';
 import { Observable, of, throwError as observableThrowError } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
+import { ApiEndPoints } from './app.constant';
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class QuestionCursorImplementationService implements QuestionCursor {
-    listUrl: string; // Define this url to call list api in server
     constructor(private http: HttpClient) { }
 
     getQuestions(identifiers: string[]): Observable<any> {
         const option: any = {
-            url: this.listUrl,
+            url: `${ApiEndPoints.questionList}`,
             data: {
                 request: {
                     search: { identifier: identifiers }
@@ -23,7 +25,7 @@ export class QuestionCursorImplementationService implements QuestionCursor {
 
     getQuestion(identifier: string): Observable<any> {
         const option: any = {
-            url: this.listUrl,
+            url: `${ApiEndPoints.questionList}`,
             data: {
                 request: {
                     search: { identifier: [identifier] }

@@ -4,15 +4,18 @@ import {
 } from '@angular/core';
 import { fromEvent, Subscription } from 'rxjs';
 
+type AlertType = "correct" | "wrong";
+
 @Component({
   selector: 'quml-alert',
   templateUrl: './alert.component.html',
   styleUrls: ['./alert.component.scss']
 })
 export class AlertComponent implements OnInit, AfterViewInit, OnDestroy {
-  @Input() alertType: any;
+  @Input() alertType: AlertType;
   @Input() isHintAvailable: boolean;
   @Input() showSolutionButton: boolean;
+
   @Output() closeAlert = new EventEmitter();
   @Output() showSolution = new EventEmitter();
   @Output() showHint = new EventEmitter();
@@ -34,9 +37,10 @@ export class AlertComponent implements OnInit, AfterViewInit, OnDestroy {
     this.subscription = fromEvent(document, 'keydown').subscribe((e: KeyboardEvent) => {
       if (e['key'] === 'Tab') {
         const nextBtn = document.querySelector('.quml-navigation__previous') as HTMLElement;
+        /* istanbul ignore else */
         if (nextBtn) {
           this.close('close');
-          nextBtn.focus();
+          nextBtn.focus({ preventScroll: true });
           this.isFocusSet = true;
           e.stopPropagation();
         }
@@ -45,17 +49,14 @@ export class AlertComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    const alertBody = document.querySelector('.quml-alert__body');
-
     setTimeout(() => {
       const wrongButton = document.querySelector('#wrongButton') as HTMLElement;
       const correctButton = document.querySelector('#correctButton') as HTMLElement;
-      const hintButton = document.querySelector('#hintButton') as HTMLElement;
 
       if (this.alertType === 'wrong' && wrongButton) {
-        wrongButton.focus();
+        wrongButton.focus({ preventScroll: true });
       } else if (this.alertType === 'correct' && this.showSolutionButton && correctButton) {
-        correctButton.focus();
+        correctButton.focus({ preventScroll: true });
       }
     }, 200);
   }
@@ -77,10 +78,12 @@ export class AlertComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    /* istanbul ignore else */
     if (this.previousActiveElement && !this.isFocusSet) {
-      this.previousActiveElement.focus();
+      this.previousActiveElement.focus({ preventScroll: true });
     }
 
+    /* istanbul ignore else */
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
