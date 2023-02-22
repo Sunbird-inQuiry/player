@@ -3,7 +3,7 @@
 
 - Create react app if not exist with `npx create-react-app my-app`
 
-- Copy files from the `https://github.com/project-sunbird/sunbird-quml-player/tree/main/web-component`
+- Copy files from the `https://github.com/Sunbird-inQuiry/player/tree/main/web-component`
     - Copy `assets` folder to `public` folder to access the assets from `sunbird-quml-player`
     - Create new folder in `src` (e.g.  Sunbird) and keep `sunbird-quml-player.js`, `style.css` and font files in it.
 
