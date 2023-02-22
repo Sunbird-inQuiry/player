@@ -704,7 +704,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       }
       if (option.cardinality === 'multiple') {
         const responseDeclaration = this.questions[currentIndex].responseDeclaration;
-        const currentScore = this.utilService.getMultiselectScore(option.option, responseDeclaration);
+        const currentScore = this.utilService.getMultiselectScore(option.option, responseDeclaration, this.isShuffleQuestions);
         this.showAlert = true;
         if (currentScore === 0) {
           this.alertType = 'wrong';
@@ -718,7 +718,9 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       }
       this.optionSelectedObj = undefined;
     } else if ((isQuestionSkipAllowed) || isSubjectiveQuestion || onStartPage || isActive) {
-      this.nextSlide();
+      if(!_.isUndefined(type)) {
+        this.nextSlide();
+      }
     } else if (this.startPageInstruction && !this.optionSelectedObj && !this.active && !this.allowSkip &&
       this.myCarousel.getCurrentSlideIndex() > 0 && this.utilService.getQuestionType(this.questions, currentIndex) === 'MCQ'
       && this.utilService.canGo(this.progressBarClass[this.myCarousel.getCurrentSlideIndex()])) {

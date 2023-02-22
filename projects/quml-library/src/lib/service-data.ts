@@ -6,10 +6,23 @@ export const responseDeclaration = {
         correctResponse: {
             value: [1, 2],
             outcomes: {
-                SCORE: 1
+                SCORE: 2
             }
         },
-        mapping: []
+        mapping: [
+            {
+              "response": 1,
+              "outcomes": {
+                "score": 1
+              }
+            },
+            {
+              "response": 2,
+              "outcomes": {
+                "score": 1
+              }
+            }
+          ]
     }
 }
 

@@ -15,6 +15,7 @@ export class McqOptionComponent implements OnChanges {
   @Input() solutions: any;
   @Input() layout: any;
   @Input() cardinality: string;
+  @Input() numberOfCorrectOptions: number;
   @Output() showPopup = new EventEmitter();
   @Output() optionSelected = new EventEmitter<any>();
   selectedOption = [];
@@ -71,13 +72,36 @@ export class McqOptionComponent implements OnChanges {
           element.selected = element.label === mcqOption.label;
         });
       }
-    } else if (this.cardinality === Cardinality.multiple) {
+    }
+    else if (this.cardinality === Cardinality.multiple) {
       this.mcqOptions.forEach(element => {
-        if (element.label === mcqOption.label && !this.utilService.hasDuplicates(this.selectedOption, mcqOption)) {
-          element.selected = true;
-          this.selectedOption.push(mcqOption)
+        if (element.label === mcqOption.label) {
+          if(this.utilService.hasDuplicates(this.selectedOption, mcqOption)) {
+            element.selected = false;
+            this.selectedOption = _.filter(this.selectedOption, (item) => item.label !== mcqOption.label);
+          } else {
+            element.selected = true;
+            this.selectedOption.push(mcqOption);
+          }
         }
       });
+
+      if (this.selectedOption.length === this.numberOfCorrectOptions) {
+        // disable extra options
+        this.selectedOption.forEach(selectedEelement => {
+          this.mcqOptions.forEach(element => {
+            if ((element.label != selectedEelement.label) && !element.selected) {
+              element['isDisabled'] = true;
+            } else {
+              element['isDisabled'] = false;
+            }
+          })
+        });
+      } else {
+        this.mcqOptions.forEach(element => {
+          element['isDisabled'] = false;
+        });
+      }
     }
 
     this.optionSelected.emit(
