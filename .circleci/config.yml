@@ -1,8 +1,8 @@
 version: 2.1
 jobs:
   build:
-    machine:
-      image: ubuntu-2004:202010-01
+    docker:
+      - image: circleci/node:14.18.2-browsers
     steps:
       - checkout
       - run:
@@ -29,7 +29,7 @@ jobs:
           command: npm run test-lib-ci
       - run:
           name: Install sonar scanner
-          command: 'npm install -i -g sonarqube-scanner'
+          command: 'npm install -g sonarqube-scanner'
       - run:
           name: Run Sonar scanner
           command: sonar-scanner
