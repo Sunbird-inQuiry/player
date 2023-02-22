@@ -704,7 +704,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       }
       if (option.cardinality === 'multiple') {
         const responseDeclaration = this.questions[currentIndex].responseDeclaration;
-        const currentScore = this.utilService.getMultiselectScore(option.option, responseDeclaration);
+        const currentScore = this.utilService.getMultiselectScore(option.option, responseDeclaration, this.isShuffleQuestions);
         this.showAlert = true;
         if (currentScore === 0) {
           this.alertType = 'wrong';
