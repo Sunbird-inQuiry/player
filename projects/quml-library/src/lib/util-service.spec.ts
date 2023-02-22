@@ -71,10 +71,17 @@ describe('UtilService', () => {
     expect(sum).toEqual({ a: 4, b: 6 });
   });
   
-  it('should call getMultiselectScore', () => {
+  it('should call getMultiselectScore when shuffle is false', () => {
     const service: UtilService = TestBed.inject(UtilService);
-    spyOn(service, 'getKeyValue').and.returnValue('response1');
-    const score = service.getMultiselectScore(options, responseDeclaration);
-    expect(score).toBeDefined();
+    spyOn(service, 'getMultiselectScore').and.callThrough();
+    const score = service.getMultiselectScore(options, responseDeclaration, false);
+    expect(score).toEqual(2);
+  })
+
+  it('should call getMultiselectScore when shuffle is true', () => {
+    const service: UtilService = TestBed.inject(UtilService);
+    spyOn(service, 'getMultiselectScore').and.callThrough();
+    const score = service.getMultiselectScore(([options[1]]), responseDeclaration, true);
+    expect(score).toEqual(0.5);
   })
 });
