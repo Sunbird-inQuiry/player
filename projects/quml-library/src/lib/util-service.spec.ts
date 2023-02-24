@@ -31,13 +31,6 @@ describe('UtilService', () => {
     expect(key).toEqual('response1');
   });
 
-  it('should check weather array has duplictes', () => {
-    const service: UtilService = TestBed.inject(UtilService);
-    spyOn(service, 'hasDuplicates').and.returnValue(true);
-    let duplicates = service.hasDuplicates(selectedOptions, options);
-    expect(duplicates).toBe(true);
-  });
-
   it('should return question type', () => {
     const service: UtilService = TestBed.inject(UtilService);
     let qType = service.getQuestionType(questions, 0);
@@ -85,6 +78,13 @@ describe('UtilService', () => {
     expect(score).toEqual(0);
   })
 
+  it('should call getMultiselectScore when shuffle is false return score 1', () => {
+    const service: UtilService = TestBed.inject(UtilService);
+    spyOn(service, 'getMultiselectScore').and.callThrough();
+    const score = service.getMultiselectScore([options[1]], responseDeclaration, false);
+    expect(score).toEqual(1);
+  })
+
   it('should call getMultiselectScore when shuffle is true', () => {
     const service: UtilService = TestBed.inject(UtilService);
     spyOn(service, 'getMultiselectScore').and.callThrough();
@@ -98,4 +98,18 @@ describe('UtilService', () => {
     const score = service.getMultiselectScore(([options[0]]), responseDeclaration, true);
     expect(score).toEqual(0);
   })
+
+  it('should call getMultiselectScore when shuffle is true return score 1', () => {
+    const service: UtilService = TestBed.inject(UtilService);
+    spyOn(service, 'getMultiselectScore').and.callThrough();
+    const score = service.getMultiselectScore((options), responseDeclaration, true);
+    expect(score).toEqual(1);
+  })
+
+  it('should check weather array has duplictes', () => {
+    const service: UtilService = TestBed.inject(UtilService);
+    spyOn(service, 'hasDuplicates').and.callThrough();
+    let duplicates = service.hasDuplicates(selectedOptions, options[0]);
+    expect(duplicates).toBeTruthy();
+  });
 });
