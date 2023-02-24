@@ -78,6 +78,13 @@ describe('UtilService', () => {
     expect(score).toEqual(2);
   })
 
+  it('should call getMultiselectScore when shuffle is false return score 0', () => {
+    const service: UtilService = TestBed.inject(UtilService);
+    spyOn(service, 'getMultiselectScore').and.callThrough();
+    const score = service.getMultiselectScore([options[0]], responseDeclaration, false);
+    expect(score).toEqual(0);
+  })
+
   it('should call getMultiselectScore when shuffle is true', () => {
     const service: UtilService = TestBed.inject(UtilService);
     spyOn(service, 'getMultiselectScore').and.callThrough();
