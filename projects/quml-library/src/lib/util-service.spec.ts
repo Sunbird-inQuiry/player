@@ -91,4 +91,11 @@ describe('UtilService', () => {
     const score = service.getMultiselectScore(([options[1]]), responseDeclaration, true);
     expect(score).toEqual(0.5);
   })
+
+  it('should call getMultiselectScore when shuffle is true return score 0', () => {
+    const service: UtilService = TestBed.inject(UtilService);
+    spyOn(service, 'getMultiselectScore').and.callThrough();
+    const score = service.getMultiselectScore(([options[0]]), responseDeclaration, true);
+    expect(score).toEqual(0);
+  })
 });

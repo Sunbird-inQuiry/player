@@ -54,9 +54,9 @@ export class UtilService {
             let sum = 0;
             _.forEach(mapping, (map, index) => {
                 if(_.includes(selectedOptionValue, map.response)) {
-                    sum += (mapping[index] ? mapping[index].outcomes.score : 0);
+                    sum += (map?.outcomes?.score ? map.outcomes.score : 0);
                 }
-            })
+            });
             return sum;
         }
     }
