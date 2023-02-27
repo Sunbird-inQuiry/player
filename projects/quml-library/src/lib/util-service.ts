@@ -51,7 +51,13 @@ export class UtilService {
         if (_.isEqual(correctValues.sort(), selectedOptionValue.sort())) {                                               
             return score;
         } else if (!_.isEqual(correctValues.sort(), selectedOptionValue.sort())) {
-            return selectedOptionValue.reduce((sum, index) => { sum += (mapping[index] ? mapping[index].outcomes.score : 0); return sum; }, 0);
+            let sum = 0;
+            _.forEach(mapping, (map, index) => {
+                if(_.includes(selectedOptionValue, map.response)) {
+                    sum += (map?.outcomes?.score ? map.outcomes.score : 0);
+                }
+            });
+            return sum;
         }
     }
 

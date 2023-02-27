@@ -133,6 +133,34 @@
     border: 0.125rem solid var(--quml-checkmark);
   }
 
+  .container input:checked~.radiomark, .quml-option--selected .radiomark {
+    position: relative;
+    background-color: var(--quml-option-selected-checkmark);
+    border: 0.125rem solid var(--primary-color);
+  }
+
+  input:checked~.radiomark:after, .quml-option--selected .radiomark:after {
+    content: "";
+    opacity: 1;
+  }
+
+  .container .radiomark:after, .quml-option--selected .container .radiomark:after {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    background:var(--primary-color);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: 0;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+  }
+
+  .quml-option--selected .container .checkmark:after, .quml-option--selected .container .radiomark:after {
+    opacity: 1;
+  }
+
   .disabled{
     opacity:0.4;
   }

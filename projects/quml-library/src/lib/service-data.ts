@@ -1,5 +1,5 @@
 export const responseDeclaration = {
-    maxScore: 1,
+    maxScore: 2,
     response1: {
         cardinality: "multiple",
         type: "integer",
