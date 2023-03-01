@@ -533,8 +533,8 @@ export const samplePlayerConfig = {
         'host': '',
         'endpoint': '/data/v3/telemetry',
         'userData': {
-            'firstName': 'Diptesh',
-            'lastName': 'Mukherjee'
+            'firstName': 'John',
+            'lastName': 'Doe'
         }
     },
     'metadata': content,
@@ -547,7 +547,6 @@ export const samplePlayerConfig = {
             'showReplay': false,
             'showExit': false,
         },
-        nextContent: { name: 'Roti aur Kutta', identifier: 'do_231234332232' },
-        showDeviceOrientation: true,
+        showDeviceOrientation: false,
     },
 }
