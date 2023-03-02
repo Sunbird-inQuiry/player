@@ -8,7 +8,7 @@ import { DataService } from './services/data.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  contentId = 'do_2133336848884039681178';
+  contentId = 'do_2137436878771650561181';
   playerConfig: any;
 
   constructor(private dataService: DataService) { }
