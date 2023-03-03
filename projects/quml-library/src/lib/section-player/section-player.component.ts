@@ -96,6 +96,13 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     private cdRef: ChangeDetectorRef,
     public errorService: ErrorService
   ) { }
+  
+  ngOnInit(){
+    if(this.parentConfig?.metadata?.shuffleScore){
+         this.shuffleScore=this.parentConfig.metadata.shuffleScore
+       }
+     }
+   
 
   ngOnChanges(changes: SimpleChanges): void {
     /* istanbul ignore else */
@@ -207,7 +214,6 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.timeLimit = this.sectionConfig.metadata?.timeLimits?.maxTime || 0;
     this.warningTime = this.sectionConfig.metadata?.timeLimits?.warningTime || 0;
     this.showTimer = this.sectionConfig.metadata?.showTimer?.toLowerCase() !== 'no';
-    this.shuffleScore=this.parentConfig.metadata?.shuffleScore || 1
 
     if (this.sectionConfig.metadata?.showFeedback) {
       this.showFeedBack = this.sectionConfig.metadata?.showFeedback?.toLowerCase() !== 'no'; // prioritize the section level config

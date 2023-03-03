@@ -84,6 +84,15 @@ describe('SectionPlayerComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should set shufflescore on ngOnit',()=>{
+    const updatedParentConfig=mockParentConfig
+    updatedParentConfig.metadata.shuffleScore=2
+    component.parentConfig = updatedParentConfig;
+    spyOn(component,'ngOnInit').and.callThrough()
+    component.ngOnInit();
+    expect(component.shuffleScore).toBe(2)
+  })
+
   it('should subscribe to events and set config on every changes', () => {
     spyOn<any>(component, 'subscribeToEvents');
     spyOn<any>(component, 'setConfig');
@@ -847,4 +856,6 @@ describe('SectionPlayerComponent', () => {
     expect(document.querySelectorAll).toHaveBeenCalled();
     expect(element.classList.contains('neutral'))
   });
+
+
 });

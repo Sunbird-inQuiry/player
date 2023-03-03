@@ -603,6 +603,9 @@ export const mockSectionPlayerConfig = {
     },
     showFeedback: true,
     showLegend: true,
+    metadata:{
+      shuffleScore:undefined
+    }
   },
   changes: {
     attempts: {
