@@ -581,7 +581,6 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     const currentIndex = this.myCarousel.getCurrentSlideIndex() - 1;
 
     if (this.isShuffleQuestions) {
-      //const current_score = this.getScore(currentIndex, key, true);
       this.updateScoreBoard(
         currentIndex,
         "correct",
