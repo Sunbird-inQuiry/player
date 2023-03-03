@@ -9,8 +9,6 @@ import { ViewerService } from '../services/viewer-service/viewer-service';
 import { eventName, pageId, TelemetryType } from '../telemetry-constants';
 import { UtilService } from '../util-service';
 
-const DEFAULT_SCORE: number = 1;
-
 @Component({
   selector: 'quml-section-player',
   templateUrl: './section-player.component.html',
@@ -90,6 +88,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
   isAssessEventRaised = false;
   isShuffleQuestions = false;
   shuffleOptions: boolean;
+  shuffleScore:any=1
 
   constructor(
     public viewerService: ViewerService,
@@ -208,6 +207,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.timeLimit = this.sectionConfig.metadata?.timeLimits?.maxTime || 0;
     this.warningTime = this.sectionConfig.metadata?.timeLimits?.warningTime || 0;
     this.showTimer = this.sectionConfig.metadata?.showTimer?.toLowerCase() !== 'no';
+    this.shuffleScore=this.parentConfig.metadata?.shuffleScore || 1
 
     if (this.sectionConfig.metadata?.showFeedback) {
       this.showFeedBack = this.sectionConfig.metadata?.showFeedback?.toLowerCase() !== 'no'; // prioritize the section level config
@@ -435,7 +435,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     const currentIndex = this.myCarousel.getCurrentSlideIndex() - 1;
 
     if (this.isShuffleQuestions) {
-      this.updateScoreBoard(currentIndex, 'correct', undefined, DEFAULT_SCORE);
+      this.updateScoreBoard(currentIndex, 'correct', undefined, this.shuffleScore);
     }
   }
 
@@ -905,7 +905,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     /* istanbul ignore else */
     if (isCorrectAnswer) {
       if (this.isShuffleQuestions) {
-        return DEFAULT_SCORE;
+        return this.shuffleScore;
       }
       return this.questions[currentIndex].responseDeclaration[key].correctResponse.outcomes.SCORE ?
         this.questions[currentIndex].responseDeclaration[key].correctResponse.outcomes.SCORE :
