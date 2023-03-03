@@ -92,8 +92,9 @@ describe('SectionPlayerComponent', () => {
     expect(component['setConfig']).toHaveBeenCalled();
   });
 
+ 
   xit('should subscribeToEvents', () => {
-    spyOn(viewerService, 'qumlPlayerEvent').and.returnValue(of({}));
+    spyOn(viewerService, 'qumlPlayerEvent').and.returnValue(of({}));  
     spyOn(component.playerEvent, 'emit');
     spyOn(viewerService, 'qumlQuestionEvent').and.returnValue(of({}))
     component['subscribeToEvents']();
@@ -136,6 +137,13 @@ describe('SectionPlayerComponent', () => {
     expect(component.resetQuestionState).toHaveBeenCalled();
     flush();
   }));
+
+  it('should return success on shuffle score available', fakeAsync(() =>{
+    component.parentConfig = mockParentConfig;
+    spyOn(component,'ngInit').and.callThrough();
+    component.ngInit()
+    expect(component.parentConfig.metadata['shuffleScore']).toBe(3)
+}))
 
   it('should remove the attribute from the html element', fakeAsync(() => {
     const element = document.createElement('div');

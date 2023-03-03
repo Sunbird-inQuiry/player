@@ -483,7 +483,7 @@ export class MainPlayerComponent implements OnInit, OnChanges {
     this.outcomeLabel = this.finalScore.toString();
     switch (_.get(this.playerConfig, 'metadata.summaryType')) {
       case 'Complete': {
-        this.outcomeLabel = this.totalScore ? `${this.finalScore} / ${this.totalScore}` : this.outcomeLabel;
+        this.outcomeLabel = this.totalScore ? `${this.finalScore} / ${this.totalScore}` : this.outcomeLabel;        
         break;
       }
       case 'Duration': {

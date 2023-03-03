@@ -9,7 +9,7 @@ import { ViewerService } from '../services/viewer-service/viewer-service';
 import { eventName, pageId, TelemetryType } from '../telemetry-constants';
 import { UtilService } from '../util-service';
 
-const DEFAULT_SCORE: number = 1;
+// let this.default_score: number = 1;
 
 @Component({
   selector: 'quml-section-player',
@@ -90,6 +90,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
   isAssessEventRaised = false;
   isShuffleQuestions = false;
   shuffleOptions: boolean;
+  default_score: number = 1;
 
   constructor(
     public viewerService: ViewerService,
@@ -98,7 +99,12 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     public errorService: ErrorService
   ) { }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngInit(){
+    if(this.parentConfig.metadata?.shuffleScore)
+    this.default_score = this.parentConfig.metadata.shuffleScore
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {       
     /* istanbul ignore else */
     if (changes && Object.values(changes)[0].firstChange) {
       this.subscribeToEvents();
@@ -155,7 +161,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
         }
 
         if (this.currentSlideIndex === 0) {
-          if (this.showStartPage) {
+          if (this.showStartPage) {     
             this.active = this.sectionIndex === 0;
           } else {
             setTimeout(() => { this.nextSlide(); });
@@ -435,7 +441,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     const currentIndex = this.myCarousel.getCurrentSlideIndex() - 1;
 
     if (this.isShuffleQuestions) {
-      this.updateScoreBoard(currentIndex, 'correct', undefined, DEFAULT_SCORE);
+      this.updateScoreBoard(currentIndex, 'correct', undefined, this.default_score);
     }
   }
 
@@ -903,9 +909,10 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
 
   getScore(currentIndex, key, isCorrectAnswer, selectedOption?) {
     /* istanbul ignore else */
+    
     if (isCorrectAnswer) {
       if (this.isShuffleQuestions) {
-        return DEFAULT_SCORE;
+        return this.default_score;
       }
       return this.questions[currentIndex].responseDeclaration[key].correctResponse.outcomes.SCORE ?
         this.questions[currentIndex].responseDeclaration[key].correctResponse.outcomes.SCORE :
