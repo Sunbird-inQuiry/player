@@ -33,6 +33,7 @@ describe('McqOptionComponent', () => {
     spyOn(component, 'unselectOption');
     component.ngOnChanges();
     expect(component.mcqOptions[0].selected).toBeFalsy();
+    expect(component.mcqOptions[0].isDisabled).toBeFalsy();
     expect(component.unselectOption).toHaveBeenCalled();
   });
 
