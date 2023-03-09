@@ -33,8 +33,10 @@ export class McqOptionComponent implements OnChanges {
     //this.mcqOptions= _.shuffle(this.mcqOptions);
     
     if (this.replayed) {
+      this.selectedOption = [];
       this.mcqOptions.forEach((ele) => {
         ele.selected = false;
+        ele['isDisabled'] = false;
       })
     }
     /* istanbul ignore else */
@@ -46,6 +48,7 @@ export class McqOptionComponent implements OnChanges {
   unselectOption() {
     this.mcqOptions.forEach((ele) => {
       ele.selected = false;
+      ele['isDisabled'] = false;
     });
     this.selectedOption = [];
     this.optionSelected.emit(
