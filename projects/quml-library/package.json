@@ -1,6 +1,6 @@
 {
   "name": "@project-sunbird/sunbird-quml-player",
-  "version": "5.6.1-beta.0",
+  "version": "5.6.2-beta.0",
   "schematics": "./schematics/collection.json",
   "ng-add": {
     "save": "dependencies"
@@ -10,10 +10,10 @@
     "postbuild": "copyfiles schematics/*/schema.json schematics/*/files/** schematics/collection.json ../../dist/quml-library/"
   },
   "peerDependencies": {
-    "@angular/common": "^13.3.12",
-    "@angular/core": "^13.3.12",
+    "@angular/common": "^14.3.0",
+    "@angular/core": "^14.3.0",
     "katex": "^0.11.1",
-    "ngx-bootstrap": "^8.0.0",
+    "ngx-bootstrap": "^9.0.0",
     "lodash-es": "^4.17.21",
     "@project-sunbird/client-services": "4.9.1"
   },
