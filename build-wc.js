@@ -5,7 +5,6 @@ const path = require("path");
 const build = async () => {
   const files = [
     "./dist/quml-player-wc/runtime.js",
-    "./dist/quml-player-wc/polyfills-es5.js",
     "./dist/quml-player-wc/polyfills.js",
     "./dist/quml-player-wc/scripts.js",
     "./dist/quml-player-wc/vendor.js",
