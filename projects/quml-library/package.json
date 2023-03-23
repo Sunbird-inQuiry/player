@@ -1,6 +1,6 @@
 {
   "name": "@project-sunbird/sunbird-quml-player",
-  "version": "5.5.0-beta.5",
+  "version": "5.6.1-beta.0",
   "schematics": "./schematics/collection.json",
   "ng-add": {
     "save": "dependencies"
@@ -10,10 +10,10 @@
     "postbuild": "copyfiles schematics/*/schema.json schematics/*/files/** schematics/collection.json ../../dist/quml-library/"
   },
   "peerDependencies": {
-    "@angular/common": ">=12.2.16",
-    "@angular/core": ">=12.2.16",
+    "@angular/common": "^13.3.12",
+    "@angular/core": "^13.3.12",
     "katex": "^0.11.1",
-    "ngx-bootstrap": "^7.1.0",
+    "ngx-bootstrap": "^8.0.0",
     "lodash-es": "^4.17.21",
     "@project-sunbird/client-services": "4.9.1"
   },
@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "copyfiles": "2.4.1",
-    "typescript": "~4.3.5"
+    "typescript": "~4.6.4"
   },
   "homepage": "https://github.com/Sunbird-inQuiry/player#readme",
   "keywords": [
