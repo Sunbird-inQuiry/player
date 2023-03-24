@@ -23,18 +23,6 @@
             "tsConfig": "projects/quml-library/tsconfig.spec.json",
             "karmaConfig": "projects/quml-library/karma.conf.js"
           }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "projects/quml-library/tsconfig.lib.json",
-              "projects/quml-library/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
         }
       }
     },
@@ -143,18 +131,6 @@
               "projects/quml-demo-app/src/assets"
             ]
           }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "projects/quml-demo-app/tsconfig.app.json",
-              "projects/quml-demo-app/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
         }
       }
     },
@@ -173,15 +149,6 @@
             "production": {
               "devServerTarget": "quml-demo-app:serve:production"
             }
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": "projects/quml-demo-app-e2e/tsconfig.e2e.json",
-            "exclude": [
-              "**/node_modules/**"
-            ]
           }
         }
       }
@@ -297,19 +264,6 @@
             "scripts": []
           }
         },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "projects/quml-player-wc/tsconfig.app.json",
-              "projects/quml-player-wc/tsconfig.spec.json",
-              "projects/quml-player-wc/e2e/tsconfig.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
-        },
         "e2e": {
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
@@ -325,7 +279,6 @@
       }
     }
   },
-  "defaultProject": "quml-demo-app",
   "cli": {
     "analytics": "3ccd66ca-f9b5-47f9-8b9d-de348c7ac3c2"
   }
