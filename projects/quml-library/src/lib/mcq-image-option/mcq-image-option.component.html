@@ -1,7 +1,6 @@
-<div class="quml-mcq-option-card" tabindex="0"
-  [ngClass]="mcqOption?.selected ? 'quml-mcq-option-card quml-option--selected' : 'quml-mcq-option-card'"
-  (keydown)="mcqOption.isDisabled ? null: onEnter($event, mcqOption)"
-  (click)="mcqOption.isDisabled ? null: optionClicked($event, mcqOption)">
+<div class="quml-mcq-option-card" tabindex="0" (keydown)="mcqOption.isDisabled ? null: onEnter($event, mcqOption)"
+(click)="mcqOption.isDisabled ? null: optionClicked($event, mcqOption)"
+[ngClass]="mcqOption?.selected ? 'quml-mcq-option-card quml-option--selected' : 'quml-mcq-option-card'">
   <div class="option" *ngIf="mcqOption" [innerHTML]="mcqOption?.label | safeHtml"
   [ngClass]="{'disabled': mcqOption.isDisabled === true}"></div>
     <div class="container">
