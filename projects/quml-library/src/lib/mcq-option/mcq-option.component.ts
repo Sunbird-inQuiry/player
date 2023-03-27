@@ -37,7 +37,8 @@ export class McqOptionComponent implements OnChanges {
       this.mcqOptions.forEach((ele) => {
         ele.selected = false;
         ele['isDisabled'] = false;
-      })
+      });
+      this.selectedOption = [];
     }
     /* istanbul ignore else */
     if (this.tryAgain) {

@@ -1,12 +1,10 @@
-<div class="quml-mcq-option-card" tabindex="0" (keydown)="onEnter($event, mcqOption)"
-  [ngClass]="mcqOption?.selected ? 'quml-mcq-option-card quml-option--selected' : 'quml-mcq-option-card'">
+<div class="quml-mcq-option-card" tabindex="0"
+  [ngClass]="mcqOption?.selected ? 'quml-mcq-option-card quml-option--selected' : 'quml-mcq-option-card'"
+  (keydown)="mcqOption.isDisabled ? null: onEnter($event, mcqOption)"
+  (click)="mcqOption.isDisabled ? null: optionClicked($event, mcqOption)">
   <div class="option" *ngIf="mcqOption" [innerHTML]="mcqOption?.label | safeHtml"
   [ngClass]="{'disabled': mcqOption.isDisabled === true}"></div>
     <label class="container">
-      <input type="radio" *ngIf="cardinality==='single'" name="radio" [checked]="mcqOption.selected" id="option-checkbox" tabindex="-1" (click)="optionClicked($event, mcqOption)">
-      <input type="checkbox" *ngIf="cardinality==='multiple'" name="checkbox" [checked]="mcqOption.selected" id="option-checkbox"
-      tabindex="-1" (click)="optionClicked($event, mcqOption)" [disabled]="mcqOption?.isDisabled">
-      <span [ngClass]="{'radiomark': cardinality==='single','checkmark':cardinality==='multiple'}">
-      </span>
-  </label>
+      <span [ngClass]="{'radiomark': cardinality==='single','checkmark':cardinality==='multiple'}" tabindex="-1"></span>
+    </label>
 </div>
