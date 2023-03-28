@@ -1,11 +1,17 @@
 version: 2.1
 jobs:
   build:
-    machine:
-      # Ref: https://circleci.com/docs/2.0/configuration-reference/#available-machine-images
-      image: ubuntu-2004:202111-01
+    docker:
+      - image: circleci/node:14.18.2-browsers
     steps:
       - checkout
+      - run:
+          name: Install  Node.js v14 with build in nvm tool
+          command: |
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+            nvm install v14 && nvm use 14 && nvm alias default 14
+            node -v
       - run:
           name: Check Node version
           command: node -v
