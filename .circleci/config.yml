@@ -3,6 +3,8 @@ jobs:
   build:
     docker:
       - image: cimg/node:14.21.2-browsers
+        environment:
+          CHROME_BIN: /usr/bin/google-chrome
     steps:
       - checkout
       - run:
