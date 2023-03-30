@@ -197,7 +197,7 @@ Follow below-mentioned steps to use it in plain JavaScript project:
 
 # :bookmark_tabs: QuML Player Contribution Guide  
 ## Repo Setup  
-  - Install Node 14.x and Angular 12
+  - Install Node 14.x and Angular 13
   - Clone the Repo with desired release-branch - https://github.com/Sunbird-inQuiry/player
   - Add the baseUrl in the *environment.ts* and *proxy.conf.json* files
   - If there are any changes in API endpoints, update the *app.constant.ts* file
