@@ -36,10 +36,10 @@ If you prefer not to use schematics or want to add `sunbird-quml-player` to an o
     npm install jquery --save
     npm install katex --save
     npm install lodash-es --save
-    npm install ngx-bootstrap@^7.1.0 --save
+    npm install ngx-bootstrap@^8.0.0 --save
 
 
-  Note: *As QuML library is build with angular version 13, we are using **bootstrap@^4.6.2** and **ngx-bootstrap@^7.1.0** which are the compatible versions.
+  Note: *As QuML library is build with angular version 13, we are using **bootstrap@^4.6.2** and **ngx-bootstrap@^8.0.0** which are the compatible versions.
   For more reference Check compatibility document for ng-bootstrap [here](https://valor-software.com/ngx-bootstrap/#/documentation#compatibility)*  
 
   ## :label: Step 2: Add question-cursor-implementation.service
