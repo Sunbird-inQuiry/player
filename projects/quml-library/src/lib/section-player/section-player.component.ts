@@ -123,7 +123,10 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       .subscribe((res) => {
 
         if (res?.error) {
-          const { traceId } = this.sectionConfig?.config;
+          let traceId;
+          if (_.has(this.sectionConfig, 'config')) {
+            traceId = this.sectionConfig.config;
+          }
           if (navigator.onLine && this.viewerService.isAvailableLocally) {
             this.viewerService.raiseExceptionLog(errorCode.contentLoadFails, errorMessage.contentLoadFails,
               new Error(errorMessage.contentLoadFails), traceId);
