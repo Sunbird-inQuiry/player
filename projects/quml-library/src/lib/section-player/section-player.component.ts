@@ -123,7 +123,10 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       .subscribe((res) => {
 
         if (res?.error) {
-          const { traceId } = this.sectionConfig?.config;
+          let traceId;
+          if (_.has(this.sectionConfig, 'config')) {
+            traceId = this.sectionConfig.config;
+          }
           if (navigator.onLine && this.viewerService.isAvailableLocally) {
             this.viewerService.raiseExceptionLog(errorCode.contentLoadFails, errorMessage.contentLoadFails,
               new Error(errorMessage.contentLoadFails), traceId);
@@ -707,10 +710,18 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
         const currentScore = this.utilService.getMultiselectScore(option.option, responseDeclaration, this.isShuffleQuestions);
         this.showAlert = true;
         if (currentScore === 0) {
+          if (!this.isAssessEventRaised) {
+            this.isAssessEventRaised = true;
+            this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'No', 0, [option.option], this.slideDuration);
+          }
           this.alertType = 'wrong';
           this.updateScoreBoard(currentIndex, 'wrong');
         } else {
           this.updateScoreBoard(currentIndex, 'correct', undefined, currentScore);
+          if (!this.isAssessEventRaised) {
+            this.isAssessEventRaised = true;
+            this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'Yes', currentScore, [option.option], this.slideDuration);
+          }
           if (this.showFeedBack)
             this.correctFeedBackTimeOut(type);
           this.alertType = 'correct';
