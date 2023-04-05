@@ -25,6 +25,13 @@
                 <div *ngSwitchCase="'image'">
                     <img [src]="solution.src" alt="mcq option with image">
                 </div>
+                <div *ngSwitchCase="'audio'">
+                    <audio controls>
+                        <source [src]="media[0].baseUrl+media[0].src" type="audio/mp3">
+                        <source [src]="media[0].baseUrl+media[0].src" type="audio/mpeg">
+                        <source [src]="media[0].baseUrl+media[0].src" type="audio/wav">
+                    </audio>
+                </div>
             </ng-container>
         </div>
     </div>

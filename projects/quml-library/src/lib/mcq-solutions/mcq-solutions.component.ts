@@ -1,28 +1,36 @@
-import { Component, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  ViewChild,
+  ElementRef,
+} from "@angular/core";
 
 @Component({
-  selector: 'quml-mcq-solutions',
-  templateUrl: './mcq-solutions.component.html',
-  styleUrls: ['./mcq-solutions.component.scss']
+  selector: "quml-mcq-solutions",
+  templateUrl: "./mcq-solutions.component.html",
+  styleUrls: ["./mcq-solutions.component.scss"],
 })
-export class McqSolutionsComponent  {
+export class McqSolutionsComponent {
   @Input() question: any;
   @Input() options: any;
   @Input() solutions: any;
+  @Input() media: any;
   @Output() close = new EventEmitter();
-  @ViewChild('solutionVideoPlayer' , {static: true}) solutionVideoPlayer: ElementRef;
-  
+  @ViewChild("solutionVideoPlayer", { static: true })
+  solutionVideoPlayer: ElementRef;
+  solutionAudioPlayer: ElementRef;
+
   showVideoSolution: boolean;
   previousActiveElement: HTMLElement;
-
 
   closeSolution() {
     if (this.solutionVideoPlayer) {
       this.solutionVideoPlayer.nativeElement.pause();
     }
     this.close.emit({
-      close: true
+      close: true,
     });
   }
-
 }
