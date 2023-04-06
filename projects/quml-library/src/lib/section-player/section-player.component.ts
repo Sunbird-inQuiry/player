@@ -581,12 +581,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     const currentIndex = this.myCarousel.getCurrentSlideIndex() - 1;
 
     if (this.isShuffleQuestions) {
-      this.updateScoreBoard(
-        currentIndex,
-        "correct",
-        undefined,
-        this.parentConfig.metadata.shuffledScore
-      );
+      this.updateScoreBoard(currentIndex, 'correct', undefined, this.parentConfig.metadata.shuffledScore);
     }
   }
 
@@ -1256,7 +1251,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     /* istanbul ignore else */
     if (isCorrectAnswer) {
       if (this.isShuffleQuestions) {
-        return this.parentConfig.metadata.shuffledScore;
+         return this.parentConfig.metadata.shuffledScore;
       }
       return this.questions[currentIndex].responseDeclaration[key]
         .correctResponse.outcomes.SCORE
