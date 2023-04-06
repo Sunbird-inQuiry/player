@@ -18,7 +18,7 @@ It will install sunbird-quml-player for the default application specified in you
 ng add @project-sunbird/sunbird-quml-player --project myProject
 ```
 Schematics will create `question-cursor-implementation.service.ts`. Please update the `listUrl` in it.
-For more information refer [question-cursor-implementation.service.ts](https://github.com/project-sunbird/sunbird-quml-player/blob/main/projects/quml-demo-app/src/app/question-cursor-implementation.service.ts) and do not forget to add your question list API URL here, for example: listUrl = "https://staging.sunbirded.org/api/question/v1/list";
+For more information refer [question-cursor-implementation.service.ts](https://github.com/Sunbird-inQuiry/player/blob/main/projects/quml-demo-app/src/app/question-cursor-implementation.service.ts) and do not forget to add your question list API URL here, for example: listUrl = "https://staging.sunbirded.org/api/question/v1/list";
 
 ### Manual installation
 If you prefer not to use schematics or want to add `sunbird-quml-player` to an older project, you'll need to do the following:
@@ -46,7 +46,7 @@ If you prefer not to use schematics or want to add `sunbird-quml-player` to an o
   Create a **question-cursor-implementation.service.ts** in a project and which will implement the `QuestionCursor` abstract class.  
   `QuestionCursor` is an abstract class, exported from the library, which needs to be implemented. Basically, it has some methods which should make an API request over HTTP
 
-  For more information refer [question-cursor-implementation.service.ts](https://github.com/project-sunbird/sunbird-quml-player/blob/main/projects/quml-demo-app/src/app/question-cursor-implementation.service.ts) and do not forget to add your question list API URL here, for example: listUrl = "https://staging.sunbirded.org/api/question/v1/list";
+  For more information refer [question-cursor-implementation.service.ts](https://github.com/Sunbird-inQuiry/player/blob/main/projects/quml-demo-app/src/app/question-cursor-implementation.service.ts) and do not forget to add your question list API URL here, for example: listUrl = "https://staging.sunbirded.org/api/question/v1/list";
 
   ### :label: Step 3: Include the styles, scripts and assets in angular.json
   Add the following under `architect.build.assets` for default project  
@@ -112,13 +112,13 @@ Import the required modules such as **CarouselModule**, **QumlLibraryModule**, *
 
 </details>
 
-Note: To avoid CORS errors, add proxy configuration for API's refer - [proxy.conf.json](https://github.com/project-sunbird/sunbird-quml-player/blob/release-5.1.0/projects/quml-demo-app/src/proxy.conf.json)
+Note: To avoid CORS errors, add proxy configuration for API's refer - [proxy.conf.json](https://github.com/Sunbird-inQuiry/player/blob/release-5.1.0/projects/quml-demo-app/src/proxy.conf.json)
 
 ## :label: Send input to render QuML player
 User can get a response from the `api/questionset/v1/hierarchy/:do_id` or can use the provided mock config for demo
 
 Use the mock config in your component to send input to QuML player as `playerConfig`
-Click to see the mock - [samplePlayerConfig](https://github.com/project-sunbird/sunbird-quml-player/blob/release-5.1.0/projects/quml-demo-app/src/app/quml-library-data.ts#L495)  
+Click to see the mock - [samplePlayerConfig](https://github.com/Sunbird-inQuiry/player/blob/release-5.1.0/projects/quml-demo-app/src/app/quml-library-data.ts#L495)
 
 ```html
 <quml-main-player [playerConfig]="samplePlayerConfig" ><quml-main-player>
@@ -155,13 +155,13 @@ If context is not passed in playerConfig telemetry event of player will not be c
 QuML Library can also be used as web component which means user can import this library in any web application and use these custom components.
 Follow below-mentioned steps to use it in plain JavaScript project:
 
-- Insert [library](https://github.com/project-sunbird/sunbird-quml-player/blob/release-4.7.0/web-component/sunbird-quml-player.js) as below:
+- Insert [library](https://github.com/Sunbird-inQuiry/player/blob/release-4.7.0/web-component/sunbird-quml-player.js) as below:
   ```javascript
   <script  type="text/javascript"  src="sunbird-quml-player.js"></script>
   ```
-- Create a asset folder and copy all the files from [here](https://github.com/project-sunbird/sunbird-quml-player/tree/release-4.7.0/web-component/assets), library requires these assets internally to work well.
+- Create a asset folder and copy all the files from [here](https://github.com/Sunbird-inQuiry/player/tree/release-4.7.0/web-component/assets), library requires these assets internally to work well.
 
-- Get sample playerConfig from here: [playerConfig](https://github.com/project-sunbird/sunbird-quml-player/blob/release-4.7.0/projects/quml-demo-app/src/app/quml-library-data.ts)
+- Get sample playerConfig from here: [playerConfig](https://github.com/Sunbird-inQuiry/player/blob/release-4.7.0/projects/quml-demo-app/src/app/quml-library-data.ts)
 
 - Pass the Question List API baseUrl for, e.g. [https://staging.sunbirded.org/api/question/v1/list](https://staging.sunbirded.org/api/question/v1/list)
 
@@ -191,14 +191,14 @@ Follow below-mentioned steps to use it in plain JavaScript project:
   const myPlayer = document.getElementById("my-player");
   myPlayer.appendChild(qumlPlayerElement);
   ```
-- :arrow_forward: Refer demo [example](https://github.com/project-sunbird/sunbird-quml-player/blob/release-4.7.0/web-component/index.html)  
+- :arrow_forward: Refer demo [example](https://github.com/Sunbird-inQuiry/player/blob/release-4.7.0/web-component/index.html)
 
 ---
 
 # :bookmark_tabs: QuML Player Contribution Guide  
 ## Repo Setup  
   - Install Node 14.x and Angular 12
-  - Clone the Repo with desired release-branch - https://github.com/project-sunbird/sunbird-quml-player
+  - Clone the Repo with desired release-branch - https://github.com/Sunbird-inQuiry/player
   - Add the baseUrl in the *environment.ts* and *proxy.conf.json* files
   - If there are any changes in API endpoints, update the *app.constant.ts* file
   - Change the default content ID in *app.component.ts* file if pointing to different baseUrl

@@ -11,6 +11,7 @@ export class McqImageOptionComponent {
   @Input() mcqQuestion: any;
   @Input() solutions: any;
   @Input() mcqOption: any;
+  @Input() cardinality: string;
   @Output() imgOptionSelected = new EventEmitter();
 
   showPopup(image) {
@@ -19,10 +20,6 @@ export class McqImageOptionComponent {
   }
 
   optionClicked(event, mcqOption) {
-    /* istanbul ignore else */
-    if (event.hasOwnProperty('stopImmediatePropagation')) {
-      event.stopImmediatePropagation();
-    }
     this.imgOptionSelected.emit(
       {
         name: 'optionSelect',

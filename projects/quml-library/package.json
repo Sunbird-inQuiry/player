@@ -1,6 +1,6 @@
 {
   "name": "@project-sunbird/sunbird-quml-player",
-  "version": "5.4.0",
+  "version": "5.5.0",
   "schematics": "./schematics/collection.json",
   "ng-add": {
     "save": "dependencies"
@@ -24,7 +24,7 @@
     "copyfiles": "2.4.1",
     "typescript": "~4.3.5"
   },
-  "homepage": "https://github.com/project-sunbird/sunbird-quml-player#readme",
+  "homepage": "https://github.com/Sunbird-inQuiry/player#readme",
   "keywords": [
     "sunbird",
     "sunbird QuML player",
@@ -32,7 +32,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/project-sunbird/sunbird-quml-player.git"
+    "url": "https://github.com/Sunbird-inQuiry/player.git"
   },
   "license": "MIT"
 }

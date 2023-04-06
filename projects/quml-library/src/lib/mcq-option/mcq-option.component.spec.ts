@@ -1,7 +1,7 @@
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { waitForAsync,  ComponentFixture, TestBed } from '@angular/core/testing';
 import { SafeHtmlPipe } from '../pipes/safe-html/safe-html.pipe';
-
+import { UtilService } from '../util-service';
 import { McqOptionComponent } from './mcq-option.component';
 
 describe('McqOptionComponent', () => {
@@ -33,6 +33,7 @@ describe('McqOptionComponent', () => {
     spyOn(component, 'unselectOption');
     component.ngOnChanges();
     expect(component.mcqOptions[0].selected).toBeFalsy();
+    expect(component.mcqOptions[0].isDisabled).toBeFalsy();
     expect(component.unselectOption).toHaveBeenCalled();
   });
 
@@ -77,6 +78,9 @@ describe('McqOptionComponent', () => {
   it('should emit the event for the selected option for multiple cardinality', () => {
     let event = new MouseEvent('click');
     event.stopImmediatePropagation = () => {};
+    const utilService = TestBed.inject(UtilService);
+    spyOn(utilService, 'hasDuplicates').and.returnValue(false);
+    spyOn(component.optionSelected, 'emit').and.callFake(() => {});
     const mcqOptions = [{
       "label": "<p>Rahul Gandhi</p>",
       "value": 1
@@ -86,8 +90,37 @@ describe('McqOptionComponent', () => {
     }];
     component.cardinality = "multiple";
     component.mcqOptions = mcqOptions;
+    component.selectedOption = [];
+    component.numberOfCorrectOptions = 1;
     component.onOptionSelect(event, mcqOptions[1], 1);
+    expect(utilService.hasDuplicates).toHaveBeenCalled();
     expect(component.mcqOptions[1].selected).toBe(true);
+    expect(component.selectedOption.length).toEqual(1);
+    expect(component.optionSelected.emit).toHaveBeenCalled();
+  });
+
+  it('should emit the event for the selected option for multiple cardinality on unselection', () => {
+    let event = new MouseEvent('click');
+    event.stopImmediatePropagation = () => {};
+    const utilService = TestBed.inject(UtilService);
+    spyOn(utilService, 'hasDuplicates').and.returnValue(true);
+    spyOn(component.optionSelected, 'emit').and.callFake(() => {});
+    const mcqOptions = [{
+      "label": "<p>Rahul Gandhi</p>",
+      "value": 0
+    }, {
+      "label": "<p>Narendra Modi</p>",
+      "value": 1
+    }];
+    component.cardinality = "multiple";
+    component.mcqOptions = mcqOptions;
+    component.selectedOption = [mcqOptions[0]];
+    component.numberOfCorrectOptions = 1;
+    component.onOptionSelect(event, mcqOptions[0], 0);
+    expect(utilService.hasDuplicates).toHaveBeenCalled();
+    expect(component.mcqOptions[0].selected).toBe(false);
+    expect(component.selectedOption.length).toEqual(0);
+    expect(component.optionSelected.emit).toHaveBeenCalled();
   });
 
   it('should show the popup', () => {
