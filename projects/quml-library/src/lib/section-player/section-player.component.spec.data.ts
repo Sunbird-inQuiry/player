@@ -616,5 +616,189 @@ export const mockSectionPlayerConfig = {
         return true;
       }
     }
-  }
+  },
+  mockSectionMultiSelectQuestions: [
+    {
+      "copyright": "tn",
+      "subject": [
+        "English"
+      ],
+      "channel": "01269878797503692810",
+      "downloadUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/q2_1646040142399_do_21348431640099225615_1.ecar",
+      "responseDeclaration": {
+        "response1": {
+          "maxScore": 1,
+          "cardinality": "multiple",
+          "type": "integer",
+          "correctResponse": {
+            "value": [
+              0,
+              2,
+              3
+            ],
+            "outcomes": {
+              "SCORE": 1
+            }
+          },
+          "mapping": [
+            {
+              "response": 0,
+              "outcomes": {
+                "score": 0.33
+              }
+            },
+            {
+              "response": 2,
+              "outcomes": {
+                "score": 0.33
+              }
+            },
+            {
+              "response": 3,
+              "outcomes": {
+                "score": 0.33
+              }
+            }
+          ]
+        }
+      },
+      "language": [
+        "English"
+      ],
+      "mimeType": "application/vnd.sunbird.question",
+      "variants": {
+        "full": {
+          "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/q2_1646040142399_do_21348431640099225615_1.ecar",
+          "size": "2841"
+        },
+        "online": {
+          "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/q2_1646040142454_do_21348431640099225615_1_ONLINE.ecar",
+          "size": "1368"
+        }
+      },
+      "body": "<div class='question-body' tabindex='-1'><div class='mcq-title' tabindex='0'><p>Which of these are even numbers</p></div><div data-choice-interaction='response1' class='mcq-vertical'></div></div>",
+      "editorState": {
+        "options": [
+          {
+            "answer": true,
+            "value": {
+              "body": "<p>2</p>",
+              "value": 0
+            }
+          },
+          {
+            "answer": false,
+            "value": {
+              "body": "<p>3</p>",
+              "value": 1
+            }
+          },
+          {
+            "answer": true,
+            "value": {
+              "body": "<p>4</p>",
+              "value": 2
+            }
+          },
+          {
+            "answer": true,
+            "value": {
+              "body": "<p>6</p>",
+              "value": 3
+            }
+          }
+        ],
+        "question": "<p>Which of these are even numbers</p>"
+      },
+      "templateId": "mcq-vertical",
+      "createdOn": "2023-03-24T09:12:30.416+0000",
+      "objectType": "Question",
+      "interactions": {
+        "response1": {
+          "type": "choice",
+          "options": [
+            {
+              "label": "<p>2</p>",
+              "value": 0
+            },
+            {
+              "label": "<p>3</p>",
+              "value": 1
+            },
+            {
+              "label": "<p>4</p>",
+              "value": 2
+            },
+            {
+              "label": "<p>6</p>",
+              "value": 3
+            }
+          ]
+        },
+        "validation": {
+          "required": "Yes"
+        }
+      },
+      "se_mediums": [
+        "English"
+      ],
+      "gradeLevel": [
+        "Class 4"
+      ],
+      "primaryCategory": "Multiple Choice Question",
+      "contentEncoding": "gzip",
+      "artifactUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/do_21348431640099225615_1646040142347.zip",
+      "se_gradeLevels": [
+        "Class 4"
+      ],
+      "showSolutions": "No",
+      "identifier": "do_21348431640099225615",
+      "audience": [
+        "Teacher"
+      ],
+      "visibility": "Parent",
+      "showTimer": "No",
+      "author": "Vivek",
+      "solutions": [],
+      "qType": "MCQ",
+      "languageCode": [
+        "en"
+      ],
+      "version": 1,
+      "se_subjects": [
+        "English"
+      ],
+      "license": "CC BY 4.0",
+      "interactionTypes": [
+        "choice"
+      ],
+      "name": "q2",
+      "status": "Live",
+      "code": "f588f3ef-cebe-ca9e-c75e-29b96c1d4223",
+      "prevStatus": "Draft",
+      "medium": [
+        "English"
+      ],
+      "media": [
+      ],
+      "se_boards": [
+        "State (Tamil Nadu)"
+      ],
+      "contentDisposition": "inline",
+      "lastUpdatedOn": "2022-02-28T09:22:22.524+0000",
+      "allowAnonymousAccess": "Yes",
+      "lastStatusChangedOn": "2022-02-28T09:22:22.524+0000",
+      "se_FWIds": [
+        "tn_k-12_5"
+      ],
+      "pkgVersion": 1,
+      "versionKey": "1646034716932",
+      "showFeedback": "No",
+      "framework": "tn_k-12_5",
+      "answer": "0",
+      "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
+      "compatibilityLevel": 4,
+      "board": "State (Tamil Nadu)"
+    }
+  ]
 }
