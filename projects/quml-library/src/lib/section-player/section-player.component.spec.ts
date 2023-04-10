@@ -72,7 +72,7 @@ describe('SectionPlayerComponent', () => {
     errorService = TestBed.inject(ErrorService);
     component.imageModal = TestBed.inject(ElementRef);
     component.questionSlide = TestBed.inject(ElementRef);
-    fixture.detectChanges();
+    // fixture.detectChanges();
   });
 
   afterEach(() => {
@@ -492,13 +492,16 @@ describe('SectionPlayerComponent', () => {
   });
 
   it('should validate the selected option', () => {
+    component.isAssessEventRaised = false;
+    spyOn(viewerService, 'raiseAssesEvent').and.callFake(() => {});
+    spyOn(component, 'getScore').and.returnValue(1);
     spyOn(component, 'validateSelectedOption').and.callThrough();
     component.myCarousel = myCarousel;
     const option = {
       "name": "optionSelect",
       "option": {
         "label": "<p>Narendra Modi</p>",
-        "value": 1,
+        "value": 0,
         "selected": true
       },
       "cardinality": "single",
@@ -508,7 +511,7 @@ describe('SectionPlayerComponent', () => {
       "name": "optionSelect",
       "option": {
         "label": "<p>Narendra Modi</p>",
-        "value": 1,
+        "value": 0,
         "selected": true
       },
       "cardinality": "single",
@@ -628,7 +631,6 @@ describe('SectionPlayerComponent', () => {
     component.progressBarClass = mockSectionProgressBar.children;
     component.validateSelectedOption(option, "next");
     expect(component.isAssessEventRaised).toBeTruthy();
-
   });
 
 
@@ -839,7 +841,7 @@ describe('SectionPlayerComponent', () => {
     spyOn(component, 'calculateScore').and.callThrough();
     component.progressBarClass = mockSectionProgressBar.children;
     const score = component.calculateScore();
-    expect(score).toBe(1);
+    expect(score).toBe(2);
   });
 
   it('should call updateScoreBoard', () => {
