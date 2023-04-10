@@ -17,8 +17,8 @@ const VERSIONS = {
   'bootstrap': '^4.6.2',
   'jquery': '^3.5.1',
   'lodash-es': '^4.17.21',
-  'katex': '^0.11.1',
-  'ngx-bootstrap': '^7.1.0'
+  "katex": "^0.11.1",
+  'ngx-bootstrap': '^10.0.0'
 };
 
 /**

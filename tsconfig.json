@@ -10,7 +10,7 @@
     "experimentalDecorators": true,
     "importHelpers": true,
     "skipLibCheck": true,
-    "target": "es5",
+    "target": "ES2022",
     "typeRoots": [
       "node_modules/@types"
     ],
@@ -23,13 +23,13 @@
         "dist/quml-library"
       ],
       "quml-library/*": [
-        "dist/quml-library/*",
+        "dist/quml-library/*"
       ],
-      "@project-sunbird/sunbird-quml-player":[
-        "dist/quml-library",
+      "@project-sunbird/sunbird-quml-player": [
+        "dist/quml-library"
       ],
-      "@project-sunbird/sunbird-quml-player/*":[
-        "dist/quml-library/*",
+      "@project-sunbird/sunbird-quml-player/*": [
+        "dist/quml-library/*"
       ],
       "@project-sunbird/sunbird-player-sdk-v9": [
         "projects/quml-library/node_modules/@project-sunbird/sunbird-player-sdk-v9"
@@ -42,8 +42,8 @@
       ],
       "ally.js/*": [
         "projects/quml-library/node_modules/ally.js/*"
-      ],
-
-    }
+      ]
+    },
+    "useDefineForClassFields": false
   }
 }
