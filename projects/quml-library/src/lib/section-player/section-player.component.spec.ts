@@ -92,6 +92,15 @@ describe('SectionPlayerComponent', () => {
     expect(component['setConfig']).toHaveBeenCalled();
   });
 
+  it('ngAfterViewInit should raise event', () => {
+    spyOn(component, 'ngAfterViewInit').and.callThrough();
+    spyOn(viewerService, 'raiseStartEvent').and.callFake(() => {});
+    spyOn(viewerService, 'raiseHeartBeatEvent').and.callFake(() => {});
+    component.ngAfterViewInit();
+    expect(viewerService.raiseStartEvent).toHaveBeenCalled();
+    expect(viewerService.raiseHeartBeatEvent).toHaveBeenCalled();
+  })
+
   xit('should subscribeToEvents', () => {
     spyOn(viewerService, 'qumlPlayerEvent').and.returnValue(of({}));
     spyOn(component.playerEvent, 'emit');
