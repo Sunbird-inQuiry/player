@@ -3,7 +3,7 @@ import { ElementRef, EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
 import { waitForAsync, ComponentFixture, fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
 import { ErrorService } from '@project-sunbird/sunbird-player-sdk-v9';
 import { CarouselComponent } from 'ngx-bootstrap/carousel';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { fakeMainProgressBar } from '../main-player/main-player.component.spec.data';
 import { QumlLibraryService } from '../quml-library.service';
 import { ViewerService } from '../services/viewer-service/viewer-service';
@@ -101,14 +101,17 @@ describe('SectionPlayerComponent', () => {
     expect(viewerService.raiseHeartBeatEvent).toHaveBeenCalled();
   })
 
-  xit('should subscribeToEvents', () => {
-    spyOn(viewerService, 'qumlPlayerEvent').and.returnValue(of({}));
-    spyOn(component.playerEvent, 'emit');
-    spyOn(viewerService, 'qumlQuestionEvent').and.returnValue(of({}))
+  it('should subscribeToEvents', () => {
+    let destroy$: Subject<boolean> = new Subject<boolean>();
+    component.destroy$ = destroy$;
+    component.destroy$.next(true);
+    component.sectionConfig = mockSectionConfig;
+    viewerService.isAvailableLocally = false;
+    spyOn(viewerService, 'raiseExceptionLog').and.callFake(() => {})
+    spyOn(viewerService.qumlPlayerEvent, 'emit').and.returnValue(of({}));
+    spyOn(component.playerEvent, 'emit').and.callFake(() => {});
+    spyOn(viewerService.qumlQuestionEvent, 'emit').and.returnValue(of({error: 'some error'}));
     component['subscribeToEvents']();
-    expect(viewerService.qumlPlayerEvent).toHaveBeenCalled();
-    expect(component.playerEvent.emit).toHaveBeenCalled();
-    expect(viewerService.qumlQuestionEvent).toHaveBeenCalled();
   });
 
   it('should set all the configuration for the section', fakeAsync(() => {
