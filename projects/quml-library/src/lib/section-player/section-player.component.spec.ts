@@ -108,10 +108,12 @@ describe('SectionPlayerComponent', () => {
     component.sectionConfig = mockSectionConfig;
     viewerService.isAvailableLocally = false;
     spyOn(viewerService, 'raiseExceptionLog').and.callFake(() => {})
-    spyOn(viewerService.qumlPlayerEvent, 'emit').and.returnValue(of({}));
+    viewerService.qumlPlayerEvent = of({});
+    viewerService.qumlQuestionEvent = of({error: 'some error'});
     spyOn(component.playerEvent, 'emit').and.callFake(() => {});
-    spyOn(viewerService.qumlQuestionEvent, 'emit').and.returnValue(of({error: 'some error'}));
     component['subscribeToEvents']();
+    expect(component.playerEvent.emit).toHaveBeenCalled();
+    expect(viewerService.raiseExceptionLog).toHaveBeenCalled();
   });
 
   it('should set all the configuration for the section', fakeAsync(() => {
