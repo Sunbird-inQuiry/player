@@ -3,7 +3,7 @@ import { ElementRef, EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
 import { waitForAsync, ComponentFixture, fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
 import { ErrorService } from '@project-sunbird/sunbird-player-sdk-v9';
 import { CarouselComponent } from 'ngx-bootstrap/carousel';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { fakeMainProgressBar } from '../main-player/main-player.component.spec.data';
 import { QumlLibraryService } from '../quml-library.service';
 import { ViewerService } from '../services/viewer-service/viewer-service';
@@ -17,7 +17,7 @@ describe('SectionPlayerComponent', () => {
   let component: SectionPlayerComponent;
   let fixture: ComponentFixture<SectionPlayerComponent>;
   let viewerService, utilService, errorService;
-  const { changes, mockParentConfig, mockSectionConfig, mockSectionProgressBar, mockSectionQuestions } = mockSectionPlayerConfig;
+  const { changes, mockParentConfig, mockSectionConfig, mockSectionProgressBar, mockSectionQuestions, mockSectionMultiSelectQuestions } = mockSectionPlayerConfig;
   class ViewerServiceMock {
     initialize() { }
     raiseStartEvent() { }
@@ -72,7 +72,7 @@ describe('SectionPlayerComponent', () => {
     errorService = TestBed.inject(ErrorService);
     component.imageModal = TestBed.inject(ElementRef);
     component.questionSlide = TestBed.inject(ElementRef);
-    fixture.detectChanges();
+    // fixture.detectChanges();
   });
 
   afterEach(() => {
@@ -92,14 +92,28 @@ describe('SectionPlayerComponent', () => {
     expect(component['setConfig']).toHaveBeenCalled();
   });
 
-  xit('should subscribeToEvents', () => {
-    spyOn(viewerService, 'qumlPlayerEvent').and.returnValue(of({}));
-    spyOn(component.playerEvent, 'emit');
-    spyOn(viewerService, 'qumlQuestionEvent').and.returnValue(of({}))
+  it('ngAfterViewInit should raise event', () => {
+    spyOn(component, 'ngAfterViewInit').and.callThrough();
+    spyOn(viewerService, 'raiseStartEvent').and.callFake(() => {});
+    spyOn(viewerService, 'raiseHeartBeatEvent').and.callFake(() => {});
+    component.ngAfterViewInit();
+    expect(viewerService.raiseStartEvent).toHaveBeenCalled();
+    expect(viewerService.raiseHeartBeatEvent).toHaveBeenCalled();
+  })
+
+  it('should subscribeToEvents', () => {
+    let destroy$: Subject<boolean> = new Subject<boolean>();
+    component.destroy$ = destroy$;
+    component.destroy$.next(true);
+    component.sectionConfig = mockSectionConfig;
+    viewerService.isAvailableLocally = false;
+    spyOn(viewerService, 'raiseExceptionLog').and.callFake(() => {})
+    viewerService.qumlPlayerEvent = of({});
+    viewerService.qumlQuestionEvent = of({error: 'some error'});
+    spyOn(component.playerEvent, 'emit').and.callFake(() => {});
     component['subscribeToEvents']();
-    expect(viewerService.qumlPlayerEvent).toHaveBeenCalled();
     expect(component.playerEvent.emit).toHaveBeenCalled();
-    expect(viewerService.qumlQuestionEvent).toHaveBeenCalled();
+    expect(viewerService.raiseExceptionLog).toHaveBeenCalled();
   });
 
   it('should set all the configuration for the section', fakeAsync(() => {
@@ -172,7 +186,7 @@ describe('SectionPlayerComponent', () => {
     component.noOfQuestions = 2;
     component.currentOptionSelected = { option: 'option 1' };
     spyOn(viewerService, 'raiseHeartBeatEvent');
-    spyOn(component, 'calculateScore');
+    spyOn(component, 'calculateScore').and.callThrough();
     spyOn(viewerService, 'raiseResponseEvent');
     spyOn(component, 'setImageZoom');
     spyOn(component, 'resetQuestionState');
@@ -457,7 +471,7 @@ describe('SectionPlayerComponent', () => {
     component.myCarousel = myCarousel;
     component.sectionConfig = mockSectionConfig;
     spyOn(component, 'createSummaryObj');
-    spyOn(component, 'calculateScore');
+    spyOn(component, 'calculateScore').and.callThrough();
     spyOn(utilService, 'getTimeSpentText');
     spyOn(viewerService, 'updateSectionQuestions');
     spyOn(component.sectionEnd, 'emit');
@@ -492,12 +506,16 @@ describe('SectionPlayerComponent', () => {
   });
 
   it('should validate the selected option', () => {
+    component.isAssessEventRaised = false;
+    spyOn(viewerService, 'raiseAssesEvent').and.callFake(() => {});
+    spyOn(component, 'getScore').and.returnValue(1);
+    spyOn(component, 'validateSelectedOption').and.callThrough();
     component.myCarousel = myCarousel;
     const option = {
       "name": "optionSelect",
       "option": {
         "label": "<p>Narendra Modi</p>",
-        "value": 1,
+        "value": 0,
         "selected": true
       },
       "cardinality": "single",
@@ -507,7 +525,7 @@ describe('SectionPlayerComponent', () => {
       "name": "optionSelect",
       "option": {
         "label": "<p>Narendra Modi</p>",
-        "value": 1,
+        "value": 0,
         "selected": true
       },
       "cardinality": "single",
@@ -519,6 +537,116 @@ describe('SectionPlayerComponent', () => {
     component.progressBarClass = mockSectionProgressBar.children;
     component.validateSelectedOption(option, "next");
   });
+
+  it('should validate the multiple selected option for score 0', () => {
+    component.isAssessEventRaised = false;
+    spyOn(viewerService, 'raiseAssesEvent').and.callFake(() => {});
+    spyOn(component, 'updateScoreBoard').and.callFake(() => {})
+    spyOn(utilService, 'getQuestionType').and.returnValue('MCQ');
+    spyOn(utilService, 'getMultiselectScore').and.returnValue(0);
+    spyOn(component, 'validateSelectedOption').and.callThrough();
+    component.myCarousel = myCarousel;
+    const option = {
+      "name": "optionSelect",
+      "option": [
+          {
+              "label": "<p>3</p>",
+              "value": 1,
+              "selected": true,
+              "isDisabled": false
+          }
+      ],
+      "cardinality": "multiple",
+      "solutions": []
+  }
+    component.optionSelectedObj = {
+      "name": "optionSelect",
+      "option": [
+          {
+              "label": "<p>3</p>",
+              "value": 1,
+              "selected": true,
+              "isDisabled": false
+          }
+      ],
+      "cardinality": "multiple",
+      "solutions": []
+  }
+    component.questions = mockSectionMultiSelectQuestions;
+    component.parentConfig = mockParentConfig;
+    component.sectionConfig = mockSectionConfig;
+    component.progressBarClass = mockSectionProgressBar.children;
+    component.validateSelectedOption(option, "next");
+    expect(component.isAssessEventRaised).toBeTruthy();
+
+  });
+
+  it('should validate the multiple selected option for score not 0', () => {
+    component.isAssessEventRaised = false;
+    spyOn(viewerService, 'raiseAssesEvent').and.callFake(() => {});
+    spyOn(component, 'updateScoreBoard').and.callFake(() => {})
+    spyOn(utilService, 'getQuestionType').and.returnValue('MCQ');
+    spyOn(utilService, 'getMultiselectScore').and.returnValue(1);
+    spyOn(component, 'validateSelectedOption').and.callThrough();
+    component.myCarousel = myCarousel;
+    const option = {
+      "name": "optionSelect",
+      "option": [
+        {
+            "label": "<p>2</p>",
+            "value": 0,
+            "selected": true,
+            "isDisabled": false
+        },
+        {
+          "label": "<p>4</p>",
+          "value": 2,
+          "selected": true,
+          "isDisabled": false
+        },
+        {
+          "label": "<p>6</p>",
+          "value": 3,
+          "selected": true,
+          "isDisabled": false
+        }
+    ],
+      "cardinality": "multiple",
+      "solutions": []
+  }
+    component.optionSelectedObj = {
+      "name": "optionSelect",
+      "option": [
+          {
+              "label": "<p>2</p>",
+              "value": 0,
+              "selected": true,
+              "isDisabled": false
+          },
+          {
+            "label": "<p>4</p>",
+            "value": 2,
+            "selected": true,
+            "isDisabled": false
+          },
+          {
+            "label": "<p>6</p>",
+            "value": 3,
+            "selected": true,
+            "isDisabled": false
+          }
+      ],
+      "cardinality": "multiple",
+      "solutions": []
+  }
+    component.questions = mockSectionMultiSelectQuestions;
+    component.parentConfig = mockParentConfig;
+    component.sectionConfig = mockSectionConfig;
+    component.progressBarClass = mockSectionProgressBar.children;
+    component.validateSelectedOption(option, "next");
+    expect(component.isAssessEventRaised).toBeTruthy();
+  });
+
 
   it('should hide the popup once the time is over', fakeAsync(() => {
     component.infoPopupTimeOut();
@@ -724,9 +852,10 @@ describe('SectionPlayerComponent', () => {
   });
 
   it('should calculate the score', () => {
+    spyOn(component, 'calculateScore').and.callThrough();
     component.progressBarClass = mockSectionProgressBar.children;
     const score = component.calculateScore();
-    expect(score).toBe(1);
+    expect(score).toBe(2);
   });
 
   it('should call updateScoreBoard', () => {

@@ -37,7 +37,8 @@ export class McqOptionComponent implements OnChanges {
       this.mcqOptions.forEach((ele) => {
         ele.selected = false;
         ele['isDisabled'] = false;
-      })
+      });
+      this.selectedOption = [];
     }
     /* istanbul ignore else */
     if (this.tryAgain) {
@@ -62,10 +63,6 @@ export class McqOptionComponent implements OnChanges {
   }
 
   onOptionSelect(event: MouseEvent | KeyboardEvent, mcqOption, index?: number) {
-    /* istanbul ignore else */
-    if (event.hasOwnProperty('stopImmediatePropagation')) {
-      event.stopImmediatePropagation();
-    }
     if (this.cardinality === Cardinality.single) {
       if (index !== undefined) {
         this.mcqOptions.forEach((ele) => ele.selected = false);

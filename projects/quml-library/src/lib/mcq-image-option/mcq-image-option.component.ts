@@ -20,10 +20,6 @@ export class McqImageOptionComponent {
   }
 
   optionClicked(event, mcqOption) {
-    /* istanbul ignore else */
-    if (event.hasOwnProperty('stopImmediatePropagation')) {
-      event.stopImmediatePropagation();
-    }
     this.imgOptionSelected.emit(
       {
         name: 'optionSelect',
