@@ -148,7 +148,7 @@ input:checked~.radiomark:after, .quml-option--selected .radiomark:after {
   position: absolute;
   top: 50%;
   left: 50%;
-  margin: 0; //NOSONAR
+  margin: 0;
   transform: translate(-50%, -50%);
   opacity: 0;
 }
