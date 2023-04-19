@@ -29,6 +29,7 @@ export class McqComponent implements OnInit, AfterViewInit {
   showQumlPopup = false;
   solutions: Array<[]>;
   cardinality: string;
+  numberOfCorrectOptions: number;
   
 
   constructor(
@@ -37,6 +38,7 @@ export class McqComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
+    this.numberOfCorrectOptions = this.question.responseDeclaration.response1.correctResponse.value.length;
     if (this.question?.solutions) {
       this.solutions = this.question.solutions;
     }
