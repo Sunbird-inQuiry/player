@@ -1,0 +1,18 @@
+{
+    "name": "@project-sunbird/sunbird-quml-player-web-component",
+    "version": "1.0.0",
+    "description": "The web component package for the sunbird QuML player",
+    "main": "sunbird-quml-player.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+      "sunbird",
+      "QuML",
+      "Question",
+      "player",
+      "web-component"
+    ],
+    "author": "sunbird",
+    "license": "MIT"
+  }
