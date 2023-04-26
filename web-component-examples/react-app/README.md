@@ -8,7 +8,7 @@ This guide assumes you already have a React project. If you want to create a new
 ### Step 1: Installing packages
 You can use the npm command-line tool to install packages.
 ```
-npm install --save sunbird-quml-player-web-component
+npm install --save @project-sunbird/sunbird-quml-player-web-component
 ```
 
 ### Step 2: Installing dependencies
