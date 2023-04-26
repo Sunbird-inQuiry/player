@@ -3,12 +3,14 @@ import "./App.css";
 import { playerConfig } from "./data";
 
 import $ from "jquery";
-import "./sunbird/styles.css";
-import "./sunbird/sunbird-quml-player";
-// import "@project-sunbird/telemetry-sdk";
+import "@project-sunbird/sunbird-quml-player-web-component/styles.css";
+import "@project-sunbird/sunbird-quml-player-web-component/sunbird-quml-player.js";
+
 
 function App() {
   const sunbirdQumlPlayerRef = useRef(null);
+
+  // Assign jQuery and questionListUrl to window object
   window.jQuery = $;
   window.questionListUrl = "https://staging.sunbirded.org/api/question/v1/list";
 
