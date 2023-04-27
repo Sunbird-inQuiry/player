@@ -46,20 +46,20 @@ Let's display a QuML player component in your app and verify that everything wor
 
 Once installed you need to import our main `sunbird-quml-player` JS and CSS files into your application module whose components will be using the <sunbird-quml-player> component in their templates.
 
-```js
+```diff
 /* -- src/App.js -- */
 
 import { useEffect, useRef } from "react";
 import "./App.css";
 
-import $ from "jquery";
-import "@project-sunbird/sunbird-quml-player-web-component/styles.css";
-import "@project-sunbird/sunbird-quml-player-web-component/sunbird-quml-player.js";
++ import $ from "jquery";
++ import "@project-sunbird/sunbird-quml-player-web-component/styles.css";
++ import "@project-sunbird/sunbird-quml-player-web-component/sunbird-quml-player.js";
 
 
 function App() {
 
-  window.jQuery = $; // Assign jQuery to window object
++  window.jQuery = $; // Assign jQuery to window object
 
   return (
     <div className="App">HELLO WORLD!</div>
@@ -71,7 +71,7 @@ export default App;
 ```
 
 Now, Add the `<sunbird-quml-player>` tag in the template to run the QuML player:
-```JS
+```diff
 /* -- src/App.js -- */
 
 import { useEffect, useRef } from "react";
@@ -87,7 +87,7 @@ function App() {
   window.jQuery = $;
   return (
     <div className="App">
-      <sunbird-quml-player></sunbird-quml-player>
++      <sunbird-quml-player></sunbird-quml-player>
     </div>
   );
 
@@ -98,7 +98,7 @@ export default App;
 
 After adding tag, Now we have to pass input to render the QuML player.
 Create a data.ts file which contains the playerConfig. Click to see the mock - [samplePlayerConfig](https://github.com/Sunbird-inQuiry/player/blob/main/web-component-examples/react-app/src/data.js)
-```js
+```diff
 /* -- src/App.js -- */
 
 import { useEffect, useRef } from "react";
@@ -108,17 +108,19 @@ import $ from "jquery";
 import "@project-sunbird/sunbird-quml-player-web-component/styles.css";
 import "@project-sunbird/sunbird-quml-player-web-component/sunbird-quml-player.js";
 
-import { playerConfig } from "./data";
++ import { playerConfig } from "./data";
 
 
 function App() {
   
-  window.jQuery = $;
+  // Assign jQuery and questionListUrl to window object
+   window.jQuery = $;
++  window.questionListUrl = "https://staging.sunbirded.org/api/question/v1/list";
   
   return (
     <div className="App">
       <sunbird-quml-player
-        player-config={JSON.stringify(playerConfig)}        
++        player-config={JSON.stringify(playerConfig)}        
       ></sunbird-quml-player>
     </div>
   );
@@ -131,10 +133,10 @@ export default App;
 Listen for the output events: playerEvent and telemetryEvent.
 
 Import `useRef` hook and create player reference for output events from QuML player. You should end up with code similar to below:
-```ts
+```diff
 /* -- src/App.js -- */
 
-import { useEffect, useRef } from "react";
++ import { useEffect, useRef } from "react";
 import "./App.css";
 
 import $ from "jquery";
@@ -145,35 +147,35 @@ import { playerConfig } from "./data";
 
 function App() {
   
-  const sunbirdQumlPlayerRef = useRef(null);
++  const sunbirdQumlPlayerRef = useRef(null);
 
   // Assign jQuery and questionListUrl to window object
   window.jQuery = $;
   window.questionListUrl = "https://staging.sunbirded.org/api/question/v1/list";
 
-  useEffect(() => {
-    const playerElement = sunbirdQumlPlayerRef.current;
-    const handlePlayerEvent = (event) => {
-      console.log("Player Event", event.detail);
-    };
-    const handleTelemetryEvent = (event) => {
-      console.log("Telemetry Event", event.detail);
-    };
-
-    playerElement.addEventListener("playerEvent", handlePlayerEvent);
-    playerElement.addEventListener("telemetryEvent", handleTelemetryEvent);
-
-    return () => {
-      playerElement.removeEventListener("playerEvent", handlePlayerEvent);
-      playerElement.removeEventListener("telemetryEvent", handleTelemetryEvent);
-    };
-  }, []);
++  useEffect(() => {
++    const playerElement = sunbirdQumlPlayerRef.current;
++    const handlePlayerEvent = (event) => {
++      console.log("Player Event", event.detail);
++    };
++    const handleTelemetryEvent = (event) => {
++      console.log("Telemetry Event", event.detail);
++    };
++
++    playerElement.addEventListener("playerEvent", handlePlayerEvent);
++    playerElement.addEventListener("telemetryEvent", handleTelemetryEvent);
++
++    return () => {
++      playerElement.removeEventListener("playerEvent", handlePlayerEvent);
++      playerElement.removeEventListener("telemetryEvent", handleTelemetryEvent);
++    };
++  }, []);
 
   return (
     <div className="App">
       <sunbird-quml-player
         player-config={JSON.stringify(playerConfig)}
-        ref={sunbirdQumlPlayerRef}
++        ref={sunbirdQumlPlayerRef}
       ></sunbird-quml-player>
     </div>
   );
