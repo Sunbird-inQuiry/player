@@ -1,7 +1,153 @@
-# :diamond_shape_with_a_dot_inside: QuML-player library for Sunbird platform
-The QuML player library components are powered by Angular. These components are designed to be used in sunbird consumption platforms *(mobile app, web portal, offline desktop app)* to drive reusability, maintainability, hence reducing the redundant development effort significantly.
+# :diamond_shape_with_a_dot_inside: The QuML player for the Sunbird!
+The QuML player library components are powered by Angular. This player is primarily designed to be used on Sunbird consumption platforms (mobile app, web portal, offline desktop app) to drive reusability and maintainability, hence reducing the redundant development effort significantly, and it can be integrated with any platform irrespective of the platforms and the frontend frameworks. It is exported not only as an angular library but also as a web component aims to make it easy to share, discover, and reuse web components. It creates a framework agnostic way of composing and repurposing code. 
 
-# :bookmark_tabs: Getting Started
+# :bookmark_tabs: Getting started with integration steps
+The QuML player can be integrated as a web component and also as an angular library in angular application projects and it can also be integrated into any mobile framework as a web component.
+
+# Use as web components :earth_asia:
+QuML Library can also be used as web component which means if your project does not use a JavaScript framework but prefers platform-based HTML, CSS, and JavaScript, you may wish to use QuML Library in this way simply follow below-mentioned steps to use it in plain JavaScript project:
+
+- Insert [library](https://github.com/Sunbird-inQuiry/player/blob/release-5.7.0/web-component/sunbird-quml-player.js) as below:
+  ```javascript
+  <script  type="text/javascript"  src="sunbird-quml-player.js"></script>
+  ```
+- Create a asset folder and copy all the files from [here](https://github.com/Sunbird-inQuiry/player/tree/release-5.7.0/web-component/assets), library requires these assets internally to work well.
+
+- Create a custom HTML element: `sunbird-quml-player`
+  ```javascript
+  const  qumlPlayerElement = document.createElement('sunbird-quml-player');
+  ```
+
+-  - Get sample playerConfig from here: [playerConfig](https://github.com/Sunbird-inQuiry/player/blob/release-5.7.0/projects/quml-demo-app/src/app/quml-library-data.ts) and pass data using `player-config`
+  ```javascript
+  qumlPlayerElement.setAttribute('player-config', JSON.stringify(playerConfig));
+  ```
+  **Note:** Attribute should be in **string** type
+
+- Pass the Question List API baseUrl for, e.g. 
+```
+ window.questionListUrl = 'https://staging.sunbirded.org/api/question/v1/list';
+```
+- Listen for the output events: **playerEvent** and **telemetryEvent**
+
+  ```javascript
+  qumlPlayerElement.addEventListener('playerEvent', (event) => {
+    console.log("On playerEvent", event);
+  });
+  qumlPlayerElement.addEventListener('telemetryEvent', (event) => {
+    console.log("On telemetryEvent", event);
+  });
+  ```
+
+- Append this element to existing element
+  ```javascript
+  const myPlayer = document.getElementById("my-player");
+  myPlayer.appendChild(qumlPlayerElement);
+  ```
+- :arrow_forward: Refer demo [example](https://github.com/Sunbird-inQuiry/player/blob/release-5.7.0/web-component-examples/vanilla-js/index.html)
+
+# Use as Web component  in the Angular app
+
+- Run command 
+  ```bash
+    npm i @project-sunbird/sunbird-quml-player-web-component
+  ```
+
+- Add these entries in angular json file inside assets, scripts and styles like below
+
+  ```js
+            "assets": [
+              "src/favicon.ico",
+              "src/assets",
+              {
+                "glob": "**/*.*",
+                "input": "./node_modules/@project-sunbird/sunbird-quml-player-web-component/assets",
+                "output": "/assets/"
+              }
+            ],
+            "styles": [
+              "src/styles.scss",
+              "node_modules/@project-sunbird/sunbird-quml-player-web-component/styles.css"
+            ],
+            "scripts": [
+              "node_modules/@project-sunbird/sunbird-quml-player-web-component/sunbird-quml-player.js"
+            ]
+
+  ```
+
+- Import  CUSTOM_ELEMENTS_SCHEMA in app module and add it to the NgModule as part of schemas like below
+
+	```javascript
+  ...
+  import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+  ...
+
+  @NgModule({
+    ...
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    ...
+  })
+
+	```
+
+- Integrating sunbird-quml-player web component in angular component
+    
+  Create a viewChild in html template of the angular component like
+
+  ```bash
+
+      <div #qumlPlayer></div>
+
+  ```
+
+  Refer the viewChild in ts file of the component and create the quml player using document.createElement, then attach the player config and listen to the player and telemetry events like below and since we are rendering using viewChild these steps should be under ngAfterViewInit hook of the angular component.
+
+  ```bash
+
+  ....
+
+  @ViewChild('qumlPlayer') qumlPlayer: ElementRef;
+
+    ....
+   ngAfterViewInit() {
+      const playerConfig = <Config need be added>;
+        const qumlElement = document.createElement('sunbird-quml-player');
+        qumlElement.setAttribute('player-config', JSON.stringify(playerConfig));
+
+        qumlElement.addEventListener('playerEvent', (event) => {
+          console.log("On playerEvent", event);
+        });
+
+        qumlElement.addEventListener('telemetryEvent', (event) => {
+          console.log("On telemetryEvent", event);
+        });
+        this.qumlPlayer.nativeElement.append(qumlElement);
+    }
+    ....
+
+  ```
+
+  **Note:** : Click to see the mock - [playerConfig](https://github.com/Sunbird-inQuiry/player/blob/release-5.7.0/projects/quml-demo-app/src/app/quml-library-data.ts) and send input config as string 
+
+- Pass the Question List API baseUrl for, e.g. 
+  ```
+  ngAfterViewInit() {
+    ...
+    (window as any).questionListUrl = "https://staging.sunbirded.org/api/question/v1/list";
+    ...
+  }
+  ```
+- You're done! Sunbird QuML Player is now ready to play in your application.
+  Use the following CLI command to run your application locally
+  ```
+  npm run start
+  ```
+  To see your application in the browser, Go to [http://localhost:4200](http://localhost:4200).
+
+
+
+
+# Use as Angular library in angular app
 For help getting started with a new Angular app, check out the [Angular CLI](https://angular.io/cli).
 If you have an Angular ≥ 9 CLI project, you could simply use our schematics to add sunbird-quml-player library to it.
 
@@ -112,13 +258,13 @@ Import the required modules such as **CarouselModule**, **QumlLibraryModule**, *
 
 </details>
 
-Note: To avoid CORS errors, add proxy configuration for API's refer - [proxy.conf.json](https://github.com/Sunbird-inQuiry/player/blob/release-5.1.0/projects/quml-demo-app/src/proxy.conf.json)
+Note: To avoid CORS errors, add proxy configuration for API's refer - [proxy.conf.json](https://github.com/Sunbird-inQuiry/player/blob/release-5.7.0/projects/quml-demo-app/src/proxy.conf.json)
 
 ## :label: Send input to render QuML player
 User can get a response from the `api/questionset/v1/hierarchy/:do_id` or can use the provided mock config for demo
 
 Use the mock config in your component to send input to QuML player as `playerConfig`
-Click to see the mock - [samplePlayerConfig](https://github.com/Sunbird-inQuiry/player/blob/release-5.1.0/projects/quml-demo-app/src/app/quml-library-data.ts#L495)
+Click to see the mock - [samplePlayerConfig](https://github.com/Sunbird-inQuiry/player/blob/release-5.7.0/projects/quml-demo-app/src/app/quml-library-data.ts#L495)
 
 ```html
 <quml-main-player [playerConfig]="samplePlayerConfig" ><quml-main-player>
@@ -148,52 +294,18 @@ If context is not passed in playerConfig telemetry event of player will not be c
 1. playerEvent()    - It provides heartbeat event for each action performed in the player.
 2. telemetryEvent() - It provides the sequence of telemetry events such as `START, INTERACT, IMPRESSION, SUMMARY, END`
 
+## :label: Run the application
+You are done!, Use the following CLI command to run your application locally
+
+```
+npm run start
+```
+To see your application in the browser, go to [http://localhost:4200](http://localhost:4200).
+
 ---
    
 
-# Use as web components :earth_asia:
-QuML Library can also be used as web component which means user can import this library in any web application and use these custom components.
-Follow below-mentioned steps to use it in plain JavaScript project:
 
-- Insert [library](https://github.com/Sunbird-inQuiry/player/blob/release-4.7.0/web-component/sunbird-quml-player.js) as below:
-  ```javascript
-  <script  type="text/javascript"  src="sunbird-quml-player.js"></script>
-  ```
-- Create a asset folder and copy all the files from [here](https://github.com/Sunbird-inQuiry/player/tree/release-4.7.0/web-component/assets), library requires these assets internally to work well.
-
-- Get sample playerConfig from here: [playerConfig](https://github.com/Sunbird-inQuiry/player/blob/release-4.7.0/projects/quml-demo-app/src/app/quml-library-data.ts)
-
-- Pass the Question List API baseUrl for, e.g. [https://staging.sunbirded.org/api/question/v1/list](https://staging.sunbirded.org/api/question/v1/list)
-
-- Create a custom HTML element: `sunbird-quml-player`
-  ```javascript
-  const  qumlPlayerElement = document.createElement('sunbird-quml-player');
-  ```
-
-- Pass data using `player-config`
-  ```javascript
-  qumlPlayerElement.setAttribute('player-config', JSON.stringify(playerConfig));
-  ```
-  **Note:** Attribute should be in **string** type
-- Listen for the output events: **playerEvent** and **telemetryEvent**
-
-  ```javascript
-  qumlPlayerElement.addEventListener('playerEvent', (event) => {
-    console.log("On playerEvent", event);
-  });
-  qumlPlayerElement.addEventListener('telemetryEvent', (event) => {
-    console.log("On telemetryEvent", event);
-  });
-  ```
-
-- Append this element to existing element
-  ```javascript
-  const myPlayer = document.getElementById("my-player");
-  myPlayer.appendChild(qumlPlayerElement);
-  ```
-- :arrow_forward: Refer demo [example](https://github.com/Sunbird-inQuiry/player/blob/release-4.7.0/web-component/index.html)
-
----
 
 # :bookmark_tabs: QuML Player Contribution Guide  
 ## Repo Setup  
