@@ -25,9 +25,9 @@ QuML Library can also be used as web component which means if your project does 
   **Note:** Attribute should be in **string** type
 
 - Pass the Question List API baseUrl for, e.g. 
-```
- window.questionListUrl = 'https://staging.sunbirded.org/api/question/v1/list';
-```
+  ```
+  window.questionListUrl = 'https://staging.sunbirded.org/api/question/v1/list';
+  ```
 - Listen for the output events: **playerEvent** and **telemetryEvent**
 
   ```javascript
