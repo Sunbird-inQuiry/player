@@ -18,7 +18,7 @@ QuML Library can also be used as web component which means if your project does 
   const  qumlPlayerElement = document.createElement('sunbird-quml-player');
   ```
 
--  - Get sample playerConfig from here: [playerConfig](https://github.com/Sunbird-inQuiry/player/blob/release-5.7.0/projects/quml-demo-app/src/app/quml-library-data.ts) and pass data using `player-config`
+- Get sample playerConfig from here: [playerConfig](https://github.com/Sunbird-inQuiry/player/blob/release-5.7.0/projects/quml-demo-app/src/app/quml-library-data.ts) and pass data using `player-config`
   ```javascript
   qumlPlayerElement.setAttribute('player-config', JSON.stringify(playerConfig));
   ```
@@ -304,8 +304,6 @@ To see your application in the browser, go to [http://localhost:4200](http://loc
 
 ---
    
-
-
 
 # :bookmark_tabs: QuML Player Contribution Guide  
 ## Repo Setup  
