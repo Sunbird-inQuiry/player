@@ -50,28 +50,28 @@ QuML Library can also be used as web component which means if your project does 
 
 - Run command 
   ```bash
-    npm i @project-sunbird/sunbird-quml-player-web-component
+  npm i @project-sunbird/sunbird-quml-player-web-component
   ```
 
 - Add these entries in angular json file inside assets, scripts and styles like below
 
   ```js
-            "assets": [
-              "src/favicon.ico",
-              "src/assets",
-              {
-                "glob": "**/*.*",
-                "input": "./node_modules/@project-sunbird/sunbird-quml-player-web-component/assets",
-                "output": "/assets/"
-              }
-            ],
-            "styles": [
-              "src/styles.scss",
-              "node_modules/@project-sunbird/sunbird-quml-player-web-component/styles.css"
-            ],
-            "scripts": [
-              "node_modules/@project-sunbird/sunbird-quml-player-web-component/sunbird-quml-player.js"
-            ]
+  "assets": [
+    "src/favicon.ico",
+    "src/assets",
+    {
+      "glob": "**/*.*",
+      "input": "./node_modules/@project-sunbird/sunbird-quml-player-web-component/assets",
+      "output": "/assets/"
+    }
+  ],
+  "styles": [
+    "src/styles.scss",
+    "node_modules/@project-sunbird/sunbird-quml-player-web-component/styles.css"
+  ],
+  "scripts": [
+    "node_modules/@project-sunbird/sunbird-quml-player-web-component/sunbird-quml-player.js"
+  ]
 
   ```
 
