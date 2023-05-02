@@ -7,7 +7,7 @@ The QuML player can be integrated as a web component and also as an angular libr
 - [Using it as Web component](https://inquiry.sunbird.org/use/developer-installation/question-set-player/installation#use-as-web-components)
 - [Using it as Angular library](https://inquiry.sunbird.org/use/developer-installation/question-set-player/installation#use-as-angular-library-in-angular-app)
 
-# :bookmark_tabs: QuML Player Contribution Guide  
+# :bookmark_tabs: Contribution Guide  
 See the [official contributors' guide](https://inquiry.sunbird.org/use/developer-installation/question-set-player/installation#quml-player-contribution-guide) to learn how to contribute your code to the project.
 
 
