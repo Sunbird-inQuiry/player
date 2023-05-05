@@ -40,8 +40,8 @@ export const mockData = {
       "host": "",
       "endpoint": "/data/v3/telemetry",
       "userData": {
-        "firstName": "Diptesh",
-        "lastName": "Mukherjee"
+        "firstName": "Test",
+        "lastName": "User"
       }
     },
     "metadata": {
@@ -271,7 +271,7 @@ export const mockData = {
         "showExit": false
       },
       "nextContent": {
-        "name": "Roti aur Kutta",
+        "name": "Next content",
         "identifier": "do_231234332232"
       }
     }

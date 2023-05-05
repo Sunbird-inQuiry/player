@@ -36,10 +36,10 @@ If you prefer not to use schematics or want to add `sunbird-quml-player` to an o
     npm install jquery --save
     npm install katex --save
     npm install lodash-es --save
-    npm install ngx-bootstrap@^7.1.0 --save
+    npm install ngx-bootstrap@^10.0.0 --save
 
 
-  Note: *As QuML library is build with angular version 12, we are using **bootstrap@^4.6.2** and **ngx-bootstrap@^7.1.0** which are the compatible versions.
+  Note: *As QuML library is build with angular version 15, we are using **bootstrap@^4.6.2** and **ngx-bootstrap@^10.0.0** which are the compatible versions.
   For more reference Check compatibility document for ng-bootstrap [here](https://valor-software.com/ngx-bootstrap/#/documentation#compatibility)*  
   
   ## :label: Step 2: Add question-cursor-implementation.service
@@ -197,7 +197,7 @@ Follow below-mentioned steps to use it in plain JavaScript project:
 
 # :bookmark_tabs: QuML Player Contribution Guide  
 ## Repo Setup  
-  - Install Node 14.x and Angular 12
+  - Install Node 14.20.x and Angular 15
   - Clone the Repo with desired release-branch - https://github.com/Sunbird-inQuiry/player
   - Add the baseUrl in the *environment.ts* and *proxy.conf.json* files
   - If there are any changes in API endpoints, update the *app.constant.ts* file

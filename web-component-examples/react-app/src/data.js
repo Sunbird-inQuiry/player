@@ -607,8 +607,8 @@ export const playerConfig = {
     host: "",
     endpoint: "/data/v3/telemetry",
     userData: {
-      firstName: "Diptesh",
-      lastName: "Mukherjee",
+      firstName: "Test",
+      lastName: "User",
     },
   },
   metadata: sectionContent,
