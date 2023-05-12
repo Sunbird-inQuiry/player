@@ -9,3 +9,5 @@ web-component-examples/vanilla-js/*.ttf
 web-component-examples/vanilla-js/*.woff
 web-component-examples/vanilla-js/*.woff2
 web-component-examples/vanilla-js/assets
+
+/project-sunbird-sunbird-quml-player-web-component-*
