@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { UtilService } from './util-service';
-import { options, responseDeclaration, selectedOptions, questions } from './service-data';
+import { options, responseDeclaration, selectedOptions, questions, outcomeDeclaration } from './service-data';
 
 describe('UtilService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
@@ -67,42 +67,42 @@ describe('UtilService', () => {
   it('should call getMultiselectScore when shuffle is false', () => {
     const service: UtilService = TestBed.inject(UtilService);
     spyOn(service, 'getMultiselectScore').and.callThrough();
-    const score = service.getMultiselectScore(options, responseDeclaration, false);
+    const score = service.getMultiselectScore(options, responseDeclaration, false, outcomeDeclaration);
     expect(score).toEqual(2);
   })
 
   it('should call getMultiselectScore when shuffle is false return score 0', () => {
     const service: UtilService = TestBed.inject(UtilService);
     spyOn(service, 'getMultiselectScore').and.callThrough();
-    const score = service.getMultiselectScore([options[0]], responseDeclaration, false);
+    const score = service.getMultiselectScore([options[0]], responseDeclaration, false, outcomeDeclaration);
     expect(score).toEqual(0);
   })
 
   it('should call getMultiselectScore when shuffle is false return score 1', () => {
     const service: UtilService = TestBed.inject(UtilService);
     spyOn(service, 'getMultiselectScore').and.callThrough();
-    const score = service.getMultiselectScore([options[1]], responseDeclaration, false);
+    const score = service.getMultiselectScore([options[1]], responseDeclaration, false, outcomeDeclaration);
     expect(score).toEqual(1);
   })
 
   it('should call getMultiselectScore when shuffle is true', () => {
     const service: UtilService = TestBed.inject(UtilService);
     spyOn(service, 'getMultiselectScore').and.callThrough();
-    const score = service.getMultiselectScore(([options[1]]), responseDeclaration, true);
+    const score = service.getMultiselectScore(([options[1]]), responseDeclaration, true, outcomeDeclaration);
     expect(score).toEqual(0.5);
   })
 
   it('should call getMultiselectScore when shuffle is true return score 0', () => {
     const service: UtilService = TestBed.inject(UtilService);
     spyOn(service, 'getMultiselectScore').and.callThrough();
-    const score = service.getMultiselectScore(([options[0]]), responseDeclaration, true);
+    const score = service.getMultiselectScore(([options[0]]), responseDeclaration, true, outcomeDeclaration);
     expect(score).toEqual(0);
   })
 
   it('should call getMultiselectScore when shuffle is true return score 1', () => {
     const service: UtilService = TestBed.inject(UtilService);
     spyOn(service, 'getMultiselectScore').and.callThrough();
-    const score = service.getMultiselectScore((options), responseDeclaration, true);
+    const score = service.getMultiselectScore((options), responseDeclaration, true, outcomeDeclaration);
     expect(score).toEqual(1);
   })
 

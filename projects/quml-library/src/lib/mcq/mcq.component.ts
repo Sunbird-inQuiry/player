@@ -2,6 +2,7 @@ import { Component, OnInit, Input, SecurityContext, Output, EventEmitter, AfterV
 import { DomSanitizer } from '@angular/platform-browser';
 import { katex } from 'katex';
 import { UtilService } from '../util-service';
+import * as _ from 'lodash-es';
 
 declare var katex: any;
 
@@ -38,7 +39,7 @@ export class McqComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.numberOfCorrectOptions = this.question.responseDeclaration.response1.correctResponse.value.length;
+    this.numberOfCorrectOptions = _.castArray(this.question.responseDeclaration.response1.correctResponse.value).length;
     if (this.question?.solutions) {
       this.solutions = this.question.solutions;
     }

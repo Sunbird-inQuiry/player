@@ -14,11 +14,6 @@ describe('SaComponent', () => {
     ],
     "channel": "01269878797503692810",
     "downloadUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431719053721619/q1_1646040142839_do_21348431719053721619_1.ecar",
-    "responseDeclaration": {
-      "response1": {
-        "type": "string"
-      }
-    },
     "language": [
       "English"
     ],

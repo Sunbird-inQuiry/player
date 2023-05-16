@@ -28,17 +28,20 @@ export const mockSectionPlayerConfig = {
       "downloadUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/q2_1646040142399_do_21348431640099225615_1.ecar",
       "responseDeclaration": {
         "response1": {
-          "maxScore": 1,
           "cardinality": "single",
           "type": "integer",
           "correctResponse": {
-            "value": "0",
-            "outcomes": {
-              "SCORE": 1
-            }
+            "value": 0,
           },
         },
-        "mapping": [{ response: 0, outcomes: { SCORE: 1 } }]
+        "mapping": [{ value: 0, score: 1 }]
+      },
+      "outcomeDeclaration": {
+        "maxScore": {
+          "cardinality": "single",
+          "type": "integer",
+          "defaultValue": 1
+        }
       },
       "language": [
         "English"
@@ -175,16 +178,19 @@ export const mockSectionPlayerConfig = {
       "downloadUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431559137689613/q1_1646040140133_do_21348431559137689613_1.ecar",
       "responseDeclaration": {
         "response1": {
-          "maxScore": 1,
           "cardinality": "single",
           "type": "integer",
           "correctResponse": {
-            "value": "1",
-            "outcomes": {
-              "SCORE": 1
-            }
+            "value": 1
           },
           "mapping": []
+        }
+      },
+      "outcomeDeclaration": {
+        "maxScore": {
+          "cardinality": "single",
+          "type": "integer",
+          "defaultValue": 1
         }
       },
       "language": [
@@ -627,7 +633,6 @@ export const mockSectionPlayerConfig = {
       "downloadUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/q2_1646040142399_do_21348431640099225615_1.ecar",
       "responseDeclaration": {
         "response1": {
-          "maxScore": 1,
           "cardinality": "multiple",
           "type": "integer",
           "correctResponse": {
@@ -635,31 +640,29 @@ export const mockSectionPlayerConfig = {
               0,
               2,
               3
-            ],
-            "outcomes": {
-              "SCORE": 1
-            }
+            ]
           },
           "mapping": [
             {
-              "response": 0,
-              "outcomes": {
-                "score": 0.33
-              }
+              "value": 0,
+              "score": 0.33
             },
             {
-              "response": 2,
-              "outcomes": {
-                "score": 0.33
-              }
+              "value": 2,
+              "score": 0.33
             },
             {
-              "response": 3,
-              "outcomes": {
-                "score": 0.33
-              }
+              "value": 3,
+              "score": 0.33
             }
           ]
+        }
+      },
+      "outcomeDeclaration": {
+        "maxScore": {
+          "cardinality": "single",
+          "type": "integer",
+          "defaultValue": 1
         }
       },
       "language": [

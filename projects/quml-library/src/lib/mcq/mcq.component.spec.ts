@@ -16,16 +16,19 @@ describe('McqComponent', () => {
     "downloadUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/q2_1646040142399_do_21348431640099225615_1.ecar",
     "responseDeclaration": {
       "response1": {
-        "maxScore": 1,
         "cardinality": "single",
         "type": "integer",
         "correctResponse": {
-          "value": "0",
-          "outcomes": {
-            "SCORE": 1
-          }
+          "value": 0
         },
         "mapping": []
+      }
+    },
+    "outcomeDeclaration": {
+      "maxScore": {
+        "cardinality": "single",
+        "type": "integer",
+        "defaultValue": 1
       }
     },
     "language": [

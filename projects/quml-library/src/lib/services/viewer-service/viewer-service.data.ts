@@ -353,16 +353,19 @@ export const mockData = {
         "downloadUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/q2_1646040142399_do_21348431640099225615_1.ecar",
         "responseDeclaration": {
           "response1": {
-            "maxScore": 1,
             "cardinality": "single",
             "type": "integer",
             "correctResponse": {
-              "value": "0",
-              "outcomes": {
-                "SCORE": 1
-              }
+              "value": 0
             },
             "mapping": []
+          }
+        },
+        "outcomeDeclaration": {
+          "maxScore": {
+            "cardinality": "single",
+            "type": "integer",
+            "defaultValue": 1
           }
         },
         "language": [
@@ -489,16 +492,19 @@ export const mockData = {
         "downloadUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431559137689613/q1_1646040140133_do_21348431559137689613_1.ecar",
         "responseDeclaration": {
           "response1": {
-            "maxScore": 1,
             "cardinality": "single",
             "type": "integer",
             "correctResponse": {
-              "value": "1",
-              "outcomes": {
-                "SCORE": 1
-              }
+              "value": 1
             },
             "mapping": []
+          }
+        },
+        "outcomeDeclaration": {
+          "maxScore": {
+            "cardinality": "single",
+            "type": "integer",
+            "defaultValue": 1
           }
         },
         "language": [
@@ -706,16 +712,19 @@ export const mockData = {
             "downloadUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/q2_1646040142399_do_21348431640099225615_1.ecar",
             "responseDeclaration": {
               "response1": {
-                "maxScore": 1,
                 "cardinality": "single",
                 "type": "integer",
                 "correctResponse": {
-                  "value": "0",
-                  "outcomes": {
-                    "SCORE": 1
-                  }
+                  "value": 0
                 },
                 "mapping": []
+              }
+            },
+            "outcomeDeclaration": {
+              "maxScore": {
+                "cardinality": "single",
+                "type": "integer",
+                "defaultValue": 1
               }
             },
             "language": [
@@ -844,16 +853,19 @@ export const mockData = {
             "downloadUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431559137689613/q1_1646040140133_do_21348431559137689613_1.ecar",
             "responseDeclaration": {
               "response1": {
-                "maxScore": 1,
                 "cardinality": "single",
                 "type": "integer",
                 "correctResponse": {
-                  "value": "1",
-                  "outcomes": {
-                    "SCORE": 1
-                  }
+                  "value": 1
                 },
                 "mapping": []
+              }
+            },
+            "outcomeDeclaration": {
+              "maxScore": {
+                "cardinality": "single",
+                "type": "integer",
+                "defaultValue": 1
               }
             },
             "language": [
@@ -985,11 +997,6 @@ export const mockData = {
             ],
             "channel": "01269878797503692810",
             "downloadUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431719053721619/q1_1646040142839_do_21348431719053721619_1.ecar",
-            "responseDeclaration": {
-              "response1": {
-                "type": "string"
-              }
-            },
             "language": [
               "English"
             ],
@@ -1083,16 +1090,19 @@ export const mockData = {
             "downloadUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_213484318131216384111/q2_1646040143227_do_213484318131216384111_1.ecar",
             "responseDeclaration": {
               "response1": {
-                "maxScore": 1,
                 "cardinality": "single",
                 "type": "integer",
                 "correctResponse": {
-                  "value": "0",
-                  "outcomes": {
-                    "SCORE": 1
-                  }
+                  "value": 0
                 },
                 "mapping": []
+              }
+            },
+            "outcomeDeclaration": {
+              "maxScore": {
+                "cardinality": "single",
+                "type": "integer",
+                "defaultValue": 1
               }
             },
             "language": [

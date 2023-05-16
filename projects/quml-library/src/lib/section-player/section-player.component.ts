@@ -7,9 +7,8 @@ import { takeUntil } from 'rxjs/operators';
 import { QumlPlayerConfig, IParentConfig, IAttempts } from '../quml-library-interface';
 import { ViewerService } from '../services/viewer-service/viewer-service';
 import { eventName, pageId, TelemetryType } from '../telemetry-constants';
+import { DEFAULT_SCORE } from '../player-constants';
 import { UtilService } from '../util-service';
-
-const DEFAULT_SCORE: number = 1;
 
 @Component({
   selector: 'quml-section-player',
@@ -659,7 +658,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       'title': selectedQuestion.name,
       'desc': selectedQuestion.description,
       'type': selectedQuestion.qType.toLowerCase(),
-      'maxscore': key.length === 0 ? 0 : selectedQuestion.responseDeclaration[key].maxScore || 0,
+      'maxscore': key.length === 0 ? 0 : selectedQuestion.outcomeDeclaration.maxScore.defaultValue || 0,
       'params': getParams()
     };
 
@@ -707,7 +706,8 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       }
       if (option.cardinality === 'multiple') {
         const responseDeclaration = this.questions[currentIndex].responseDeclaration;
-        const currentScore = this.utilService.getMultiselectScore(option.option, responseDeclaration, this.isShuffleQuestions);
+        const outcomeDeclaration = this.questions[currentIndex].outcomeDeclaration;
+        const currentScore = this.utilService.getMultiselectScore(option.option, responseDeclaration, this.isShuffleQuestions, outcomeDeclaration);
         this.showAlert = true;
         if (currentScore === 0) {
           if (!this.isAssessEventRaised) {
@@ -918,9 +918,8 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       if (this.isShuffleQuestions) {
         return DEFAULT_SCORE;
       }
-      return this.questions[currentIndex].responseDeclaration[key].correctResponse.outcomes.SCORE ?
-        this.questions[currentIndex].responseDeclaration[key].correctResponse.outcomes.SCORE :
-        this.questions[currentIndex].responseDeclaration[key].maxScore || 1;
+      return this.questions[currentIndex].outcomeDeclaration.maxScore.defaultValue ?
+        this.questions[currentIndex].outcomeDeclaration.maxScore.defaultValue : DEFAULT_SCORE;
     } else {
       const selectedOptionValue = selectedOption.option.value;
       const mapping = this.questions[currentIndex].responseDeclaration.mapping;
@@ -929,9 +928,9 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       /* istanbul ignore else */
       if (mapping) {
         mapping.forEach((val) => {
-          if (selectedOptionValue === val.response) {
-            score = val.outcomes.SCORE || 0;
-            if (val.outcomes.SCORE) {
+          if (selectedOptionValue === val.value) {
+            score = val.score || 0;
+            if (val.score) {
               this.progressBarClass[currentIndex].class = 'partial';
             }
           }

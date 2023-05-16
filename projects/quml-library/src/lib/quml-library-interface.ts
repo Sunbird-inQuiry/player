@@ -77,7 +77,8 @@ export interface Question {
     templateId: string;
     name: string;
     body: string;
-    responseDeclaration: any;
+    responseDeclaration?: any;
+    outcomeDeclaration: any;
     interactionTypes: Array<string>;
     interactions: any;
     editorState: any;

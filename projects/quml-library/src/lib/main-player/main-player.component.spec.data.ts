@@ -7,6 +7,13 @@ const content1 = {
   "lastStatusChangedOn": "2022-02-28T07:56:09.733+0000",
   "timeLimits": "{\"maxTime\":\"7200\",\"warningTime\":\"900\"}",
   "author": "Vivek",
+  "outcomeDeclaration": {
+    "maxScore": {
+      "cardinality": "single",
+      "type": "integer",
+      "defaultValue": 1
+    }
+  },
   "children": [
     {
       "lastStatusChangedOn": "2022-02-28T07:56:09.702+0000",
@@ -433,7 +440,6 @@ const content1 = {
   "channel": "01269878797503692810",
   "pdfUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/questionset/do_213484313936035840138/do_213484313936035840138_pdf_1646040143902.pdf",
   "generateDIALCodes": "No",
-  "maxScore": 4,
   "lastUpdatedOn": "2022-02-28T07:56:09.745+0000",
   "subject": [
     "English"
@@ -1187,7 +1193,13 @@ export const fakeSections = [
 export const singleContent = {
   'currentAttempt': 1,
   'summaryType': 'Complete',
-  'maxScore': '10',
+  "outcomeDeclaration": {
+    "maxScore": {
+      "cardinality": "single",
+      "type": "integer",
+      "defaultValue": 10
+    }
+  },
   'instructions': {
     'default': 'instructions in the specified language'
   },

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as _ from 'lodash-es';
-
+import { DEFAULT_SCORE } from './player-constants'
 
 @Injectable({
     providedIn: 'root'
@@ -33,19 +33,19 @@ export class UtilService {
         return key;
     }
 
-    public getMultiselectScore(options, responseDeclaration, isShuffleQuestions) {
+    public getMultiselectScore(options, responseDeclaration, isShuffleQuestions, outcomeDeclaration) {
         let key: any = this.getKeyValue(Object.keys(responseDeclaration));
         const selectedOptionValue = options.map(option => option.value);
         let score;
         let mapping = responseDeclaration[key]['mapping'];
         if (isShuffleQuestions) {
-            score = 1;
+            score = DEFAULT_SCORE;
             const scoreForEachMapping = _.round(1/mapping.length, 2);
             _.forEach(mapping, (map) => {
-                map.outcomes.score = scoreForEachMapping;
+                map.score = scoreForEachMapping;
             })
         } else {
-            score = responseDeclaration[key].correctResponse.outcomes.SCORE ? responseDeclaration[key].correctResponse.outcomes.SCORE : responseDeclaration.maxScore;
+            score = _.get(outcomeDeclaration, 'maxScore.defaultValue');
         }
         let correctValues = responseDeclaration[key].correctResponse.value.map((ele) => Number(ele));
         if (_.isEqual(correctValues.sort(), selectedOptionValue.sort())) {                                               
@@ -53,8 +53,8 @@ export class UtilService {
         } else if (!_.isEqual(correctValues.sort(), selectedOptionValue.sort())) {
             let sum = 0;
             _.forEach(mapping, (map, index) => {
-                if(_.includes(selectedOptionValue, map.response)) {
-                    sum += (map?.outcomes?.score ? map.outcomes.score : 0);
+                if(_.includes(selectedOptionValue, map.value)) {
+                    sum += (map?.score ? map.score : 0);
                 }
             });
             return sum;
