@@ -44,7 +44,8 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
   noOfQuestions: number;
   initialTime: number;
   timeLimit: any;
-  warningTime: string;
+  warningTime: number;
+  showWarningTimer: boolean;
   showTimer: any;
   showFeedBack: boolean;
   showUserSolution: boolean;
@@ -207,8 +208,9 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.noOfQuestions = this.questionIds.length;
     this.viewerService.initialize(this.sectionConfig, this.threshold, this.questionIds, this.parentConfig);
     this.checkCompatibilityLevel(this.sectionConfig.metadata.compatibilityLevel);
-    this.timeLimit = this.sectionConfig.metadata?.timeLimits?.maxTime || 0;
-    this.warningTime = this.sectionConfig.metadata?.timeLimits?.warningTime || 0;
+    this.timeLimit = this.sectionConfig.metadata?.timeLimits?.questionSet?.max || 0;
+    this.warningTime = this.timeLimit ? (this.timeLimit - (this.timeLimit * this.parentConfig.warningTime / 100)) : 0;
+    this.showWarningTimer = this.parentConfig.showWarningTimer;
     this.showTimer = this.sectionConfig.metadata?.showTimer?.toLowerCase() !== 'no';
 
     if (this.sectionConfig.metadata?.showFeedback) {

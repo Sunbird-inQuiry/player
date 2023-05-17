@@ -10,6 +10,7 @@ import { UtilService } from './../util-service';
 import { ISideBarEvent } from '@project-sunbird/sunbird-player-sdk-v9/sunbird-player-sdk.interface';
 import { fromEvent, Subscription } from 'rxjs';
 import maintain from 'ally.js/esm/maintain/_maintain';
+import { WARNING_CONFIG } from './../player-constants';
 @Component({
   selector: 'quml-main-player',
   templateUrl: './main-player.component.html',
@@ -49,7 +50,9 @@ export class MainPlayerComponent implements OnInit, OnChanges {
       showExit: false,
     },
     showFeedback: false,
-    showLegend: true
+    showLegend: true,
+    warningTime: WARNING_CONFIG.DEFAULT_TIME,
+    showWarningTimer: WARNING_CONFIG.SHOW_TIMER
   };
 
   showEndPage: boolean;
@@ -203,6 +206,8 @@ export class MainPlayerComponent implements OnInit, OnChanges {
     this.showEndPage = this.playerConfig.metadata?.showEndPage?.toLowerCase() !== 'no';
     this.parentConfig.showFeedback = this.showFeedBack = this.playerConfig.metadata?.showFeedback?.toLowerCase() === 'yes';
     this.parentConfig.sideMenuConfig = { ...this.parentConfig.sideMenuConfig, ...this.playerConfig.config.sideMenu };
+    this.parentConfig.warningTime =  _.get(this.playerConfig,'config.warningTime', this.parentConfig.warningTime);
+    this.parentConfig.showWarningTimer =  _.get(this.playerConfig,'config.showWarningTimer', this.parentConfig.showWarningTimer)
     if (this.playerConfig?.context?.userData) {
       const firstName = this.playerConfig.context.userData?.firstName ?? '';
       const lastName = this.playerConfig.context.userData?.lastName ?? '';

@@ -253,8 +253,9 @@ export const mockData = {
       "showSolutions": "Yes",
       "index": 1,
       "timeLimits": {
-        "maxTime": "7200",
-        "warningTime": "900"
+        "questionSet": {
+            "max": "300"
+        }    
       },
       "childNodes": [
         "do_21348431559137689613",
@@ -296,7 +297,9 @@ export const mockData = {
       "showDownload": false,
       "showExit": false,
       "showReplay": false
-    }
+    },
+    warningTime: 75,
+    showWarningTimer: true
   },
   spineEvent: {
     items: [

@@ -13,6 +13,7 @@ export class HeaderComponent implements OnInit, OnChanges, AfterViewInit, OnDest
   @Input() questions?: any;
   @Input() duration?: any;
   @Input() warningTime?: string;
+  @Input() showWarningTimer?: boolean;
   @Input() disablePreviousNavigation: boolean;
   @Input() showTimer: boolean;
   @Input() totalNoOfQuestions: number;
@@ -115,7 +116,7 @@ export class HeaderComponent implements OnInit, OnChanges, AfterViewInit, OnDest
           return false;
         }
         /* istanbul ignore else */
-        if (parseInt(durationInSec) <= parseInt(this.warningTime)) {
+        if (parseInt(durationInSec) <= parseInt(this.warningTime) && this.showWarningTimer) {
           this.showWarning = true;
         }
         durationInSec--;

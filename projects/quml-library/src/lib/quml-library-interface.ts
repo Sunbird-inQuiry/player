@@ -1,4 +1,5 @@
 import { NextContent } from '@project-sunbird/sunbird-player-sdk-v9/sunbird-player-sdk.interface';
+
 export interface Context {
     mode: string;
     threshold?: number;
@@ -62,6 +63,8 @@ export interface Config {
     showDeviceOrientation?: boolean;
     showLegend?: boolean;
     shuffleOptions?: boolean;
+    warningTime?: number,
+    showWarningTimer?: boolean
 }
 
 export interface QumlPlayerConfig {
@@ -111,6 +114,9 @@ export interface IParentConfig {
     showFeedback: boolean;
     showLegend: boolean;
     metadata?: any;
+    warningTime: number;
+    showWarningTimer: boolean;
+    
 }
 
 export interface ISummary {

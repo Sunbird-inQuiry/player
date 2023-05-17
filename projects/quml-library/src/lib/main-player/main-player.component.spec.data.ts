@@ -5,7 +5,7 @@ const content1 = {
   },
   "copyright": "tn",
   "lastStatusChangedOn": "2022-02-28T07:56:09.733+0000",
-  "timeLimits": "{\"maxTime\":\"7200\",\"warningTime\":\"900\"}",
+  "timeLimits": '{"questionSet":{"max":300}}',
   "author": "Vivek",
   "outcomeDeclaration": {
     "maxScore": {
@@ -591,7 +591,10 @@ export const playerConfig = {
       'showDownload': false,
       'showReplay': false,
       'showExit': false,
-    }
+    },
+    warningTime: 75,
+    showWarningTimer: true
+
   },
   'data': {}
 }
@@ -892,8 +895,9 @@ export const fakeSections = [
       "showSolutions": "Yes",
       "index": 1,
       "timeLimits": {
-        "maxTime": "7200",
-        "warningTime": "900"
+        "questionSet": {
+            "max": 300
+        }    
       },
       "childNodes": [
         "do_21348431640099225615",
@@ -1165,8 +1169,9 @@ export const fakeSections = [
       "showSolutions": "Yes",
       "index": 2,
       "timeLimits": {
-        "maxTime": "7200",
-        "warningTime": "900"
+        "questionSet": {
+            "max": 300
+        }    
       },
       "childNodes": [
         "do_21348431719053721619",
@@ -1323,9 +1328,10 @@ export const singleContent = {
   'createdBy': '4cd4c690-eab6-4938-855a-447c7b1b8ea9',
   'compatibilityLevel': 4,
   'navigationMode': 'non-linear',
-  'timeLimits': {
-    'maxTime': '180',
-    'warningTime': '5'
+  "timeLimits": {
+    "questionSet": {
+        "max": 300
+    }    
   },
   'shuffle': true,
   'board': 'State (Tamil Nadu)'
