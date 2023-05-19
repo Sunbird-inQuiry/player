@@ -34,11 +34,6 @@ describe('AlertComponent', () => {
     expect(document.querySelector).toHaveBeenCalled();
   });
 
-  it('Should call #close method on keydown', () => {
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'escape' }));
-    expect(component.close).toHaveBeenCalledWith('close');
-  });
-
   it('should emit event viewHint', () => {
     spyOn(component.showHint, 'emit');
     component.viewHint();
@@ -90,4 +85,11 @@ describe('AlertComponent', () => {
     expect(document.querySelector).toHaveBeenCalled();
     flush();
   }));
+
+  it('Should call #close method on keydown', () => {
+    spyOn(component,'close').and.callThrough();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'escape' }));
+    expect(component.close).toHaveBeenCalledWith('close');
+  });
+
 });

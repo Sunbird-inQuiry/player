@@ -24,7 +24,7 @@
           (activeSlideChange)="activeSlideChange($event)">
           <slide>
             <quml-startpage
-              [instructions]="showRootInstruction ? parentConfig?.instructions : sectionConfig.metadata?.instructions?.default"
+              [instructions]="showRootInstruction ? parentConfig?.instructions : sectionConfig.metadata?.instructions"
               [points]="points" [time]="showRootInstruction ? timeLimit : null" [showTimer]="showTimer"
               [totalNoOfQuestions]="showRootInstruction ? parentConfig?.questionCount : noOfQuestions"
               [contentName]="showRootInstruction ? parentConfig?.contentName : parentConfig?.isSectionsAvailable ? sectionConfig?.metadata?.name : parentConfig?.contentName">

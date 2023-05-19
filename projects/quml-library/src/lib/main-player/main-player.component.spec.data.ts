@@ -1,8 +1,6 @@
 
 const content1 = {
-  "instructions": {
-    "default": "<ol><li>Please circle the correct answer</li><li>Do not use mobile phones</li></ol>"
-  },
+  "instructions": "<ol><li>Please circle the correct answer</li><li>Do not use mobile phones</li></ol>",
   "copyright": "tn",
   "lastStatusChangedOn": "2022-02-28T07:56:09.733+0000",
   "timeLimits": '{"questionSet":{"max":300}}',
@@ -1205,9 +1203,7 @@ export const singleContent = {
       "defaultValue": 10
     }
   },
-  'instructions': {
-    'default': 'instructions in the specified language'
-  },
+  'instructions': 'instructions in the specified language',
   'copyright': 'tn',
   'children': [
     {
