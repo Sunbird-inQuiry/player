@@ -1,8 +1,8 @@
 import { ElementRef, NO_ERRORS_SCHEMA } from '@angular/core';
 import { waitForAsync,  ComponentFixture, TestBed } from '@angular/core/testing';
 import { SafeHtmlPipe } from '../pipes/safe-html/safe-html.pipe';
-
 import { McqSolutionsComponent } from './mcq-solutions.component';
+import { UtilService } from '../util-service';
 
 describe('SolutionsComponent', () => {
   let component: McqSolutionsComponent;
@@ -11,7 +11,8 @@ describe('SolutionsComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [McqSolutionsComponent, SafeHtmlPipe],
-      schemas: [NO_ERRORS_SCHEMA]
+      schemas: [NO_ERRORS_SCHEMA],
+      providers: [UtilService]
     })
       .compileComponents();
   }));
@@ -34,4 +35,15 @@ describe('SolutionsComponent', () => {
     expect(component.solutionVideoPlayer.nativeElement.pause).toHaveBeenCalled();
     expect(component.close.emit).toHaveBeenCalledWith({ close: true });
   });
+
+  it('#ngAfterViewInit() should call #updateSourceOfVideoElement method', () => {
+    const utilService = TestBed.inject(UtilService);
+    spyOn(utilService, 'updateSourceOfVideoElement').and.callThrough();
+    component.baseUrl = 'https://dev.org';
+    component.media =[];
+    component.identifier = 'do_123';
+    component.ngAfterViewInit();
+    expect(utilService.updateSourceOfVideoElement).toHaveBeenCalled();
+  });
+
 });

@@ -101,4 +101,27 @@ export class UtilService {
         }
     }
 
+    // fetches the element using its tag video and sets the value of the “src” attribute of source element and poster attribute.
+    updateSourceOfVideoElement(baseUrl: string, media: any[] = [], identifier: string)  {
+        const elements = Array.from(document.getElementsByTagName('video') as HTMLCollectionOf<Element>);
+        _.forEach(elements, (element: HTMLElement) => {
+            const videoId = element.getAttribute('data-asset-variable');
+            if(!videoId) { return; }
+            const asset = _.filter(media, ['id', videoId]);
+            const posterSrc = element.getAttribute('poster');
+            
+            if(!_.isEmpty(asset) && posterSrc) {
+                element['poster'] = baseUrl ? `${baseUrl}/${identifier}/${posterSrc}` : asset[0].baseUrl + posterSrc;
+            }  
+
+            if(!_.isEmpty(asset)) {
+                const sourceElement = Array.from(element.getElementsByTagName('source') as HTMLCollectionOf<Element>);
+                _.forEach(sourceElement, (element: HTMLElement) => {
+                    const sourceSrc = element.getAttribute('src');
+                    element['src'] = baseUrl ? `${baseUrl}/${identifier}/${sourceSrc}` : asset[0].baseUrl + sourceSrc;
+                });
+            }
+        });
+    } 
+
 }

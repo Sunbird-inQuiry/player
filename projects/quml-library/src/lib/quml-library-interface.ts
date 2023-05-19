@@ -81,7 +81,7 @@ export interface Question {
     name: string;
     body: string;
     responseDeclaration?: any;
-    outcomeDeclaration: any;
+    outcomeDeclaration?: any;
     interactionTypes: Array<string>;
     interactions: any;
     editorState: any;

@@ -1,6 +1,7 @@
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, inject } from '@angular/core';
 import { waitForAsync,  ComponentFixture, TestBed } from '@angular/core/testing';
 import { SafeHtmlPipe } from '../pipes/safe-html/safe-html.pipe';
+import { UtilService } from '../util-service';
 
 import { SaComponent } from './sa.component';
 
@@ -100,7 +101,7 @@ describe('SaComponent', () => {
     "versionKey": "1646034813428",
     "showFeedback": "No",
     "framework": "tn_k-12_5",
-    "answer": "<p><span style=\"background-color:rgb(255,255,255);color:rgb(77,81,86);\">In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without relying on meaningful content. Lorem ipsum may be used as a placeholder before the final copy is available</span></p>",
+    "answer": "<p><a href=\"\">Test</a><span style=\"background-color:rgb(255,255,255);color:rgb(77,81,86);\">In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without relying on meaningful content. Lorem ipsum may be used as a placeholder before the final copy is available</span></p>",
     "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
     "compatibilityLevel": 4,
     "board": "State (Tamil Nadu)"
@@ -109,7 +110,8 @@ describe('SaComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [SaComponent, SafeHtmlPipe],
-      schemas: [NO_ERRORS_SCHEMA]
+      schemas: [NO_ERRORS_SCHEMA],
+      providers:[UtilService]
     })
       .compileComponents();
   }));
@@ -117,7 +119,7 @@ describe('SaComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(SaComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    // fixture.detectChanges();
   });
 
   it('should create', () => {
@@ -128,15 +130,24 @@ describe('SaComponent', () => {
     component.questions = questions;
     component.ngOnInit();
     expect(component.question).toEqual('<p>What is lorem ipsum?</p>');
-    expect(component.answer).toEqual('<p><span style=\"background-color:rgb(255,255,255);color:rgb(77,81,86);\">In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without relying on meaningful content. Lorem ipsum may be used as a placeholder before the final copy is available</span></p>');
+    expect(component.answer).toEqual('<p><a href="">Test</a><span style=\"background-color:rgb(255,255,255);color:rgb(77,81,86);\">In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without relying on meaningful content. Lorem ipsum may be used as a placeholder before the final copy is available</span></p>');
   });
+
+
+  it('#ngOnInit() should not set solution if not exist', () => {
+    component.questions = {...questions};
+    component.questions.solutions = null;
+    component.ngOnInit();
+    expect(component.solutions).toBe(null);
+  });
+
 
   it('should initialize the component with proper data for local database', () => {
     component.questions = questions;
     component.baseUrl = 'http://localhost:3000/';
     component.ngOnInit();
     expect(component.question).toEqual('<p>What is lorem ipsum?</p>');
-    expect(component.answer).toEqual('<p><span style=\"background-color:rgb(255,255,255);color:rgb(77,81,86);\">In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without relying on meaningful content. Lorem ipsum may be used as a placeholder before the final copy is available</span></p>');
+    expect(component.answer).toEqual('<p><a href="">Test</a><span style=\"background-color:rgb(255,255,255);color:rgb(77,81,86);\">In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without relying on meaningful content. Lorem ipsum may be used as a placeholder before the final copy is available</span></p>');
   });
 
 
@@ -173,13 +184,9 @@ describe('SaComponent', () => {
     expect(component.showAnswerToUser).toHaveBeenCalled();
   });
 
-  it('should handle Accessibility, on view init', () => {
-    spyOn(component, 'handleKeyboardAccessibility');
-    component.ngAfterViewInit();
-    expect(component.handleKeyboardAccessibility).toHaveBeenCalled();
-  });
-
   it('should handle keyboard accessibility', () => {
+    component.questions = questions;
+    fixture.detectChanges();
     const optionBody = document.createElement('div');
     const anchor = document.createElement('a');
     optionBody.classList.add('option-body');
@@ -190,4 +197,16 @@ describe('SaComponent', () => {
     component.handleKeyboardAccessibility();
     expect(component.handleKeyboardAccessibility).toHaveBeenCalled();
   });
+
+  it('should handle Accessibility, on view init', () => {
+    component.questions = questions;
+    component.baseUrl = 'https://dev.com'
+    const utilService = TestBed.inject(UtilService);
+    spyOn(utilService, 'updateSourceOfVideoElement').and.callThrough();
+    spyOn(component, 'handleKeyboardAccessibility');
+    component.ngAfterViewInit();
+    expect(component.handleKeyboardAccessibility).toHaveBeenCalled();
+    expect(utilService.updateSourceOfVideoElement).toHaveBeenCalledWith('https://dev.com',component.questions.media, component.questions.identifier )
+  });
+
 });

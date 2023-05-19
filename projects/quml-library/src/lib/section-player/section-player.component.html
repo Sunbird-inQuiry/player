@@ -124,7 +124,7 @@
     (closeAlert)="closeAlertBox($event)"></quml-alert>
 
   <quml-mcq-solutions *ngIf="showSolution" [question]="currentQuestion" [options]="currentOptions"
-    [solutions]="currentSolutions" (close)="closeSolution()"></quml-mcq-solutions>
+    [solutions]="currentSolutions" [baseUrl]="parentConfig?.baseUrl" [media]="media" [identifier]="currentQuestionIndetifier" (close)="closeSolution()"></quml-mcq-solutions>
 </div>
 
 <div class="info-popup" *ngIf="infoPopup">

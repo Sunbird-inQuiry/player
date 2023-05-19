@@ -70,6 +70,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
   showAlert: boolean;
   currentOptions: any;
   currentQuestion: any;
+  currentQuestionIndetifier: string;
   media: any;
   currentSolutions: any;
   showSolution: any;
@@ -539,38 +540,9 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       this.isAssessEventRaised = false;
       this.currentSolutions = !_.isEmpty(optionSelected.solutions) ? optionSelected.solutions : undefined;
     }
-    this.media = this.questions[this.myCarousel.getCurrentSlideIndex() - 1].media;
-
-    if (this.currentSolutions) {
-      this.currentSolutions.forEach((ele, index) => {
-        /* istanbul ignore else */
-        if (ele.type === 'video') {
-          this.media.forEach((e) => {
-            /* istanbul ignore else */
-            if (e.id === this.currentSolutions[index].value) {
-              this.currentSolutions[index].type = 'video';
-              const slideIndex = this.myCarousel.getCurrentSlideIndex() - 1
-              const currentQuestionId = this.questions[slideIndex]?.identifier;
-              if (this.parentConfig.isAvailableLocally && this.parentConfig.baseUrl) {
-                let baseUrl = this.parentConfig.baseUrl;
-                baseUrl = `${baseUrl.substring(0, baseUrl.lastIndexOf('/'))}/${this.sectionConfig.metadata.identifier}`;
-                if (currentQuestionId) {
-                  this.currentSolutions[index].src = `${baseUrl}/${currentQuestionId}/${e.src}`;
-                  this.currentSolutions[index].thumbnail = `${baseUrl}/${currentQuestionId}/${e.thumbnail}`;
-                }
-              } else if (e.baseUrl) {
-                this.currentSolutions[index].src = `${e.baseUrl}${e.src}`;
-                this.currentSolutions[index].thumbnail = `${e.baseUrl}${e.thumbnail}`;
-              } else {
-                this.currentSolutions[index].src = e.src;
-                this.currentSolutions[index].thumbnail = e.thumbnail;
-              }
-            }
-          });
-        }
-      });
-    }
-
+    this.currentQuestionIndetifier = this.questions[currentIndex].identifier;
+    this.media = _.get(this.questions[currentIndex], 'media', []);
+   
     /* istanbul ignore else */
     if (!this.showFeedBack) {
       this.validateSelectedOption(this.optionSelectedObj);

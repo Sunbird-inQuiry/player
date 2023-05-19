@@ -160,19 +160,16 @@ export const questions = [
                 "type": "video",
                 "assetId": "do_113143853080248320171",
                 "name": "13mb",
-                "thumbnail": "https://dockstorage.blob.core.windows.net/sunbird-content-dock/content/do_113143853080248320171/artifact/1604474270424.thumb.png"
+                "thumbnail": "https://dockstorage.blob.core.windows.net/sunbird-content-dock/content/do_113143853080248320171/artifact/1604474270424.thumb.png",
+                "baseUrl": "https://dev.sunbird.org/"
             }
         ],
         "qType": "MCQ",
         "mimeType": "application/vnd.ekstep.qml-archive",
         "primaryCategory": "Multiple Choice Question",
-        "solutions": [
-            {
-                "id": "293d752e-844d-24c6-dd48-1ac78bb2793c",
-                "type": "video",
-                "value": "do_113143853080248320171"
-            }
-        ]
+        "solutions": {
+            "do_113143853080248320171": "<video data-asset-variable=\"do_113143853080248320171\"  width=\"400\" controls=\"\" poster=\"/assets/public/content/assets/do_2137930188655902721387/gateway-of-india.jpg\"><source  type=\"video\/mp4\" src=\"/assets\/public\/content\/assets\/do_2137980528723230721410\/sample-5s.mp4\"><source  type=\"video\/webm\" src=\"/assets\/public\/content\/assets\/do_2137980528723230721410\/sample-5s.mp4\"><\/video>"
+          },
     },
     {
         "code": "29768037-4c37-a10f-8823-5218826db206",
@@ -285,12 +282,8 @@ export const questions = [
         "qType": "MCQ",
         "mimeType": "application/vnd.ekstep.qml-archive",
         "primaryCategory": "Multiple Choice Question",
-        "solutions": [
-            {
-                "id": "293d752e-844d-24c6-dd48-1ac78bb2793c",
-                "type": "video",
-                "value": "do_113143853080248320171"
-            }
-        ]
+        "solutions": {
+            "do_113143853080248320171": "<video data-asset-variable=\"do_113143853080248320171\"  width=\"400\" controls=\"\" poster=\"/assets/public/content/assets/do_2137930188655902721387/gateway-of-india.jpg\"><source  type=\"video\/mp4\" src=\"/assets\/public\/content\/assets\/do_2137980528723230721410\/sample-5s.mp4\"><source  type=\"video\/webm\" src=\"/assets\/public\/content\/assets\/do_2137980528723230721410\/sample-5s.mp4\"><\/video>"
+          }
     }
 ];

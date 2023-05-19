@@ -35,6 +35,12 @@ describe('HeaderComponent', () => {
     fixture.detectChanges();
   }); 
 
+  it('Should call #onProgressPopupClose method on keydown', () => {
+    spyOn(component, 'onProgressPopupClose').and.callThrough();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'escape' }));
+    expect(component.onProgressPopupClose).toHaveBeenCalled();
+  });
+
   it('should initialize the component', () => {
     component.duration = 600;
     component.showTimer = true;

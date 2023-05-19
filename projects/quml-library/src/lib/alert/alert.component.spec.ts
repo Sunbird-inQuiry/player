@@ -7,7 +7,6 @@ import { AlertComponent } from './alert.component';
 describe('AlertComponent', () => {
   let component: AlertComponent;
   let fixture: ComponentFixture<AlertComponent>;
-
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [AlertComponent],
@@ -33,6 +32,11 @@ describe('AlertComponent', () => {
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab' }));
     component.ngOnInit();
     expect(document.querySelector).toHaveBeenCalled();
+  });
+
+  it('Should call #close method on keydown', () => {
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'escape' }));
+    expect(component.close).toHaveBeenCalledWith('close');
   });
 
   it('should emit event viewHint', () => {
