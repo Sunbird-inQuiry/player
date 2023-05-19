@@ -1,6 +1,6 @@
 import { inject, TestBed } from '@angular/core/testing';
 import { ViewerService } from './viewer-service';
-import { mockData } from './viewer-service.data';
+import { mockData } from './viewer-service.spec.data';
 import { QumlLibraryService } from '../../quml-library.service';
 import { UtilService } from '../../util-service';
 import { QuestionCursor } from '../../quml-question-cursor.service';
