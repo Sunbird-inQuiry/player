@@ -220,7 +220,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       this.showFeedBack = this.parentConfig.showFeedback; // Fallback to parent config
     }
 
-    this.showUserSolution = this.sectionConfig.metadata?.showSolutions?.toLowerCase() !== 'no';
+    this.showUserSolution = this.sectionConfig.metadata?.showSolutions;
     this.startPageInstruction = this.sectionConfig.metadata?.instructions || this.parentConfig.instructions;
     this.linearNavigation = this.sectionConfig.metadata.navigationMode === 'non-linear' ? false : true;
     this.showHints = this.sectionConfig.metadata?.showHints?.toLowerCase() !== 'no';

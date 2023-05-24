@@ -91,7 +91,6 @@ export const mockSectionPlayerConfig = {
       "se_gradeLevels": [
         "Class 4"
       ],
-      "showSolutions": "No",
       "identifier": "do_21348431640099225615",
       "audience": [
         "Teacher"
@@ -241,7 +240,6 @@ export const mockSectionPlayerConfig = {
       "se_gradeLevels": [
         "Class 4"
       ],
-      "showSolutions": "No",
       "identifier": "do_21348431559137689613",
       "audience": [
         "Teacher"
@@ -428,7 +426,6 @@ export const mockSectionPlayerConfig = {
           "artifactUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431559137689613/do_21348431559137689613_1646040138601.zip",
           "visibility": "Parent",
           "qType": "MCQ",
-          "showSolutions": "No",
           "variants": {
             "full": {
               "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431559137689613/q1_1646040140133_do_21348431559137689613_1.ecar",
@@ -509,7 +506,6 @@ export const mockSectionPlayerConfig = {
           "artifactUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/do_21348431640099225615_1646040142347.zip",
           "visibility": "Parent",
           "qType": "MCQ",
-          "showSolutions": "No",
           "variants": {
             "full": {
               "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/q2_1646040142399_do_21348431640099225615_1.ecar",
@@ -563,7 +559,7 @@ export const mockSectionPlayerConfig = {
       "contentDisposition": "inline",
       "allowBranching": "No",
       "visibility": "Parent",
-      "showSolutions": "Yes",
+      "showSolutions": true,
       "index": 1,
       "timeLimits": {
         "questionSet": {
@@ -757,7 +753,6 @@ export const mockSectionPlayerConfig = {
       "se_gradeLevels": [
         "Class 4"
       ],
-      "showSolutions": "No",
       "identifier": "do_21348431640099225615",
       "audience": [
         "Teacher"

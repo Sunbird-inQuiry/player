@@ -85,7 +85,6 @@ const content1 = {
           "artifactUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431559137689613/do_21348431559137689613_1646040138601.zip",
           "visibility": "Parent",
           "qType": "MCQ",
-          "showSolutions": "No",
           "variants": {
             "full": {
               "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431559137689613/q1_1646040140133_do_21348431559137689613_1.ecar",
@@ -166,7 +165,6 @@ const content1 = {
           "artifactUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/do_21348431640099225615_1646040142347.zip",
           "visibility": "Parent",
           "qType": "MCQ",
-          "showSolutions": "No",
           "variants": {
             "full": {
               "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/q2_1646040142399_do_21348431640099225615_1.ecar",
@@ -220,7 +218,7 @@ const content1 = {
       "contentDisposition": "inline",
       "allowBranching": "No",
       "visibility": "Parent",
-      "showSolutions": "Yes",
+      "showSolutions": true,
       "index": 1
     },
     {
@@ -290,7 +288,6 @@ const content1 = {
           "artifactUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431719053721619/do_21348431719053721619_1646040142794.zip",
           "visibility": "Parent",
           "qType": "SA",
-          "showSolutions": "No",
           "variants": {
             "full": {
               "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431719053721619/q1_1646040142839_do_21348431719053721619_1.ecar",
@@ -371,7 +368,6 @@ const content1 = {
           "artifactUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_213484318131216384111/do_213484318131216384111_1646040143179.zip",
           "visibility": "Parent",
           "qType": "MCQ",
-          "showSolutions": "No",
           "variants": {
             "full": {
               "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_213484318131216384111/q2_1646040143227_do_213484318131216384111_1.ecar",
@@ -425,7 +421,7 @@ const content1 = {
       "contentDisposition": "inline",
       "allowBranching": "No",
       "visibility": "Parent",
-      "showSolutions": "Yes",
+      "showSolutions": true,
       "index": 2
     }
   ],
@@ -517,7 +513,7 @@ const content1 = {
     "do_213484318131216384111"
   ],
   "visibility": "Default",
-  "showSolutions": "No",
+  "showSolutions": false,
   "variants": {
     "spine": {
       "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/questionset/do_213484313936035840138/vivek-test-questionset_1646040143641_do_213484313936035840138_1_SPINE.ecar",
@@ -755,7 +751,6 @@ export const fakeSections = [
           "artifactUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431559137689613/do_21348431559137689613_1646040138601.zip",
           "visibility": "Parent",
           "qType": "MCQ",
-          "showSolutions": "No",
           "variants": {
             "full": {
               "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431559137689613/q1_1646040140133_do_21348431559137689613_1.ecar",
@@ -836,7 +831,6 @@ export const fakeSections = [
           "artifactUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/do_21348431640099225615_1646040142347.zip",
           "visibility": "Parent",
           "qType": "MCQ",
-          "showSolutions": "No",
           "variants": {
             "full": {
               "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/q2_1646040142399_do_21348431640099225615_1.ecar",
@@ -890,7 +884,7 @@ export const fakeSections = [
       "contentDisposition": "inline",
       "allowBranching": "No",
       "visibility": "Parent",
-      "showSolutions": "Yes",
+      "showSolutions": true,
       "index": 1,
       "timeLimits": {
         "questionSet": {
@@ -1029,7 +1023,6 @@ export const fakeSections = [
           "artifactUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431719053721619/do_21348431719053721619_1646040142794.zip",
           "visibility": "Parent",
           "qType": "SA",
-          "showSolutions": "No",
           "variants": {
             "full": {
               "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431719053721619/q1_1646040142839_do_21348431719053721619_1.ecar",
@@ -1110,7 +1103,6 @@ export const fakeSections = [
           "artifactUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_213484318131216384111/do_213484318131216384111_1646040143179.zip",
           "visibility": "Parent",
           "qType": "MCQ",
-          "showSolutions": "No",
           "variants": {
             "full": {
               "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_213484318131216384111/q2_1646040143227_do_213484318131216384111_1.ecar",
@@ -1164,7 +1156,7 @@ export const fakeSections = [
       "contentDisposition": "inline",
       "allowBranching": "No",
       "visibility": "Parent",
-      "showSolutions": "Yes",
+      "showSolutions": true,
       "index": 2,
       "timeLimits": {
         "questionSet": {
@@ -1262,7 +1254,6 @@ export const singleContent = {
       'contentDisposition': 'inline',
       'visibility': 'Parent',
       'qType': 'MCQ',
-      'showSolutions': 'No',
       'index': 1,
       'pkgVersion': 1
     }],
@@ -1282,7 +1273,7 @@ export const singleContent = {
   'gradeLevel': ['Class 10'],
   'primaryCategory': 'Practice Question Set',
   'contentEncoding': 'gzip',
-  'showSolutions': 'Yes',
+  'showSolutions': true,
   'identifier': 'do_213257772024733696115',
   'audience': ['Student'],
   'visibility': 'Default',

@@ -54,7 +54,6 @@ export const mockQumlLibraryServiceData = {
             "English"
           ],
           "board": "State (Tamil Nadu)",
-          "showFeedback": "No",
           "objectType": "Question",
           "status": "Live",
           "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -71,7 +70,6 @@ export const mockQumlLibraryServiceData = {
           "artifactUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431559137689613/do_21348431559137689613_1646040138601.zip",
           "visibility": "Parent",
           "qType": "MCQ",
-          "showSolutions": "No",
           "variants": {
             "full": {
               "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431559137689613/q1_1646040140133_do_21348431559137689613_1.ecar",
@@ -152,7 +150,6 @@ export const mockQumlLibraryServiceData = {
           "artifactUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/do_21348431640099225615_1646040142347.zip",
           "visibility": "Parent",
           "qType": "MCQ",
-          "showSolutions": "No",
           "variants": {
             "full": {
               "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/q2_1646040142399_do_21348431640099225615_1.ecar",
@@ -206,7 +203,7 @@ export const mockQumlLibraryServiceData = {
       "contentDisposition": "inline",
       "allowBranching": "No",
       "visibility": "Parent",
-      "showSolutions": "Yes",
+      "showSolutions": true,
       "index": 1,
       "timeLimits": {
         "questionSet": {

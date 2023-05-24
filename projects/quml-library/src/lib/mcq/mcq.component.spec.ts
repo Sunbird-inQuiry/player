@@ -79,7 +79,6 @@ describe('McqComponent', () => {
     "se_gradeLevels": [
       "Class 4"
     ],
-    "showSolutions": "No",
     "identifier": "do_21348431640099225615",
     "audience": [
       "Teacher"

@@ -47,7 +47,6 @@ describe('SaComponent', () => {
     "se_gradeLevels": [
       "Class 4"
     ],
-    "showSolutions": "Yes",
     "identifier": "do_21348431719053721619",
     "audience": [
       "Teacher"
