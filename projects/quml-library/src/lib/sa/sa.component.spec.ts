@@ -97,7 +97,6 @@ describe('SaComponent', () => {
     ],
     "pkgVersion": 1,
     "versionKey": "1646034813428",
-    "showFeedback": "No",
     "framework": "tn_k-12_5",
     "answer": "<p><a href=\"\">Test</a><span style=\"background-color:rgb(255,255,255);color:rgb(77,81,86);\">In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without relying on meaningful content. Lorem ipsum may be used as a placeholder before the final copy is available</span></p>",
     "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",

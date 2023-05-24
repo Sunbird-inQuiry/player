@@ -67,7 +67,6 @@ const content1 = {
             "English"
           ],
           "board": "State (Tamil Nadu)",
-          "showFeedback": "No",
           "objectType": "Question",
           "status": "Live",
           "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -146,7 +145,6 @@ const content1 = {
             "English"
           ],
           "board": "State (Tamil Nadu)",
-          "showFeedback": "No",
           "objectType": "Question",
           "status": "Live",
           "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -205,7 +203,7 @@ const content1 = {
       "language": [
         "English"
       ],
-      "showFeedback": "Yes",
+      "showFeedback": true,
       "objectType": "QuestionSet",
       "status": "Live",
       "requiresSubmit": "No",
@@ -268,7 +266,6 @@ const content1 = {
             "English"
           ],
           "board": "State (Tamil Nadu)",
-          "showFeedback": "No",
           "objectType": "Question",
           "status": "Live",
           "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -347,7 +344,6 @@ const content1 = {
             "English"
           ],
           "board": "State (Tamil Nadu)",
-          "showFeedback": "No",
           "objectType": "Question",
           "status": "Live",
           "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -406,7 +402,7 @@ const content1 = {
       "language": [
         "English"
       ],
-      "showFeedback": "Yes",
+      "showFeedback": true,
       "objectType": "QuestionSet",
       "status": "Live",
       "requiresSubmit": "No",
@@ -479,7 +475,7 @@ const content1 = {
     "English"
   ],
   "board": "State (Tamil Nadu)",
-  "showFeedback": "No",
+  "showFeedback": false,
   "lastPublishedOn": "2022-02-28T09:22:23.535+0000",
   "objectType": "QuestionSet",
   "status": "Live",
@@ -729,7 +725,6 @@ export const fakeSections = [
             "English"
           ],
           "board": "State (Tamil Nadu)",
-          "showFeedback": "No",
           "objectType": "Question",
           "status": "Live",
           "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -808,7 +803,6 @@ export const fakeSections = [
             "English"
           ],
           "board": "State (Tamil Nadu)",
-          "showFeedback": "No",
           "objectType": "Question",
           "status": "Live",
           "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -867,7 +861,7 @@ export const fakeSections = [
       "language": [
         "English"
       ],
-      "showFeedback": "Yes",
+      "showFeedback": true,
       "objectType": "QuestionSet",
       "status": "Live",
       "requiresSubmit": "No",
@@ -999,7 +993,6 @@ export const fakeSections = [
             "English"
           ],
           "board": "State (Tamil Nadu)",
-          "showFeedback": "No",
           "objectType": "Question",
           "status": "Live",
           "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -1078,7 +1071,6 @@ export const fakeSections = [
             "English"
           ],
           "board": "State (Tamil Nadu)",
-          "showFeedback": "No",
           "objectType": "Question",
           "status": "Live",
           "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -1137,7 +1129,7 @@ export const fakeSections = [
       "language": [
         "English"
       ],
-      "showFeedback": "Yes",
+      "showFeedback": true,
       "objectType": "QuestionSet",
       "status": "Live",
       "requiresSubmit": "No",
@@ -1233,7 +1225,6 @@ export const singleContent = {
         'English'
       ],
       'board': 'State (Tamil Nadu)',
-      'showFeedback': 'No',
       'objectType': 'Question',
       'status': 'Live',
       'contentEncoding': 'gzip',
@@ -1300,7 +1291,7 @@ export const singleContent = {
   'setType': 'materialised',
   'pkgVersion': 1,
   'versionKey': '1618399235740',
-  'showFeedback': 'Yes',
+  'showFeedback': true,
   'framework': 'tn_k-12_5',
   'depth': 0,
   'createdBy': '4cd4c690-eab6-4938-855a-447c7b1b8ea9',

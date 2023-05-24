@@ -137,7 +137,6 @@ describe('McqComponent', () => {
     ],
     "pkgVersion": 1,
     "versionKey": "1646034716932",
-    "showFeedback": "No",
     "framework": "tn_k-12_5",
     "answer": "0",
     "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",

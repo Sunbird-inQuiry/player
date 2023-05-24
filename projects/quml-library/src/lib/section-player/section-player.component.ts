@@ -215,7 +215,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.showTimer = this.sectionConfig.metadata?.showTimer;
 
     if (this.sectionConfig.metadata?.showFeedback) {
-      this.showFeedBack = this.sectionConfig.metadata?.showFeedback?.toLowerCase() !== 'no'; // prioritize the section level config
+      this.showFeedBack = this.sectionConfig.metadata?.showFeedback; // prioritize the section level config
     } else {
       this.showFeedBack = this.parentConfig.showFeedback; // Fallback to parent config
     }

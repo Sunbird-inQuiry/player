@@ -131,7 +131,6 @@ export const mockQumlLibraryServiceData = {
             "English"
           ],
           "board": "State (Tamil Nadu)",
-          "showFeedback": "No",
           "objectType": "Question",
           "status": "Live",
           "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -190,7 +189,7 @@ export const mockQumlLibraryServiceData = {
       "language": [
         "English"
       ],
-      "showFeedback": "Yes",
+      "showFeedback": true,
       "objectType": "QuestionSet",
       "status": "Live",
       "requiresSubmit": "No",

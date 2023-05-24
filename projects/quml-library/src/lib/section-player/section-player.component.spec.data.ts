@@ -160,7 +160,6 @@ export const mockSectionPlayerConfig = {
       ],
       "pkgVersion": 1,
       "versionKey": "1646034716932",
-      "showFeedback": "No",
       "framework": "tn_k-12_5",
       "answer": "0",
       "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -299,7 +298,6 @@ export const mockSectionPlayerConfig = {
       ],
       "pkgVersion": 1,
       "versionKey": "1646034618244",
-      "showFeedback": "No",
       "framework": "tn_k-12_5",
       "answer": "1",
       "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -406,7 +404,6 @@ export const mockSectionPlayerConfig = {
             "English"
           ],
           "board": "State (Tamil Nadu)",
-          "showFeedback": "No",
           "objectType": "Question",
           "status": "Live",
           "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -485,7 +482,6 @@ export const mockSectionPlayerConfig = {
             "English"
           ],
           "board": "State (Tamil Nadu)",
-          "showFeedback": "No",
           "objectType": "Question",
           "status": "Live",
           "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -544,7 +540,7 @@ export const mockSectionPlayerConfig = {
       "language": [
         "English"
       ],
-      "showFeedback": "Yes",
+      "showFeedback": true,
       "objectType": "QuestionSet",
       "status": "Live",
       "requiresSubmit": "No",
@@ -789,7 +785,6 @@ export const mockSectionPlayerConfig = {
       ],
       "pkgVersion": 1,
       "versionKey": "1646034716932",
-      "showFeedback": "No",
       "framework": "tn_k-12_5",
       "answer": "0",
       "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
