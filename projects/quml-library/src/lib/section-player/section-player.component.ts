@@ -212,7 +212,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.timeLimit = this.sectionConfig.metadata?.timeLimits?.questionSet?.max || 0;
     this.warningTime = this.timeLimit ? (this.timeLimit - (this.timeLimit * this.parentConfig.warningTime / 100)) : 0;
     this.showWarningTimer = this.parentConfig.showWarningTimer;
-    this.showTimer = this.sectionConfig.metadata?.showTimer?.toLowerCase() !== 'no';
+    this.showTimer = this.sectionConfig.metadata?.showTimer;
 
     if (this.sectionConfig.metadata?.showFeedback) {
       this.showFeedBack = this.sectionConfig.metadata?.showFeedback?.toLowerCase() !== 'no'; // prioritize the section level config

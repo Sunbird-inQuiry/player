@@ -30,7 +30,6 @@ const content1 = {
           "subject": [
             "English"
           ],
-          "showTimer": "No",
           "identifier": "do_21348431559137689613",
           "gradeLevel": [
             "Class 4"
@@ -110,7 +109,6 @@ const content1 = {
           "subject": [
             "English"
           ],
-          "showTimer": "No",
           "identifier": "do_21348431640099225615",
           "gradeLevel": [
             "Class 4"
@@ -185,7 +183,7 @@ const content1 = {
       "channel": "01269878797503692810",
       "generateDIALCodes": "No",
       "lastUpdatedOn": "2022-02-28T07:56:09.702+0000",
-      "showTimer": "No",
+      "showTimer": false,
       "identifier": "do_21348431528472576011",
       "description": "This is a section 1",
       "containsUserData": "No",
@@ -237,7 +235,6 @@ const content1 = {
           "subject": [
             "English"
           ],
-          "showTimer": "No",
           "identifier": "do_21348431719053721619",
           "gradeLevel": [
             "Class 4"
@@ -313,7 +310,6 @@ const content1 = {
           "subject": [
             "English"
           ],
-          "showTimer": "No",
           "identifier": "do_213484318131216384111",
           "gradeLevel": [
             "Class 4"
@@ -388,7 +384,7 @@ const content1 = {
       "channel": "01269878797503692810",
       "generateDIALCodes": "No",
       "lastUpdatedOn": "2022-02-28T07:56:09.703+0000",
-      "showTimer": "No",
+      "showTimer": false,
       "identifier": "do_21348431657166438417",
       "description": "This is sample section number 2",
       "containsUserData": "No",
@@ -439,7 +435,7 @@ const content1 = {
     "English"
   ],
   "size": 10556,
-  "showTimer": "No",
+  "showTimer": false,
   "identifier": "do_213484313936035840138",
   "description": "This is sample test questionset",
   "gradeLevel": [
@@ -696,7 +692,6 @@ export const fakeSections = [
           "subject": [
             "English"
           ],
-          "showTimer": "No",
           "identifier": "do_21348431559137689613",
           "gradeLevel": [
             "Class 4"
@@ -776,7 +771,6 @@ export const fakeSections = [
           "subject": [
             "English"
           ],
-          "showTimer": "No",
           "identifier": "do_21348431640099225615",
           "gradeLevel": [
             "Class 4"
@@ -851,7 +845,7 @@ export const fakeSections = [
       "channel": "01269878797503692810",
       "generateDIALCodes": "No",
       "lastUpdatedOn": "2022-02-28T07:56:09.702+0000",
-      "showTimer": "No",
+      "showTimer": false,
       "identifier": "do_21348431528472576011",
       "description": "This is a section 1",
       "containsUserData": "No",
@@ -972,7 +966,6 @@ export const fakeSections = [
           "subject": [
             "English"
           ],
-          "showTimer": "No",
           "identifier": "do_21348431719053721619",
           "gradeLevel": [
             "Class 4"
@@ -1048,7 +1041,6 @@ export const fakeSections = [
           "subject": [
             "English"
           ],
-          "showTimer": "No",
           "identifier": "do_213484318131216384111",
           "gradeLevel": [
             "Class 4"
@@ -1123,7 +1115,7 @@ export const fakeSections = [
       "channel": "01269878797503692810",
       "generateDIALCodes": "No",
       "lastUpdatedOn": "2022-02-28T07:56:09.703+0000",
-      "showTimer": "No",
+      "showTimer": false,
       "identifier": "do_21348431657166438417",
       "description": "This is sample section number 2",
       "containsUserData": "No",
@@ -1211,7 +1203,6 @@ export const singleContent = {
       'subject': [
         'English'
       ],
-      'showTimer': 'No',
       'identifier': 'do_213257774888443904116',
       'gradeLevel': [
         'Class 10'
@@ -1277,7 +1268,7 @@ export const singleContent = {
   'identifier': 'do_213257772024733696115',
   'audience': ['Student'],
   'visibility': 'Default',
-  'showTimer': 'Yes',
+  'showTimer': true,
   'author': 'Adarsh',
   'consumerId': 'b350f619-5eb4-45d5-87ce-fb143ae9f684',
   'childNodes': ['do_213267129481953280156'],

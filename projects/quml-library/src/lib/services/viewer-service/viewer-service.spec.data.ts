@@ -60,7 +60,6 @@ export const mockData = {
           "subject": [
             "English"
           ],
-          "showTimer": "No",
           "identifier": "do_21348431559137689613",
           "gradeLevel": [
             "Class 4"
@@ -140,7 +139,6 @@ export const mockData = {
           "subject": [
             "English"
           ],
-          "showTimer": "No",
           "identifier": "do_21348431640099225615",
           "gradeLevel": [
             "Class 4"
@@ -215,7 +213,7 @@ export const mockData = {
       "channel": "01269878797503692810",
       "generateDIALCodes": "No",
       "lastUpdatedOn": "2022-02-28T07:56:09.702+0000",
-      "showTimer": "No",
+      "showTimer": false,
       "identifier": "do_21348431528472576011",
       "description": "This is a section 1",
       "containsUserData": "No",
@@ -422,7 +420,6 @@ export const mockData = {
           "Teacher"
         ],
         "visibility": "Parent",
-        "showTimer": "No",
         "author": "Vivek",
         "solutions": [],
         "qType": "MCQ",
@@ -560,7 +557,6 @@ export const mockData = {
           "Teacher"
         ],
         "visibility": "Parent",
-        "showTimer": "No",
         "author": "Vivek",
         "solutions": [],
         "qType": "MCQ",
@@ -779,7 +775,6 @@ export const mockData = {
               "Teacher"
             ],
             "visibility": "Parent",
-            "showTimer": "No",
             "author": "Vivek",
             "solutions": [],
             "qType": "MCQ",
@@ -919,7 +914,6 @@ export const mockData = {
               "Teacher"
             ],
             "visibility": "Parent",
-            "showTimer": "No",
             "author": "Vivek",
             "solutions": [],
             "qType": "MCQ",
@@ -1031,7 +1025,6 @@ export const mockData = {
               "Teacher"
             ],
             "visibility": "Parent",
-            "showTimer": "No",
             "author": "Vivek",
             "solutions": [],
             "qType": "SA",
@@ -1154,7 +1147,6 @@ export const mockData = {
               "Teacher"
             ],
             "visibility": "Parent",
-            "showTimer": "No",
             "author": "Vivek",
             "solutions": [],
             "qType": "MCQ",

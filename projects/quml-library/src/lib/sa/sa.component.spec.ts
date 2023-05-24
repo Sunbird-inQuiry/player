@@ -52,7 +52,6 @@ describe('SaComponent', () => {
       "Teacher"
     ],
     "visibility": "Parent",
-    "showTimer": "No",
     "author": "Vivek",
     "solutions": [{
       type: 'image',
