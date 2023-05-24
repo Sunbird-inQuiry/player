@@ -199,7 +199,7 @@ const content1 = {
       "license": "CC BY 4.0",
       "version": 1,
       "prevStatus": "Draft",
-      "showHints": "No",
+      "showHints": false,
       "language": [
         "English"
       ],
@@ -398,7 +398,7 @@ const content1 = {
       "license": "CC BY 4.0",
       "version": 1,
       "prevStatus": "Draft",
-      "showHints": "No",
+      "showHints": false,
       "language": [
         "English"
       ],
@@ -469,7 +469,7 @@ const content1 = {
   "maxAttempts": 3,
   "version": 1,
   "prevStatus": "Draft",
-  "showHints": "No",
+  "showHints": false,
   "summaryType": "Complete",
   "language": [
     "English"
@@ -857,7 +857,7 @@ export const fakeSections = [
       "license": "CC BY 4.0",
       "version": 1,
       "prevStatus": "Draft",
-      "showHints": "No",
+      "showHints": false,
       "language": [
         "English"
       ],
@@ -1125,7 +1125,7 @@ export const fakeSections = [
       "license": "CC BY 4.0",
       "version": 1,
       "prevStatus": "Draft",
-      "showHints": "No",
+      "showHints": false,
       "language": [
         "English"
       ],
@@ -1246,7 +1246,7 @@ export const singleContent = {
   'downloadUrl': 'https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/questionset/do_213257772024733696115/adreddy_world_cricket_question_01_1618399462625_do_213257772024733696115_1_SPINE.ecar',
   'language': ['English'],
   'mimeType': 'application/vnd.sunbird.questionset',
-  'showHints': 'No',
+  'showHints': false,
   'variants': {
     'spine': 'https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/questionset/do_213257772024733696115/adreddy_world_cricket_question_01_1618399462625_do_213257772024733696115_1_SPINE.ecar',
     'online': 'https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/questionset/do_213257772024733696115/adreddy_world_cricket_question_01_1618399463944_do_213257772024733696115_1_ONLINE.ecar'

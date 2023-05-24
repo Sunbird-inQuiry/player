@@ -536,7 +536,7 @@ export const mockSectionPlayerConfig = {
       "license": "CC BY 4.0",
       "version": 1,
       "prevStatus": "Draft",
-      "showHints": "No",
+      "showHints": false,
       "language": [
         "English"
       ],

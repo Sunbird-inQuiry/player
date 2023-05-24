@@ -223,7 +223,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.showUserSolution = this.sectionConfig.metadata?.showSolutions;
     this.startPageInstruction = this.sectionConfig.metadata?.instructions || this.parentConfig.instructions;
     this.linearNavigation = this.sectionConfig.metadata.navigationMode === 'non-linear' ? false : true;
-    this.showHints = this.sectionConfig.metadata?.showHints?.toLowerCase() !== 'no';
+    this.showHints = this.sectionConfig.metadata?.showHints;
     this.points = this.sectionConfig.metadata?.points;
 
     this.allowSkip = this.sectionConfig.metadata?.allowSkip?.toLowerCase() !== 'no';
