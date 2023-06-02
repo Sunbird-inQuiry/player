@@ -35,6 +35,13 @@ jobs:
           name: Executing test cases
           command: npm run test-lib-ci
       - run:
+          name: Install  Node.js v16 with build in nvm tool
+          command: |
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+            nvm install v16 && nvm use 16 && nvm alias default 16
+            node -v    
+      - run:
           name: Install sonar scanner
           command: npm install -g sonarqube-scanner
       - run:
