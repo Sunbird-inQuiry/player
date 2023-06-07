@@ -48,16 +48,6 @@ jobs:
           name: Run Sonar scanner
           command: sonar-scanner
       - run:
-          name: Publish Web component to NPM
-          command: |
-            if [ -z $CIRCLE_PR_NUMBER ]; then
-              npm run build-web-component && npm pack ./web-component
-              echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/.npmrc
-              npm publish project-sunbird-sunbird-quml-player-web-component-* --access public
-            else
-              npm run build-web-component && npm pack ./web-component
-            fi    
-      - run:
           name: Publish to NPM
           command: |
             if [ -z $CIRCLE_PR_NUMBER ]; then
@@ -67,3 +57,13 @@ jobs:
             else
               npm run build-lib && npm pack ./dist/quml-library
             fi
+      - run:
+          name: Publish Web component to NPM
+          command: |
+            if [ -z $CIRCLE_PR_NUMBER ]; then
+              npm run build-web-component && npm pack ./web-component
+              echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/.npmrc
+              npm publish project-sunbird-sunbird-quml-player-web-component-* --access public
+            else
+              npm run build-web-component && npm pack ./web-component
+            fi    
