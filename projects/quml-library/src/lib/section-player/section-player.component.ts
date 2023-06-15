@@ -6,7 +6,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { QumlPlayerConfig, IParentConfig, IAttempts } from '../quml-library-interface';
 import { ViewerService } from '../services/viewer-service/viewer-service';
-import { eventName, pageId, TelemetryType } from '../telemetry-constants';
+import { eventName, pageId, TelemetryType, Cardinality, QuestionType } from '../telemetry-constants';
 import { DEFAULT_SCORE } from '../player-constants';
 import { UtilService } from '../util-service';
 
@@ -311,7 +311,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
 
     /* istanbul ignore else */
     if (this.myCarousel.getCurrentSlideIndex() > 0 &&
-      this.questions[this.myCarousel.getCurrentSlideIndex() - 1].qType === 'MCQ' && this.currentOptionSelected) {
+      this.questions[this.myCarousel.getCurrentSlideIndex() - 1].qType === QuestionType.mcq && this.currentOptionSelected) {
       const option = this.currentOptionSelected && this.currentOptionSelected['option'] ? this.currentOptionSelected['option'] : undefined;
       const identifier = this.questions[this.myCarousel.getCurrentSlideIndex() - 1].identifier;
       const qType = this.questions[this.myCarousel.getCurrentSlideIndex() - 1].qType;
@@ -521,7 +521,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
 
   getOptionSelected(optionSelected) {
     /* istanbul ignore else */
-    if (optionSelected.cardinality === "single" && JSON.stringify(this.currentOptionSelected) === JSON.stringify(optionSelected)) {
+    if (optionSelected.cardinality === Cardinality.single && JSON.stringify(this.currentOptionSelected) === JSON.stringify(optionSelected)) {
       return; // Same option selected
     }
     this.focusOnNextButton();
@@ -611,17 +611,17 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     const selectedOptionValue = option?.option?.value;
     const currentIndex = this.myCarousel.getCurrentSlideIndex() - 1;
     const isQuestionSkipAllowed = !this.optionSelectedObj &&
-      this.allowSkip && this.utilService.getQuestionType(this.questions, currentIndex) === 'MCQ';
-    const isSubjectiveQuestion = this.utilService.getQuestionType(this.questions, currentIndex) === 'SA';
+      this.allowSkip && this.utilService.getQuestionType(this.questions, currentIndex) === QuestionType.mcq;
+    const isSubjectiveQuestion = this.utilService.getQuestionType(this.questions, currentIndex) === QuestionType.sa;
     const onStartPage = this.startPageInstruction && this.myCarousel.getCurrentSlideIndex() === 0;
     const isActive = !this.optionSelectedObj && this.active;
     const selectedQuestion = this.questions[currentIndex];
     const key = selectedQuestion.responseDeclaration ? this.utilService.getKeyValue(Object.keys(selectedQuestion.responseDeclaration)) : '';
     this.slideDuration = Math.round((new Date().getTime() - this.initialSlideDuration) / 1000);
     const getParams = () => {
-      if (selectedQuestion.qType.toUpperCase() === 'MCQ' && selectedQuestion?.editorState?.options) {
+      if (selectedQuestion.qType.toUpperCase() === QuestionType.mcq && selectedQuestion?.editorState?.options) {
         return selectedQuestion.editorState.options;
-      } else if (selectedQuestion.qType.toUpperCase() === 'MCQ' && !_.isEmpty(selectedQuestion?.editorState)) {
+      } else if (selectedQuestion.qType.toUpperCase() === QuestionType.mcq && !_.isEmpty(selectedQuestion?.editorState)) {
         return [selectedQuestion?.editorState];
       } else {
         return [];
@@ -642,7 +642,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     }
 
     /* istanbul ignore else */
-    if (!this.optionSelectedObj && !this.isAssessEventRaised && selectedQuestion.qType.toUpperCase() !== 'SA') {
+    if (!this.optionSelectedObj && !this.isAssessEventRaised && selectedQuestion.qType.toUpperCase() !== QuestionType.sa) {
       this.isAssessEventRaised = true;
       this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'No', 0, [], this.slideDuration);
     }
@@ -651,7 +651,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       this.currentQuestion = selectedQuestion.body;
       this.currentOptions = selectedQuestion.interactions[key].options;
 
-      if (option.cardinality === 'single') {
+      if (option.cardinality === Cardinality.single) {
         const correctOptionValue = Number(selectedQuestion.responseDeclaration[key].correctResponse.value);
 
         this.showAlert = true;
@@ -678,7 +678,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
           }
         }
       }
-      if (option.cardinality === 'multiple') {
+      if (option.cardinality === Cardinality.multiple) {
         const responseDeclaration = this.questions[currentIndex].responseDeclaration;
         const outcomeDeclaration = this.questions[currentIndex].outcomeDeclaration;
         const currentScore = this.utilService.getMultiselectScore(option.option, responseDeclaration, this.isShuffleQuestions, outcomeDeclaration);
@@ -707,11 +707,11 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
         this.nextSlide();
       }
     } else if (this.startPageInstruction && !this.optionSelectedObj && !this.active && !this.allowSkip &&
-      this.myCarousel.getCurrentSlideIndex() > 0 && this.utilService.getQuestionType(this.questions, currentIndex) === 'MCQ'
+      this.myCarousel.getCurrentSlideIndex() > 0 && this.utilService.getQuestionType(this.questions, currentIndex) === QuestionType.mcq
       && this.utilService.canGo(this.progressBarClass[this.myCarousel.getCurrentSlideIndex()])) {
       this.infoPopupTimeOut();
     } else if (!this.optionSelectedObj && !this.active && !this.allowSkip && this.myCarousel.getCurrentSlideIndex() >= 0
-      && this.utilService.getQuestionType(this.questions, currentIndex) === 'MCQ'
+      && this.utilService.getQuestionType(this.questions, currentIndex) === QuestionType.mcq
       && this.utilService.canGo(this.progressBarClass[this.myCarousel.getCurrentSlideIndex()])) {
       this.infoPopupTimeOut();
     }
@@ -797,7 +797,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       let questionTitleElement;
 
       switch (questionType) {
-        case 'MCQ':
+        case QuestionType.mcq:
           questionTitleElement = element.querySelector('.mcq-title') as HTMLElement;
           break;
         default:
