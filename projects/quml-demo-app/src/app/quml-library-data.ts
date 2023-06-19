@@ -547,6 +547,8 @@ export const samplePlayerConfig = {
             'showReplay': false,
             'showExit': false,
         },
+        warningTime: 75,
+        showWarningTimer: true,
         nextContent: { name: 'Next content', identifier: 'do_231234332232' },
         showDeviceOrientation: true,
     },

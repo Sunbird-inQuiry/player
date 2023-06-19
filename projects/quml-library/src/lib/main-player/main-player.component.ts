@@ -214,7 +214,7 @@ export class MainPlayerComponent implements OnInit, OnChanges {
       this.userName = firstName + ' ' + lastName;
     }
 
-    if (this.playerConfig.metadata.isAvailableLocally && this.playerConfig.metadata.basePath) {
+    if (this.playerConfig.metadata?.isAvailableLocally && this.playerConfig.metadata?.basePath) {
       this.parentConfig.baseUrl = this.playerConfig.metadata.basePath;
       this.parentConfig.isAvailableLocally = true;
     }

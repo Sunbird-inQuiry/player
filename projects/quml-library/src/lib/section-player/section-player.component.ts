@@ -953,6 +953,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     const index = this.myCarousel.getCurrentSlideIndex() - 1;
     const currentQuestionId = this.questions[index]?.identifier;
     document.querySelectorAll('[data-asset-variable]').forEach(image => {
+      if(image.nodeName.toLowerCase() !== 'img') { return ;}
       const imageId = image.getAttribute('data-asset-variable');
       image.setAttribute('class', 'option-image');
       image.setAttribute('id', imageId);

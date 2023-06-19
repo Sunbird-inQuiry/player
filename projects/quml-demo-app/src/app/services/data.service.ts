@@ -28,14 +28,18 @@ export class DataService {
   }
 
   getQuestionSet(identifier: string) {
-    const hierarchy = this.httpClient.get(`${ApiEndPoints.getQuestionSetHierarchy}${identifier}`);
-    const questionSetResponse = this.httpClient.get(`${this.baseUrl}${ApiEndPoints.questionSetRead}${identifier}?fields=instructions`);
+    const hierarchy = this.httpClient.get(`${this.baseUrl}${ApiEndPoints.getQuestionSetHierarchy}${identifier}`);
+    const questionSetResponse = this.httpClient.get(`${this.baseUrl}${ApiEndPoints.questionSetRead}${identifier}?fields=instructions,outcomeDeclaration`);
     return (
       forkJoin([hierarchy, questionSetResponse]).pipe(map((res: any) => {
-        const questionSet = res[0]?.result.questionSet;
+        const questionSet = res[0]?.result.questionset;
         const instructions = res[1].result.questionset.instructions;
         if (instructions && questionSet) {
           questionSet.instructions = instructions;
+        }
+        const outcomeDeclaration = res[1].result.questionset.outcomeDeclaration
+        if (outcomeDeclaration && questionSet) {
+          questionSet.outcomeDeclaration = outcomeDeclaration;
         }
         return questionSet;
       })
