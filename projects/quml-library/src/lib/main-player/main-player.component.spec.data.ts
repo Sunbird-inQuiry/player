@@ -1,12 +1,17 @@
 
 const content1 = {
-  "instructions": {
-    "default": "<ol><li>Please circle the correct answer</li><li>Do not use mobile phones</li></ol>"
-  },
+  "instructions": "<ol><li>Please circle the correct answer</li><li>Do not use mobile phones</li></ol>",
   "copyright": "tn",
   "lastStatusChangedOn": "2022-02-28T07:56:09.733+0000",
-  "timeLimits": "{\"maxTime\":\"7200\",\"warningTime\":\"900\"}",
+  "timeLimits": '{"questionSet":{"max":300}}',
   "author": "Vivek",
+  "outcomeDeclaration": {
+    "maxScore": {
+      "cardinality": "single",
+      "type": "integer",
+      "defaultValue": 1
+    }
+  },
   "children": [
     {
       "lastStatusChangedOn": "2022-02-28T07:56:09.702+0000",
@@ -25,7 +30,6 @@ const content1 = {
           "subject": [
             "English"
           ],
-          "showTimer": "No",
           "identifier": "do_21348431559137689613",
           "gradeLevel": [
             "Class 4"
@@ -63,7 +67,6 @@ const content1 = {
             "English"
           ],
           "board": "State (Tamil Nadu)",
-          "showFeedback": "No",
           "objectType": "Question",
           "status": "Live",
           "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -80,7 +83,6 @@ const content1 = {
           "artifactUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431559137689613/do_21348431559137689613_1646040138601.zip",
           "visibility": "Parent",
           "qType": "MCQ",
-          "showSolutions": "No",
           "variants": {
             "full": {
               "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431559137689613/q1_1646040140133_do_21348431559137689613_1.ecar",
@@ -106,7 +108,6 @@ const content1 = {
           "subject": [
             "English"
           ],
-          "showTimer": "No",
           "identifier": "do_21348431640099225615",
           "gradeLevel": [
             "Class 4"
@@ -144,7 +145,6 @@ const content1 = {
             "English"
           ],
           "board": "State (Tamil Nadu)",
-          "showFeedback": "No",
           "objectType": "Question",
           "status": "Live",
           "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -161,7 +161,6 @@ const content1 = {
           "artifactUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/do_21348431640099225615_1646040142347.zip",
           "visibility": "Parent",
           "qType": "MCQ",
-          "showSolutions": "No",
           "variants": {
             "full": {
               "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/q2_1646040142399_do_21348431640099225615_1.ecar",
@@ -182,7 +181,7 @@ const content1 = {
       "channel": "01269878797503692810",
       "generateDIALCodes": "No",
       "lastUpdatedOn": "2022-02-28T07:56:09.702+0000",
-      "showTimer": "No",
+      "showTimer": false,
       "identifier": "do_21348431528472576011",
       "description": "This is a section 1",
       "containsUserData": "No",
@@ -200,11 +199,11 @@ const content1 = {
       "license": "CC BY 4.0",
       "version": 1,
       "prevStatus": "Draft",
-      "showHints": "No",
+      "showHints": false,
       "language": [
         "English"
       ],
-      "showFeedback": "Yes",
+      "showFeedback": true,
       "objectType": "QuestionSet",
       "status": "Live",
       "requiresSubmit": "No",
@@ -215,7 +214,7 @@ const content1 = {
       "contentDisposition": "inline",
       "allowBranching": "No",
       "visibility": "Parent",
-      "showSolutions": "Yes",
+      "showSolutions": true,
       "index": 1
     },
     {
@@ -234,7 +233,6 @@ const content1 = {
           "subject": [
             "English"
           ],
-          "showTimer": "No",
           "identifier": "do_21348431719053721619",
           "gradeLevel": [
             "Class 4"
@@ -268,7 +266,6 @@ const content1 = {
             "English"
           ],
           "board": "State (Tamil Nadu)",
-          "showFeedback": "No",
           "objectType": "Question",
           "status": "Live",
           "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -285,7 +282,6 @@ const content1 = {
           "artifactUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431719053721619/do_21348431719053721619_1646040142794.zip",
           "visibility": "Parent",
           "qType": "SA",
-          "showSolutions": "No",
           "variants": {
             "full": {
               "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431719053721619/q1_1646040142839_do_21348431719053721619_1.ecar",
@@ -311,7 +307,6 @@ const content1 = {
           "subject": [
             "English"
           ],
-          "showTimer": "No",
           "identifier": "do_213484318131216384111",
           "gradeLevel": [
             "Class 4"
@@ -349,7 +344,6 @@ const content1 = {
             "English"
           ],
           "board": "State (Tamil Nadu)",
-          "showFeedback": "No",
           "objectType": "Question",
           "status": "Live",
           "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -366,7 +360,6 @@ const content1 = {
           "artifactUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_213484318131216384111/do_213484318131216384111_1646040143179.zip",
           "visibility": "Parent",
           "qType": "MCQ",
-          "showSolutions": "No",
           "variants": {
             "full": {
               "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_213484318131216384111/q2_1646040143227_do_213484318131216384111_1.ecar",
@@ -387,7 +380,7 @@ const content1 = {
       "channel": "01269878797503692810",
       "generateDIALCodes": "No",
       "lastUpdatedOn": "2022-02-28T07:56:09.703+0000",
-      "showTimer": "No",
+      "showTimer": false,
       "identifier": "do_21348431657166438417",
       "description": "This is sample section number 2",
       "containsUserData": "No",
@@ -405,11 +398,11 @@ const content1 = {
       "license": "CC BY 4.0",
       "version": 1,
       "prevStatus": "Draft",
-      "showHints": "No",
+      "showHints": false,
       "language": [
         "English"
       ],
-      "showFeedback": "Yes",
+      "showFeedback": true,
       "objectType": "QuestionSet",
       "status": "Live",
       "requiresSubmit": "No",
@@ -420,7 +413,7 @@ const content1 = {
       "contentDisposition": "inline",
       "allowBranching": "No",
       "visibility": "Parent",
-      "showSolutions": "Yes",
+      "showSolutions": true,
       "index": 2
     }
   ],
@@ -433,13 +426,12 @@ const content1 = {
   "channel": "01269878797503692810",
   "pdfUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/questionset/do_213484313936035840138/do_213484313936035840138_pdf_1646040143902.pdf",
   "generateDIALCodes": "No",
-  "maxScore": 4,
   "lastUpdatedOn": "2022-02-28T07:56:09.745+0000",
   "subject": [
     "English"
   ],
   "size": 10556,
-  "showTimer": "No",
+  "showTimer": false,
   "identifier": "do_213484313936035840138",
   "description": "This is sample test questionset",
   "gradeLevel": [
@@ -477,13 +469,13 @@ const content1 = {
   "maxAttempts": 3,
   "version": 1,
   "prevStatus": "Draft",
-  "showHints": "No",
+  "showHints": false,
   "summaryType": "Complete",
   "language": [
     "English"
   ],
   "board": "State (Tamil Nadu)",
-  "showFeedback": "No",
+  "showFeedback": false,
   "lastPublishedOn": "2022-02-28T09:22:23.535+0000",
   "objectType": "QuestionSet",
   "status": "Live",
@@ -513,7 +505,7 @@ const content1 = {
     "do_213484318131216384111"
   ],
   "visibility": "Default",
-  "showSolutions": "No",
+  "showSolutions": false,
   "variants": {
     "spine": {
       "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/questionset/do_213484313936035840138/vivek-test-questionset_1646040143641_do_213484313936035840138_1_SPINE.ecar",
@@ -585,7 +577,10 @@ export const playerConfig = {
       'showDownload': false,
       'showReplay': false,
       'showExit': false,
-    }
+    },
+    warningTime: 75,
+    showWarningTimer: true
+
   },
   'data': {}
 }
@@ -693,7 +688,6 @@ export const fakeSections = [
           "subject": [
             "English"
           ],
-          "showTimer": "No",
           "identifier": "do_21348431559137689613",
           "gradeLevel": [
             "Class 4"
@@ -731,7 +725,6 @@ export const fakeSections = [
             "English"
           ],
           "board": "State (Tamil Nadu)",
-          "showFeedback": "No",
           "objectType": "Question",
           "status": "Live",
           "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -748,7 +741,6 @@ export const fakeSections = [
           "artifactUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431559137689613/do_21348431559137689613_1646040138601.zip",
           "visibility": "Parent",
           "qType": "MCQ",
-          "showSolutions": "No",
           "variants": {
             "full": {
               "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431559137689613/q1_1646040140133_do_21348431559137689613_1.ecar",
@@ -774,7 +766,6 @@ export const fakeSections = [
           "subject": [
             "English"
           ],
-          "showTimer": "No",
           "identifier": "do_21348431640099225615",
           "gradeLevel": [
             "Class 4"
@@ -812,7 +803,6 @@ export const fakeSections = [
             "English"
           ],
           "board": "State (Tamil Nadu)",
-          "showFeedback": "No",
           "objectType": "Question",
           "status": "Live",
           "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -829,7 +819,6 @@ export const fakeSections = [
           "artifactUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/do_21348431640099225615_1646040142347.zip",
           "visibility": "Parent",
           "qType": "MCQ",
-          "showSolutions": "No",
           "variants": {
             "full": {
               "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/q2_1646040142399_do_21348431640099225615_1.ecar",
@@ -850,7 +839,7 @@ export const fakeSections = [
       "channel": "01269878797503692810",
       "generateDIALCodes": "No",
       "lastUpdatedOn": "2022-02-28T07:56:09.702+0000",
-      "showTimer": "No",
+      "showTimer": false,
       "identifier": "do_21348431528472576011",
       "description": "This is a section 1",
       "containsUserData": "No",
@@ -868,11 +857,11 @@ export const fakeSections = [
       "license": "CC BY 4.0",
       "version": 1,
       "prevStatus": "Draft",
-      "showHints": "No",
+      "showHints": false,
       "language": [
         "English"
       ],
-      "showFeedback": "Yes",
+      "showFeedback": true,
       "objectType": "QuestionSet",
       "status": "Live",
       "requiresSubmit": "No",
@@ -883,11 +872,12 @@ export const fakeSections = [
       "contentDisposition": "inline",
       "allowBranching": "No",
       "visibility": "Parent",
-      "showSolutions": "Yes",
+      "showSolutions": true,
       "index": 1,
       "timeLimits": {
-        "maxTime": "7200",
-        "warningTime": "900"
+        "questionSet": {
+            "max": 300
+        }    
       },
       "childNodes": [
         "do_21348431640099225615",
@@ -970,7 +960,6 @@ export const fakeSections = [
           "subject": [
             "English"
           ],
-          "showTimer": "No",
           "identifier": "do_21348431719053721619",
           "gradeLevel": [
             "Class 4"
@@ -1004,7 +993,6 @@ export const fakeSections = [
             "English"
           ],
           "board": "State (Tamil Nadu)",
-          "showFeedback": "No",
           "objectType": "Question",
           "status": "Live",
           "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -1021,7 +1009,6 @@ export const fakeSections = [
           "artifactUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431719053721619/do_21348431719053721619_1646040142794.zip",
           "visibility": "Parent",
           "qType": "SA",
-          "showSolutions": "No",
           "variants": {
             "full": {
               "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431719053721619/q1_1646040142839_do_21348431719053721619_1.ecar",
@@ -1047,7 +1034,6 @@ export const fakeSections = [
           "subject": [
             "English"
           ],
-          "showTimer": "No",
           "identifier": "do_213484318131216384111",
           "gradeLevel": [
             "Class 4"
@@ -1085,7 +1071,6 @@ export const fakeSections = [
             "English"
           ],
           "board": "State (Tamil Nadu)",
-          "showFeedback": "No",
           "objectType": "Question",
           "status": "Live",
           "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -1102,7 +1087,6 @@ export const fakeSections = [
           "artifactUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_213484318131216384111/do_213484318131216384111_1646040143179.zip",
           "visibility": "Parent",
           "qType": "MCQ",
-          "showSolutions": "No",
           "variants": {
             "full": {
               "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_213484318131216384111/q2_1646040143227_do_213484318131216384111_1.ecar",
@@ -1123,7 +1107,7 @@ export const fakeSections = [
       "channel": "01269878797503692810",
       "generateDIALCodes": "No",
       "lastUpdatedOn": "2022-02-28T07:56:09.703+0000",
-      "showTimer": "No",
+      "showTimer": false,
       "identifier": "do_21348431657166438417",
       "description": "This is sample section number 2",
       "containsUserData": "No",
@@ -1141,11 +1125,11 @@ export const fakeSections = [
       "license": "CC BY 4.0",
       "version": 1,
       "prevStatus": "Draft",
-      "showHints": "No",
+      "showHints": false,
       "language": [
         "English"
       ],
-      "showFeedback": "Yes",
+      "showFeedback": true,
       "objectType": "QuestionSet",
       "status": "Live",
       "requiresSubmit": "No",
@@ -1156,11 +1140,12 @@ export const fakeSections = [
       "contentDisposition": "inline",
       "allowBranching": "No",
       "visibility": "Parent",
-      "showSolutions": "Yes",
+      "showSolutions": true,
       "index": 2,
       "timeLimits": {
-        "maxTime": "7200",
-        "warningTime": "900"
+        "questionSet": {
+            "max": 300
+        }    
       },
       "childNodes": [
         "do_21348431719053721619",
@@ -1187,10 +1172,14 @@ export const fakeSections = [
 export const singleContent = {
   'currentAttempt': 1,
   'summaryType': 'Complete',
-  'maxScore': '10',
-  'instructions': {
-    'default': 'instructions in the specified language'
+  "outcomeDeclaration": {
+    "maxScore": {
+      "cardinality": "single",
+      "type": "integer",
+      "defaultValue": 10
+    }
   },
+  'instructions': 'instructions in the specified language',
   'copyright': 'tn',
   'children': [
     {
@@ -1206,7 +1195,6 @@ export const singleContent = {
       'subject': [
         'English'
       ],
-      'showTimer': 'No',
       'identifier': 'do_213257774888443904116',
       'gradeLevel': [
         'Class 10'
@@ -1237,7 +1225,6 @@ export const singleContent = {
         'English'
       ],
       'board': 'State (Tamil Nadu)',
-      'showFeedback': 'No',
       'objectType': 'Question',
       'status': 'Live',
       'contentEncoding': 'gzip',
@@ -1249,7 +1236,6 @@ export const singleContent = {
       'contentDisposition': 'inline',
       'visibility': 'Parent',
       'qType': 'MCQ',
-      'showSolutions': 'No',
       'index': 1,
       'pkgVersion': 1
     }],
@@ -1260,7 +1246,7 @@ export const singleContent = {
   'downloadUrl': 'https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/questionset/do_213257772024733696115/adreddy_world_cricket_question_01_1618399462625_do_213257772024733696115_1_SPINE.ecar',
   'language': ['English'],
   'mimeType': 'application/vnd.sunbird.questionset',
-  'showHints': 'No',
+  'showHints': false,
   'variants': {
     'spine': 'https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/questionset/do_213257772024733696115/adreddy_world_cricket_question_01_1618399462625_do_213257772024733696115_1_SPINE.ecar',
     'online': 'https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/questionset/do_213257772024733696115/adreddy_world_cricket_question_01_1618399463944_do_213257772024733696115_1_ONLINE.ecar'
@@ -1269,11 +1255,11 @@ export const singleContent = {
   'gradeLevel': ['Class 10'],
   'primaryCategory': 'Practice Question Set',
   'contentEncoding': 'gzip',
-  'showSolutions': 'Yes',
+  'showSolutions': true,
   'identifier': 'do_213257772024733696115',
   'audience': ['Student'],
   'visibility': 'Default',
-  'showTimer': 'Yes',
+  'showTimer': true,
   'author': 'Adarsh',
   'consumerId': 'b350f619-5eb4-45d5-87ce-fb143ae9f684',
   'childNodes': ['do_213267129481953280156'],
@@ -1305,15 +1291,16 @@ export const singleContent = {
   'setType': 'materialised',
   'pkgVersion': 1,
   'versionKey': '1618399235740',
-  'showFeedback': 'Yes',
+  'showFeedback': true,
   'framework': 'tn_k-12_5',
   'depth': 0,
   'createdBy': '4cd4c690-eab6-4938-855a-447c7b1b8ea9',
   'compatibilityLevel': 4,
   'navigationMode': 'non-linear',
-  'timeLimits': {
-    'maxTime': '180',
-    'warningTime': '5'
+  "timeLimits": {
+    "questionSet": {
+        "max": 300
+    }    
   },
   'shuffle': true,
   'board': 'State (Tamil Nadu)'

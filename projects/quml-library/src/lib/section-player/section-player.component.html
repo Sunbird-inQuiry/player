@@ -1,7 +1,7 @@
 <div class="quml-container" *ngIf="loadView" [hidden]="showZoomModal">
   <div [hidden]="showSolution" class="quml-landscape">
     <quml-header class="main-header" (durationEnds)="durationEnds()" [disablePreviousNavigation]="linearNavigation"
-      [duration]="timeLimit" [warningTime]="warningTime" [showTimer]="showTimer" [showLegend]="parentConfig?.showLegend"
+      [duration]="timeLimit" [warningTime]="warningTime" [showWarningTimer]="showWarningTimer" [showTimer]="showTimer" [showLegend]="parentConfig?.showLegend"
       (nextSlideClicked)="nextSlideClicked($event)" (prevSlideClicked)="previousSlideClicked($event)"
       [currentSlideIndex]="currentSlideIndex" [totalNoOfQuestions]="noOfQuestions" [active]="active"
       [showFeedBack]="showFeedBack" [currentSolutions]="currentSolutions" (showSolution)="viewSolution()"
@@ -24,7 +24,7 @@
           (activeSlideChange)="activeSlideChange($event)">
           <slide>
             <quml-startpage
-              [instructions]="showRootInstruction ? parentConfig?.instructions : sectionConfig.metadata?.instructions?.default"
+              [instructions]="showRootInstruction ? parentConfig?.instructions : sectionConfig.metadata?.instructions"
               [points]="points" [time]="showRootInstruction ? timeLimit : null" [showTimer]="showTimer"
               [totalNoOfQuestions]="showRootInstruction ? parentConfig?.questionCount : noOfQuestions"
               [contentName]="showRootInstruction ? parentConfig?.contentName : parentConfig?.isSectionsAvailable ? sectionConfig?.metadata?.name : parentConfig?.contentName">
@@ -124,7 +124,7 @@
     (closeAlert)="closeAlertBox($event)"></quml-alert>
 
   <quml-mcq-solutions *ngIf="showSolution" [question]="currentQuestion" [options]="currentOptions"
-    [solutions]="currentSolutions" (close)="closeSolution()"></quml-mcq-solutions>
+    [solutions]="currentSolutions" [baseUrl]="parentConfig?.baseUrl" [media]="media" [identifier]="currentQuestionIndetifier" (close)="closeSolution()"></quml-mcq-solutions>
 </div>
 
 <div class="info-popup" *ngIf="infoPopup">

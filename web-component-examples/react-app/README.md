@@ -115,7 +115,7 @@ function App() {
   
   // Assign jQuery and questionListUrl to window object
    window.jQuery = $;
-+  window.questionListUrl = "https://staging.sunbirded.org/api/question/v1/list";
++  window.questionListUrl = "https://dev.inquiry.sunbird.org/api/question/v2/list";
   
   return (
     <div className="App">
@@ -151,7 +151,7 @@ function App() {
 
   // Assign jQuery and questionListUrl to window object
   window.jQuery = $;
-  window.questionListUrl = "https://staging.sunbirded.org/api/question/v1/list";
+  window.questionListUrl = "https://dev.inquiry.sunbird.org/api/question/v2/list";
 
 +  useEffect(() => {
 +    const playerElement = sunbirdQumlPlayerRef.current;

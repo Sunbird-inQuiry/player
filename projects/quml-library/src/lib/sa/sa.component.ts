@@ -1,5 +1,7 @@
 import { AfterViewInit, Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
+import * as _ from 'lodash-es';
+import { UtilService } from '../util-service';
 
 @Component({
   selector: 'quml-sa',
@@ -18,7 +20,18 @@ export class SaComponent implements OnInit, OnChanges, AfterViewInit {
   solutions: any;
   question: any;
   answer: any;
-  constructor( public domSanitizer: DomSanitizer ) { }
+  constructor( public domSanitizer: DomSanitizer, private utilService: UtilService ) { }
+
+  ngOnInit() {
+    this.question = this.questions?.body;
+    this.answer = this.questions?.answer;
+    this.solutions = _.isEmpty(this.questions?.solutions) ? null : this.questions?.solutions;
+  }
+
+  ngAfterViewInit() {
+    this.handleKeyboardAccessibility();
+    this.utilService.updateSourceOfVideoElement(this.baseUrl, this.questions?.media, this.questions.identifier);
+  }
 
   ngOnChanges() {
     if (this.replayed) {
@@ -54,35 +67,5 @@ export class SaComponent implements OnInit, OnChanges, AfterViewInit {
         });
       }
     });
-  }
-
-  ngOnInit() {
-    this.question = this.questions?.body;
-    this.answer = this.questions?.answer;
-    this.solutions = this.questions?.solutions;
-    this.questions?.solutions.forEach(ele => {
-      /* istanbul ignore else */
-      if (ele.type === 'video' || ele.type === 'image') {
-        this.questions?.media.forEach(e => {
-          /* istanbul ignore else */
-          if (ele.value === e.id) {
-            if (this.baseUrl) {
-              ele.src = `${this.baseUrl}/${this.questions.identifier}/${e.src}`;
-            } else {
-              ele.src = e.baseUrl ? e.baseUrl + e.src : e.src;
-            }
-
-            /* istanbul ignore else */
-            if (e.thumbnail) {
-              ele.thumbnail = e.thumbnail;
-            }
-          }
-        });
-      } 
-    });
-  }
-
-  ngAfterViewInit() {
-    this.handleKeyboardAccessibility()
   }
 }

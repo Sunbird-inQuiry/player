@@ -10,6 +10,7 @@ import { UtilService } from './../util-service';
 import { ISideBarEvent } from '@project-sunbird/sunbird-player-sdk-v9/sunbird-player-sdk.interface';
 import { fromEvent, Subscription } from 'rxjs';
 import maintain from 'ally.js/esm/maintain/_maintain';
+import { WARNING_TIME_CONFIG } from './../player-constants';
 @Component({
   selector: 'quml-main-player',
   templateUrl: './main-player.component.html',
@@ -49,7 +50,9 @@ export class MainPlayerComponent implements OnInit, OnChanges {
       showExit: false,
     },
     showFeedback: false,
-    showLegend: true
+    showLegend: true,
+    warningTime: WARNING_TIME_CONFIG.DEFAULT_TIME,
+    showWarningTimer: WARNING_TIME_CONFIG.SHOW_TIMER
   };
 
   showEndPage: boolean;
@@ -197,12 +200,14 @@ export class MainPlayerComponent implements OnInit, OnChanges {
     this.parentConfig.contentName = this.playerConfig.metadata?.name;
     this.parentConfig.identifier = this.playerConfig.metadata?.identifier;
     this.parentConfig.requiresSubmit = this.playerConfig.metadata?.requiresSubmit?.toLowerCase() !== 'no';
-    this.parentConfig.instructions = this.playerConfig.metadata?.instructions?.default;
+    this.parentConfig.instructions = this.playerConfig.metadata?.instructions;
     this.parentConfig.showLegend = this.playerConfig.config?.showLegend !== undefined ? this.playerConfig.config.showLegend : true;
     this.nextContent = this.playerConfig.config?.nextContent;
     this.showEndPage = this.playerConfig.metadata?.showEndPage?.toLowerCase() !== 'no';
-    this.parentConfig.showFeedback = this.showFeedBack = this.playerConfig.metadata?.showFeedback?.toLowerCase() === 'yes';
+    this.parentConfig.showFeedback = this.showFeedBack = this.playerConfig.metadata?.showFeedback;
     this.parentConfig.sideMenuConfig = { ...this.parentConfig.sideMenuConfig, ...this.playerConfig.config.sideMenu };
+    this.parentConfig.warningTime =  _.get(this.playerConfig,'config.warningTime', this.parentConfig.warningTime);
+    this.parentConfig.showWarningTimer =  _.get(this.playerConfig,'config.showWarningTimer', this.parentConfig.showWarningTimer)
     if (this.playerConfig?.context?.userData) {
       const firstName = this.playerConfig.context.userData?.firstName ?? '';
       const lastName = this.playerConfig.context.userData?.lastName ?? '';
@@ -218,7 +223,7 @@ export class MainPlayerComponent implements OnInit, OnChanges {
       max: this.playerConfig.metadata?.maxAttempts,
       current: this.playerConfig.metadata?.currentAttempt ? this.playerConfig.metadata.currentAttempt + 1 : 1
     };
-    this.totalScore = this.playerConfig.metadata.maxScore;
+    this.totalScore = this.playerConfig.metadata.outcomeDeclaration.maxScore.defaultValue;
     this.showReplay = this.attempts?.max && this.attempts?.current >= this.attempts.max ? false : true;
     if (typeof this.playerConfig.metadata?.timeLimits === 'string') {
       this.playerConfig.metadata.timeLimits = JSON.parse(this.playerConfig.metadata.timeLimits);

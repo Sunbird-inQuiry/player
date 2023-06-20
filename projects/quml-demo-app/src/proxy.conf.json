@@ -1,18 +1,18 @@
 {
   "/api/*": {
-    "target": "https://staging.sunbirded.org",
+    "target": "https://dev.inquiry.sunbird.org",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true
   },
-  "/learner/*": {
-    "target": "https://staging.sunbirded.org",
+  "/action/*": {
+    "target": "https://dev.inquiry.sunbird.org",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true
   },
   "/assets/*": {
-    "target": "https://staging.sunbirded.org",
+    "target": "https://dev.inquiry.sunbird.org",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true

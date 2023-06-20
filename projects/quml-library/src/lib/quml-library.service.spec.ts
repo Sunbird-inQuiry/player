@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { CsTelemetryModule } from '@project-sunbird/client-services/telemetry';
 import { QumlLibraryService } from './quml-library.service';
-import { mockQumlLibraryServiceData, optionPlayerConfig } from './quml-library.service.data';
+import { mockQumlLibraryServiceData, optionPlayerConfig } from './quml-library.service.spec.data';
 
 describe('QumlLibraryService', () => {
 
