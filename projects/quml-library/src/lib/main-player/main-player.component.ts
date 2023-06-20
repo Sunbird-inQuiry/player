@@ -10,7 +10,7 @@ import { UtilService } from './../util-service';
 import { ISideBarEvent } from '@project-sunbird/sunbird-player-sdk-v9/sunbird-player-sdk.interface';
 import { fromEvent, Subscription } from 'rxjs';
 import maintain from 'ally.js/esm/maintain/_maintain';
-import { WARNING_CONFIG } from './../player-constants';
+import { WARNING_TIME_CONFIG } from './../player-constants';
 @Component({
   selector: 'quml-main-player',
   templateUrl: './main-player.component.html',
@@ -51,8 +51,8 @@ export class MainPlayerComponent implements OnInit, OnChanges {
     },
     showFeedback: false,
     showLegend: true,
-    warningTime: WARNING_CONFIG.DEFAULT_TIME,
-    showWarningTimer: WARNING_CONFIG.SHOW_TIMER
+    warningTime: WARNING_TIME_CONFIG.DEFAULT_TIME,
+    showWarningTimer: WARNING_TIME_CONFIG.SHOW_TIMER
   };
 
   showEndPage: boolean;
