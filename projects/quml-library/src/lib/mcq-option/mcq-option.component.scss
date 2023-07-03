@@ -36,7 +36,6 @@
 .quml-option {
   position: relative;
   background-color:var(--quml-option-card-bg);
-  padding: 0.25rem;
   border-radius: 0.25rem;
   border: 0.0625rem solid var(--quml-btn-border);
   padding: 1rem;
@@ -125,7 +124,6 @@ input:checked~.radiomark:after, .quml-option--selected .radiomark:after {
 /* Style the indicator (circle) */
 
 .container .radiomark:after, .quml-option--selected .container .radiomark:after {
-  margin: 0.125rem;
   width: 0.75rem;
   height: 0.75rem;
   border-radius: 50%;
@@ -141,7 +139,6 @@ input:checked~.radiomark:after, .quml-option--selected .radiomark:after {
 /* Style the indicator (square) */
 
 .container .checkmark:after, .quml-option--selected .container .checkmark:after {
-  margin: 0.125rem;
   width: 0.75rem;
   height: 0.75rem;
   background:var(--primary-color);

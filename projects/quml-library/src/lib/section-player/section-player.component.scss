@@ -397,12 +397,10 @@
 @media only screen and (max-width: 480px) {
   .lanscape-mode-right {
     background: var(--white);
-    height: 2.5rem;
     display: flex;
     align-items: center;
     overflow-x: auto;
     overflow-y: hidden;
-    padding-top: 1rem;
     width: 90%;
     height: 2.5rem;
     padding: 1rem 0 0;
@@ -545,7 +543,7 @@
   top: 18%;
   right: 10%;
   font-size: 0.875rem;
-  font-family: noto-sans;
+  font-family: noto-sans; //NOSONAR
   box-shadow: 0 0.125rem 0.875rem 0 rgba(0, 0, 0, 0.1);
   padding: 0.75rem;
 }
