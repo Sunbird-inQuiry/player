@@ -1,15 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component} from '@angular/core';
 
 @Component({
   selector: 'quml-durationtimer',
-  templateUrl: './durationtimer.component.html',
-  styleUrls: ['./durationtimer.component.css']
+  templateUrl: './durationtimer.component.html'
 })
-export class DurationtimerComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
-
-}
+export class DurationtimerComponent {}

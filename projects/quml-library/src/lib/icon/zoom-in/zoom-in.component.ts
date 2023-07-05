@@ -1,15 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'quml-zoom-in',
-  templateUrl: './zoom-in.component.html',
-  styleUrls: ['./zoom-in.component.css']
+  templateUrl: './zoom-in.component.html'
 })
-export class ZoomInComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
-
-}
+export class ZoomInComponent {}

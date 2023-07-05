@@ -543,7 +543,7 @@
   top: 18%;
   right: 10%;
   font-size: 0.875rem;
-  font-family: noto-sans; //NOSONAR
+  // font-family: noto-sans; //NOSONAR
   box-shadow: 0 0.125rem 0.875rem 0 rgba(0, 0, 0, 0.1);
   padding: 0.75rem;
 }
@@ -608,9 +608,6 @@
 
 .potrait-header-top {
   visibility: hidden;
-}
-
-.potrait-header-top {
   margin-top: -2.5rem;
 }
 

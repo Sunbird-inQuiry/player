@@ -196,7 +196,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       this.removeAttribute();
 
       setTimeout(() => {
-        const menuBtn = document.querySelector('#overlay-button') as HTMLElement;
+        const menuBtn: HTMLElement = document.querySelector('#overlay-button');
         /* istanbul ignore else */
         if (menuBtn) {
           menuBtn.focus({ preventScroll: true });
@@ -260,7 +260,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
 
   removeAttribute() {
     setTimeout(() => {
-      const firstSlide = document.querySelector('.carousel.slide') as HTMLElement;
+      const firstSlide: HTMLElement = document.querySelector('.carousel.slide');
       /* istanbul ignore else */
       if (firstSlide) {
         firstSlide.removeAttribute("tabindex");
@@ -312,7 +312,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     /* istanbul ignore else */
     if (this.myCarousel.getCurrentSlideIndex() > 0 &&
       this.questions[this.myCarousel.getCurrentSlideIndex() - 1].qType === QuestionType.mcq && this.currentOptionSelected) {
-      const option = this.currentOptionSelected && this.currentOptionSelected['option'] ? this.currentOptionSelected['option'] : undefined;
+      const option = this.currentOptionSelected?.option ? this.currentOptionSelected['option'] : undefined;
       const identifier = this.questions[this.myCarousel.getCurrentSlideIndex() - 1].identifier;
       const qType = this.questions[this.myCarousel.getCurrentSlideIndex() - 1].qType;
       this.viewerService.raiseResponseEvent(identifier, qType, option);
@@ -388,8 +388,8 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
   activeSlideChange(event) {
     this.initialSlideDuration = new Date().getTime();
     this.isAssessEventRaised = false;
-    const questionElement = document.querySelector('li.progressBar-border') as HTMLElement;
-    const progressBarContainer = document.querySelector(".lanscape-mode-right") as HTMLElement;
+    const questionElement: HTMLElement = document.querySelector('li.progressBar-border');
+    const progressBarContainer: HTMLElement = document.querySelector(".lanscape-mode-right");
 
     /* istanbul ignore else */
     if (progressBarContainer && questionElement && !this.parentConfig.isReplayed) {
@@ -511,7 +511,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
 
   focusOnNextButton() {
     setTimeout(() => {
-      const nextBtn = document.querySelector('.quml-navigation__next') as HTMLElement;
+      const nextBtn: HTMLElement = document.querySelector('.quml-navigation__next');
       /* istanbul ignore else */
       if (nextBtn) {
         nextBtn.focus({ preventScroll: true });
@@ -792,16 +792,16 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
   highlightQuestion() {
     const currentQuestion = this.questions[this.currentSlideIndex - 1];
     const questionType = currentQuestion?.qType?.toUpperCase();
-    const element = document.getElementById(currentQuestion?.identifier) as HTMLElement;
+    const element: HTMLElement = document.getElementById(currentQuestion?.identifier);
     if (element && questionType) {
-      let questionTitleElement;
+      let questionTitleElement: HTMLElement;
 
       switch (questionType) {
         case QuestionType.mcq:
-          questionTitleElement = element.querySelector('.mcq-title') as HTMLElement;
+          questionTitleElement = element.querySelector('.mcq-title');
           break;
         default:
-          questionTitleElement = element.querySelector('.question-container') as HTMLElement;
+          questionTitleElement = element.querySelector('.question-container');
       }
 
       if (questionTitleElement) {

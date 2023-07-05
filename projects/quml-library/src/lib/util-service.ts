@@ -7,8 +7,6 @@ import { DEFAULT_SCORE } from './player-constants'
 })
 export class UtilService {
 
-    constructor() { }
-
     public uniqueId(length = 32) {
         let result = '';
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

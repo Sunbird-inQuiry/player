@@ -17,7 +17,6 @@ export class StartpageComponent implements OnInit {
   seconds: string | number;
 
   ngOnInit() {
-    const durationInSec = this.time / 1000;
     this.minutes = Math.floor(this.time / 60);
     this.seconds = this.time - this.minutes * 60 <  10 ? `0${this.time - this.minutes * 60}`  :  this.time - this.minutes * 60;
   }

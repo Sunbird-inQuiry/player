@@ -1,13 +1,12 @@
 import { Component, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { contentErrorMessage } from '@project-sunbird/sunbird-player-sdk-v9/lib/player-utils/interfaces/errorMessage';
-import { NextContent } from '@project-sunbird/sunbird-player-sdk-v9/sunbird-player-sdk.interface';
+import { NextContent, ISideBarEvent } from '@project-sunbird/sunbird-player-sdk-v9/sunbird-player-sdk.interface';
 import * as _ from 'lodash-es';
 import { SectionPlayerComponent } from '../section-player/section-player.component';
 import { IAttempts, IParentConfig, ISummary, QumlPlayerConfig } from './../quml-library-interface';
 import { ViewerService } from './../services/viewer-service/viewer-service';
 import { eventName, pageId, TelemetryType, MimeType } from './../telemetry-constants';
 import { UtilService } from './../util-service';
-import { ISideBarEvent } from '@project-sunbird/sunbird-player-sdk-v9/sunbird-player-sdk.interface';
 import { fromEvent, Subscription } from 'rxjs';
 import maintain from 'ally.js/esm/maintain/_maintain';
 import { WARNING_TIME_CONFIG } from './../player-constants';
@@ -393,7 +392,7 @@ export class MainPlayerComponent implements OnInit, OnChanges {
 
     setTimeout(() => {
       this.parentConfig.isReplayed = false;
-      const element = document.querySelector('li.info-page') as HTMLElement;
+      const element: HTMLElement = document.querySelector('li.info-page');
       /* istanbul ignore else */
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' });
@@ -528,10 +527,10 @@ export class MainPlayerComponent implements OnInit, OnChanges {
   }
 
   handleSideBarAccessibility(event) {
-    const navBlock = document.querySelector('.navBlock') as HTMLInputElement;
-    const overlayInput = document.querySelector('#overlay-input') as HTMLElement;
-    const overlayButton = document.querySelector('#overlay-button') as HTMLElement;
-    const sideBarList = document.querySelector('#sidebar-list') as HTMLElement;
+    const navBlock: HTMLInputElement = document.querySelector('.navBlock');
+    const overlayInput: HTMLElement = document.querySelector('#overlay-input');
+    const overlayButton: HTMLElement = document.querySelector('#overlay-button');
+    const sideBarList: HTMLElement = document.querySelector('#sidebar-list');
 
     if (event.type === 'OPEN_MENU') {
       const isMobile = this.playerConfig.config?.sideMenu?.showExit;

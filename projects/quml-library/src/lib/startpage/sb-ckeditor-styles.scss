@@ -328,8 +328,6 @@
       list-style-type: disc;
     }
 
-    ol {}
-
     h1,
     h2,
     h3,
@@ -341,18 +339,6 @@
       margin-bottom: 1rem;
     }
 
-    h1 {}
-
-    h2 {}
-
-    h3 {}
-
-    h4 {}
-
-    h5 {}
-
-    h6 {}
-
     p,
     span {
       color: var(--quml-mcq-title-txt);
@@ -362,15 +348,6 @@
     p span strong {
       font-weight: bold;
     }
-
-    p code,
-    p span code {}
-
-    p span sup,
-    p sup {}
-
-    p span sub,
-    p sub {}
 
     p span u,
     p u {

@@ -1,15 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'quml-previous-active',
-  templateUrl: './previous-active.component.html',
-  styleUrls: ['./previous-active.component.css']
+  templateUrl: './previous-active.component.html'
 })
-export class PreviousActiveComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
-
-}
+export class PreviousActiveComponent {}

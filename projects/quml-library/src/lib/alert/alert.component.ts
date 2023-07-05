@@ -36,7 +36,7 @@ export class AlertComponent implements OnInit, AfterViewInit, OnDestroy {
     this.previousActiveElement = document.activeElement as HTMLElement;
     this.subscription = fromEvent(document, 'keydown').subscribe((e: KeyboardEvent) => {
       if (e['key'] === 'Tab') {
-        const nextBtn = document.querySelector('.quml-navigation__previous') as HTMLElement;
+        const nextBtn: HTMLElement = document.querySelector('.quml-navigation__previous');
         /* istanbul ignore else */
         if (nextBtn) {
           this.close('close');
@@ -50,8 +50,8 @@ export class AlertComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     setTimeout(() => {
-      const wrongButton = document.querySelector('#wrongButton') as HTMLElement;
-      const correctButton = document.querySelector('#correctButton') as HTMLElement;
+      const wrongButton: HTMLElement = document.querySelector('#wrongButton');
+      const correctButton : HTMLElement = document.querySelector('#correctButton');
 
       if (this.alertType === 'wrong' && wrongButton) {
         wrongButton.focus({ preventScroll: true });

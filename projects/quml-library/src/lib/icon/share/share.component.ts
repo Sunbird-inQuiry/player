@@ -1,15 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'quml-share',
-  templateUrl: './share.component.html',
-  styleUrls: ['./share.component.css']
+  templateUrl: './share.component.html'
 })
-export class ShareComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
-
-}
+export class ShareComponent {}

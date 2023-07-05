@@ -1,15 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component} from '@angular/core';
 
 @Component({
   selector: 'quml-correct',
-  templateUrl: './correct.component.html',
-  styleUrls: ['./correct.component.css']
+  templateUrl: './correct.component.html'
 })
-export class CorrectComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
-
-}
+export class CorrectComponent {}

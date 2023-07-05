@@ -192,7 +192,7 @@ export class QumlLibraryService {
         edata: {
           err: 'LOAD',
           errtype: 'content',
-          stacktrace: (error && error.toString()) || ''
+          stacktrace: (error?.toString()) || ''
         }
       });
     }
