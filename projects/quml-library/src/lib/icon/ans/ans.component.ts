@@ -1,15 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'quml-ans',
-  templateUrl: './ans.component.html',
-  styleUrls: ['./ans.component.css']
+  templateUrl: './ans.component.html'
 })
-export class AnsComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
-
+export class AnsComponent {
 }

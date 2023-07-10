@@ -30,7 +30,6 @@ export class McqOptionComponent implements OnChanges {
     /* istanbul ignore else */
     
     this.mcqOptions =  this.shuffleOptions ? _.shuffle(this.mcqOptions)  :   this.mcqOptions;
-    //this.mcqOptions= _.shuffle(this.mcqOptions);
     
     if (this.replayed) {
       this.selectedOption = [];

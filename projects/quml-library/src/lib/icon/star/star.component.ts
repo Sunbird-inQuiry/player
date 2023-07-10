@@ -1,15 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'quml-star',
-  templateUrl: './star.component.html',
-  styleUrls: ['./star.component.css']
+  templateUrl: './star.component.html'
 })
-export class StarComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
-
-}
+export class StarComponent {}

@@ -1,15 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'quml-close',
-  templateUrl: './close.component.html',
-  styleUrls: ['./close.component.css']
+  templateUrl: './close.component.html'
 })
-export class CloseComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
-
-}
+export class CloseComponent {}

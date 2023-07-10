@@ -57,7 +57,7 @@ export class SaComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   handleKeyboardAccessibility() {
-    const elements = Array.from(document.getElementsByClassName('option-body') as HTMLCollectionOf<Element>);
+    const elements = Array.from(document.getElementsByClassName('option-body'));
     elements.forEach((element: HTMLElement) => {
       /* istanbul ignore else */
       if (element.offsetHeight) {

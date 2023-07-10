@@ -1,6 +1,6 @@
 <div class="quml-popup">
   <div class="quml-popup-icon" (click)="closePopup()">&#10005;</div>
-  <img *ngIf="!htmlTag" src={{image}}>
+  <img *ngIf="!htmlTag" src={{image}} alt="Image">
 </div>
 
 <div *ngIf="htmlTag" class="htmlTag" id="htmlTag" [innerHtml]="htmlTag | safeHtml"></div>
