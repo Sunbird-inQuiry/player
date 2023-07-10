@@ -16,16 +16,19 @@ describe('McqComponent', () => {
     "downloadUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/q2_1646040142399_do_21348431640099225615_1.ecar",
     "responseDeclaration": {
       "response1": {
-        "maxScore": 1,
         "cardinality": "single",
         "type": "integer",
         "correctResponse": {
-          "value": "0",
-          "outcomes": {
-            "SCORE": 1
-          }
+          "value": 0
         },
         "mapping": []
+      }
+    },
+    "outcomeDeclaration": {
+      "maxScore": {
+        "cardinality": "single",
+        "type": "integer",
+        "defaultValue": 1
       }
     },
     "language": [
@@ -76,13 +79,11 @@ describe('McqComponent', () => {
     "se_gradeLevels": [
       "Class 4"
     ],
-    "showSolutions": "No",
     "identifier": "do_21348431640099225615",
     "audience": [
       "Teacher"
     ],
     "visibility": "Parent",
-    "showTimer": "No",
     "author": "Vivek",
     "solutions": [],
     "qType": "MCQ",
@@ -136,7 +137,6 @@ describe('McqComponent', () => {
     ],
     "pkgVersion": 1,
     "versionKey": "1646034716932",
-    "showFeedback": "No",
     "framework": "tn_k-12_5",
     "answer": "0",
     "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",

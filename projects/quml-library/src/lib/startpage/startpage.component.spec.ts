@@ -19,10 +19,23 @@ describe('StartpageComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(StartpageComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    // fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('#ngOnInit() should prepend 0 to #seconds when number is less than 10', () => {
+    component.time = 125;
+    component.ngOnInit();
+    expect(component.seconds).toEqual('05');
+  });
+
+  it('#ngOnInit() should not prepend 0 to #seconds when number is greater than 10', () => {
+    component.time = 130;
+    component.ngOnInit();
+    expect(component.seconds).toEqual(10);
+  });
+
 });

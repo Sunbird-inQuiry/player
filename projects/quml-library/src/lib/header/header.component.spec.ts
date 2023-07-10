@@ -35,11 +35,24 @@ describe('HeaderComponent', () => {
     fixture.detectChanges();
   }); 
 
+  it('Should call #onProgressPopupClose method on keydown', () => {
+    spyOn(component, 'onProgressPopupClose').and.callThrough();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'escape' }));
+    expect(component.onProgressPopupClose).toHaveBeenCalled();
+  });
+
   it('should initialize the component', () => {
     component.duration = 600;
     component.showTimer = true;
     component.ngOnInit();
     expect(component.minutes).toBe(10);
+  });
+
+  it('#ngOnInit() should not prepend 0 to #seconds when number is greater than 10', () => {
+    component.duration = 130;
+    component.showTimer = true;
+    component.ngOnInit();
+    expect(component.seconds).toBe(10);
   });
 
   it('should execute on changes', () => {
@@ -150,6 +163,18 @@ describe('HeaderComponent', () => {
     component.timer();
     tick(10000);
     expect(component.time).toEqual('199:51');
+    discardPeriodicTasks();
+    flush();
+  }));
+
+  it('#timer() should show warning indicator when #showWarningTimer is true', fakeAsync(() => {
+    component.duration = 120;
+    component.warningTime = '110';
+    component.showWarningTimer = true;
+    expect(component.showWarning).toBeFalsy();
+    component.timer();
+    tick(11000);
+    expect(component.showWarning).toBeTruthy();
     discardPeriodicTasks();
     flush();
   }));

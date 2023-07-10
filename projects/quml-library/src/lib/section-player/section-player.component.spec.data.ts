@@ -28,17 +28,20 @@ export const mockSectionPlayerConfig = {
       "downloadUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/q2_1646040142399_do_21348431640099225615_1.ecar",
       "responseDeclaration": {
         "response1": {
-          "maxScore": 1,
           "cardinality": "single",
           "type": "integer",
           "correctResponse": {
-            "value": "0",
-            "outcomes": {
-              "SCORE": 1
-            }
+            "value": 0,
           },
         },
-        "mapping": [{ response: 0, outcomes: { SCORE: 1 } }]
+        "mapping": [{ value: 0, score: 1 }]
+      },
+      "outcomeDeclaration": {
+        "maxScore": {
+          "cardinality": "single",
+          "type": "integer",
+          "defaultValue": 1
+        }
       },
       "language": [
         "English"
@@ -88,13 +91,11 @@ export const mockSectionPlayerConfig = {
       "se_gradeLevels": [
         "Class 4"
       ],
-      "showSolutions": "No",
       "identifier": "do_21348431640099225615",
       "audience": [
         "Teacher"
       ],
       "visibility": "Parent",
-      "showTimer": "No",
       "author": "Vivek",
       "solutions": [],
       "qType": "MCQ",
@@ -159,7 +160,6 @@ export const mockSectionPlayerConfig = {
       ],
       "pkgVersion": 1,
       "versionKey": "1646034716932",
-      "showFeedback": "No",
       "framework": "tn_k-12_5",
       "answer": "0",
       "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -175,16 +175,19 @@ export const mockSectionPlayerConfig = {
       "downloadUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431559137689613/q1_1646040140133_do_21348431559137689613_1.ecar",
       "responseDeclaration": {
         "response1": {
-          "maxScore": 1,
           "cardinality": "single",
           "type": "integer",
           "correctResponse": {
-            "value": "1",
-            "outcomes": {
-              "SCORE": 1
-            }
+            "value": 1
           },
           "mapping": []
+        }
+      },
+      "outcomeDeclaration": {
+        "maxScore": {
+          "cardinality": "single",
+          "type": "integer",
+          "defaultValue": 1
         }
       },
       "language": [
@@ -235,13 +238,11 @@ export const mockSectionPlayerConfig = {
       "se_gradeLevels": [
         "Class 4"
       ],
-      "showSolutions": "No",
       "identifier": "do_21348431559137689613",
       "audience": [
         "Teacher"
       ],
       "visibility": "Parent",
-      "showTimer": "No",
       "author": "Vivek",
       "solutions": [],
       "qType": "MCQ",
@@ -297,7 +298,6 @@ export const mockSectionPlayerConfig = {
       ],
       "pkgVersion": 1,
       "versionKey": "1646034618244",
-      "showFeedback": "No",
       "framework": "tn_k-12_5",
       "answer": "1",
       "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -367,7 +367,6 @@ export const mockSectionPlayerConfig = {
           "subject": [
             "English"
           ],
-          "showTimer": "No",
           "identifier": "do_21348431559137689613",
           "gradeLevel": [
             "Class 4"
@@ -405,7 +404,6 @@ export const mockSectionPlayerConfig = {
             "English"
           ],
           "board": "State (Tamil Nadu)",
-          "showFeedback": "No",
           "objectType": "Question",
           "status": "Live",
           "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -422,7 +420,6 @@ export const mockSectionPlayerConfig = {
           "artifactUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431559137689613/do_21348431559137689613_1646040138601.zip",
           "visibility": "Parent",
           "qType": "MCQ",
-          "showSolutions": "No",
           "variants": {
             "full": {
               "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431559137689613/q1_1646040140133_do_21348431559137689613_1.ecar",
@@ -448,7 +445,6 @@ export const mockSectionPlayerConfig = {
           "subject": [
             "English"
           ],
-          "showTimer": "No",
           "identifier": "do_21348431640099225615",
           "gradeLevel": [
             "Class 4"
@@ -486,7 +482,6 @@ export const mockSectionPlayerConfig = {
             "English"
           ],
           "board": "State (Tamil Nadu)",
-          "showFeedback": "No",
           "objectType": "Question",
           "status": "Live",
           "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",
@@ -503,7 +498,6 @@ export const mockSectionPlayerConfig = {
           "artifactUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/do_21348431640099225615_1646040142347.zip",
           "visibility": "Parent",
           "qType": "MCQ",
-          "showSolutions": "No",
           "variants": {
             "full": {
               "ecarUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/q2_1646040142399_do_21348431640099225615_1.ecar",
@@ -524,7 +518,7 @@ export const mockSectionPlayerConfig = {
       "channel": "01269878797503692810",
       "generateDIALCodes": "No",
       "lastUpdatedOn": "2022-02-28T07:56:09.702+0000",
-      "showTimer": "No",
+      "showTimer": false,
       "identifier": "do_21348431528472576011",
       "description": "This is a section 1",
       "containsUserData": "No",
@@ -542,11 +536,11 @@ export const mockSectionPlayerConfig = {
       "license": "CC BY 4.0",
       "version": 1,
       "prevStatus": "Draft",
-      "showHints": "No",
+      "showHints": false,
       "language": [
         "English"
       ],
-      "showFeedback": "Yes",
+      "showFeedback": true,
       "objectType": "QuestionSet",
       "status": "Live",
       "requiresSubmit": "No",
@@ -557,11 +551,12 @@ export const mockSectionPlayerConfig = {
       "contentDisposition": "inline",
       "allowBranching": "No",
       "visibility": "Parent",
-      "showSolutions": "Yes",
+      "showSolutions": true,
       "index": 1,
       "timeLimits": {
-        "maxTime": "7200",
-        "warningTime": "900"
+        "questionSet": {
+            "max": "300"
+        }    
       },
       "childNodes": [
         "do_21348431559137689613",
@@ -603,6 +598,8 @@ export const mockSectionPlayerConfig = {
     },
     showFeedback: true,
     showLegend: true,
+    warningTime: 75,
+    showWarningTimer: true
   },
   changes: {
     attempts: {
@@ -627,7 +624,6 @@ export const mockSectionPlayerConfig = {
       "downloadUrl": "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging/question/do_21348431640099225615/q2_1646040142399_do_21348431640099225615_1.ecar",
       "responseDeclaration": {
         "response1": {
-          "maxScore": 1,
           "cardinality": "multiple",
           "type": "integer",
           "correctResponse": {
@@ -635,31 +631,29 @@ export const mockSectionPlayerConfig = {
               0,
               2,
               3
-            ],
-            "outcomes": {
-              "SCORE": 1
-            }
+            ]
           },
           "mapping": [
             {
-              "response": 0,
-              "outcomes": {
-                "score": 0.33
-              }
+              "value": 0,
+              "score": 0.33
             },
             {
-              "response": 2,
-              "outcomes": {
-                "score": 0.33
-              }
+              "value": 2,
+              "score": 0.33
             },
             {
-              "response": 3,
-              "outcomes": {
-                "score": 0.33
-              }
+              "value": 3,
+              "score": 0.33
             }
           ]
+        }
+      },
+      "outcomeDeclaration": {
+        "maxScore": {
+          "cardinality": "single",
+          "type": "integer",
+          "defaultValue": 1
         }
       },
       "language": [
@@ -751,13 +745,11 @@ export const mockSectionPlayerConfig = {
       "se_gradeLevels": [
         "Class 4"
       ],
-      "showSolutions": "No",
       "identifier": "do_21348431640099225615",
       "audience": [
         "Teacher"
       ],
       "visibility": "Parent",
-      "showTimer": "No",
       "author": "Vivek",
       "solutions": [],
       "qType": "MCQ",
@@ -793,7 +785,6 @@ export const mockSectionPlayerConfig = {
       ],
       "pkgVersion": 1,
       "versionKey": "1646034716932",
-      "showFeedback": "No",
       "framework": "tn_k-12_5",
       "answer": "0",
       "createdBy": "fca2925f-1eee-4654-9177-fece3fd6afc9",

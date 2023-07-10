@@ -16,6 +16,7 @@ const build = async () => {
   await concat(files, "web-component/sunbird-quml-player.js");
   await fs.copy("./dist/quml-player-wc/assets", "web-component/assets");
   await fs.copy("./dist/quml-player-wc/styles.css", "web-component/styles.css");
+  await fs.copy("README.md", "web-component/README.md")
 
   const filesNames = fs.readdirSync("dist/quml-player-wc");
   const allowedFiles = [".ttf", ".woff", ".woff2"];

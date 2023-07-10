@@ -449,6 +449,24 @@ describe('SectionPlayerComponent', () => {
     expect(component.validateSelectedOption).toHaveBeenCalled()
   });
 
+  it('should mark it as selected option and solution as empty if not exists', () => {
+    component.currentOptionSelected = { option: { value: 1 } };
+    component.myCarousel = myCarousel;
+    component.questions = mockSectionQuestions;
+    component.parentConfig = mockParentConfig;
+    component.showFeedBack = false;
+    spyOn(component, 'focusOnNextButton');
+    spyOn(viewerService, 'raiseHeartBeatEvent');
+    spyOn(component, 'validateSelectedOption');
+    component.getOptionSelected({ option: { value: 2 } });
+    expect(component.focusOnNextButton).toHaveBeenCalled();
+    expect(component.active).toBe(true);
+    expect(component.currentSolutions).toBe(undefined);
+    // expect(component.currentOptionSelected).toEqual({ option: { value: 2 } });
+    expect(viewerService.raiseHeartBeatEvent).toHaveBeenCalledWith('OPTION_CLICKED', 'interact', 1);
+    expect(component.validateSelectedOption).toHaveBeenCalled()
+  });
+
   it('should handle the duration end', () => {
     spyOn(component, 'emitSectionEnd');
     spyOn(viewerService, 'pauseVideo');

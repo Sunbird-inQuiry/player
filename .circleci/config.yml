@@ -35,21 +35,18 @@ jobs:
           name: Executing test cases
           command: npm run test-lib-ci
       - run:
+          name: Install  Node.js v16 with build in nvm tool
+          command: |
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+            nvm install v16 && nvm use 16 && nvm alias default 16
+            node -v    
+      - run:
           name: Install sonar scanner
           command: npm install -g sonarqube-scanner
       - run:
           name: Run Sonar scanner
           command: sonar-scanner
-      - run:
-          name: Publish Web component to NPM
-          command: |
-            if [ -z $CIRCLE_PR_NUMBER ]; then
-              npm run build-web-component && npm pack ./web-component
-              echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/.npmrc
-              npm publish project-sunbird-sunbird-quml-player-web-component-* --access public
-            else
-              npm run build-web-component && npm pack ./web-component
-            fi    
       - run:
           name: Publish to NPM
           command: |
@@ -60,3 +57,13 @@ jobs:
             else
               npm run build-lib && npm pack ./dist/quml-library
             fi
+      - run:
+          name: Publish Web component to NPM
+          command: |
+            if [ -z $CIRCLE_PR_NUMBER ]; then
+              npm run build-web-component && npm pack ./web-component
+              echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/.npmrc
+              npm publish project-sunbird-sunbird-quml-player-web-component-* --access public
+            else
+              npm run build-web-component && npm pack ./web-component
+            fi    

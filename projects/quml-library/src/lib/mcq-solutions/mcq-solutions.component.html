@@ -10,22 +10,11 @@
         <div [innerHtml]="option.label | safeHtml"></div>
     </div>
 </div>
-    <ng-container *ngIf="solutions && solutions.length">
+    <ng-container *ngIf="solutions">
     <div class="solution-header">Solution</div>
     <div *ngIf="!showVideoSolution">
-        <div *ngFor="let solution of solutions">
-            <ng-container [ngSwitch]="solution.type">
-                <div *ngSwitchCase="'html'" [innerHtml]="solution.value | safeHtml"></div>
-                <div *ngSwitchCase="'video'" class="video-container">
-                    <video width="400" #solutionVideoPlayer controls [poster]="solution.thumbnail">
-                        <source [src]="solution.src" type="video/mp4">
-                        <source [src]="solution.src" type="video/webm">
-                    </video>
-                </div>
-                <div *ngSwitchCase="'image'">
-                    <img [src]="solution.src" alt="mcq option with image">
-                </div>
-            </ng-container>
+        <div *ngFor="let solution of solutions | keyvalue">
+            <div  [innerHtml]="solution.value | safeHtml"></div>
         </div>
     </div>
 </ng-container>

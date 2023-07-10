@@ -48,3 +48,8 @@ export enum Cardinality {
     single = 'single',
     multiple = 'multiple'
 }
+
+export enum QuestionType {
+    mcq = 'MCQ',
+    sa = 'SA'
+}

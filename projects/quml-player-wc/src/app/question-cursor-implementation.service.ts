@@ -32,6 +32,17 @@ export class QuestionCursorImplementationService implements QuestionCursor {
     }
 
     getQuestion(identifier: string): Observable<any> {
+
+        // Added below block code to support single question preview while creating new question in the editor.
+        try {
+            const questionData = sessionStorage.getItem(identifier); 
+            if(questionData)  {
+                return of({questions : [JSON.parse(questionData)]});
+            }
+        } catch (error) {
+            console.log(error);
+        }
+
         if (this.listUrl) {
             const option: any = {
                 url: this.listUrl,
