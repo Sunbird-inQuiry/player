@@ -1,6 +1,6 @@
 {
     "name": "@project-sunbird/sunbird-quml-player-web-component",
-    "version": "2.0.0-beta.3",
+    "version": "2.0.0",
     "description": "The web component package for the sunbird QuML player",
     "main": "sunbird-quml-player.js",
     "scripts": {
