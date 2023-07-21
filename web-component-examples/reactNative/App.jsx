@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {StyleSheet, Platform, View} from 'react-native';
 import {WebView} from 'react-native-webview';
 import {samplePlayerConfig} from './quml-library-data';
-import {AsyncLocalStorage} from '@react-native-async-storage/async-storage';
+import AsyncLocalStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 function App() {
@@ -12,16 +12,11 @@ function App() {
 
   //id of the content to be played
   const CONTENT_ID = 'do_21368754222912307211';
-  const newData = {
-    hello: 'hi',
-    hello1: 'hi1',
-  };
 
   //Function to be executed on the api call at the react native layer
   const initializePlayer = async metadata => {
-    // let qumlConfigMetadata =
-    //   localStorage.getItem(`config_${CONTENT_ID}`) || '{}';
-    await getData(setQumlConfigMetadata);
+    //get the metaData from the local storage if available
+    await getDataLocalStorage(setQumlConfigMetadata);
 
     if (qumlConfigMetadata) {
       setQumlConfigMetadata(prevState => JSON.parse(prevState));
@@ -33,32 +28,36 @@ function App() {
       metadata,
       data: {},
     });
-    console.log(
-      {
-        context: samplePlayerConfig.context,
-        config: config ? config : samplePlayerConfig.config,
-        metadata,
-        data: {},
-      },
-      'playerConfig',
-    );
   };
 
-  const getData = async setData => {
+  const getDataLocalStorage = async setData => {
     try {
       const value = await AsyncLocalStorage.getItem(`config_${CONTENT_ID}`);
       if (value !== null) {
         setData(value);
+        console.log('\n\n\n\n data fetched from local storage \n\n\n\n');
       } else {
         console.log('no data');
         setData();
       }
     } catch (e) {
-      console.log('erorr in getting data');
+      console.log('erorr in getting data', e);
     }
   };
 
-  getQuestionSet = async identifier => {
+  const setDataLocalStorage = async (key, data) => {
+    console.log(key, data);
+    try {
+      await AsyncLocalStorage.setItem(key, JSON.stringify(data));
+      console.log(
+        `\n\n\n\n\n data set sucessfully in local storage succesfully with key==========> ${key}\n\n\n\n`,
+      );
+    } catch (e) {
+      console.log('error in setting data', e);
+    }
+  };
+
+  const getQuestionSet = async identifier => {
     let hierarchy = {};
     try {
       const response = await axios.get(
@@ -93,6 +92,31 @@ function App() {
     return questionSet;
   };
 
+  //handles the player event on native thread
+  const handlePlayerEvent = async event => {
+    let jsonData = JSON.stringify(event);
+
+    try {
+      jsonData = await JSON.parse(jsonData);
+      jsonData = await JSON.parse(jsonData.nativeEvent.data);
+    } catch (error) {
+      console.error('Error parsing JSON data:', error);
+    }
+    //Store the metaData locally
+    if (jsonData.eid === 'END') {
+      console.log('event end is here');
+      let qumlMetaDataConfig = jsonData.metaData;
+      await setDataLocalStorage(`config_${CONTENT_ID}`, qumlMetaDataConfig);
+      setPlayerConfig(prevState => ({
+        ...prevState,
+        config: {
+          ...samplePlayerConfig.config,
+          ...qumlMetaDataConfig,
+        },
+      }));
+    }
+  };
+
   useEffect(() => {
     const iffi = async () => {
       const metadata = await getQuestionSet(CONTENT_ID);
@@ -103,10 +127,6 @@ function App() {
 
   const injectedJS = `
   window.apiConfig = ${JSON.stringify(playerConfig)};
-  window.questionListUrl = 'http://192.168.1.3:8080/https://dev.inquiry.sunbird.org/api/question/v2/list'
-
-
-    
   `;
 
   const sourceUri =
@@ -122,9 +142,7 @@ function App() {
           javaScriptEnabled={true}
           originWhitelist={['*']}
           allowFileAccess={true}
-          onMessage={e => {
-            console.log(e, 'here is the sended player config');
-          }}
+          onMessage={handlePlayerEvent}
         />
       )}
     </View>
