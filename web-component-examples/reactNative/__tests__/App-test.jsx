@@ -9,6 +9,7 @@ import AsyncLocalStorage from '@react-native-async-storage/async-storage';
 jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
 );
+// Mocking the react-native-webview module
 jest.mock('react-native-webview', () => {
   const {View} = require('react-native');
   return {
