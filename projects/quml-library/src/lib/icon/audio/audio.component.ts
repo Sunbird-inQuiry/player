@@ -1,15 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'quml-audio',
-  templateUrl: './audio.component.html',
-  styleUrls: ['./audio.component.css']
+  templateUrl: './audio.component.html'
 })
-export class AudioComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
+export class AudioComponent {
 
 }

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 
 export interface IIndicator {
   iconText: string;
@@ -10,7 +10,7 @@ export interface IIndicator {
   templateUrl: './progress-indicators.component.html',
   styleUrls: ['./progress-indicators.component.scss']
 })
-export class ProgressIndicatorsComponent implements OnInit {
+export class ProgressIndicatorsComponent {
 
   @Output() close = new EventEmitter<boolean>();
   indicators: IIndicator[] = [
@@ -54,9 +54,4 @@ export class ProgressIndicatorsComponent implements OnInit {
       title: 'Summary page',
       class: ''
     }];
-  constructor() { }
-
-  ngOnInit(): void {
-  }
-
 }

@@ -1,15 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'quml-bookmark',
-  templateUrl: './bookmark.component.html',
-  styleUrls: ['./bookmark.component.css']
+  templateUrl: './bookmark.component.html'
 })
-export class BookmarkComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
-
-}
+export class BookmarkComponent {}

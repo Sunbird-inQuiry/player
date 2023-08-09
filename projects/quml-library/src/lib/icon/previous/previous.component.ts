@@ -1,15 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'quml-previous',
-  templateUrl: './previous.component.html',
-  styleUrls: ['./previous.component.css']
+  templateUrl: './previous.component.html'
 })
-export class PreviousComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
-
-}
+export class PreviousComponent {}

@@ -1,15 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'quml-hint',
-  templateUrl: './hint.component.html',
-  styleUrls: ['./hint.component.css']
+  templateUrl: './hint.component.html'
 })
-export class HintComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
-
-}
+export class HintComponent {}

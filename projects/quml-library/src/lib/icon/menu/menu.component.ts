@@ -1,15 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'quml-menu',
-  templateUrl: './menu.component.html',
-  styleUrls: ['./menu.component.css']
+  templateUrl: './menu.component.html'
 })
-export class MenuComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
-
-}
+export class MenuComponent {}

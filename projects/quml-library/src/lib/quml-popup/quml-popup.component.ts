@@ -1,18 +1,14 @@
-import { Component, OnInit, Input, Output, EventEmitter, AfterViewInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, AfterViewInit } from '@angular/core';
 
 @Component({
   selector: 'quml-quml-popup',
   templateUrl: './quml-popup.component.html',
   styleUrls: ['./quml-popup.component.scss']
 })
-export class QumlPopupComponent implements OnInit, AfterViewInit {
+export class QumlPopupComponent implements AfterViewInit {
   @Input() image;
   @Input() htmlTag: any;
   @Output() popUpClose = new EventEmitter();
-  constructor() { }
-
-  ngOnInit() {
-  }
 
   ngAfterViewInit() {
     const htmlTagElement = document.getElementById('htmlTag');

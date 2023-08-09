@@ -4,7 +4,7 @@ import { katex } from 'katex';
 import { UtilService } from '../util-service';
 import * as _ from 'lodash-es';
 
-declare var katex: any;
+declare const katex: any;
 
 @Component({
   selector: 'quml-mcq',

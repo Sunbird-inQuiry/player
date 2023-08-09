@@ -1,15 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'quml-wrong',
-  templateUrl: './wrong.component.html',
-  styleUrls: ['./wrong.component.css']
+  templateUrl: './wrong.component.html'
 })
-export class WrongComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
-
-}
+export class WrongComponent {}

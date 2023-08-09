@@ -11,7 +11,6 @@
  .quml-mcq-option-card {
    position: relative;
    background-color:var(--quml-option-card-bg);
-   padding: 0.25rem;
    border-radius: 0.25rem;
    border: 0.0625rem solid var(--quml-btn-border);
    padding: 1rem;
@@ -105,7 +104,6 @@
   
   /* Style the indicator (dot/circle) */
   .container .checkmark:after, .quml-option--selected .container .checkmark:after {
-    margin: 0.125rem;
     width: 0.75rem;
     height: 0.75rem;
     background: var(--primary-color);

@@ -111,7 +111,6 @@ export class ViewerService {
     };
 
     this.qumlPlayerEvent.emit(endEvent);
-    const visitedlength = (this.metaData.pagesHistory.filter((v, i, a) => a.indexOf(v) === i)).length;
     this.timeSpent = this.utilService.getTimeSpentText(this.qumlPlayerStartTime);
     this.qumlLibraryService.end(duration, currentQuestionIndex, this.totalNumberOfQuestions, this.totalNumberOfQuestions, endPageSeen, score);
   }
