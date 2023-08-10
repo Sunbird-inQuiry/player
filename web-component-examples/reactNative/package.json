@@ -10,11 +10,13 @@
     "test": "jest"
   },
   "dependencies": {
+    "@babel/plugin-transform-private-methods": "^7.22.5",
     "@react-native-async-storage/async-storage": "^1.19.0",
     "axios": "^1.4.0",
     "cors-anywhere": "^0.4.4",
     "react": "18.2.0",
     "react-native": "0.71.12",
+    "react-native-orientation-locker": "^1.5.0",
     "react-native-webview": "^13.2.2",
     "rxjs": "^7.8.1"
   },
