@@ -8,8 +8,11 @@ import { DataService } from './services/data.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  contentId = 'do_21368754222912307211';
+  contentId = 'do_113843088807510016137';
+  // do_113843088807510016137, do_11385047372081561612, do_1138183630883307521277 - client,
+  // do_113850934370246656120, do_113835948892069888159, do_113846646050775040179, do_113853213080854528174 - server
   playerConfig: any;
+  telemetryEvents: any = [];
 
   constructor(private dataService: DataService) { }
 
@@ -46,6 +49,7 @@ export class AppComponent implements OnInit {
   }
 
   getTelemetryEvents(event) {
-    console.log('event is for telemetry', JSON.stringify(event));
+    this.telemetryEvents.push(JSON.parse(JSON.stringify(event)));
+    console.log('event is for telemetry', this.telemetryEvents);
   }
 }
