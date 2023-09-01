@@ -1,57 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QUML Player web component demo</title>
 
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QUML Player web component demo</title>
-  
-  <link rel="stylesheet" href="./style/styles.css">
+    <link rel="stylesheet" href="./style/styles.css" />
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
-    integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg=="
-    crossorigin="anonymous"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
+      integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg=="
+      crossorigin="anonymous"></script>
 
-  <style>
-    .player-grid {
-      width: 100%;
-      height: 100vh;
-      margin: 0 auto;
-      display: grid;
-      @media screen and (max-width:768px) {
-        grid-template-columns: 100%;
-        gap: 0px;
+    <style>
+      .player-grid {
+        width: 100%;
+        height: 100vh;
+        margin: 0 auto;
+        display: grid;
+        @media screen and (max-width: 768px) {
+          grid-template-columns: 100%;
+          gap: 0px;
+        }
       }
-    }
-  </style>
-</head>
+    </style>
+  </head>
 
-<body>
-  <div class="player-grid" id="my-player">
-  </div>
-  <script src="./sunbird-quml-player.js"></script>
-  
+  <body>
+    <div class="player-grid" id="my-player"></div>
+    <script src="./sunbird-quml-player.js"></script>
+
     <script type="text/javascript">
-    // Need to pass the API URL to fetch the question set
-    window.questionListUrl = 'https://corsproxy.io/?https://dev.inquiry.sunbird.org/api/question/v2/list'
+      // Need to pass the API URL to fetch the question set
+      window.questionListUrl =
+        'https://corsproxy.io/?https://dev.inquiry.sunbird.org/api/question/v2/list';
 
-    const qumlPlayerElement = document.createElement('sunbird-quml-player');
-    qumlPlayerElement.setAttribute('player-config', JSON.stringify(apiConfig));
-    qumlPlayerElement.addEventListener('playerEvent', (event) => {
-      console.log("On playerEvent", event);
-      window.ReactNativeWebView.postMessage(JSON.stringify(event.detail));
-    });
+      const qumlPlayerElement = document.createElement('sunbird-quml-player');
+      qumlPlayerElement.setAttribute(
+        'player-config',
+        JSON.stringify(apiConfig),
+      );
+      qumlPlayerElement.addEventListener('playerEvent', event => {
+        console.log('On playerEvent', event);
+        window.ReactNativeWebView.postMessage(JSON.stringify(event.detail));
+      });
 
-    
+      qumlPlayerElement.addEventListener('telemetryEvent', event => {
+        console.log('On telemetryEvent', event);
+      });
 
-    qumlPlayerElement.addEventListener('telemetryEvent', (event) => {
-      console.log("On telemetryEvent", event);
-    });
-
-    const myPlayer = document.getElementById("my-player");
-    myPlayer.appendChild(qumlPlayerElement);
-  </script>
-</body>
-
+      const myPlayer = document.getElementById('my-player');
+      myPlayer.appendChild(qumlPlayerElement);
+    </script>
+  </body>
 </html>

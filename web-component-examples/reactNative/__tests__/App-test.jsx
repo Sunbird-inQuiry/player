@@ -2,7 +2,7 @@ import 'react-native';
 import React from 'react';
 import App from '../App';
 import * as axios from 'axios';
-import {render} from '@testing-library/react-native';
+import { render } from '@testing-library/react-native';
 import AsyncLocalStorage from '@react-native-async-storage/async-storage';
 
 // Mocking the AsyncStorage module
@@ -12,19 +12,12 @@ jest.mock('@react-native-async-storage/async-storage', () =>
 // Mocking the react-native-webview module
 
 jest.mock('react-native-webview', () => {
-  const {View} = require('react-native');
+  const { View } = require('react-native');
   return {
     WebView: View,
   };
 });
 jest.mock('axios');
-
-jest.mock('react-native-orientation-locker', () => {
-  return {
-    lockToPortrait: jest.fn(),
-    lockToLandscape: jest.fn(),
-  };
-});
 
 describe('App component', () => {
   it('renders the WebView when playerConfig is available', () => {
@@ -65,8 +58,6 @@ describe('App component', () => {
       },
     };
     axios.get.mockResolvedValue(mockedResponse);
-
-    const {findByType} = render(<App />);
 
     // Simulate player event END
     const jsonData = {

@@ -444,11 +444,10 @@ export const samplePlayerConfig = {
       showShare: true,
       showDownload: true,
       showReplay: false,
-      showExit: false,
+      showExit: true,
     },
     warningTime: 75,
     showWarningTimer: true,
     nextContent: {name: 'Next content', identifier: 'do_231234332232'},
-    showDeviceOrientation: true,
   },
 };

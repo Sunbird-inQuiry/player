@@ -49,6 +49,11 @@ Root
 
 - Copy the `sunbird-quml-player.js` and `styles.css` file from [web-component](https://github.com/Sunbird-inQuiry/player/tree/main/web-component) to under the newly created `Web.bundle` folder and style folder respectively.
 
+<details style="padding: 5px;  border: 1px solid #ccc; border-radius: 4px;">
+<summary style = "font-size:17px; color:white">
+Setting up appllication for Webcomponent
+</summary>
+
 ### Step 4: Making use of the WebComponnent in HTML
 
 In the `index.html` add some styles basic styles and import `jquery`, `styles.css` and `sunbird-quml-player.js` as follows.
@@ -204,7 +209,13 @@ export default App;
 
 Create a quml-library-data.js file which contains the playerConfig. Click to see the mock - [samplePlayerConfig](https://github.com/Sunbird-inQuiry/player/blob/main/web-component-examples/react-app/src/data.js)
 
-## To run the application without `CONTENT_ID`
+</details>
+
+<details style="padding: 5px;  border: 1px solid #ccc; border-radius: 4px;margin-top:20px">
+<summary style = "font-size:17px; color:white">
+ To run the application without `CONTENT_ID`
+
+</summary>
 
 ```diff
 /* -- src/App.jsx -- */
@@ -281,47 +292,11 @@ export default App;
 
 **You're done! Sunbird QuML Player is now ready to be used in your application.**
 
-## To run the application in debug mode
+</details>
 
-- on Virtual Device
-
-  - First open the Virtual Device in the sdk manager of android studio.
-  - Then run the following command in your project root folder to start the metro server.
-
-  ```
-  npm run start
-  ```
-
-  - Then run the following command in your project root folder to start the application.
-
-  ```
-  npx react-native run-android
-  ```
-
-  This will start the application in debug mode in which all the changes you do in your application is reflected in the application without restarting the application.
-
-- on Physical Device
-  - First make sure your device has developer mode enabled.
-  - Connect you device to your system using a USB cable.
-  - Make sure system has adb installed to it by running the following command in your terminal.
-  ```
-  adb --version
-  ```
-  - Run the following command to make sure your device is connected to your system.
-  ```
-  adb devices
-  ```
-  - Then run the following command in your project root folder to start the metro server.
-  ```
-  npm run start
-  ```
-  - Then run the following command in your project root folder to start the application.
-  ```
-  npx react-native run-android
-  ```
-  Then you can see the application running in your device.
-
-## To run the application with `CONTENT_ID` while storing and retrieving MetaData using local storage
+<details style="padding: 5px;  border: 1px solid #ccc; border-radius: 4px; margin-top:20px">
+<summary style = "font-size:17px; color:white">
+To run the application with `CONTENT_ID` while storing and retrieving MetaData using local storage</summary>
 
 In the previous method we have seen how to run the application without `CONTENT_ID`. Now we will see how to run the application with `CONTENT_ID`.
 <br/>
@@ -344,7 +319,7 @@ Define a Constant `CONTENT_ID` which will be used to get the data from the api.
 /* -- src/App.jsx -- */
 const App =()=>{
   const [playerConfig, setPlayerConfig] = useState('');
-+ const CONTENT_ID = 'do_21368754222912307211';
++ const CONTENT_ID = 'do_21385321103310848013398';
 }
 ```
 
@@ -358,7 +333,7 @@ const App =()=>{
   const [config, setConfig] = useState();
   const [qumlConfigMetadata, setQumlConfigMetadata] = useState();
   const [playerConfig, setPlayerConfig] = useState('');
-  const CONTENT_ID = 'do_21368754222912307211';
+  const CONTENT_ID = 'do_21385321103310848013398';
 +  const getDataLocalStorage = async setData => {
 +      try {
 +        const value = await AsyncLocalStorage.getItem(`config_${CONTENT_ID}`);
@@ -394,7 +369,7 @@ Now make initilizer function which will run as soon as the component is mounted.
 ...
 
 const App =()=>{
-  const CONTENT_ID = 'do_21368754222912307211';
+  const CONTENT_ID = 'do_21385321103310848013398';
 +  const initializePlayer = async metadata => {
 +      await getDataLocalStorage(setQumlConfigMetadata);
 +
@@ -417,7 +392,7 @@ Make function to get the data from the api.
 
 ```diff
 const App =()=>{
-  const CONTENT_ID = 'do_21368754222912307211';
+  const CONTENT_ID = 'do_21385321103310848013398';
   ...
 
 +  const getQuestionSet = async identifier => {
@@ -603,7 +578,12 @@ const App =()=>{
 
 **You're done! Sunbird QuML Player is now ready to play in your application.**
 
-## To run the application in debug mode
+</details>
+
+<details style="padding: 5px;  border: 1px solid #ccc; border-radius: 4px; margin-top:20px">
+<summary style = "font-size:17px; color:white">
+To Run the application in debug mode
+</summary>
 
 - on Virtual Device
 
@@ -641,9 +621,12 @@ const App =()=>{
   ```
   npx react-native run-android
   ```
-  Then you can see the application running in your device and you can change the CONTENT_ID to change the question list.
+  Then you can see the application running in your device.
 
-## To build the Release APK
+</details>
+
+<details style="padding: 5px;  border: 1px solid #ccc; border-radius: 4px; margin-top:20px">
+<summary style = "font-size:17px; color:white" >To build the Release APK</summary>
 
 Go to the android folder inside the project and run the following command to build the release apk.
 
@@ -656,3 +639,5 @@ And then you will find the apk in the following path.
 ```
 android/app/build/outputs/apk/release/app-release.apk
 ```
+
+</details>
