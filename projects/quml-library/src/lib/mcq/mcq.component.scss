@@ -40,4 +40,20 @@
       grid-template-columns: repeat(2,1fr);
     }
   }
+
+  .quml-mcq-option-card {
+    .magnify-icon {
+      width: 1rem;
+      height: 1rem;
+      right: -0.25rem;
+      bottom: -0.25rem;
+      border-top-left-radius: 0.40rem;
+    }
+    .magnify-icon::after {
+      width: 0.75rem;
+      height: 0.75rem;
+      bottom: 0.0625rem;
+      right: 0.0625rem;
+    }
   }
+}
