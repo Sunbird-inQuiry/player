@@ -628,7 +628,7 @@ To Run the application in debug mode
 <details style="padding: 5px;  border: 1px solid #ccc; border-radius: 4px; margin-top:20px">
 <summary style = "font-size:17px; color:white" >To build the Release APK</summary>
 
-Go to the android folder inside the project and run the following command to build the release apk.
+Go to the android folder inside the react native project and run the following command to build the release apk.
 
 ```
 ./gradlew assembleRelease
