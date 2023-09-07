@@ -24,7 +24,7 @@ export class QumlLibraryService {
 
   constructor(public utilService: UtilService) { }
 
-  async initializeTelemetry(config: QumlPlayerConfig, parentConfig: IParentConfig) {
+  initializeTelemetry(config: QumlPlayerConfig, parentConfig: IParentConfig) {
     if (!_.has(config, 'context') || _.isEmpty(config, 'context')) {
       return;
     }
@@ -61,7 +61,7 @@ export class QumlLibraryService {
           { id: '2.0', type: 'PlayerVersion' }
         ])
       };
-      await CsTelemetryModule.instance.init({});
+      CsTelemetryModule.instance.init({});
       CsTelemetryModule.instance.telemetryService.initTelemetry(
         {
           config: telemetryConfig,
