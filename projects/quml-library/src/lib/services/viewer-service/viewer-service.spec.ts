@@ -140,8 +140,11 @@ describe('ViewerService', () => {
   it('should raiseAssesEvent', () => {
     const viewerService = TestBed.inject(ViewerService);
     const qumlLibraryService = TestBed.inject(QumlLibraryService);
+    viewerService.questionSetEvaluable = true;
     spyOn(viewerService.qumlPlayerEvent, 'emit');
     spyOn(qumlLibraryService, 'startAssesEvent');
+    viewerService.raiseAssesEvent(mockData.questionData, 1, "Yes", 1, mockData.resValues, 2);
+    viewerService.questionSetEvaluable = false;
     viewerService.raiseAssesEvent(mockData.questionData, 1, "Yes", 1, mockData.resValues, 2);
     expect(viewerService.qumlPlayerEvent.emit).toHaveBeenCalled();
     expect(qumlLibraryService.startAssesEvent).toHaveBeenCalled();
@@ -252,5 +255,11 @@ describe('ViewerService', () => {
     expect(service.questionCursor.getQuestions).toHaveBeenCalled();
     expect(service.qumlQuestionEvent.emit).toHaveBeenCalled();
   });
+
+  it('should validate eval property in serverValidationCheck', () => {
+    const service: ViewerService = TestBed.inject(ViewerService);
+    service.serverValidationCheck("{\"mode\":\"server\"}");
+    expect(service.serverValidationCheck("{\"mode\":\"server\"}")).toBeTrue;
+  })
 
 });

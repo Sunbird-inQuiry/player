@@ -2,6 +2,7 @@ import { Component, OnInit, Input, SecurityContext, Output, EventEmitter, AfterV
 import { DomSanitizer } from '@angular/platform-browser';
 import { katex } from 'katex';
 import { UtilService } from '../util-service';
+import { ViewerService } from '../services/viewer-service/viewer-service';
 import * as _ from 'lodash-es';
 
 declare const katex: any;
@@ -35,11 +36,14 @@ export class McqComponent implements OnInit, AfterViewInit {
 
   constructor(
     public domSanitizer: DomSanitizer,
-    public utilService: UtilService) {
+    public utilService: UtilService,
+    public viewerService: ViewerService) {
   }
 
   ngOnInit() {
-    this.numberOfCorrectOptions = _.castArray(this.question.responseDeclaration.response1.correctResponse.value).length;
+    if(!this.viewerService.questionSetEvaluable) {
+      this.numberOfCorrectOptions = _.castArray(this.question.responseDeclaration.response1.correctResponse.value).length;
+    }
     if (this.question?.solutions) {
       this.solutions = this.question.solutions;
     }
