@@ -315,9 +315,9 @@ export const mockSectionPlayerConfig = {
       "uid": "",
       "channel": "01268904781886259221",
       "pdata": {
-        "id": "preprod.diksha.portal",
+        "id": "dev.sunbird.portal",
         "ver": "3.3.0",
-        "pid": "sunbird-portal.contentplayer"
+        "pid": "sunbird-portal.qumlplayer"
       },
       "contextRollup": {
         "l1": "string",

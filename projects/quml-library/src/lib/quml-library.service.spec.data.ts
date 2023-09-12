@@ -264,9 +264,9 @@ export const mockQumlLibraryServiceData = {
   },
   channel: "01268904781886259221",
   pdata: {
-    "id": "preprod.diksha.portal",
+    "id": "dev.sunbird.portal",
     "ver": "3.3.0",
-    "pid": "sunbird-portal.contentplayer"
+    "pid": "sunbird-portal.qumlplayer"
   },
   sid: "913b3c6c-2874-26dd-ed0c-c23ddc00b718",
   uid: "",
@@ -289,9 +289,9 @@ export const telemetryContext = {
   "uid": "",
   "channel": "01268904781886259221",
   "pdata": {
-    "id": "preprod.diksha.portal",
+    "id": "dev.sunbird.portal",
     "ver": "3.3.0",
-    "pid": "sunbird-portal.contentplayer"
+    "pid": "sunbird-portal.qumlplayer"
   },
   "contextRollup": {
     "l1": "string",
