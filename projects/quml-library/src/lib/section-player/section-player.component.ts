@@ -640,7 +640,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       'title': selectedQuestion.name,
       'desc': selectedQuestion.description,
       'type': selectedQuestion.qType.toLowerCase(),
-      'maxscore': key.length === 0 ? 0 : selectedQuestion.responseDeclaration[key].maxScore || 0,
+      'maxscore': key.length === 0 ? 0 : selectedQuestion.outcomeDeclaration.maxScore.defaultValue || 0,
       'params': getParams()
     };
 
