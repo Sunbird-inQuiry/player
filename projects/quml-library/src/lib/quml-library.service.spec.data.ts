@@ -22,7 +22,7 @@ export const mockQumlLibraryServiceData = {
           ],
           "compatibilityLevel": 4,
           "audience": [
-            "Teacher"
+            "Audience2"
           ],
           "se_boards": [
             "State (Tamil Nadu)"
@@ -100,7 +100,7 @@ export const mockQumlLibraryServiceData = {
           ],
           "compatibilityLevel": 4,
           "audience": [
-            "Teacher"
+            "Audience2"
           ],
           "se_boards": [
             "State (Tamil Nadu)"

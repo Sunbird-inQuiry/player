@@ -93,7 +93,7 @@ export const mockSectionPlayerConfig = {
       ],
       "identifier": "do_21348431640099225615",
       "audience": [
-        "Teacher"
+        "Audience2"
       ],
       "visibility": "Parent",
       "author": "Vivek",
@@ -240,7 +240,7 @@ export const mockSectionPlayerConfig = {
       ],
       "identifier": "do_21348431559137689613",
       "audience": [
-        "Teacher"
+        "Audience2"
       ],
       "visibility": "Parent",
       "author": "Vivek",
@@ -373,7 +373,7 @@ export const mockSectionPlayerConfig = {
           ],
           "compatibilityLevel": 4,
           "audience": [
-            "Teacher"
+            "Audience2"
           ],
           "se_boards": [
             "State (Tamil Nadu)"
@@ -451,7 +451,7 @@ export const mockSectionPlayerConfig = {
           ],
           "compatibilityLevel": 4,
           "audience": [
-            "Teacher"
+            "Audience2"
           ],
           "se_boards": [
             "State (Tamil Nadu)"
@@ -747,7 +747,7 @@ export const mockSectionPlayerConfig = {
       ],
       "identifier": "do_21348431640099225615",
       "audience": [
-        "Teacher"
+        "Audience2"
       ],
       "visibility": "Parent",
       "author": "Vivek",

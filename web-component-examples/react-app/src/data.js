@@ -28,7 +28,7 @@ const sectionContent = {
           ],
           "compatibilityLevel": 4,
           "audience": [
-            "Student"
+            "Audience1"
           ],
           "se_boards": [
             "CBSE"
@@ -110,7 +110,7 @@ const sectionContent = {
           ],
           "compatibilityLevel": 4,
           "audience": [
-            "Student"
+            "Audience1"
           ],
           "se_boards": [
             "CBSE"
@@ -243,7 +243,7 @@ const sectionContent = {
           ],
           "compatibilityLevel": 4,
           "audience": [
-            "Student"
+            "Audience1"
           ],
           "se_boards": [
             "CBSE"
@@ -376,7 +376,7 @@ const sectionContent = {
   "allowSkip": "Yes",
   "compatibilityLevel": 5,
   "audience": [
-    "Student"
+    "Audience1"
   ],
   "trackable": "{\"enabled\":\"No\",\"autoBatch\":\"No\"}",
   "se_boards": [
