@@ -36,7 +36,7 @@ const content1 = {
           ],
           "compatibilityLevel": 4,
           "audience": [
-            "Teacher"
+            "Audience2"
           ],
           "se_boards": [
             "State (Tamil Nadu)"
@@ -114,7 +114,7 @@ const content1 = {
           ],
           "compatibilityLevel": 4,
           "audience": [
-            "Teacher"
+            "Audience2"
           ],
           "se_boards": [
             "State (Tamil Nadu)"
@@ -239,7 +239,7 @@ const content1 = {
           ],
           "compatibilityLevel": 4,
           "audience": [
-            "Teacher"
+            "Audience2"
           ],
           "se_boards": [
             "State (Tamil Nadu)"
@@ -313,7 +313,7 @@ const content1 = {
           ],
           "compatibilityLevel": 4,
           "audience": [
-            "Teacher"
+            "Audience2"
           ],
           "se_boards": [
             "State (Tamil Nadu)"
@@ -441,7 +441,7 @@ const content1 = {
   "allowSkip": "Yes",
   "compatibilityLevel": 5,
   "audience": [
-    "Teacher"
+    "Audience2"
   ],
   "se_boards": [
     "State (Tamil Nadu)"
@@ -533,9 +533,9 @@ export const playerConfig = {
     'uid': '',
     'channel': '01268904781886259221',
     'pdata': {
-      'id': 'preprod.diksha.portal',
+      'id': 'dev.sunbird.portal',
       'ver': '3.3.0',
-      'pid': 'sunbird-portal.contentplayer'
+      'pid': 'sunbird-portal.qumlplayer'
     },
     'contextRollup': {
       'l1': 'string',
@@ -637,9 +637,9 @@ export const fakeSections = [
       "uid": "",
       "channel": "01268904781886259221",
       "pdata": {
-        "id": "preprod.diksha.portal",
+        "id": "dev.sunbird.portal",
         "ver": "3.3.0",
-        "pid": "sunbird-portal.contentplayer"
+        "pid": "sunbird-portal.qumlplayer"
       },
       "contextRollup": {
         "l1": "string",
@@ -694,7 +694,7 @@ export const fakeSections = [
           ],
           "compatibilityLevel": 4,
           "audience": [
-            "Teacher"
+            "Audience2"
           ],
           "se_boards": [
             "State (Tamil Nadu)"
@@ -772,7 +772,7 @@ export const fakeSections = [
           ],
           "compatibilityLevel": 4,
           "audience": [
-            "Teacher"
+            "Audience2"
           ],
           "se_boards": [
             "State (Tamil Nadu)"
@@ -909,9 +909,9 @@ export const fakeSections = [
       "uid": "",
       "channel": "01268904781886259221",
       "pdata": {
-        "id": "preprod.diksha.portal",
+        "id": "dev.sunbird.portal",
         "ver": "3.3.0",
-        "pid": "sunbird-portal.contentplayer"
+        "pid": "sunbird-portal.qumlplayer"
       },
       "contextRollup": {
         "l1": "string",
@@ -966,7 +966,7 @@ export const fakeSections = [
           ],
           "compatibilityLevel": 4,
           "audience": [
-            "Teacher"
+            "Audience2"
           ],
           "se_boards": [
             "State (Tamil Nadu)"
@@ -1040,7 +1040,7 @@ export const fakeSections = [
           ],
           "compatibilityLevel": 4,
           "audience": [
-            "Teacher"
+            "Audience2"
           ],
           "se_boards": [
             "State (Tamil Nadu)"
@@ -1201,7 +1201,7 @@ export const singleContent = {
       ],
       'compatibilityLevel': 4,
       'audience': [
-        'Student'
+        'Audience1'
       ],
       'primaryCategory': 'Multiple Choice Question',
       'medium': [
@@ -1257,7 +1257,7 @@ export const singleContent = {
   'contentEncoding': 'gzip',
   'showSolutions': true,
   'identifier': 'do_213257772024733696115',
-  'audience': ['Student'],
+  'audience': ['Audience1'],
   'visibility': 'Default',
   'showTimer': true,
   'author': 'Adarsh',
