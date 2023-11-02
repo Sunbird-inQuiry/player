@@ -86,7 +86,7 @@ describe('McqComponent', () => {
     ],
     "identifier": "do_21348431640099225615",
     "audience": [
-      "Teacher"
+      "Audience2"
     ],
     "visibility": "Parent",
     "author": "Vivek",

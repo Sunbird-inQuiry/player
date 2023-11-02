@@ -49,7 +49,7 @@ describe('SaComponent', () => {
     ],
     "identifier": "do_21348431719053721619",
     "audience": [
-      "Teacher"
+      "Audience2"
     ],
     "visibility": "Parent",
     "author": "Vivek",

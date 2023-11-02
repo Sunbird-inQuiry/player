@@ -26,7 +26,7 @@ const content = {
                     ],
                     "compatibilityLevel": 4,
                     "audience": [
-                        "Student"
+                        "Audience1"
                     ],
                     "se_boards": [
                         "CBSE"
@@ -107,7 +107,7 @@ const content = {
                     ],
                     "compatibilityLevel": 4,
                     "audience": [
-                        "Student"
+                        "Audience1"
                     ],
                     "se_boards": [
                         "CBSE"
@@ -188,7 +188,7 @@ const content = {
                     ],
                     "compatibilityLevel": 4,
                     "audience": [
-                        "Student"
+                        "Audience1"
                     ],
                     "se_boards": [
                         "CBSE"
@@ -265,7 +265,7 @@ const content = {
                     ],
                     "compatibilityLevel": 4,
                     "audience": [
-                        "Student"
+                        "Audience1"
                     ],
                     "se_boards": [
                         "CBSE"
@@ -396,7 +396,7 @@ const content = {
     "allowSkip": "Yes",
     "compatibilityLevel": 5,
     "audience": [
-        "Student"
+        "Audience1"
     ],
     "se_boards": [
         "CBSE"
@@ -502,9 +502,9 @@ export const samplePlayerConfig = {
         'uid': '',
         'channel': '01268904781886259221',
         'pdata': {
-            'id': 'preprod.diksha.portal',
+            'id': 'dev.sunbird.portal',
             'ver': '3.3.0',
-            'pid': 'sunbird-portal.contentplayer'
+            'pid': 'sunbird-portal.qumlplayer'
         },
         'contextRollup': {
             'l1': 'string',
