@@ -102,6 +102,10 @@ export class MainPlayerComponent implements OnInit, OnChanges {
           console.error('Invalid playerConfig: ', error);
         }
       }
+      console.log('playerConfig ===>', this.playerConfig);
+      if(!_.has(this.playerConfig.metadata, 'qumlVersion') && this.playerConfig.metadata?.qumlVersion != 1.1) {
+        this.playerConfig.metadata = this.viewerService.transformQuestionsetMetadataToV2(this.playerConfig.metadata)
+      }
       this.isLoading = true;
       this.setConfig();
       this.initializeSections();
@@ -213,7 +217,7 @@ export class MainPlayerComponent implements OnInit, OnChanges {
       this.userName = firstName + ' ' + lastName;
     }
 
-    if (this.playerConfig.metadata.isAvailableLocally && this.playerConfig.metadata.basePath) {
+    if (this.playerConfig.metadata?.isAvailableLocally && this.playerConfig.metadata?.basePath) {
       this.parentConfig.baseUrl = this.playerConfig.metadata.basePath;
       this.parentConfig.isAvailableLocally = true;
     }
