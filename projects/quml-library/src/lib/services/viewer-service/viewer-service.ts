@@ -426,64 +426,66 @@ export class ViewerService {
     }
   }
 
-  /** code to transform question metadata**/
   processResponseDeclaration(data) {
     let outcomeDeclaration = {};
     if (_.isEqual(_.toLower(data.primaryCategory), 'subjective question')) {
-      delete data.responseDeclaration;
-      delete data.interactions;
-
-      if (_.has(data, 'maxScore') && !_.isNull(data.maxScore)) {
-        outcomeDeclaration = {
-          maxScore: {
-            cardinality: 'single',
-            type: 'integer',
-            defaultValue: data.maxScore
-          }
-        };
-        data.outcomeDeclaration = outcomeDeclaration;
-      }
+      data = this.processSubjectiveResponseDeclaration(data);
     } else {
       let responseDeclaration = data.responseDeclaration;
       if (!_.isEmpty(responseDeclaration)) {
         for (const key in responseDeclaration) {
           const responseData = responseDeclaration[key];
-
           const maxScore = {
             cardinality: _.get(responseData, 'cardinality', ''),
             type: _.get(responseData, 'type', ''),
             defaultValue: _.get(responseData, 'maxScore'),
           };
-
           delete responseData.maxScore;
           outcomeDeclaration['maxScore'] = maxScore;
-
           const correctResp = responseData.correctResponse || {};
           delete correctResp.outcomes;
-
           if (_.toLower(_.get(responseData, 'type')) === 'integer' && _.toLower(_.get(responseData, 'cardinality')) === 'single') {
             const correctKey = correctResp.value;
             correctResp.value = parseInt(correctKey, 10);
           }
-
-          const mappingData = responseData.mapping || [];
-          if (!_.isEmpty(mappingData)) {
-            const updatedMapping = mappingData.map(mapData => ({
-              value: mapData.response,
-              score: _.get(mapData, 'outcomes.score', 0),
-            }));
-
-            responseData.mapping = updatedMapping;
-          }
-
+          responseData.mapping = this.getUpdatedMapping(responseData);
           responseDeclaration[key] = responseData;
         }
-
         data.responseDeclaration = responseDeclaration;
         data['outcomeDeclaration'] = outcomeDeclaration;
       }
     }
     return data;
+  }
+
+  processSubjectiveResponseDeclaration(subjectiveMetadata) {
+    let outcomeDeclaration = {};
+    delete subjectiveMetadata.responseDeclaration;
+    delete subjectiveMetadata.interactions;
+    if (_.has(subjectiveMetadata, 'maxScore') && !_.isNull(subjectiveMetadata.maxScore)) {
+      outcomeDeclaration = {
+        maxScore: {
+          cardinality: 'single',
+          type: 'integer',
+          defaultValue: subjectiveMetadata.maxScore
+        }
+      };
+      subjectiveMetadata.outcomeDeclaration = outcomeDeclaration;
+      return subjectiveMetadata;
+    }
+    return subjectiveMetadata;
+  }
+
+  getUpdatedMapping(responseData) {
+    const mappingData = responseData.mapping || [];
+    if (!_.isEmpty(mappingData)) {
+      const updatedMapping = mappingData.map(mapData => ({
+        value: mapData.response,
+        score: _.get(mapData, 'outcomes.score', 0),
+      }));
+      return updatedMapping;
+    }
+    return mappingData;
   }
 
   processInteractions(data: any) {
