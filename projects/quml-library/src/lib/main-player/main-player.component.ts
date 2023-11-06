@@ -104,7 +104,8 @@ export class MainPlayerComponent implements OnInit, OnChanges {
       }
       console.log('playerConfig ===>', this.playerConfig);
       if(!_.has(this.playerConfig.metadata, 'qumlVersion') && this.playerConfig.metadata?.qumlVersion != 1.1) {
-        this.playerConfig.metadata = this.viewerService.transformQuestionsetMetadataToV2(this.playerConfig.metadata)
+        this.playerConfig.metadata = this.viewerService.getTransformedHierarchy(this.playerConfig.metadata)
+        console.log('v2-transformed-PlayerConfig ===>', this.playerConfig);
       }
       this.isLoading = true;
       this.setConfig();
@@ -217,7 +218,7 @@ export class MainPlayerComponent implements OnInit, OnChanges {
       this.userName = firstName + ' ' + lastName;
     }
 
-    if (this.playerConfig.metadata?.isAvailableLocally && this.playerConfig.metadata?.basePath) {
+    if (this.playerConfig.metadata.isAvailableLocally && this.playerConfig.metadata.basePath) {
       this.parentConfig.baseUrl = this.playerConfig.metadata.basePath;
       this.parentConfig.isAvailableLocally = true;
     }

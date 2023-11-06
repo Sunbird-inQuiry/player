@@ -245,9 +245,9 @@ export class ViewerService {
       });
       forkJoin(requests).subscribe(questions => {
         _.forEach(questions, (value) => {
-          const updatedQuestion = this.getTransformedQuestionMetadata(value);
-          console.log('updatedQuestion ===>', updatedQuestion);
-          this.qumlQuestionEvent.emit(updatedQuestion);
+          const v2QuestionMetadata = this.getTransformedQuestionMetadata(value);
+          console.log('v2-transformed-questionMetadata ===>', v2QuestionMetadata);
+          this.qumlQuestionEvent.emit(v2QuestionMetadata);
         });
       }, (error) => {
         this.qumlQuestionEvent.emit({
@@ -304,10 +304,8 @@ export class ViewerService {
 
   /** Player V2 Transformation Logic**/
 
-  transformQuestionsetMetadataToV2(questionsetMetadata) {
-    console.log('questionsetMetadata ===>', questionsetMetadata)
+  getTransformedHierarchy(questionsetMetadata) {
     let updatedMetadata = this.getTransformedQuestionSetMetadata(questionsetMetadata);
-    console.log('updatedMetadata ===>', updatedMetadata);
     if (!_.isEmpty(updatedMetadata, 'children')) {
       updatedMetadata.children = this.transformChildren(updatedMetadata.children);
     }
@@ -347,6 +345,15 @@ export class ViewerService {
     return data;
   }
 
+  processBloomsLevel(data) {
+    if (_.has(data, 'bloomsLevel')) {
+      const bLevel = _.get(data, 'bloomsLevel');
+      _.unset(data, 'bloomsLevel');
+      _.set(data, 'complexityLevel', [bLevel.toString()]);
+    }
+    return data;
+  }
+
   processBooleanProps(data: any) {
     const booleanProps = ["showSolutions", "showFeedback", "showHints", "showTimer"];
     const getBooleanValue = (str: any) => str === "Yes";
@@ -371,23 +378,13 @@ export class ViewerService {
     if (_.has(data, 'timeLimits')) {
       if (!_.isNull(data.timeLimits)) {
         const parsedTimeLimits = JSON.parse(data.timeLimits);
-        timeLimits.questionSet.max = parsedTimeLimits.maxTime;
+        timeLimits.questionSet.max = _.toInteger(parsedTimeLimits.maxTime);
       }
     }
     data.timeLimits = timeLimits;
     return data;
   }
 
-  processBloomsLevel(data) {
-    if (_.has(data, 'bloomsLevel')) {
-      const bLevel = _.get(data, 'bloomsLevel');
-      _.unset(data, 'bloomsLevel');
-      _.set(data, 'complexityLevel', [bLevel.toString()]);
-    }
-    return data;
-  }
-
-  // Transform children
   transformChildren(children: any) {
     const self = this;
     if (!_.isEmpty(children)) {
@@ -408,22 +405,23 @@ export class ViewerService {
     return children;
   }
 
-  // Transform Question
   getTransformedQuestionMetadata(data) {
     if (_.has(data, 'questions')) {
       _.forEach(data.questions, (question) => {
-        question = this.processResponseDeclaration(question);
-        question = this.processInteractions(question);
-        question = this.processSolutions(question);
-        question = this.processInstructions(question);
-        question = this.processHints(question);
-        question = this.processBloomsLevel(question);
-        question = this.processBooleanProps(question);
-        const ans = this.getAnswer(question)
-        if (!_.isEmpty(ans)) {
-          _.set(question, 'answer', ans);
+        if (!_.has(question, 'qumlVersion') || question.qumlVersion != 1.1) {
+          question = this.processResponseDeclaration(question);
+          question = this.processInteractions(question);
+          question = this.processSolutions(question);
+          question = this.processInstructions(question);
+          question = this.processHints(question);
+          question = this.processBloomsLevel(question);
+          question = this.processBooleanProps(question);
+          const ans = this.getAnswer(question)
+          if (!_.isEmpty(ans)) {
+            _.set(question, 'answer', ans);
+          }
         }
-      })
+      });
       return data;
     }
   }
@@ -431,27 +429,26 @@ export class ViewerService {
   /** code to transform question metadata**/
   processResponseDeclaration(data) {
     let outcomeDeclaration = {};
-    // Remove responseDeclaration metadata for Subjective Question
     if (_.isEqual(_.toLower(data.primaryCategory), 'subjective question')) {
       delete data.responseDeclaration;
       delete data.interactions;
 
       if (_.has(data, 'maxScore') && !_.isNull(data.maxScore)) {
         outcomeDeclaration = {
-          cardinality: 'single',
-          type: 'integer',
-          defaultValue: data.maxScore
+          maxScore: {
+            cardinality: 'single',
+            type: 'integer',
+            defaultValue: data.maxScore
+          }
         };
         data.outcomeDeclaration = outcomeDeclaration;
       }
     } else {
-      // Transform responseDeclaration and populate outcomeDeclaration
       let responseDeclaration = data.responseDeclaration;
       if (!_.isEmpty(responseDeclaration)) {
         for (const key in responseDeclaration) {
           const responseData = responseDeclaration[key];
 
-          // Remove maxScore and put it under outcomeDeclaration
           const maxScore = {
             cardinality: _.get(responseData, 'cardinality', ''),
             type: _.get(responseData, 'type', ''),
@@ -461,17 +458,14 @@ export class ViewerService {
           delete responseData.maxScore;
           outcomeDeclaration['maxScore'] = maxScore;
 
-          // Remove outcome from correctResponse
           const correctResp = responseData.correctResponse || {};
           delete correctResp.outcomes;
 
-          // Type cast value if needed
-          if (_.toLower(_.get(responseData, 'type', '')) === 'integer' && _.toLower(_.get(responseData, 'cardinality', '')) === 'single') {
-            const correctKey = correctResp.value || '0';
+          if (_.toLower(_.get(responseData, 'type')) === 'integer' && _.toLower(_.get(responseData, 'cardinality')) === 'single') {
+            const correctKey = correctResp.value;
             correctResp.value = parseInt(correctKey, 10);
           }
 
-          // Update mapping
           const mappingData = responseData.mapping || [];
           if (!_.isEmpty(mappingData)) {
             const updatedMapping = mappingData.map(mapData => ({
