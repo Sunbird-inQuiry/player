@@ -525,10 +525,11 @@ export class ViewerService {
       const type = _.get(data, 'type', '');
 
       switch (type) {
-        case 'html':
+        case 'html': {
           return _.get(data, 'value', '');
+        }
 
-        case 'video':
+        case 'video': {
           const value = _.get(data, 'value', '');
           const mediaData = _.find(media, (item) => _.isEqual(value, _.get(item, 'id', '')));
 
@@ -543,9 +544,12 @@ export class ViewerService {
 
             return solutionStr;
           }
-
-        default:
           return '';
+        }
+
+        default: {
+          return '';
+        }
       }
     }
 
