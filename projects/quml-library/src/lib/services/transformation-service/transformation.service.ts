@@ -296,7 +296,6 @@ export class TransformationService {
         _.forEach(options, (option) => {
           if (_.includes(correctResp, option.value,)) {
             const replAns = _.replace(singleAns, 'answer_html', _.get(option, 'label'))
-            console.log('replAns ==>', replAns)
             answerList.push(replAns)
           }
         })

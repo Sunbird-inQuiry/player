@@ -108,8 +108,8 @@ export class MainPlayerComponent implements OnInit, OnChanges {
       }
       if(!_.has(this.playerConfig.metadata, 'qumlVersion') && _.get(this.playerConfig.metadata, 'qumlVersion') != 1.1) {
         this.playerConfig.metadata = this.transformationService.getTransformedHierarchy(this.playerConfig.metadata)
-        console.log('v2-transformed-PlayerConfig ===>', this.playerConfig);
       }
+      console.log('playerConfig::', this.playerConfig);
       this.isLoading = true;
       this.setConfig();
       this.initializeSections();
