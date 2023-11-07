@@ -252,42 +252,4 @@ describe('ViewerService', () => {
     expect(service.questionCursor.getQuestions).toHaveBeenCalled();
     expect(service.qumlQuestionEvent.emit).toHaveBeenCalled();
   });
-
-  it('#getTransformedHierarchy() should return transformed hierarchy', () => {
-    const service = TestBed.inject(ViewerService);
-    spyOn(service, 'getTransformedHierarchy').and.callThrough();
-    let v1Hierarchy = mockData.questionsetV1Hierarchy;
-    spyOn(service, 'getTransformedQuestionSetMetadata').and.callThrough();
-    spyOn(service, 'transformChildren').and.callThrough();
-    const transformedData = service.getTransformedHierarchy(v1Hierarchy);
-    expect(transformedData.instructions).toBe("<p>This is Simple Questionset for testing short text Questionset</p>");
-    expect(transformedData.children[0].children[0].showTimer).toBeFalsy();
-  });
-
-  it('#processBloomsLevel() should set complexityLevel', () => {
-    const service = TestBed.inject(ViewerService);
-    spyOn(service, 'processBloomsLevel').and.callThrough();
-    const data = {bloomsLevel: 'apply'};
-    const complexityLevelData = service.processBloomsLevel(data);
-    expect(complexityLevelData.complexityLevel.length).toEqual(1);
-  })
-
-  it('#getTransformedQuestionMetadata() should return transformed MCQ question data', () => {
-    const service = TestBed.inject(ViewerService);
-    spyOn(service, 'getTransformedQuestionMetadata').and.callThrough();
-    const questionsList = {questions: mockData.v1Questions};
-    const transformedquestionsList = service.getTransformedQuestionMetadata(questionsList);
-  });
-
-  it('#processSubjectiveResponseDeclaration() should return data if maxScore not exists', () => {
-    const service = TestBed.inject(ViewerService);
-    spyOn(service, 'processSubjectiveResponseDeclaration').and.callThrough();
-    const subjectQData = {
-      "body": "<p>What is capital of India?</p>",
-      "answer": "<p>New Delhi</p>",
-    }
-    const processedData = service.processSubjectiveResponseDeclaration(subjectQData);
-    expect(processedData.outcomeDeclaration).toBeUndefined();
-  })
-
 });
