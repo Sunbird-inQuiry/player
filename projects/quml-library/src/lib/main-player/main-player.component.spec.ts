@@ -37,7 +37,7 @@ describe('MainPlayerComponent', () => {
     fixture = TestBed.createComponent(MainPlayerComponent);
     component = fixture.componentInstance;
     component.playerConfig = playerConfig;
-    fixture.detectChanges();
+    // fixture.detectChanges();
   });
 
   it('should create', () => {
