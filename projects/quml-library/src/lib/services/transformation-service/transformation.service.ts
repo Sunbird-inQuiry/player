@@ -261,15 +261,13 @@ export class TransformationService {
     return '';
   }
 
-  processHints(data): void {
+  processHints(data) {
     const hints = _.get(data, 'hints', []);
-
+    let updatedHints = {};
     if (!_.isEmpty(hints)) {
-      const updatedHints = _.chain(hints)
-        .map(hint => ({ [uuidv4()]: hint }))
-        .flatten()
-        .keyBy(_.values)
-        .value();
+      _.forEach(hints, (hint) => {
+        _.merge(updatedHints, {[uuidv4()]: hint});
+      })
 
       _.set(data, 'hints', updatedHints);
     }

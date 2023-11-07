@@ -52,5 +52,15 @@ describe('TransformationService', () => {
     const updatedMapping = service.getUpdatedMapping(mockData.v1responseDeclaration.response1);
     expect(updatedMapping[0].value).toEqual(0);
     expect(updatedMapping[0].score).toEqual(1);
+  });
+
+  it('#processHints() should return updated hints', () => {
+    const data = {
+      hints: ['math question', 'class 4']
+    }
+    spyOn(service, 'processHints').and.callThrough();
+    let updatedHints = undefined;
+    updatedHints = service.processHints(data);
+    expect(updatedHints).toBeDefined();
   })
 });
