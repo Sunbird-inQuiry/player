@@ -1210,5 +1210,337 @@ export const mockData = {
   identifiers: [
     "do_21348431559137689613",
     "do_21348431640099225615"
-  ]
+  ],
+  questionsetV1Hierarchy: {
+    "copyright": "NIT123",
+    "lastStatusChangedOn": "2023-11-02T07:08:08.299+0000",
+    "timeLimits": "{\"maxTime\":\"300\"}",
+    "author": "Creator1",
+    "children": [
+        {
+            "lastStatusChangedOn": "2023-11-02T07:08:08.207+0000",
+            "parent": "do_21391745429720268811",
+            "children": [
+                {
+                    "copyright": "NIT123",
+                    "lastStatusChangedOn": "2023-11-02T07:13:51.010+0000",
+                    "parent": "do_21391745570741452812",
+                    "author": "Creator1",
+                    "name": "Short MCQ",
+                    "createdOn": "2023-11-02T07:03:26.776+0000",
+                    "channel": "01345815127107174426",
+                    "maxScore": 1,
+                    "lastUpdatedOn": "2023-11-02T07:13:51.010+0000",
+                    "subject": [
+                        "English"
+                    ],
+                    "showTimer": "No",
+                    "identifier": "do_213917459306708992110",
+                    "gradeLevel": [
+                        "Class 4"
+                    ],
+                    "compatibilityLevel": 4,
+                    "audience": [
+                        "Student"
+                    ],
+                    "se_boards": [
+                        "CBSE"
+                    ],
+                    "primaryCategory": "Multiple Choice Question",
+                    "se_mediums": [
+                        "Hindi"
+                    ],
+                    "downloadUrl": "https://obj.stage.sunbirded.org/sunbird-content-staging/question/do_213917459306708992110/short-mcq_1698909230306_do_213917459306708992110_1.ecar",
+                    "se_subjects": [
+                        "English"
+                    ],
+                    "medium": [
+                        "Hindi"
+                    ],
+                    "interactionTypes": [
+                        "choice"
+                    ],
+                    "framework": "ekstep_ncert_k-12",
+                    "versionKey": "1698908606787",
+                    "mimeType": "application/vnd.sunbird.question",
+                    "code": "44b65672-8529-4410-8000-d4eab50d5fce",
+                    "license": "CC BY 4.0",
+                    "version": 1,
+                    "prevStatus": "Draft",
+                    "templateId": "mcq-vertical",
+                    "language": [
+                        "English"
+                    ],
+                    "board": "CBSE",
+                    "showFeedback": "No",
+                    "objectType": "Question",
+                    "status": "Live",
+                    "createdBy": "56c84dee-7149-47af-902d-0138e080cec0",
+                    "contentEncoding": "gzip",
+                    "depth": 2,
+                    "lastPublishedBy": "ddb6579c-be43-49e6-9de4-585315a1d926",
+                    "se_gradeLevels": [
+                        "Class 4"
+                    ],
+                    "se_FWIds": [
+                        "ekstep_ncert_k-12"
+                    ],
+                    "allowAnonymousAccess": "Yes",
+                    "contentDisposition": "inline",
+                    "artifactUrl": "https://obj.stage.sunbirded.org/sunbird-content-staging/question/do_213917459306708992110/do_213917459306708992110_1698909229669.zip",
+                    "visibility": "Parent",
+                    "qType": "MCQ",
+                    "showSolutions": "No",
+                    "variants": {
+                        "full": {
+                            "ecarUrl": "https://obj.stage.sunbirded.org/sunbird-content-staging/question/do_213917459306708992110/short-mcq_1698909230306_do_213917459306708992110_1.ecar",
+                            "size": "64043"
+                        },
+                        "online": {
+                            "ecarUrl": "https://obj.stage.sunbirded.org/sunbird-content-staging/question/do_213917459306708992110/short-mcq_1698909230782_do_213917459306708992110_1_ONLINE.ecar",
+                            "size": "1691"
+                        }
+                    },
+                    "index": 1,
+                    "pkgVersion": 1
+                },
+                {
+                    "copyright": "NIT123",
+                    "lastStatusChangedOn": "2023-11-02T07:13:53.556+0000",
+                    "parent": "do_21391745570741452812",
+                    "author": "Creator1",
+                    "name": "Subjective",
+                    "createdOn": "2023-11-02T07:05:11.024+0000",
+                    "channel": "01345815127107174426",
+                    "maxScore": 1,
+                    "lastUpdatedOn": "2023-11-02T07:13:53.556+0000",
+                    "subject": [
+                        "English"
+                    ],
+                    "showTimer": "No",
+                    "identifier": "do_213917460160708608112",
+                    "gradeLevel": [
+                        "Class 4"
+                    ],
+                    "compatibilityLevel": 4,
+                    "audience": [
+                        "Student"
+                    ],
+                    "se_boards": [
+                        "CBSE"
+                    ],
+                    "primaryCategory": "Subjective Question",
+                    "se_mediums": [
+                        "Hindi"
+                    ],
+                    "downloadUrl": "https://obj.stage.sunbirded.org/sunbird-content-staging/question/do_213917460160708608112/subjective_1698909231618_do_213917460160708608112_1.ecar",
+                    "se_subjects": [
+                        "English"
+                    ],
+                    "medium": [
+                        "Hindi"
+                    ],
+                    "framework": "ekstep_ncert_k-12",
+                    "versionKey": "1698908711033",
+                    "mimeType": "application/vnd.sunbird.question",
+                    "code": "beb3dcee-f8b8-4b32-a58a-b17585faed18",
+                    "license": "CC BY 4.0",
+                    "version": 1,
+                    "prevStatus": "Draft",
+                    "language": [
+                        "English"
+                    ],
+                    "board": "CBSE",
+                    "showFeedback": "No",
+                    "objectType": "Question",
+                    "status": "Live",
+                    "createdBy": "56c84dee-7149-47af-902d-0138e080cec0",
+                    "contentEncoding": "gzip",
+                    "depth": 2,
+                    "lastPublishedBy": "ddb6579c-be43-49e6-9de4-585315a1d926",
+                    "se_gradeLevels": [
+                        "Class 4"
+                    ],
+                    "se_FWIds": [
+                        "ekstep_ncert_k-12"
+                    ],
+                    "allowAnonymousAccess": "Yes",
+                    "contentDisposition": "inline",
+                    "artifactUrl": "https://obj.stage.sunbirded.org/sunbird-content-staging/question/do_213917460160708608112/do_213917460160708608112_1698909231286.zip",
+                    "visibility": "Parent",
+                    "qType": "SA",
+                    "showSolutions": "No",
+                    "variants": {
+                        "full": {
+                            "ecarUrl": "https://obj.stage.sunbirded.org/sunbird-content-staging/question/do_213917460160708608112/subjective_1698909231618_do_213917460160708608112_1.ecar",
+                            "size": "10365908"
+                        },
+                        "online": {
+                            "ecarUrl": "https://obj.stage.sunbirded.org/sunbird-content-staging/question/do_213917460160708608112/subjective_1698909233512_do_213917460160708608112_1_ONLINE.ecar",
+                            "size": "1291"
+                        }
+                    },
+                    "index": 2,
+                    "pkgVersion": 1
+                }
+            ],
+            "name": "Section-1",
+            "navigationMode": "non-linear",
+            "createdOn": "2023-11-02T06:56:07.409+0000",
+            "channel": "01345815127107174426",
+            "generateDIALCodes": "No",
+            "lastUpdatedOn": "2023-11-02T07:08:08.207+0000",
+            "showTimer": "No",
+            "identifier": "do_21391745570741452812",
+            "description": "Section-1",
+            "containsUserData": "No",
+            "allowSkip": "Yes",
+            "compatibilityLevel": 5,
+            "trackable": {
+                "enabled": "No",
+                "autoBatch": "No"
+            },
+            "primaryCategory": "Practice Question Set",
+            "setType": "materialised",
+            "languageCode": [
+                "en"
+            ],
+            "attributions": [],
+            "scoreCutoffType": "AssessmentLevel",
+            "versionKey": "1698908167409",
+            "mimeType": "application/vnd.sunbird.questionset",
+            "code": "b7836846-bc19-49d8-bd0e-420f9424833e",
+            "license": "CC BY 4.0",
+            "version": 1,
+            "prevStatus": "Draft",
+            "showHints": "No",
+            "language": [
+                "English"
+            ],
+            "showFeedback": "Yes",
+            "objectType": "QuestionSet",
+            "status": "Live",
+            "requiresSubmit": "No",
+            "shuffle": true,
+            "contentEncoding": "gzip",
+            "depth": 1,
+            "allowAnonymousAccess": "Yes",
+            "contentDisposition": "inline",
+            "allowBranching": "No",
+            "visibility": "Parent",
+            "showSolutions": "Yes",
+            "index": 1
+        }
+    ],
+    "name": "Short  Text Questionset",
+    "navigationMode": "non-linear",
+    "createdOn": "2023-11-02T06:53:15.275+0000",
+    "createdFor": [
+        "01345815127107174426"
+    ],
+    "channel": "01345815127107174426",
+    "pdfUrl": "https://obj.stage.sunbirded.org/sunbird-content-staging/questionset/do_21391745429720268811/do_21391745429720268811_pdf_1698909234889.pdf",
+    "generateDIALCodes": "No",
+    "maxScore": 2,
+    "lastUpdatedOn": "2023-11-02T07:08:08.308+0000",
+    "subject": [
+        "English"
+    ],
+    "size": 5223136,
+    "showTimer": "Yes",
+    "identifier": "do_21391745429720268811",
+    "instructions": {
+        "default": "<p>This is Simple Questionset for testing short text Questionset</p>"
+    },
+    "description": "Short  Text Questionset",
+    "gradeLevel": [
+        "Class 4"
+    ],
+    "containsUserData": "No",
+    "allowSkip": "Yes",
+    "compatibilityLevel": 5,
+    "audience": [
+        "Student"
+    ],
+    "trackable": "{\"enabled\":\"No\",\"autoBatch\":\"No\"}",
+    "se_boards": [
+        "CBSE"
+    ],
+    "primaryCategory": "Practice Question Set",
+    "setType": "materialised",
+    "appIcon": "https://obj.stage.sunbirded.org/sunbird-content-staging/questionset/do_21391745429720268811/artifact/sunbird.thumb.jpeg",
+    "se_mediums": [
+        "Hindi"
+    ],
+    "downloadUrl": "https://obj.stage.sunbirded.org/sunbird-content-staging/questionset/do_21391745429720268811/short-text-questionset_1698909234107_do_21391745429720268811_1.ecar",
+    "se_subjects": [
+        "English"
+    ],
+    "medium": [
+        "Hindi"
+    ],
+    "attributions": [],
+    "scoreCutoffType": "AssessmentLevel",
+    "framework": "ekstep_ncert_k-12",
+    "posterImage": "https://obj.stage.sunbirded.org/sunbird-content-staging/content/assets/do_21391745470538547211/sunbird.jpeg",
+    "versionKey": "1698908888308",
+    "mimeType": "application/vnd.sunbird.questionset",
+    "code": "ec843eee-9e9d-4ab2-b559-df71f1e4a3f5",
+    "license": "CC BY 4.0",
+    "version": 1,
+    "prevStatus": "Draft",
+    "showHints": "No",
+    "summaryType": "Complete",
+    "language": [
+        "English"
+    ],
+    "board": "CBSE",
+    "showFeedback": "No",
+    "lastPublishedOn": "2023-11-02T07:13:53.602+0000",
+    "objectType": "QuestionSet",
+    "status": "Live",
+    "targetFWIds": [
+        "ekstep_ncert_k-12"
+    ],
+    "createdBy": "56c84dee-7149-47af-902d-0138e080cec0",
+    "requiresSubmit": "No",
+    "shuffle": true,
+    "contentEncoding": "gzip",
+    "depth": 0,
+    "consumerId": "cb069f8d-e4e1-46c5-831f-d4a83b323ada",
+    "lastPublishedBy": "ddb6579c-be43-49e6-9de4-585315a1d926",
+    "se_gradeLevels": [
+        "Class 4"
+    ],
+    "se_FWIds": [
+        "ekstep_ncert_k-12"
+    ],
+    "allowAnonymousAccess": "Yes",
+    "contentDisposition": "inline",
+    "additionalCategories": [],
+    "allowBranching": "No",
+    "previewUrl": "https://obj.stage.sunbirded.org/sunbird-content-staging/questionset/do_21391745429720268811/do_21391745429720268811_html_1698909234889.html",
+    "childNodes": [
+        "do_213917459306708992110",
+        "do_21391745570741452812",
+        "do_213917460160708608112"
+    ],
+    "visibility": "Default",
+    "showSolutions": "No",
+    "variants": {
+        "spine": {
+            "ecarUrl": "https://obj.stage.sunbirded.org/sunbird-content-staging/questionset/do_21391745429720268811/short-text-questionset_1698909233836_do_21391745429720268811_1_SPINE.ecar",
+            "size": "7215"
+        },
+        "online": {
+            "ecarUrl": "https://obj.stage.sunbirded.org/sunbird-content-staging/questionset/do_21391745429720268811/short-text-questionset_1698909234067_do_21391745429720268811_1_ONLINE.ecar",
+            "size": "4027"
+        },
+        "full": {
+            "ecarUrl": "https://obj.stage.sunbirded.org/sunbird-content-staging/questionset/do_21391745429720268811/short-text-questionset_1698909234107_do_21391745429720268811_1.ecar",
+            "size": "5223136"
+        }
+    },
+    "pkgVersion": 1
+  }
 }

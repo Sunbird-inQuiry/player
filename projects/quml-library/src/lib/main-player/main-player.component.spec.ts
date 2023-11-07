@@ -51,7 +51,9 @@ describe('MainPlayerComponent', () => {
   });
 
   it('should accept the stringified input as well', () => {
+    const viewerService = TestBed.inject(ViewerService);
     component.playerConfig = JSON.stringify(playerConfig) as any;
+    spyOn(viewerService, 'getTransformedHierarchy').and.returnValue(playerConfig);
     spyOn(component, 'setConfig');
     spyOn(component, 'initializeSections');
     component.ngOnInit();

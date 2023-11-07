@@ -102,8 +102,7 @@ export class MainPlayerComponent implements OnInit, OnChanges {
           console.error('Invalid playerConfig: ', error);
         }
       }
-      console.log('playerConfig ===>', this.playerConfig);
-      if(!_.has(this.playerConfig.metadata, 'qumlVersion') && this.playerConfig.metadata?.qumlVersion != 1.1) {
+      if(!_.has(this.playerConfig.metadata, 'qumlVersion') && _.get(this.playerConfig.metadata, 'qumlVersion') != 1.1) {
         this.playerConfig.metadata = this.viewerService.getTransformedHierarchy(this.playerConfig.metadata)
         console.log('v2-transformed-PlayerConfig ===>', this.playerConfig);
       }
