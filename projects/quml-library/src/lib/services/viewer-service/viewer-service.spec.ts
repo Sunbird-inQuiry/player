@@ -271,4 +271,23 @@ describe('ViewerService', () => {
     const complexityLevelData = service.processBloomsLevel(data);
     expect(complexityLevelData.complexityLevel.length).toEqual(1);
   })
+
+  it('#getTransformedQuestionMetadata() should return transformed MCQ question data', () => {
+    const service = TestBed.inject(ViewerService);
+    spyOn(service, 'getTransformedQuestionMetadata').and.callThrough();
+    const questionsList = {questions: mockData.v1Questions};
+    const transformedquestionsList = service.getTransformedQuestionMetadata(questionsList);
+  });
+
+  it('#processSubjectiveResponseDeclaration() should return data if maxScore not exists', () => {
+    const service = TestBed.inject(ViewerService);
+    spyOn(service, 'processSubjectiveResponseDeclaration').and.callThrough();
+    const subjectQData = {
+      "body": "<p>What is capital of India?</p>",
+      "answer": "<p>New Delhi</p>",
+    }
+    const processedData = service.processSubjectiveResponseDeclaration(subjectQData);
+    expect(processedData.outcomeDeclaration).toBeUndefined();
+  })
+
 });

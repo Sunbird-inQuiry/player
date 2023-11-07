@@ -1542,5 +1542,331 @@ export const mockData = {
         }
     },
     "pkgVersion": 1
-  }
+  },
+  v1Questions: [
+    {
+        "copyright": "NIT123",
+        "subject": [
+            "English"
+        ],
+        "channel": "01345815127107174426",
+        "downloadUrl": "https://obj.stage.sunbirded.org/sunbird-content-staging/question/do_213917459306708992110/short-mcq_1698909230306_do_213917459306708992110_1.ecar",
+        "responseDeclaration": {
+            "response1": {
+                "maxScore": 1,
+                "cardinality": "single",
+                "type": "integer",
+                "correctResponse": {
+                    "value": "1",
+                    "outcomes": {
+                        "SCORE": 1
+                    }
+                },
+                "mapping": []
+            }
+        },
+        "language": [
+            "English"
+        ],
+        "mimeType": "application/vnd.sunbird.question",
+        "variants": {
+            "full": {
+                "ecarUrl": "https://obj.stage.sunbirded.org/sunbird-content-staging/question/do_213917459306708992110/short-mcq_1698909230306_do_213917459306708992110_1.ecar",
+                "size": "64043"
+            },
+            "online": {
+                "ecarUrl": "https://obj.stage.sunbirded.org/sunbird-content-staging/question/do_213917459306708992110/short-mcq_1698909230782_do_213917459306708992110_1_ONLINE.ecar",
+                "size": "1691"
+            }
+        },
+        "body": "<div class='question-body' tabindex='-1'><div class='mcq-title' tabindex='0'><p>Which is the capital of India?</p></div><div data-choice-interaction='response1' class='mcq-vertical'></div></div>",
+        "editorState": {
+            "options": [
+                {
+                    "answer": false,
+                    "value": {
+                        "body": "<p>Bangalore</p><figure class=\"image\"><img src=\"/assets/public/content/assets/do_21391745639510016012/test.png\" alt=\"test\" data-asset-variable=\"do_21391745639510016012\"></figure>",
+                        "value": 0
+                    }
+                },
+                {
+                    "answer": true,
+                    "value": {
+                        "body": "<p>Delhi&nbsp;</p><figure class=\"image\"><img src=\"/assets/public/content/assets/do_21391745677380812813/test.png\" alt=\"test\" data-asset-variable=\"do_21391745677380812813\"></figure>",
+                        "value": 1
+                    }
+                },
+                {
+                    "answer": false,
+                    "value": {
+                        "body": "<p>MP&nbsp;</p><figure class=\"image\"><img src=\"/assets/public/content/assets/do_21391745700057907214/test.png\" alt=\"test\" data-asset-variable=\"do_21391745700057907214\"></figure>",
+                        "value": 2
+                    }
+                },
+                {
+                    "answer": false,
+                    "value": {
+                        "body": "<p>Tamilnadu&nbsp;</p><figure class=\"image\"><img src=\"/assets/public/content/assets/do_21391745723300249615/test.png\" alt=\"test\" data-asset-variable=\"do_21391745723300249615\"></figure>",
+                        "value": 3
+                    }
+                }
+            ],
+            "question": "<p>Which is the capital of India?</p>",
+            "solutions": [
+                {
+                    "id": "2ec72bb7-993e-45c7-a645-972bead37985",
+                    "type": "html",
+                    "value": "<p>New Delhi&nbsp;</p><figure class=\"image\"><img src=\"/assets/public/content/assets/do_21391745765224448016/test.png\" alt=\"test\" data-asset-variable=\"do_21391745765224448016\"></figure>"
+                }
+            ]
+        },
+        "templateId": "mcq-vertical",
+        "objectType": "Question",
+        "se_mediums": [
+            "Hindi"
+        ],
+        "gradeLevel": [
+            "Class 4"
+        ],
+        "primaryCategory": "Multiple Choice Question",
+        "contentEncoding": "gzip",
+        "artifactUrl": "https://obj.stage.sunbirded.org/sunbird-content-staging/question/do_213917459306708992110/do_213917459306708992110_1698909229669.zip",
+        "se_gradeLevels": [
+            "Class 4"
+        ],
+        "showSolutions": "No",
+        "identifier": "do_213917459306708992110",
+        "audience": [
+            "Student"
+        ],
+        "visibility": "Parent",
+        "showTimer": "No",
+        "author": "Creator1",
+        "solutions": [
+            {
+                "id": "2ec72bb7-993e-45c7-a645-972bead37985",
+                "type": "html",
+                "value": "<p>New Delhi&nbsp;</p><figure class=\"image\"><img src=\"/assets/public/content/assets/do_21391745765224448016/test.png\" alt=\"test\" data-asset-variable=\"do_21391745765224448016\"></figure>"
+            }
+        ],
+        "qType": "MCQ",
+        "maxScore": 1,
+        "lastPublishedBy": "ddb6579c-be43-49e6-9de4-585315a1d926",
+        "languageCode": [
+            "en"
+        ],
+        "version": 1,
+        "se_subjects": [
+            "English"
+        ],
+        "license": "CC BY 4.0",
+        "interactionTypes": [
+            "choice"
+        ],
+        "name": "Short MCQ",
+        "status": "Live",
+        "code": "44b65672-8529-4410-8000-d4eab50d5fce",
+        "prevStatus": "Draft",
+        "medium": [
+            "Hindi"
+        ],
+        "media": [
+            {
+                "id": "do_21391745639510016012",
+                "type": "image",
+                "src": "/assets/public/content/assets/do_21391745639510016012/test.png",
+                "baseUrl": "https://staging.sunbirded.org"
+            },
+            {
+                "id": "do_21391745677380812813",
+                "type": "image",
+                "src": "/assets/public/content/assets/do_21391745677380812813/test.png",
+                "baseUrl": "https://staging.sunbirded.org"
+            },
+            {
+                "id": "do_21391745700057907214",
+                "type": "image",
+                "src": "/assets/public/content/assets/do_21391745700057907214/test.png",
+                "baseUrl": "https://staging.sunbirded.org"
+            },
+            {
+                "id": "do_21391745723300249615",
+                "type": "image",
+                "src": "/assets/public/content/assets/do_21391745723300249615/test.png",
+                "baseUrl": "https://staging.sunbirded.org"
+            },
+            {
+                "id": "do_21391745765224448016",
+                "type": "image",
+                "src": "/assets/public/content/assets/do_21391745765224448016/test.png",
+                "baseUrl": "https://staging.sunbirded.org"
+            }
+        ],
+        "createdOn": "2023-11-02T07:03:26.776+0000",
+        "interactions": {
+            "response1": {
+                "type": "choice",
+                "options": [
+                    {
+                        "label": "<p>Bangalore</p><figure class=\"image\"><img src=\"/assets/public/content/assets/do_21391745639510016012/test.png\" alt=\"test\" data-asset-variable=\"do_21391745639510016012\"></figure>",
+                        "value": 0
+                    },
+                    {
+                        "label": "<p>Delhi&nbsp;</p><figure class=\"image\"><img src=\"/assets/public/content/assets/do_21391745677380812813/test.png\" alt=\"test\" data-asset-variable=\"do_21391745677380812813\"></figure>",
+                        "value": 1
+                    },
+                    {
+                        "label": "<p>MP&nbsp;</p><figure class=\"image\"><img src=\"/assets/public/content/assets/do_21391745700057907214/test.png\" alt=\"test\" data-asset-variable=\"do_21391745700057907214\"></figure>",
+                        "value": 2
+                    },
+                    {
+                        "label": "<p>Tamilnadu&nbsp;</p><figure class=\"image\"><img src=\"/assets/public/content/assets/do_21391745723300249615/test.png\" alt=\"test\" data-asset-variable=\"do_21391745723300249615\"></figure>",
+                        "value": 3
+                    }
+                ]
+            },
+            "validation": {
+                "required": "Yes"
+            }
+        },
+        "se_boards": [
+            "CBSE"
+        ],
+        "contentDisposition": "inline",
+        "lastUpdatedOn": "2023-11-02T07:13:51.010+0000",
+        "allowAnonymousAccess": "Yes",
+        "lastStatusChangedOn": "2023-11-02T07:13:51.010+0000",
+        "se_FWIds": [
+            "ekstep_ncert_k-12"
+        ],
+        "pkgVersion": 1,
+        "versionKey": "1698908606787",
+        "showFeedback": "No",
+        "framework": "ekstep_ncert_k-12",
+        "answer": "1",
+        "createdBy": "56c84dee-7149-47af-902d-0138e080cec0",
+        "compatibilityLevel": 4,
+        "board": "CBSE"
+    },
+    {
+        "copyright": "NIT123",
+        "subject": [
+            "English"
+        ],
+        "channel": "01345815127107174426",
+        "downloadUrl": "https://obj.stage.sunbirded.org/sunbird-content-staging/question/do_213917460160708608112/subjective_1698909231618_do_213917460160708608112_1.ecar",
+        "responseDeclaration": {
+            "response1": {
+                "type": "string",
+                "cardinality": "single"
+            }
+        },
+        "language": [
+            "English"
+        ],
+        "mimeType": "application/vnd.sunbird.question",
+        "variants": {
+            "full": {
+                "ecarUrl": "https://obj.stage.sunbirded.org/sunbird-content-staging/question/do_213917460160708608112/subjective_1698909231618_do_213917460160708608112_1.ecar",
+                "size": "10365908"
+            },
+            "online": {
+                "ecarUrl": "https://obj.stage.sunbirded.org/sunbird-content-staging/question/do_213917460160708608112/subjective_1698909233512_do_213917460160708608112_1_ONLINE.ecar",
+                "size": "1291"
+            }
+        },
+        "body": "<p>Who is the captain of India?</p>",
+        "editorState": {
+            "answer": "<p>Dhoni- Born in ranchi and won 3 ICC trophy</p>",
+            "question": "<p>Who is the captain of India?</p>",
+            "solutions": [
+                {
+                    "id": "5505d866-b8e3-4c1d-b6d2-7ddf5b7ff765",
+                    "type": "video",
+                    "value": "do_21391745981619404817"
+                }
+            ]
+        },
+        "objectType": "Question",
+        "se_mediums": [
+            "Hindi"
+        ],
+        "gradeLevel": [
+            "Class 4"
+        ],
+        "primaryCategory": "Subjective Question",
+        "contentEncoding": "gzip",
+        "artifactUrl": "https://obj.stage.sunbirded.org/sunbird-content-staging/question/do_213917460160708608112/do_213917460160708608112_1698909231286.zip",
+        "se_gradeLevels": [
+            "Class 4"
+        ],
+        "showSolutions": "No",
+        "identifier": "do_213917460160708608112",
+        "audience": [
+            "Student"
+        ],
+        "visibility": "Parent",
+        "showTimer": "No",
+        "author": "Creator1",
+        "solutions": [
+            {
+                "id": "5505d866-b8e3-4c1d-b6d2-7ddf5b7ff765",
+                "type": "video",
+                "value": "do_21391745981619404817"
+            }
+        ],
+        "qType": "SA",
+        "maxScore": 1,
+        "lastPublishedBy": "ddb6579c-be43-49e6-9de4-585315a1d926",
+        "languageCode": [
+            "en"
+        ],
+        "version": 1,
+        "se_subjects": [
+            "English"
+        ],
+        "license": "CC BY 4.0",
+        "name": "Subjective",
+        "status": "Live",
+        "code": "beb3dcee-f8b8-4b32-a58a-b17585faed18",
+        "prevStatus": "Draft",
+        "medium": [
+            "Hindi"
+        ],
+        "media": [
+            {
+                "id": "do_21391745981619404817",
+                "src": "/assets/public/content/assets/do_21391745981619404817/bathroom-drama-talking-angela-cartoon-short.mp4",
+                "type": "video",
+                "assetId": "do_21391745981619404817",
+                "name": "bathroom-drama-talking-angela-cartoon-short",
+                "baseUrl": "https://staging.sunbirded.org"
+            }
+        ],
+        "createdOn": "2023-11-02T07:05:11.024+0000",
+        "interactions": {
+            "validation": {
+                "required": "Yes"
+            }
+        },
+        "se_boards": [
+            "CBSE"
+        ],
+        "contentDisposition": "inline",
+        "lastUpdatedOn": "2023-11-02T07:13:53.556+0000",
+        "allowAnonymousAccess": "Yes",
+        "lastStatusChangedOn": "2023-11-02T07:13:53.556+0000",
+        "se_FWIds": [
+            "ekstep_ncert_k-12"
+        ],
+        "pkgVersion": 1,
+        "versionKey": "1698908711033",
+        "showFeedback": "No",
+        "framework": "ekstep_ncert_k-12",
+        "answer": "<p>Dhoni- Born in ranchi and won 3 ICC trophy</p>",
+        "createdBy": "56c84dee-7149-47af-902d-0138e080cec0",
+        "compatibilityLevel": 4,
+        "board": "CBSE"
+    }
+  ]
 }
