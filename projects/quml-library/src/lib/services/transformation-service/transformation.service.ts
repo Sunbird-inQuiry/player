@@ -7,8 +7,6 @@ import { v4 as uuidv4 } from 'uuid';
 })
 export class TransformationService {
 
-  constructor() { }
-
   getTransformedHierarchy(questionsetMetadata) {
     let updatedMetadata = this.getTransformedQuestionSetMetadata(questionsetMetadata);
     if (!_.isEmpty(updatedMetadata, 'children')) {

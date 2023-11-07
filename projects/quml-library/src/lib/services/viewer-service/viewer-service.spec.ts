@@ -252,4 +252,5 @@ describe('ViewerService', () => {
     expect(service.questionCursor.getQuestions).toHaveBeenCalled();
     expect(service.qumlQuestionEvent.emit).toHaveBeenCalled();
   });
+
 });
