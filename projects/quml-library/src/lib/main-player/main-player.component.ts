@@ -5,6 +5,7 @@ import * as _ from 'lodash-es';
 import { SectionPlayerComponent } from '../section-player/section-player.component';
 import { IAttempts, IParentConfig, ISummary, QumlPlayerConfig } from './../quml-library-interface';
 import { ViewerService } from './../services/viewer-service/viewer-service';
+import { TransformationService } from '../services/transformation-service/transformation.service';
 import { eventName, pageId, TelemetryType, MimeType } from './../telemetry-constants';
 import { UtilService } from './../util-service';
 import { fromEvent, Subscription } from 'rxjs';
@@ -85,7 +86,10 @@ export class MainPlayerComponent implements OnInit, OnChanges {
   subscription: Subscription;
   questionSetEvaluable: any;
 
-  constructor(public viewerService: ViewerService, private utilService: UtilService) { }
+  constructor(
+    public viewerService: ViewerService,
+    private utilService: UtilService,
+    private transformationService: TransformationService) { }
 
   @HostListener('document:TelemetryEvent', ['$event'])
   onTelemetryEvent(event) {
@@ -103,6 +107,10 @@ export class MainPlayerComponent implements OnInit, OnChanges {
           console.error('Invalid playerConfig: ', error);
         }
       }
+      if(!_.has(this.playerConfig.metadata, 'qumlVersion') && _.get(this.playerConfig.metadata, 'qumlVersion') != 1.1) {
+        this.playerConfig.metadata = this.transformationService.getTransformedHierarchy(this.playerConfig.metadata)
+      }
+      console.log('playerConfig::', this.playerConfig);
       this.isLoading = true;
       this.setConfig();
       this.initializeSections();

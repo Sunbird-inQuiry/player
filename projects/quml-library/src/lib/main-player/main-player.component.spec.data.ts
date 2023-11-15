@@ -1,5 +1,6 @@
 
 const content1 = {
+  "qumlVersion": 1.1,
   "instructions": "<ol><li>Please circle the correct answer</li><li>Do not use mobile phones</li></ol>",
   "copyright": "tn",
   "lastStatusChangedOn": "2022-02-28T07:56:09.733+0000",
