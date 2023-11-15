@@ -28,10 +28,12 @@
   <!-- Show player end page -->
   <div class="endPage-container" *ngIf="endPageReached" [ngClass]="endPageReached ? 'endPage-container-height': ''">
     <sb-player-end-page *ngIf="endPageReached && showEndPage" [contentName]="parentConfig.contentName"
-      [outcome]="outcomeLabel" [outcomeLabel]="'Score: '" [userName]="userName" [timeSpentLabel]="durationSpent"
+    [outcome]="!questionSetEvaluable? outcomeLabel : ''" [outcomeLabel]="!questionSetEvaluable? 'Score: ': ''" [userName]="userName" [timeSpentLabel]="durationSpent"
       (replayContent)="replayContent()" (exitContent)="exitContent($event)"
       [showExit]="parentConfig?.sideMenuConfig.showExit" [showReplay]="showReplay" [nextContent]="nextContent"
       (playNextContent)="playNextContent($event)">
+
+      <span *ngIf="questionSetEvaluable" class="mt-8 font-weight-bold d-block">You've succesfully submitted the assessment and response sent for validation</span>
 
       <span class="sb-color-primary mt-8 fnormal font-weight-bold d-block"
         *ngIf="attempts?.max && attempts?.current && attempts.max !== attempts.current">Attempt no
