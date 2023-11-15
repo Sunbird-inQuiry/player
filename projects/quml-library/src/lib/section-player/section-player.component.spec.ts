@@ -32,6 +32,7 @@ describe('SectionPlayerComponent', () => {
     qumlPlayerEvent = new EventEmitter<any>();
     qumlQuestionEvent = new EventEmitter<any>();
     pauseVideo() { }
+    serverValidationCheck() {}
   }
 
   class ElementRefMock {
@@ -665,6 +666,34 @@ describe('SectionPlayerComponent', () => {
     expect(component.isAssessEventRaised).toBeTruthy();
   });
 
+  it('store response if eval mode is server', () => {
+    component.questionSetEvaluable = true;
+    component.myCarousel = myCarousel;
+    const option = {
+      "name": "optionSelect",
+      "option": {
+        "label": "<p>Narendra Modi</p>",
+        "value": 1,
+        "selected": true
+      },
+      "cardinality": "single",
+      "solutions": []
+    }
+    component.optionSelectedObj = {
+      "name": "optionSelect",
+      "option": {
+        "label": "<p>Narendra Modi</p>",
+        "value": 1,
+        "selected": true
+      },
+      "cardinality": "single",
+      "solutions": []
+    }
+    component.questions = mockSectionQuestions;
+    component.parentConfig = mockParentConfig;
+    component.sectionConfig = mockSectionConfig;
+    component.validateSelectedOption(option, "next");
+  });
 
   it('should hide the popup once the time is over', fakeAsync(() => {
     component.infoPopupTimeOut();
