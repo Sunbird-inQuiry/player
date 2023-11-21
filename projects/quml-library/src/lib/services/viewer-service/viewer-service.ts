@@ -35,7 +35,6 @@ export class ViewerService {
   questionSetId: string;
   parentIdentifier: string;
   sectionQuestions = [];
-  questionSetEvaluable: any;
 
   constructor(
     public qumlLibraryService: QumlLibraryService,
@@ -58,7 +57,6 @@ export class ViewerService {
     this.isSectionsAvailable = parentConfig?.isSectionsAvailable;
     this.src = config.metadata.artifactUrl || '';
     this.questionSetId = config.metadata.identifier;
-    this.questionSetEvaluable = this.serverValidationCheck(config.metadata?.eval);
 
     /* istanbul ignore else */
     if (config?.context?.userData) {
@@ -148,23 +146,13 @@ export class ViewerService {
   }
 
   raiseAssesEvent(questionData, index: number, pass: string, score, resValues, duration: number) {
-    let assessEvent;
-    if(!this.questionSetEvaluable) {
-      assessEvent = {
-        item: questionData,
-        index: index,
-        pass: pass,
-        score: score,
-        resvalues: resValues,
-        duration: duration
-      }
-    } else {
-      assessEvent = {
-        item: questionData,
-        index: index,
-        resvalues: resValues,
-        duration: duration
-      }
+    const assessEvent = {
+      item: questionData,
+      index: index,
+      pass: pass,
+      score: score,
+      resvalues: resValues,
+      duration: duration
     }
     this.qumlPlayerEvent.emit(assessEvent);
     this.qumlLibraryService.startAssesEvent(assessEvent);
@@ -313,15 +301,5 @@ export class ViewerService {
   pauseVideo() {
     const videoElements = Array.from(document.getElementsByTagName('video') as HTMLCollectionOf<Element>);
     videoElements.forEach((element: HTMLVideoElement) => element.pause());
-  }
-
-  serverValidationCheck(obj: any) {
-    if(typeof obj == 'string') {
-      this.questionSetEvaluable = JSON.parse(obj);
-      this.questionSetEvaluable = this.questionSetEvaluable?.mode?.toLowerCase() == 'server'
-    } else {
-      this.questionSetEvaluable = obj?.mode?.toLowerCase() == 'server'
-    }
-    return this.questionSetEvaluable;
   }
 }

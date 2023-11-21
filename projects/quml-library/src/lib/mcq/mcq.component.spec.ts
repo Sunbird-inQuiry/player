@@ -3,15 +3,10 @@ import { waitForAsync,  ComponentFixture, TestBed } from '@angular/core/testing'
 import { DomSanitizer } from '@angular/platform-browser';
 
 import { McqComponent } from './mcq.component';
-import { ViewerService } from '../services/viewer-service/viewer-service';
 
 describe('McqComponent', () => {
   let component: McqComponent;
-  let viewerService;
   let fixture: ComponentFixture<McqComponent>;
-  class ViewServiceMock {
-    questionSetEvaluable: boolean
-  }
   const question = {
     "copyright": "tn",
     "subject": [
@@ -164,9 +159,6 @@ describe('McqComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [McqComponent],
-      providers: [
-        { provide: ViewerService, useClass: ViewServiceMock }
-      ],
       schemas: [NO_ERRORS_SCHEMA]
     })
       .compileComponents();
@@ -175,7 +167,6 @@ describe('McqComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(McqComponent);
     component = fixture.componentInstance;
-    viewerService = TestBed.inject(ViewerService);
     component.question = question;
     fixture.detectChanges();
   });
@@ -186,25 +177,21 @@ describe('McqComponent', () => {
 
   it('should set layout to IMAGEGRID', () => {
     component.question.templateId = 'mcq-horizontal';
-    viewerService.questionSetEvaluable = false;
     component.ngOnInit();
     expect(component.layout).toBe('IMAGEGRID');
   });
   it('should set layout to IMAGEQAGRID', () => {
     component.question.templateId = 'mcq-vertical-split';
-    viewerService.questionSetEvaluable = false;
     component.ngOnInit();
     expect(component.layout).toBe('IMAGEQAGRID');
   });
   it('should set layout to MULTIIMAGEGRID', () => {
     component.question.templateId = 'mcq-grid-split';
-    viewerService.questionSetEvaluable = false;
     component.ngOnInit();
     expect(component.layout).toBe('MULTIIMAGEGRID');
   });
   it('should not set any layout', () => {
     component.question.templateId = 'mcq';
-    viewerService.questionSetEvaluable = false;
     component.ngOnInit();
     expect(component.layout).toBeUndefined;
   });
