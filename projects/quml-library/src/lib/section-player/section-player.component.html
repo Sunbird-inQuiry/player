@@ -15,7 +15,7 @@
         <div class="current-slide" *ngIf="currentSlideIndex !== 0">
           {{myCarousel.getCurrentSlideIndex()}}/{{noOfQuestions}}
         </div>
-        <div *ngIf="currentSolutions && showUserSolution && !questionSetEvaluable">
+        <div *ngIf="currentSolutions && showUserSolution">
           <quml-ans (click)="getSolutions()" (keydown)="onAnswerKeyDown($event)"></quml-ans>
         </div>
       </div>
@@ -67,7 +67,7 @@
                       attr.aria-label="question number {{question?.index}}"
                       (click)="goToSlideClicked($event, question?.index)" (keydown)="onEnter($event, question?.index)"
                       class="showFeedBack-progressBar"
-                      [ngClass]="(j+1) === myCarousel.getCurrentSlideIndex() ? (question.class === 'skipped' ? 'progressBar-border' : (questionSetEvaluable ? 'att-color progressBar-border': 'progressBar-border ' + question.class)) : (questionSetEvaluable ? (question.class === 'skipped'|| question.class === 'unattempted' ? question.class : 'att-color'): question.class)">
+                      [ngClass]="(j+1) === myCarousel.getCurrentSlideIndex() ? (question.class === 'skipped' ? 'progressBar-border' : 'progressBar-border ' + question.class) : question.class">
                       {{question?.index}}
                     </li>
                   </ul>
@@ -89,7 +89,7 @@
                   attr.aria-label="question number {{question?.index}}"
                   (click)="goToSlideClicked($event, question?.index)" (keydown)="onEnter($event, question?.index)"
                   class="showFeedBack-progressBar hover-effect"
-                  [ngClass]="(j+1) === myCarousel.getCurrentSlideIndex() ? (question.class === 'skipped' ? 'progressBar-border' : (questionSetEvaluable ? 'att-color progressBar-border': 'progressBar-border ' + question.class)) : (questionSetEvaluable ? (question.class === 'skipped'|| question.class === 'unattempted' ? question.class : 'att-color'): question.class)">
+                  [ngClass]="(j+1) === myCarousel.getCurrentSlideIndex() ? (question.class === 'skipped' ? 'progressBar-border' : 'progressBar-border ' + question.class) : question.class">
                   {{question?.index}}
                 </li>
               </ul>
@@ -119,11 +119,11 @@
     </div>
   </div>
 
-  <quml-alert *ngIf="showAlert && showFeedBack && !questionSetEvaluable" [alertType]="alertType" [isHintAvailable]="showHints"
+  <quml-alert *ngIf="showAlert && showFeedBack" [alertType]="alertType" [isHintAvailable]="showHints"
     [showSolutionButton]="showUserSolution && currentSolutions" (showSolution)="viewSolution()" (showHint)="viewHint()"
     (closeAlert)="closeAlertBox($event)"></quml-alert>
 
-  <quml-mcq-solutions *ngIf="showSolution && !questionSetEvaluable" [question]="currentQuestion" [options]="currentOptions"
+  <quml-mcq-solutions *ngIf="showSolution" [question]="currentQuestion" [options]="currentOptions"
     [solutions]="currentSolutions" [baseUrl]="parentConfig?.baseUrl" [media]="media" [identifier]="currentQuestionIndetifier" (close)="closeSolution()"></quml-mcq-solutions>
 </div>
 

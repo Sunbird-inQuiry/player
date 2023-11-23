@@ -10,7 +10,6 @@ import { DataService } from './services/data.service';
 export class AppComponent implements OnInit {
   contentId = 'do_2138622515299368961170';
   playerConfig: any;
-  telemetryEvents: any = [];
 
   constructor(private dataService: DataService) { }
 
@@ -47,7 +46,6 @@ export class AppComponent implements OnInit {
   }
 
   getTelemetryEvents(event) {
-    this.telemetryEvents.push(JSON.parse(JSON.stringify(event)));
-    console.log('event is for telemetry', this.telemetryEvents);
+    console.log('event is for telemetry', JSON.stringify(event));
   }
 }
