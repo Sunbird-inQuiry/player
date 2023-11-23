@@ -72,21 +72,24 @@ export class TransformationService {
   }
 
   processTimeLimits(data) {
-    let timeLimits = {
+  let parsedTimeLimits;
+  if (_.has(data, 'timeLimits') && !_.isNull(data.timeLimits)) {
+    if (_.isString(data.timeLimits)) {
+      parsedTimeLimits = JSON.parse(data.timeLimits);
+    } else {
+      parsedTimeLimits = data.timeLimits;
+    }
+
+    data.timeLimits = {
       questionSet: {
         min: 0,
-        max: 0
+        max: parsedTimeLimits?.maxTime ? _.toInteger(parsedTimeLimits.maxTime) : 0
       }
-    }
-    if (_.has(data, 'timeLimits')) {
-      if (!_.isNull(data.timeLimits)) {
-        const parsedTimeLimits = JSON.parse(data.timeLimits);
-        timeLimits.questionSet.max = _.toInteger(parsedTimeLimits.maxTime);
-      }
-    }
-    data.timeLimits = timeLimits;
-    return data;
+    };
   }
+
+  return data;
+}
 
   transformChildren(children: any) {
     const self = this;
