@@ -258,8 +258,8 @@ describe('ViewerService', () => {
 
   it('should validate eval property in serverValidationCheck', () => {
     const service: ViewerService = TestBed.inject(ViewerService);
-    service.serverValidationCheck("{\"mode\":\"server\"}");
-    expect(service.serverValidationCheck("{\"mode\":\"server\"}")).toBeTrue;
+    service.serverValidationCheck("server");
+    expect(service.serverValidationCheck("server")).toBeTrue;
   })
 
 });

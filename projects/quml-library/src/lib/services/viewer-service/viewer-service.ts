@@ -56,7 +56,7 @@ export class ViewerService {
     this.isSectionsAvailable = parentConfig?.isSectionsAvailable;
     this.src = config.metadata.artifactUrl || '';
     this.questionSetId = config.metadata.identifier;
-    this.questionSetEvaluable = this.serverValidationCheck(config.metadata?.eval);
+    this.questionSetEvaluable = this.serverValidationCheck(config.metadata?.evalMode);
 
     /* istanbul ignore else */
     if (config?.context?.userData) {
@@ -312,13 +312,13 @@ export class ViewerService {
     videoElements.forEach((element: HTMLVideoElement) => element.pause());
   }
 
-  serverValidationCheck(obj: any) {
-    if(typeof obj == 'string') {
-      this.questionSetEvaluable = JSON.parse(obj);
-      this.questionSetEvaluable = this.questionSetEvaluable?.mode?.toLowerCase() == 'server'
+  serverValidationCheck(mode: any) {
+    if(mode == 'server') {
+      this.questionSetEvaluable = true;
+      return this.questionSetEvaluable;
     } else {
-      this.questionSetEvaluable = obj?.mode?.toLowerCase() == 'server'
+      this.questionSetEvaluable = false;
+      return this.questionSetEvaluable
     }
-    return this.questionSetEvaluable;
   }
 }
