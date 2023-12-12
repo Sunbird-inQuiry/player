@@ -2,6 +2,7 @@ import { EventEmitter, Injectable } from '@angular/core';
 import { IParentConfig, QumlPlayerConfig } from '../../quml-library-interface';
 import { QumlLibraryService } from '../../quml-library.service';
 import { UtilService } from '../../util-service';
+import { TransformationService } from '../transformation-service/transformation.service';
 import { eventName, TelemetryType } from '../../telemetry-constants';
 import { QuestionCursor } from '../../quml-question-cursor.service';
 import * as _ from 'lodash-es';
@@ -39,7 +40,8 @@ export class ViewerService {
   constructor(
     public qumlLibraryService: QumlLibraryService,
     public utilService: UtilService,
-    public questionCursor: QuestionCursor
+    public questionCursor: QuestionCursor,
+    public transformationService: TransformationService
   ) { }
 
   initialize(config: QumlPlayerConfig, threshold: number, questionIds: string[], parentConfig: IParentConfig) {
@@ -257,7 +259,8 @@ export class ViewerService {
       });
       forkJoin(requests).subscribe(questions => {
         _.forEach(questions, (value) => {
-          this.qumlQuestionEvent.emit(value);
+          const transformedquestionsList = this.transformationService.getTransformedQuestionMetadata(value);
+          this.qumlQuestionEvent.emit(transformedquestionsList);
         });
       }, (error) => {
         this.qumlQuestionEvent.emit({
