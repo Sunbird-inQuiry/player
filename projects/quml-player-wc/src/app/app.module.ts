@@ -42,6 +42,7 @@ import { QuestionCursor } from '../../../quml-library/src/lib/quml-question-curs
 import { QuestionCursorImplementationService } from './question-cursor-implementation.service';
 import { HttpClientModule } from '@angular/common/http';
 import { ProgressIndicatorsComponent } from '../../../quml-library/src/lib/progress-indicators/progress-indicators.component';
+import { PLAYER_COMPATABILITY_CONFIG } from 'quml-library/lib/player-constants';
 
 @NgModule({
     declarations: [
@@ -85,7 +86,7 @@ import { ProgressIndicatorsComponent } from '../../../quml-library/src/lib/progr
         BrowserModule,
         CommonModule,
         CarouselModule.forRoot(),
-        SunbirdPlayerSdkModule,
+        SunbirdPlayerSdkModule.forRoot(PLAYER_COMPATABILITY_CONFIG),
         HttpClientModule
     ],
     providers: [{ provide: QuestionCursor, useClass: QuestionCursorImplementationService }]
