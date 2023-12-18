@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ElementRef, EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
 import { waitForAsync, ComponentFixture, fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
-import { ErrorService } from '@project-sunbird/sunbird-player-sdk-v9';
+import { ErrorService, SunbirdPlayerSdkModule } from '@project-sunbird/sunbird-player-sdk-v9';
 import { CarouselComponent } from 'ngx-bootstrap/carousel';
 import { of, Subject } from 'rxjs';
 import { fakeMainProgressBar } from '../main-player/main-player.component.spec.data';
@@ -11,6 +11,7 @@ import { UtilService } from '../util-service';
 import { QuestionCursor } from './../quml-question-cursor.service';
 import { SectionPlayerComponent } from './section-player.component';
 import { mockSectionPlayerConfig } from './section-player.component.spec.data';
+import { PLAYER_COMPATABILITY_CONFIG } from '../player-constants';
 
 
 describe('SectionPlayerComponent', () => {
@@ -51,13 +52,14 @@ describe('SectionPlayerComponent', () => {
     TestBed.configureTestingModule({
       declarations: [SectionPlayerComponent, CarouselComponent],
       imports: [
-        CommonModule
+        CommonModule,
+        SunbirdPlayerSdkModule.forRoot(PLAYER_COMPATABILITY_CONFIG)
       ],
       providers: [
         QumlLibraryService,
         QuestionCursor,
         { provide: ViewerService, useClass: ViewerServiceMock },
-        { provide: ElementRef, useClass: ElementRefMock },
+        { provide: ElementRef, useClass: ElementRefMock }
       ],
       schemas: [NO_ERRORS_SCHEMA]
     })
