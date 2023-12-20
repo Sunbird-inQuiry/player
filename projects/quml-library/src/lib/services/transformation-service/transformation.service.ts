@@ -202,7 +202,7 @@ export class TransformationService {
       const resValData: any = _.get(interactions, 'response1.validation', {});
       if (!_.isEmpty(resValData)) {
         _.forEach(resValData, (value, key) => {
-          validation.set(key, value);
+          _.set(validation, key, value)
         });
       } else {
         _.set(resp1, 'validation', validation);
