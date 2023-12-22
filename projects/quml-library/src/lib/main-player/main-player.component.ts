@@ -357,6 +357,7 @@ export class MainPlayerComponent implements OnInit, OnChanges {
   }
 
   replayContent() {
+    this.utilService.selectedQuestionsOptions = [];
     this.parentConfig.isReplayed = true;
     this.loadScoreBoard = false;
     this.endPageReached = false;

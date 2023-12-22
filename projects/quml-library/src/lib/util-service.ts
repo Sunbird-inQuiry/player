@@ -6,6 +6,7 @@ import * as _ from 'lodash-es';
     providedIn: 'root'
 })
 export class UtilService {
+    selectedQuestionsOptions = [];
 
     constructor() { }
 
@@ -69,6 +70,11 @@ export class UtilService {
     getQuestionType(questions, currentIndex) {
         let index = currentIndex - 1 === -1 ? 0 : currentIndex - 1;
         return questions[index]['qType'];
+
+    }
+
+    getQuestionData(questions, currentIndex) {
+        return questions[currentIndex];
 
     }
 

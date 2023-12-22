@@ -637,9 +637,25 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
   validateSelectedOption(option, type?: string) {
     const selectedOptionValue = option?.option?.value;
     const currentIndex = this.myCarousel.getCurrentSlideIndex() - 1;
-    const isQuestionSkipAllowed = !this.optionSelectedObj &&
-      this.allowSkip && this.utilService.getQuestionType(this.questions, currentIndex) === 'MCQ';
-    const isSubjectiveQuestion = this.utilService.getQuestionType(this.questions, currentIndex) === 'SA';
+    const currentQuestionData = this.utilService.getQuestionData(this.questions, currentIndex);
+    const questionType = currentQuestionData?.qType;
+
+    let isQuestionSkipAllowed = true;
+    if (!this.allowSkip && questionType === 'MCQ') {
+      if (!_.isUndefined(selectedOptionValue)) {
+        const indexExists =_.findIndex(this.utilService.selectedQuestionsOptions, {questionId: currentQuestionData?.identifier});
+        if (indexExists >= 0) {
+          this.utilService.selectedQuestionsOptions[indexExists] = {questionId: currentQuestionData?.identifier, optionValue: selectedOptionValue};
+        } else if (indexExists == -1) {
+          this.utilService.selectedQuestionsOptions.push({questionId: currentQuestionData?.identifier, optionValue: selectedOptionValue});
+        }
+      }
+      const currentSlideOptionData = _.find(this.utilService.selectedQuestionsOptions, {questionId: currentQuestionData?.identifier});
+      if(_.isUndefined(currentSlideOptionData?.optionValue)) {
+        isQuestionSkipAllowed = false;
+      };
+    }
+    const isSubjectiveQuestion = questionType === 'SA';
     const onStartPage = this.startPageInstruction && this.myCarousel.getCurrentSlideIndex() === 0;
     const isActive = !this.optionSelectedObj && this.active;
     const selectedQuestion = this.questions[currentIndex];
@@ -733,11 +749,11 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
         this.nextSlide();
       }
     } else if (this.startPageInstruction && !this.optionSelectedObj && !this.active && !this.allowSkip &&
-      this.myCarousel.getCurrentSlideIndex() > 0 && this.utilService.getQuestionType(this.questions, currentIndex) === 'MCQ'
+      this.myCarousel.getCurrentSlideIndex() > 0 && questionType === 'MCQ'
       && this.utilService.canGo(this.progressBarClass[this.myCarousel.getCurrentSlideIndex()])) {
       this.infoPopupTimeOut();
     } else if (!this.optionSelectedObj && !this.active && !this.allowSkip && this.myCarousel.getCurrentSlideIndex() >= 0
-      && this.utilService.getQuestionType(this.questions, currentIndex) === 'MCQ'
+      && questionType === 'MCQ'
       && this.utilService.canGo(this.progressBarClass[this.myCarousel.getCurrentSlideIndex()])) {
       this.infoPopupTimeOut();
     }
