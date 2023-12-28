@@ -216,7 +216,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.showTimer = this.sectionConfig.metadata?.showTimer;
     
     //server-level-validation
-    this.questionSetEvaluable = this.viewerService.serverValidationCheck(this.sectionConfig.metadata?.evalMode);
+    this.questionSetEvaluable = this.viewerService.questionSetEvaluable;
 
     if (this.sectionConfig.metadata?.showFeedback) {
       this.showFeedBack = this.sectionConfig.metadata?.showFeedback; // prioritize the section level config

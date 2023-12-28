@@ -216,7 +216,8 @@ export class MainPlayerComponent implements OnInit, OnChanges {
     this.parentConfig.sideMenuConfig = { ...this.parentConfig.sideMenuConfig, ...this.playerConfig.config.sideMenu };
     this.parentConfig.warningTime =  _.get(this.playerConfig,'config.warningTime', this.parentConfig.warningTime);
     this.parentConfig.showWarningTimer =  _.get(this.playerConfig,'config.showWarningTimer', this.parentConfig.showWarningTimer)
-    this.questionSetEvaluable = this.viewerService.serverValidationCheck(this.playerConfig.metadata?.evalMode);
+    this.viewerService.serverValidationCheck(this.playerConfig.metadata?.evalMode);
+    this.questionSetEvaluable = this.viewerService.questionSetEvaluable;
     if (this.playerConfig?.context?.userData) {
       const firstName = this.playerConfig.context.userData?.firstName ?? '';
       const lastName = this.playerConfig.context.userData?.lastName ?? '';
