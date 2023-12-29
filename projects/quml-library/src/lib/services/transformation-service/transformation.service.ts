@@ -49,7 +49,7 @@ export class TransformationService {
   }
 
   processBloomsLevel(data) {
-    if (_.has(data, 'bloomsLevel')) {
+    if (_.has(data, 'bloomsLevel') && !_.isUndefined(data?.bloomsLevel)) {
       const bLevel = _.get(data, 'bloomsLevel');
       _.unset(data, 'bloomsLevel');
       _.set(data, 'complexityLevel', [bLevel.toString()]);
