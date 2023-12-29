@@ -230,7 +230,7 @@ export class MainPlayerComponent implements OnInit, OnChanges {
       max: this.playerConfig.metadata?.maxAttempts,
       current: this.playerConfig.metadata?.currentAttempt ? this.playerConfig.metadata.currentAttempt + 1 : 1
     };
-    this.totalScore = this.playerConfig.metadata?.outcomeDeclaration?.maxScore?.defaultValue || this.playerConfig.metadata.maxScore;
+    this.totalScore = this.playerConfig.metadata?.outcomeDeclaration?.maxScore?.defaultValue || this.playerConfig.metadata?.maxScore;
     this.showReplay = this.attempts?.max && this.attempts?.current >= this.attempts.max ? false : true;
     if (typeof this.playerConfig.metadata?.timeLimits === 'string') {
       this.playerConfig.metadata.timeLimits = JSON.parse(this.playerConfig.metadata.timeLimits);
