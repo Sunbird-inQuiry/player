@@ -33,6 +33,8 @@
       [showExit]="parentConfig?.sideMenuConfig.showExit" [showReplay]="showReplay" [nextContent]="nextContent"
       (playNextContent)="playNextContent($event)">
 
+      <span *ngIf="questionSetEvaluable" class="mt-8 font-weight-bold d-block">You've succesfully submitted the assessment and response sent for validation</span>
+
       <span class="sb-color-primary mt-8 fnormal font-weight-bold d-block"
         *ngIf="attempts?.max && attempts?.current && attempts.max !== attempts.current">Attempt no
         {{attempts.current}}/{{attempts.max}}
