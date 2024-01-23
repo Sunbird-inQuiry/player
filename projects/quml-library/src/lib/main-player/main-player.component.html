@@ -28,7 +28,7 @@
   <!-- Show player end page -->
   <div class="endPage-container" *ngIf="endPageReached" [ngClass]="endPageReached ? 'endPage-container-height': ''">
     <sb-player-end-page *ngIf="endPageReached && showEndPage" [contentName]="parentConfig.contentName"
-      [outcome]="outcomeLabel" [outcomeLabel]="'Score: '" [userName]="userName" [timeSpentLabel]="durationSpent"
+      [outcome]="!questionSetEvaluable? outcomeLabel : ''" [outcomeLabel]="!questionSetEvaluable? 'Score: ': ''" [userName]="userName" [timeSpentLabel]="durationSpent"
       (replayContent)="replayContent()" (exitContent)="exitContent($event)"
       [showExit]="parentConfig?.sideMenuConfig.showExit" [showReplay]="showReplay" [nextContent]="nextContent"
       (playNextContent)="playNextContent($event)">

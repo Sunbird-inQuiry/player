@@ -35,6 +35,7 @@ export class ViewerService {
   questionSetId: string;
   parentIdentifier: string;
   sectionQuestions = [];
+  questionSetEvaluable: boolean = false;
 
   constructor(
     public qumlLibraryService: QumlLibraryService,
@@ -146,13 +147,23 @@ export class ViewerService {
   }
 
   raiseAssesEvent(questionData, index: number, pass: string, score, resValues, duration: number) {
-    const assessEvent = {
-      item: questionData,
-      index: index,
-      pass: pass,
-      score: score,
-      resvalues: resValues,
-      duration: duration
+    let assessEvent;
+    if(!this.questionSetEvaluable) {
+      assessEvent = {
+        item: questionData,
+        index: index,
+        pass: pass,
+        score: score,
+        resvalues: resValues,
+        duration: duration
+      }
+    } else {
+      assessEvent = {
+        item: questionData,
+        index: index,
+        resvalues: resValues,
+        duration: duration
+      }
     }
     this.qumlPlayerEvent.emit(assessEvent);
     this.qumlLibraryService.startAssesEvent(assessEvent);
@@ -301,5 +312,13 @@ export class ViewerService {
   pauseVideo() {
     const videoElements = Array.from(document.getElementsByTagName('video') as HTMLCollectionOf<Element>);
     videoElements.forEach((element: HTMLVideoElement) => element.pause());
+  }
+
+  serverValidationCheck(mode: any) {
+    if(mode == 'server') {
+      this.questionSetEvaluable = true;
+    } else {
+      this.questionSetEvaluable = false;
+    }
   }
 }
