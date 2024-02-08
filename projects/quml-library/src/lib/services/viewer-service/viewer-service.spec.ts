@@ -5,6 +5,7 @@ import { QumlLibraryService } from '../../quml-library.service';
 import { UtilService } from '../../util-service';
 import { QuestionCursor } from '../../quml-question-cursor.service';
 import { of, throwError } from 'rxjs';
+import { TransformationService } from '../transformation-service/transformation.service';
 
 describe('ViewerService', () => {
   class MockQuestionCursor {
@@ -205,7 +206,7 @@ describe('ViewerService', () => {
     service.identifiers = ['do_123', 'do_124'];
     spyOn(service.questionCursor, 'getQuestion').and.returnValue(of([{ id: 'do_123' }, { id: 'do_124' }] as any));
     spyOn(service.qumlQuestionEvent, 'emit');
-    service.getQuestion();
+    service.getQuestion(mockData.playerConfig.metadata.children);
     expect(service.qumlQuestionEvent.emit).toHaveBeenCalled();
     expect(service.questionCursor.getQuestion).toHaveBeenCalled();
   });
@@ -216,7 +217,7 @@ describe('ViewerService', () => {
     service.identifiers = ['do_123', 'do_124'];
     spyOn(service.questionCursor, 'getQuestion').and.returnValue(throwError('Error'));
     spyOn(service.qumlQuestionEvent, 'emit');
-    service.getQuestion();
+    service.getQuestion(mockData.playerConfig.metadata.children);
     expect(service.qumlQuestionEvent.emit).toHaveBeenCalled();
     expect(service.questionCursor.getQuestion).toHaveBeenCalled();
   });
@@ -226,18 +227,20 @@ describe('ViewerService', () => {
     const qumlLibraryService = TestBed.inject(QumlLibraryService);
     service.identifiers = [];
     spyOn(service.questionCursor, 'getQuestion');
-    service.getQuestion();
+    service.getQuestion(mockData.playerConfig.metadata.children);
     expect(service.questionCursor.getQuestion).not.toHaveBeenCalled();
   });
 
   it('should call getQuestions', () => {
     const service = TestBed.inject(ViewerService);
-    service.parentIdentifier = 'do_555';
-    service.identifiers = ['do_123', 'do_124'];
-    spyOn(service.questionCursor, 'getQuestions').and.returnValue(of([{ id: 'do_123' }] as any));
-    spyOn(service.qumlQuestionEvent, 'emit');
-    service.getQuestions(0, 1)
-    expect(service.questionCursor.getQuestions).toHaveBeenCalled();
+    service.parentIdentifier = 'do_21348431528472576011';
+    service.identifiers = ['do_21348431559137689613', 'do_21348431640099225615'];
+    spyOn(service, 'getSectionQuestionData').and.returnValue(of([{ id: 'do_21348431559137689613' }] as any));
+    const getTransformedQuestionMetadata = TestBed.inject(TransformationService);
+    spyOn(getTransformedQuestionMetadata, 'getTransformedQuestionMetadata').and.returnValue({questions: [{ id: 'do_21348431559137689613' }], count: 1})
+    spyOn(service.qumlQuestionEvent, 'emit').and.callFake(() => {});
+    service.getQuestions(mockData.playerConfig.metadata.children, 0, 1)
+    expect(service.getSectionQuestionData).toHaveBeenCalled();
     expect(service.qumlQuestionEvent.emit).toHaveBeenCalled();
   });
 
@@ -246,10 +249,10 @@ describe('ViewerService', () => {
     service.parentIdentifier = 'do_555';
     service.identifiers = ['do_123', 'do_124'];
     service.threshold = 3;
-    spyOn(service.questionCursor, 'getQuestions').and.returnValue(throwError('Error'));
+    spyOn(service, 'getSectionQuestionData').and.returnValue(throwError('Error'));
     spyOn(service.qumlQuestionEvent, 'emit');
-    service.getQuestions()
-    expect(service.questionCursor.getQuestions).toHaveBeenCalled();
+    service.getQuestions(mockData.playerConfig.metadata.children)
+    expect(service.getSectionQuestionData).toHaveBeenCalled();
     expect(service.qumlQuestionEvent.emit).toHaveBeenCalled();
   });
 

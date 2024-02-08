@@ -242,9 +242,9 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     if (this.jumpToQuestion) {
       this.goToQuestion(this.jumpToQuestion);
     } else if (this.threshold === 1) {
-      this.viewerService.getQuestion();
+      this.viewerService.getQuestion(this.sectionConfig?.metadata?.children);
     } else if (this.threshold > 1) {
-      this.viewerService.getQuestions();
+      this.viewerService.getQuestions(this.sectionConfig?.metadata?.children);
     }
 
     if (!this.sectionConfig.metadata?.children?.length) {
@@ -362,16 +362,16 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     if (this.myCarousel.getCurrentSlideIndex() > 0
       && ((this.threshold * this.noOfTimesApiCalled) - 1) === this.myCarousel.getCurrentSlideIndex()
       && this.threshold * this.noOfTimesApiCalled >= this.questions.length && this.threshold > 1) {
-      this.viewerService.getQuestions();
+      this.viewerService.getQuestions(this.sectionConfig?.metadata?.children);
     }
 
     if (this.myCarousel.getCurrentSlideIndex() > 0
       && this.questions[this.myCarousel.getCurrentSlideIndex()] === undefined && this.threshold > 1) {
-      this.viewerService.getQuestions();
+      this.viewerService.getQuestions(this.sectionConfig?.metadata?.children);
     }
 
     if (this.threshold === 1 && this.myCarousel.getCurrentSlideIndex() >= 0) {
-      this.viewerService.getQuestion();
+      this.viewerService.getQuestion(this.sectionConfig?.metadata?.children);
     }
   }
 
@@ -767,7 +767,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
 
     if (this.questions[index - 1] === undefined) {
       this.showQuestions = false;
-      this.viewerService.getQuestions(0, index);
+      this.viewerService.getQuestions(this.sectionConfig?.metadata?.children, 0, index);
       this.currentSlideIndex = index;
     } else if (this.questions[index - 1] !== undefined) {
       this.myCarousel.selectSlide(index);
@@ -783,7 +783,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.disableNext = false;
     this.initializeTimer = true;
     const index = event.questionNo;
-    this.viewerService.getQuestions(0, index);
+    this.viewerService.getQuestions(this.sectionConfig?.metadata?.children, 0 , index);
     this.currentSlideIndex = index;
     this.myCarousel.selectSlide(index);
     this.highlightQuestion();
