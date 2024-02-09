@@ -7,7 +7,7 @@ import { eventName, TelemetryType } from '../../telemetry-constants';
 import { QuestionCursor } from '../../quml-question-cursor.service';
 import * as _ from 'lodash-es';
 import { forkJoin, of } from 'rxjs';
-import { switchMap, map } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -296,10 +296,8 @@ export class ViewerService {
   getQuestion(sectionChildren) {
     if (this.identifiers.length) {
       let questionIdentifier = this.identifiers.splice(0, this.threshold);
-      const getObjectByIdentifier = (identifier: string): any  => {
-        return _.find(sectionChildren, { identifier });
-      };
-      const fetchedQuestion = getObjectByIdentifier(questionIdentifier);
+      const fetchedQuestion = _.find(sectionChildren, (question) => _.includes(questionIdentifier, question.identifier));
+
       if (_.has(fetchedQuestion, 'body')) {
         const fetchedQuestionData = {questions: [fetchedQuestion], count: 1 };
         const transformedquestionsList = this.transformationService.getTransformedQuestionMetadata(fetchedQuestionData);

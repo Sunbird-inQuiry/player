@@ -231,6 +231,26 @@ describe('ViewerService', () => {
     expect(service.questionCursor.getQuestion).not.toHaveBeenCalled();
   });
 
+  it('should return available questions if sectionChildren is not empty', () => {
+    const service = TestBed.inject(ViewerService);
+    const sectionChildren = [{ identifier: '1', body: 'Question 1' }, { identifier: '2', body: 'Question 2' }];
+    const questionIdArr = ['1', '2'];
+    service.getSectionQuestionData(sectionChildren, questionIdArr).subscribe(result => {
+      expect(result.questions.length).toBe(2);
+      expect(result.count).toBe(2);
+    });
+  });
+
+  it('should return questionsIdNotHavingCompleteData if sectionChildren is empty', () => {
+    const service = TestBed.inject(ViewerService);
+    const sectionChildren = [];
+    const questionIdArr = ['1', '2'];
+    spyOn(service, 'fetchIncompleteQuestionsData').and.returnValue(of({questions: [{ identifier: '1', body: 'Question 1' }, { identifier: '2', body: 'Question 2' }], count: 2}))
+    service.getSectionQuestionData(sectionChildren, questionIdArr).subscribe(result => {
+      expect(result.questions.length).toBe(2);
+    });
+  });
+
   it('should call getQuestions', () => {
     const service = TestBed.inject(ViewerService);
     service.parentIdentifier = 'do_21348431528472576011';
