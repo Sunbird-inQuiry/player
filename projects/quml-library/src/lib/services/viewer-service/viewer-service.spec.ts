@@ -211,6 +211,18 @@ describe('ViewerService', () => {
     expect(service.questionCursor.getQuestion).toHaveBeenCalled();
   });
 
+  it('should emit transformed question metadata if question body is available', () => {
+    const service = TestBed.inject(ViewerService);
+    const sectionChildren = [{ identifier: '1', body: 'Question 1' }];
+    const fetchedQuestionData = { questions: [{ identifier: '1', body: 'Question 1' }], count: 1 };
+    spyOn(service.transformationService, 'getTransformedQuestionMetadata').and.returnValue(fetchedQuestionData);
+    spyOn(service.qumlQuestionEvent, 'emit').and.callFake(() => {});
+    service.threshold = 1;
+    service.identifiers = ['1'];
+    service.getQuestion(sectionChildren);
+    expect(service.qumlQuestionEvent.emit).toHaveBeenCalledWith(fetchedQuestionData);
+  });
+
   it('should call getQuestion and return the error', () => {
     const service = TestBed.inject(ViewerService);
     const qumlLibraryService = TestBed.inject(QumlLibraryService);
@@ -248,6 +260,18 @@ describe('ViewerService', () => {
     spyOn(service, 'fetchIncompleteQuestionsData').and.returnValue(of({questions: [{ identifier: '1', body: 'Question 1' }, { identifier: '2', body: 'Question 2' }], count: 2}))
     service.getSectionQuestionData(sectionChildren, questionIdArr).subscribe(result => {
       expect(result.questions.length).toBe(2);
+    });
+  });
+
+  it('should fetch incomplete questions data and return combined questions', () => {
+    const service = TestBed.inject(ViewerService);
+    const availableQuestions = [{ identifier: '1', body: 'Question 1' }];
+    const questionsIdNotHavingCompleteData = ['2'];
+    const questionData = { identifier: '2', body: 'Question 2' }
+    spyOn(service.questionCursor, 'getQuestions').and.returnValue(of([{ questions: [questionData], count: 1 }] as any))
+    service.fetchIncompleteQuestionsData(availableQuestions, questionsIdNotHavingCompleteData).subscribe(result => {
+      expect(result.questions.length).toBe(2);
+      expect(result.count).toBe(2);
     });
   });
 
