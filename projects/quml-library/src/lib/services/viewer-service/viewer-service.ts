@@ -6,7 +6,7 @@ import { TransformationService } from '../transformation-service/transformation.
 import { eventName, TelemetryType } from '../../telemetry-constants';
 import { QuestionCursor } from '../../quml-question-cursor.service';
 import * as _ from 'lodash-es';
-import { Subject, forkJoin, of } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
 @Injectable({
