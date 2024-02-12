@@ -784,7 +784,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.disableNext = false;
     this.initializeTimer = true;
     const index = event.questionNo;
-    this.viewerService.getQuestions(0 , index);
+    this.viewerService.getQuestions(0, index);
     this.currentSlideIndex = index;
     this.myCarousel.selectSlide(index);
     this.highlightQuestion();
