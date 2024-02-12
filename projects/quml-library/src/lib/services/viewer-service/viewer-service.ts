@@ -6,7 +6,7 @@ import { TransformationService } from '../transformation-service/transformation.
 import { eventName, TelemetryType } from '../../telemetry-constants';
 import { QuestionCursor } from '../../quml-question-cursor.service';
 import * as _ from 'lodash-es';
-import { forkJoin, of } from 'rxjs';
+import { Subject, forkJoin, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
 @Injectable({
@@ -36,7 +36,7 @@ export class ViewerService {
   questionSetId: string;
   parentIdentifier: string;
   sectionQuestions = [];
-
+  sectionConfig:any;
   constructor(
     public qumlLibraryService: QumlLibraryService,
     public utilService: UtilService,
@@ -267,7 +267,8 @@ export class ViewerService {
   }
 
 
-  getQuestions(sectionChildren, currentIndex?: number, index?: number) {
+  getQuestions(currentIndex?: number, index?: number) {
+    const sectionChildren = this.sectionConfig?.metadata?.children;
     let indentifersForQuestions;
     if (currentIndex !== undefined && index) {
       indentifersForQuestions = this.identifiers.splice(currentIndex, index);
@@ -293,7 +294,8 @@ export class ViewerService {
     }
   }
 
-  getQuestion(sectionChildren) {
+  getQuestion() {
+    const sectionChildren = this.sectionConfig?.metadata?.children;
     if (this.identifiers.length) {
       let questionIdentifier = this.identifiers.splice(0, this.threshold);
       const fetchedQuestion = _.find(sectionChildren, (question) => _.includes(questionIdentifier, question.identifier));

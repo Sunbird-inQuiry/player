@@ -206,7 +206,8 @@ describe('ViewerService', () => {
     service.identifiers = ['do_123', 'do_124'];
     spyOn(service.questionCursor, 'getQuestion').and.returnValue(of([{ id: 'do_123' }, { id: 'do_124' }] as any));
     spyOn(service.qumlQuestionEvent, 'emit');
-    service.getQuestion(mockData.playerConfig.metadata.children);
+    service.sectionConfig = mockData.playerConfig;
+    service.getQuestion();
     expect(service.qumlQuestionEvent.emit).toHaveBeenCalled();
     expect(service.questionCursor.getQuestion).toHaveBeenCalled();
   });
@@ -219,7 +220,8 @@ describe('ViewerService', () => {
     spyOn(service.qumlQuestionEvent, 'emit').and.callFake(() => {});
     service.threshold = 1;
     service.identifiers = ['1'];
-    service.getQuestion(sectionChildren);
+    service.sectionConfig = {metadata:{children: sectionChildren}};
+    service.getQuestion();
     expect(service.qumlQuestionEvent.emit).toHaveBeenCalledWith(fetchedQuestionData);
   });
 
@@ -229,7 +231,8 @@ describe('ViewerService', () => {
     service.identifiers = ['do_123', 'do_124'];
     spyOn(service.questionCursor, 'getQuestion').and.returnValue(throwError('Error'));
     spyOn(service.qumlQuestionEvent, 'emit');
-    service.getQuestion(mockData.playerConfig.metadata.children);
+    service.sectionConfig = mockData.playerConfig;
+    service.getQuestion();
     expect(service.qumlQuestionEvent.emit).toHaveBeenCalled();
     expect(service.questionCursor.getQuestion).toHaveBeenCalled();
   });
@@ -239,7 +242,8 @@ describe('ViewerService', () => {
     const qumlLibraryService = TestBed.inject(QumlLibraryService);
     service.identifiers = [];
     spyOn(service.questionCursor, 'getQuestion');
-    service.getQuestion(mockData.playerConfig.metadata.children);
+    service.sectionConfig = mockData.playerConfig;
+    service.getQuestion();
     expect(service.questionCursor.getQuestion).not.toHaveBeenCalled();
   });
 
@@ -283,7 +287,8 @@ describe('ViewerService', () => {
     const getTransformedQuestionMetadata = TestBed.inject(TransformationService);
     spyOn(getTransformedQuestionMetadata, 'getTransformedQuestionMetadata').and.returnValue({questions: [{ id: 'do_21348431559137689613' }], count: 1})
     spyOn(service.qumlQuestionEvent, 'emit').and.callFake(() => {});
-    service.getQuestions(mockData.playerConfig.metadata.children, 0, 1)
+    service.sectionConfig = mockData.playerConfig;
+    service.getQuestions(0, 1)
     expect(service.getSectionQuestionData).toHaveBeenCalled();
     expect(service.qumlQuestionEvent.emit).toHaveBeenCalled();
   });
@@ -295,7 +300,8 @@ describe('ViewerService', () => {
     service.threshold = 3;
     spyOn(service, 'getSectionQuestionData').and.returnValue(throwError('Error'));
     spyOn(service.qumlQuestionEvent, 'emit');
-    service.getQuestions(mockData.playerConfig.metadata.children)
+    service.sectionConfig = mockData.playerConfig;
+    service.getQuestions()
     expect(service.getSectionQuestionData).toHaveBeenCalled();
     expect(service.qumlQuestionEvent.emit).toHaveBeenCalled();
   });
