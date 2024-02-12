@@ -104,6 +104,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     if (changes && Object.values(changes)[0].firstChange) {
       this.subscribeToEvents();
     }
+    this.viewerService.sectionConfig = this.sectionConfig;
     this.setConfig();
   }
 

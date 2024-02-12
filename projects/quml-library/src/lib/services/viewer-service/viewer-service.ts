@@ -6,7 +6,8 @@ import { TransformationService } from '../transformation-service/transformation.
 import { eventName, TelemetryType } from '../../telemetry-constants';
 import { QuestionCursor } from '../../quml-question-cursor.service';
 import * as _ from 'lodash-es';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -35,7 +36,7 @@ export class ViewerService {
   questionSetId: string;
   parentIdentifier: string;
   sectionQuestions = [];
-
+  sectionConfig:any;
   constructor(
     public qumlLibraryService: QumlLibraryService,
     public utilService: UtilService,
@@ -231,8 +232,43 @@ export class ViewerService {
     this.qumlLibraryService.error(stacktrace, { err: errorCode, errtype: errorType });
   }
 
+  getSectionQuestionData(sectionChildren, questionIdArr) {
+    const availableQuestions = [];
+    let questionsIdNotHavingCompleteData = [];
+    if (_.isEmpty(sectionChildren)) {
+      questionsIdNotHavingCompleteData = questionIdArr;
+    } else {
+      const foundQuestions = sectionChildren.filter(child => questionIdArr.includes(child.identifier));
+      for (const question of foundQuestions) {
+        if (_.has(question, 'body')) {
+          availableQuestions.push(question);
+        } else {
+          questionsIdNotHavingCompleteData.push(question.identifier);
+        }
+      }
+    }
+
+    if (!_.isEmpty(questionsIdNotHavingCompleteData)) {
+      return this.fetchIncompleteQuestionsData(availableQuestions, questionsIdNotHavingCompleteData);
+    } else {
+      const allQuestions$ = of({ questions: availableQuestions, count: availableQuestions.length });
+      return allQuestions$;
+    }
+  }
+
+  fetchIncompleteQuestionsData(availableQuestions, questionsIdNotHavingCompleteData) {
+    return this.questionCursor.getQuestions(questionsIdNotHavingCompleteData, this.parentIdentifier).pipe(
+      switchMap((questionData: any) => {
+        const fetchedQuestions = questionData.questions;
+        const allQuestions = _.concat(availableQuestions, fetchedQuestions);
+        return of({ questions: allQuestions, count: allQuestions.length });
+      })
+    );
+  }
+
 
   getQuestions(currentIndex?: number, index?: number) {
+    const sectionChildren = this.sectionConfig?.metadata?.children;
     let indentifersForQuestions;
     if (currentIndex !== undefined && index) {
       indentifersForQuestions = this.identifiers.splice(currentIndex, index);
@@ -240,10 +276,10 @@ export class ViewerService {
       indentifersForQuestions = this.identifiers.splice(0, this.threshold);
     }
     if (!_.isEmpty(indentifersForQuestions)) {
-      const requests = [];
+      let requests: any;
       const chunkArray = _.chunk(indentifersForQuestions, 10);
       _.forEach(chunkArray, (value) => {
-        requests.push(this.questionCursor.getQuestions(value, this.parentIdentifier));
+        requests = this.getSectionQuestionData(sectionChildren, value)
       });
       forkJoin(requests).subscribe(questions => {
         _.forEach(questions, (value) => {
@@ -259,15 +295,26 @@ export class ViewerService {
   }
 
   getQuestion() {
+    const sectionChildren = this.sectionConfig?.metadata?.children;
     if (this.identifiers.length) {
       let questionIdentifier = this.identifiers.splice(0, this.threshold);
-      this.questionCursor.getQuestion(questionIdentifier[0]).subscribe((question) => {
-        this.qumlQuestionEvent.emit(question);
-      }, (error) => {
-        this.qumlQuestionEvent.emit({
-          error: error
+      const fetchedQuestion = _.find(sectionChildren, (question) => _.includes(questionIdentifier, question.identifier));
+
+      if (_.has(fetchedQuestion, 'body')) {
+        const fetchedQuestionData = {questions: [fetchedQuestion], count: 1 };
+        const transformedquestionsList = this.transformationService.getTransformedQuestionMetadata(fetchedQuestionData);
+        this.qumlQuestionEvent.emit(transformedquestionsList);
+      } else {
+        this.questionCursor.getQuestion(questionIdentifier[0]).subscribe((question) => {
+          const fetchedQuestionData = question;
+          const transformedquestionsList = this.transformationService.getTransformedQuestionMetadata(fetchedQuestionData);
+          this.qumlQuestionEvent.emit(transformedquestionsList);
+        }, (error) => {
+          this.qumlQuestionEvent.emit({
+            error: error
+          });
         });
-      });
+      }
     }
   }
 

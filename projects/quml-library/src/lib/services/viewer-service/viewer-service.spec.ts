@@ -5,6 +5,7 @@ import { QumlLibraryService } from '../../quml-library.service';
 import { UtilService } from '../../util-service';
 import { QuestionCursor } from '../../quml-question-cursor.service';
 import { of, throwError } from 'rxjs';
+import { TransformationService } from '../transformation-service/transformation.service';
 
 describe('ViewerService', () => {
   class MockQuestionCursor {
@@ -205,9 +206,23 @@ describe('ViewerService', () => {
     service.identifiers = ['do_123', 'do_124'];
     spyOn(service.questionCursor, 'getQuestion').and.returnValue(of([{ id: 'do_123' }, { id: 'do_124' }] as any));
     spyOn(service.qumlQuestionEvent, 'emit');
+    service.sectionConfig = mockData.playerConfig;
     service.getQuestion();
     expect(service.qumlQuestionEvent.emit).toHaveBeenCalled();
     expect(service.questionCursor.getQuestion).toHaveBeenCalled();
+  });
+
+  it('should emit transformed question metadata if question body is available', () => {
+    const service = TestBed.inject(ViewerService);
+    const sectionChildren = [{ identifier: '1', body: 'Question 1' }];
+    const fetchedQuestionData = { questions: [{ identifier: '1', body: 'Question 1' }], count: 1 };
+    spyOn(service.transformationService, 'getTransformedQuestionMetadata').and.returnValue(fetchedQuestionData);
+    spyOn(service.qumlQuestionEvent, 'emit').and.callFake(() => {});
+    service.threshold = 1;
+    service.identifiers = ['1'];
+    service.sectionConfig = {metadata:{children: sectionChildren}};
+    service.getQuestion();
+    expect(service.qumlQuestionEvent.emit).toHaveBeenCalledWith(fetchedQuestionData);
   });
 
   it('should call getQuestion and return the error', () => {
@@ -216,6 +231,7 @@ describe('ViewerService', () => {
     service.identifiers = ['do_123', 'do_124'];
     spyOn(service.questionCursor, 'getQuestion').and.returnValue(throwError('Error'));
     spyOn(service.qumlQuestionEvent, 'emit');
+    service.sectionConfig = mockData.playerConfig;
     service.getQuestion();
     expect(service.qumlQuestionEvent.emit).toHaveBeenCalled();
     expect(service.questionCursor.getQuestion).toHaveBeenCalled();
@@ -226,18 +242,54 @@ describe('ViewerService', () => {
     const qumlLibraryService = TestBed.inject(QumlLibraryService);
     service.identifiers = [];
     spyOn(service.questionCursor, 'getQuestion');
+    service.sectionConfig = mockData.playerConfig;
     service.getQuestion();
     expect(service.questionCursor.getQuestion).not.toHaveBeenCalled();
   });
 
+  it('should return available questions if sectionChildren is not empty', () => {
+    const service = TestBed.inject(ViewerService);
+    const sectionChildren = [{ identifier: '1', body: 'Question 1' }, { identifier: '2', body: 'Question 2' }];
+    const questionIdArr = ['1', '2'];
+    service.getSectionQuestionData(sectionChildren, questionIdArr).subscribe(result => {
+      expect(result.questions.length).toBe(2);
+      expect(result.count).toBe(2);
+    });
+  });
+
+  it('should return questionsIdNotHavingCompleteData if sectionChildren is empty', () => {
+    const service = TestBed.inject(ViewerService);
+    const sectionChildren = [];
+    const questionIdArr = ['1', '2'];
+    spyOn(service, 'fetchIncompleteQuestionsData').and.returnValue(of({questions: [{ identifier: '1', body: 'Question 1' }, { identifier: '2', body: 'Question 2' }], count: 2}))
+    service.getSectionQuestionData(sectionChildren, questionIdArr).subscribe(result => {
+      expect(result.questions.length).toBe(2);
+    });
+  });
+
+  it('should fetch incomplete questions data and return combined questions', () => {
+    const service = TestBed.inject(ViewerService);
+    const availableQuestions = [{ identifier: '1', body: 'Question 1' }];
+    const questionsIdNotHavingCompleteData = ['2'];
+    const questionData = { identifier: '2', body: 'Question 2' }
+    spyOn(service.questionCursor, 'getQuestions').and.returnValue(of([{ questions: [questionData], count: 1 }] as any))
+    service.fetchIncompleteQuestionsData(availableQuestions, questionsIdNotHavingCompleteData).subscribe(result => {
+      expect(result.questions.length).toBe(2);
+      expect(result.count).toBe(2);
+    });
+  });
+
   it('should call getQuestions', () => {
     const service = TestBed.inject(ViewerService);
-    service.parentIdentifier = 'do_555';
-    service.identifiers = ['do_123', 'do_124'];
-    spyOn(service.questionCursor, 'getQuestions').and.returnValue(of([{ id: 'do_123' }] as any));
-    spyOn(service.qumlQuestionEvent, 'emit');
+    service.parentIdentifier = 'do_21348431528472576011';
+    service.identifiers = ['do_21348431559137689613', 'do_21348431640099225615'];
+    spyOn(service, 'getSectionQuestionData').and.returnValue(of([{ id: 'do_21348431559137689613' }] as any));
+    const getTransformedQuestionMetadata = TestBed.inject(TransformationService);
+    spyOn(getTransformedQuestionMetadata, 'getTransformedQuestionMetadata').and.returnValue({questions: [{ id: 'do_21348431559137689613' }], count: 1})
+    spyOn(service.qumlQuestionEvent, 'emit').and.callFake(() => {});
+    service.sectionConfig = mockData.playerConfig;
     service.getQuestions(0, 1)
-    expect(service.questionCursor.getQuestions).toHaveBeenCalled();
+    expect(service.getSectionQuestionData).toHaveBeenCalled();
     expect(service.qumlQuestionEvent.emit).toHaveBeenCalled();
   });
 
@@ -246,10 +298,11 @@ describe('ViewerService', () => {
     service.parentIdentifier = 'do_555';
     service.identifiers = ['do_123', 'do_124'];
     service.threshold = 3;
-    spyOn(service.questionCursor, 'getQuestions').and.returnValue(throwError('Error'));
+    spyOn(service, 'getSectionQuestionData').and.returnValue(throwError('Error'));
     spyOn(service.qumlQuestionEvent, 'emit');
+    service.sectionConfig = mockData.playerConfig;
     service.getQuestions()
-    expect(service.questionCursor.getQuestions).toHaveBeenCalled();
+    expect(service.getSectionQuestionData).toHaveBeenCalled();
     expect(service.qumlQuestionEvent.emit).toHaveBeenCalled();
   });
 
