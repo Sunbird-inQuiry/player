@@ -7,7 +7,7 @@ import { takeUntil } from 'rxjs/operators';
 import { QumlPlayerConfig, IParentConfig, IAttempts } from '../quml-library-interface';
 import { ViewerService } from '../services/viewer-service/viewer-service';
 import { eventName, pageId, TelemetryType, Cardinality, QuestionType } from '../telemetry-constants';
-import { DEFAULT_SCORE } from '../player-constants';
+import { DEFAULT_SCORE, COMPATABILITY_LEVEL } from '../player-constants';
 import { UtilService } from '../util-service';
 
 @Component({
@@ -91,7 +91,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
   isAssessEventRaised = false;
   isShuffleQuestions = false;
   shuffleOptions: boolean;
-  playerContentCompatibiltyLevel = 6;
+  playerContentCompatibiltyLevel = COMPATABILITY_LEVEL;
 
   constructor(
     public viewerService: ViewerService,
