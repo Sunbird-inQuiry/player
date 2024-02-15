@@ -11,7 +11,6 @@ import { TransformationService } from '../services/transformation-service/transf
 import { fakeMainProgressBar, fakeSections, playerConfig, singleContent } from './main-player.component.spec.data';
 import { UtilService } from '../util-service';
 import { of } from 'rxjs';
-import { PLAYER_COMPATABILITY_CONFIG } from '../player-constants';
 
 describe('MainPlayerComponent', () => {
   let component: MainPlayerComponent;
@@ -25,7 +24,7 @@ describe('MainPlayerComponent', () => {
     TestBed.configureTestingModule({
       declarations: [MainPlayerComponent],
       imports: [
-        SunbirdPlayerSdkModule.forRoot(PLAYER_COMPATABILITY_CONFIG),
+        SunbirdPlayerSdkModule,
         CommonModule
       ],
       providers: [QumlLibraryService, QuestionCursor],

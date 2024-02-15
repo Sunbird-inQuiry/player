@@ -85,7 +85,7 @@ import { ProgressIndicatorsComponent } from '../../../quml-library/src/lib/progr
         BrowserModule,
         CommonModule,
         CarouselModule.forRoot(),
-        SunbirdPlayerSdkModule.forRoot({ contentCompatibilityLevel: 6 }),
+        SunbirdPlayerSdkModule,
         HttpClientModule
     ],
     providers: [{ provide: QuestionCursor, useClass: QuestionCursorImplementationService }]
