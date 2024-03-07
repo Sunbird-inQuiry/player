@@ -92,6 +92,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
   isShuffleQuestions = false;
   shuffleOptions: boolean;
   playerContentCompatibiltyLevel = COMPATABILITY_LEVEL;
+  questionSetEvaluable: any;
 
   constructor(
     public viewerService: ViewerService,
@@ -216,11 +217,15 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.showWarningTimer = this.parentConfig.showWarningTimer;
     this.showTimer = this.sectionConfig.metadata?.showTimer;
 
+    //server-level-validation
+    this.questionSetEvaluable = this.viewerService.questionSetEvaluable;
+
     if (this.sectionConfig.metadata?.showFeedback) {
       this.showFeedBack = this.sectionConfig.metadata?.showFeedback; // prioritize the section level config
     } else {
       this.showFeedBack = this.parentConfig.showFeedback; // Fallback to parent config
     }
+    this.showFeedBack = this.showFeedBack && !this.questionSetEvaluable; // showFeedBack should evaluate from questionSetEvaluable field
 
     this.showUserSolution = this.sectionConfig.metadata?.showSolutions;
     this.startPageInstruction = this.sectionConfig.metadata?.instructions || this.parentConfig.instructions;
@@ -307,7 +312,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     }
 
     /* istanbul ignore else */
-    if (this.myCarousel.isLast(this.myCarousel.getCurrentSlideIndex()) || this.noOfQuestions === this.myCarousel.getCurrentSlideIndex()) {
+    if (this.myCarousel.isLast(this.myCarousel.getCurrentSlideIndex()) || this.noOfQuestions === this.myCarousel.getCurrentSlideIndex() && !this.questionSetEvaluable) {
       this.calculateScore();
     }
 
@@ -441,7 +446,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
   updateScoreForShuffledQuestion() {
     const currentIndex = this.myCarousel.getCurrentSlideIndex() - 1;
 
-    if (this.isShuffleQuestions) {
+    if (this.isShuffleQuestions && !this.questionSetEvaluable) {
       this.updateScoreBoard(currentIndex, 'correct', undefined, DEFAULT_SCORE);
     }
   }
@@ -540,7 +545,11 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     } else {
       this.optionSelectedObj = optionSelected;
       this.isAssessEventRaised = false;
-      this.currentSolutions = !_.isEmpty(optionSelected.solutions) ? optionSelected.solutions : undefined;
+      if(!this.questionSetEvaluable) {
+        this.currentSolutions = !_.isEmpty(optionSelected.solutions) ? optionSelected.solutions : undefined;
+      } else {
+        this.currentSolutions = undefined;
+      }
     }
     this.currentQuestionIndetifier = this.questions[currentIndex].identifier;
     this.media = _.get(this.questions[currentIndex], 'media', []);
@@ -666,7 +675,8 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     if (this.optionSelectedObj) {
       this.currentQuestion = selectedQuestion.body;
       this.currentOptions = selectedQuestion.interactions[key].options;
-
+      
+    if (!this.questionSetEvaluable) {
       if (option.cardinality === Cardinality.single) {
         const correctOptionValue = Number(selectedQuestion.responseDeclaration[key].correctResponse.value);
 
@@ -717,6 +727,13 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
           this.alertType = 'correct';
         }
       }
+    } else {
+      this.updateScoreBoard(currentIndex, 'correct', undefined, 0);
+      if (!this.isAssessEventRaised) {
+        this.isAssessEventRaised = true;
+        this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, '', 0, [option.option], this.slideDuration);
+      }
+    }
       this.optionSelectedObj = undefined;
     } else if ((isQuestionSkipAllowed) || isSubjectiveQuestion || onStartPage || isActive) {
       if(!_.isUndefined(type)) {
