@@ -84,6 +84,7 @@ export class MainPlayerComponent implements OnInit, OnChanges {
   nextContent: NextContent;
   disabledHandle: any;
   subscription: Subscription;
+  questionSetEvaluable: any;
 
   constructor(
     public viewerService: ViewerService,
@@ -214,7 +215,9 @@ export class MainPlayerComponent implements OnInit, OnChanges {
     this.parentConfig.showFeedback = this.showFeedBack = this.playerConfig.metadata?.showFeedback;
     this.parentConfig.sideMenuConfig = { ...this.parentConfig.sideMenuConfig, ...this.playerConfig.config.sideMenu };
     this.parentConfig.warningTime =  _.get(this.playerConfig,'config.warningTime', this.parentConfig.warningTime);
-    this.parentConfig.showWarningTimer =  _.get(this.playerConfig,'config.showWarningTimer', this.parentConfig.showWarningTimer)
+    this.parentConfig.showWarningTimer =  _.get(this.playerConfig,'config.showWarningTimer', this.parentConfig.showWarningTimer);
+    this.viewerService.serverValidationCheck(this.playerConfig.metadata?.evalMode);
+    this.questionSetEvaluable = this.viewerService.questionSetEvaluable;
     if (this.playerConfig?.context?.userData) {
       const firstName = this.playerConfig.context.userData?.firstName ?? '';
       const lastName = this.playerConfig.context.userData?.lastName ?? '';
@@ -270,7 +273,9 @@ export class MainPlayerComponent implements OnInit, OnChanges {
     /* istanbul ignore else */
     if (this.parentConfig.isSectionsAvailable) {
       const activeSectionIndex = this.getActiveSectionIndex();
-      this.updateSectionScore(activeSectionIndex);
+      if(!this.questionSetEvaluable) {
+        this.updateSectionScore(activeSectionIndex);
+      }
     }
     this.getSummaryObject();
     this.loadScoreBoard = true;
@@ -284,7 +289,9 @@ export class MainPlayerComponent implements OnInit, OnChanges {
 
     if (this.parentConfig.isSectionsAvailable) {
       const activeSectionIndex = this.getActiveSectionIndex();
-      this.updateSectionScore(activeSectionIndex);
+      if(!this.questionSetEvaluable) {
+        this.updateSectionScore(activeSectionIndex);
+      }
       this.setNextSection(event, activeSectionIndex);
     } else {
       this.prepareEnd(event);
@@ -353,7 +360,11 @@ export class MainPlayerComponent implements OnInit, OnChanges {
 
   prepareEnd(event) {
     this.viewerService.pauseVideo();
-    this.calculateScore();
+    if(!this.questionSetEvaluable) {      
+      this.calculateScore();
+    } else {
+      this.finalScore = 0;
+    }
     this.setDurationSpent();
     this.getSummaryObject();
     if (this.parentConfig.requiresSubmit && !this.isDurationExpired) {
@@ -440,7 +451,11 @@ export class MainPlayerComponent implements OnInit, OnChanges {
   }
 
   exitContent(event) {
-    this.calculateScore();
+    if(!this.questionSetEvaluable) {
+      this.calculateScore();
+    } else {
+      this.finalScore = 0;
+    }
     /* istanbul ignore else */
     if (event?.type === 'EXIT') {
       this.viewerService.raiseHeartBeatEvent(eventName.endPageExitClicked, TelemetryType.interact, pageId.endPage);
@@ -476,7 +491,11 @@ export class MainPlayerComponent implements OnInit, OnChanges {
 
   onScoreBoardLoaded(event) {
     if (event?.scoreBoardLoaded) {
-      this.calculateScore();
+      if(!this.questionSetEvaluable) {
+        this.calculateScore();
+      } else {
+        this.finalScore = 0
+      }
     }
   }
 
@@ -571,7 +590,11 @@ export class MainPlayerComponent implements OnInit, OnChanges {
 
   @HostListener('window:beforeunload')
   ngOnDestroy() {
-    this.calculateScore();
+    if(!this.questionSetEvaluable) {
+      this.calculateScore();
+    } else {
+      this.finalScore = 0;
+    }
     this.getSummaryObject();
     /* istanbul ignore else */
     if (this.isSummaryEventRaised === false) {
