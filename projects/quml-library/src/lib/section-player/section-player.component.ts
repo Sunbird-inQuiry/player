@@ -92,6 +92,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
   isShuffleQuestions = false;
   shuffleOptions: boolean;
   playerContentCompatibiltyLevel = COMPATABILITY_LEVEL;
+  questionSetEvaluable: any;
 
   constructor(
     public viewerService: ViewerService,
