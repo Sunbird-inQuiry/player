@@ -5,6 +5,4 @@ export const WARNING_TIME_CONFIG = {
     SHOW_TIMER: true
 }
 
-export const PLAYER_COMPATABILITY_CONFIG = {
-    contentCompatibilityLevel: 6
-}
+export const COMPATABILITY_LEVEL: number = 6;

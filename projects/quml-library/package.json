@@ -1,6 +1,6 @@
 {
   "name": "@project-sunbird/sunbird-quml-player",
-  "version": "7.0.2",
+  "version": "7.0.3",
   "schematics": "./schematics/collection.json",
   "ng-add": {
     "save": "dependencies"
@@ -18,7 +18,7 @@
     "@project-sunbird/client-services": "4.9.1"
   },
   "dependencies": {
-    "@project-sunbird/sunbird-player-sdk-v9": "6.0.0"
+    "@project-sunbird/sunbird-player-sdk-v9": "5.1.0"
   },
   "devDependencies": {
     "copyfiles": "2.4.1",
