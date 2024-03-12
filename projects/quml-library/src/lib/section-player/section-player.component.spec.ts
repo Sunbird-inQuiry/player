@@ -478,10 +478,10 @@ describe('SectionPlayerComponent', () => {
   });
 
   it('should check compatibility of the questionset', () => {
-    spyOn(errorService, 'checkContentCompatibility').and.returnValue(false);
-    spyOn(viewerService, 'raiseExceptionLog');
-    component['checkCompatibilityLevel'](3);
-    expect(errorService.checkContentCompatibility).toHaveBeenCalled();
+    spyOn(component, 'checkContentCompatibility').and.callThrough();
+    spyOn(viewerService, 'raiseExceptionLog').and.callFake(() => {});
+    component['checkCompatibilityLevel'](7);
+    expect(component.checkContentCompatibility).toHaveBeenCalled();
     expect(viewerService.raiseExceptionLog).toHaveBeenCalled();
   });
 

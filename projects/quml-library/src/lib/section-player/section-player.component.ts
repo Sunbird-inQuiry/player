@@ -7,7 +7,7 @@ import { takeUntil } from 'rxjs/operators';
 import { QumlPlayerConfig, IParentConfig, IAttempts } from '../quml-library-interface';
 import { ViewerService } from '../services/viewer-service/viewer-service';
 import { eventName, pageId, TelemetryType, Cardinality, QuestionType } from '../telemetry-constants';
-import { DEFAULT_SCORE } from '../player-constants';
+import { DEFAULT_SCORE, COMPATABILITY_LEVEL } from '../player-constants';
 import { UtilService } from '../util-service';
 
 @Component({
@@ -91,6 +91,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
   isAssessEventRaised = false;
   isShuffleQuestions = false;
   shuffleOptions: boolean;
+  playerContentCompatibiltyLevel = COMPATABILITY_LEVEL;
 
   constructor(
     public viewerService: ViewerService,
@@ -104,6 +105,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     if (changes && Object.values(changes)[0].firstChange) {
       this.subscribeToEvents();
     }
+    this.viewerService.sectionConfig = this.sectionConfig;
     this.setConfig();
   }
 
@@ -559,13 +561,27 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
   private checkCompatibilityLevel(compatibilityLevel) {
     /* istanbul ignore else */
     if (compatibilityLevel) {
-      const checkContentCompatible = this.errorService.checkContentCompatibility(compatibilityLevel);
+      // TODO: It is a temporary fix for IQ-679 or ED-3398
+      // Before these changes we were calling errorService.checkContentCompatibility
+      const checkContentCompatible = this.checkContentCompatibility(compatibilityLevel);
 
       /* istanbul ignore else */
       if (!checkContentCompatible.isCompitable) {
         this.viewerService.raiseExceptionLog(errorCode.contentCompatibility, errorMessage.contentCompatibility,
           checkContentCompatible.error, this.sectionConfig?.config?.traceId);
       }
+    }
+  }
+
+  checkContentCompatibility(currentCompatibilityLevel: number) {
+    if (currentCompatibilityLevel > this.playerContentCompatibiltyLevel) {
+      const compatibilityError = new Error();
+      compatibilityError.message = `Player supports ${this.playerContentCompatibiltyLevel}
+      but content compatibility is ${currentCompatibilityLevel}`;
+      compatibilityError.name = 'contentCompatibily';
+      return { error: compatibilityError, isCompitable: false };
+    } else {
+      return { error: null, isCompitable: true };
     }
   }
 

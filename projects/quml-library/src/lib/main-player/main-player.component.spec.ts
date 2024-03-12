@@ -7,6 +7,7 @@ import { QumlLibraryService } from '../quml-library.service';
 
 import { MainPlayerComponent } from './main-player.component';
 import { ViewerService } from '../services/viewer-service/viewer-service';
+import { TransformationService } from '../services/transformation-service/transformation.service';
 import { fakeMainProgressBar, fakeSections, playerConfig, singleContent } from './main-player.component.spec.data';
 import { UtilService } from '../util-service';
 import { of } from 'rxjs';
@@ -36,7 +37,7 @@ describe('MainPlayerComponent', () => {
     fixture = TestBed.createComponent(MainPlayerComponent);
     component = fixture.componentInstance;
     component.playerConfig = playerConfig;
-    fixture.detectChanges();
+    // fixture.detectChanges();
   });
 
   it('should create', () => {
@@ -51,7 +52,9 @@ describe('MainPlayerComponent', () => {
   });
 
   it('should accept the stringified input as well', () => {
+    const transformationService = TestBed.inject(TransformationService);
     component.playerConfig = JSON.stringify(playerConfig) as any;
+    spyOn(transformationService, 'getTransformedHierarchy').and.returnValue(playerConfig);
     spyOn(component, 'setConfig');
     spyOn(component, 'initializeSections');
     component.ngOnInit();

@@ -9,9 +9,9 @@ export const mockData = {
       "uid": "",
       "channel": "01268904781886259221",
       "pdata": {
-        "id": "preprod.diksha.portal",
+        "id": "dev.sunbird.portal",
         "ver": "3.3.0",
-        "pid": "sunbird-portal.contentplayer"
+        "pid": "sunbird-portal.qumlplayer"
       },
       "contextRollup": {
         "l1": "string",
@@ -66,7 +66,7 @@ export const mockData = {
           ],
           "compatibilityLevel": 4,
           "audience": [
-            "Teacher"
+            "Audience2"
           ],
           "se_boards": [
             "State (Tamil Nadu)"
@@ -144,7 +144,7 @@ export const mockData = {
           ],
           "compatibilityLevel": 4,
           "audience": [
-            "Teacher"
+            "Audience2"
           ],
           "se_boards": [
             "State (Tamil Nadu)"
@@ -415,7 +415,7 @@ export const mockData = {
         ],
         "identifier": "do_21348431640099225615",
         "audience": [
-          "Teacher"
+          "Audience2"
         ],
         "visibility": "Parent",
         "author": "Vivek",
@@ -551,7 +551,7 @@ export const mockData = {
         ],
         "identifier": "do_21348431559137689613",
         "audience": [
-          "Teacher"
+          "Audience2"
         ],
         "visibility": "Parent",
         "author": "Vivek",
@@ -768,7 +768,7 @@ export const mockData = {
             ],
             "identifier": "do_21348431640099225615",
             "audience": [
-              "Teacher"
+              "Audience2"
             ],
             "visibility": "Parent",
             "author": "Vivek",
@@ -906,7 +906,7 @@ export const mockData = {
             ],
             "identifier": "do_21348431559137689613",
             "audience": [
-              "Teacher"
+              "Audience2"
             ],
             "visibility": "Parent",
             "author": "Vivek",
@@ -1016,7 +1016,7 @@ export const mockData = {
             ],
             "identifier": "do_21348431719053721619",
             "audience": [
-              "Teacher"
+              "Audience2"
             ],
             "visibility": "Parent",
             "author": "Vivek",
@@ -1137,7 +1137,7 @@ export const mockData = {
             ],
             "identifier": "do_213484318131216384111",
             "audience": [
-              "Teacher"
+              "Audience2"
             ],
             "visibility": "Parent",
             "author": "Vivek",
