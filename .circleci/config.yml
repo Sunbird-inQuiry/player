@@ -35,7 +35,9 @@ jobs:
             - node_modules
       - run:
           name: Executing test cases
-          command: npm run test-lib-ci
+          command: |
+            node -v
+            npm run test-lib-ci
       - run:
           name: Install  Node.js v16 with build in nvm tool
           command: |
