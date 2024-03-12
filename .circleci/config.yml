@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   build:
     machine:
-      image: ubuntu-2204:edge
+      image: ubuntu-2204:2024.01.1
     steps:
       - checkout
       - run:
@@ -36,9 +36,6 @@ jobs:
       - run:
           name: Executing test cases
           command: |
-            nvm install v14
-            nvm use 14
-            nvm alias default 14
             node -v
             npm run test-lib-ci
       - run:
