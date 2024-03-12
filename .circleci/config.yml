@@ -36,6 +36,9 @@ jobs:
       - run:
           name: Executing test cases
           command: |
+            nvm install v14
+            nvm use 14
+            nvm alias default 14
             node -v
             npm run test-lib-ci
       - run:
