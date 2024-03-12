@@ -38,7 +38,7 @@ import { SafeHtmlPipe } from './pipes/safe-html/safe-html.pipe';
 import { MainPlayerComponent } from './main-player/main-player.component';
 import { SectionPlayerComponent } from './section-player/section-player.component';
 import { ProgressIndicatorsComponent } from './progress-indicators/progress-indicators.component'
-import { PLAYER_COMPATABILITY_CONFIG } from './player-constants';
+
 @NgModule({
   declarations: [
     QumlLibraryComponent,
@@ -80,7 +80,7 @@ import { PLAYER_COMPATABILITY_CONFIG } from './player-constants';
   imports: [
     CommonModule,
     CarouselModule,
-    SunbirdPlayerSdkModule.forRoot(PLAYER_COMPATABILITY_CONFIG)
+    SunbirdPlayerSdkModule
   ],
   providers: [
     QumlLibraryService
