@@ -10,7 +10,9 @@ jobs:
           command: |
             export NVM_DIR="/opt/circleci/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-            nvm install v14 && nvm use 14 && nvm alias default 14
+            nvm install v14
+            nvm use 14
+            nvm alias default 14
             node -v
       - run:
           name: Check Node version
@@ -39,7 +41,9 @@ jobs:
           command: |
             export NVM_DIR="/opt/circleci/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-            nvm install v16 && nvm use 16 && nvm alias default 16
+            nvm install v16
+            nvm use 16
+            nvm alias default 16
             node -v    
       - run:
           name: Install sonar scanner
