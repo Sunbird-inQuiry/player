@@ -1,7 +1,7 @@
 version: 2.1
 jobs:
   build:
-    machine:
+    docker:
       image: 14.21.3-browsers
     steps:
       - checkout
