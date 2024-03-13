@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/quml-library
     docker:
-     - image: circleci/node:14.21.3-browsers
+     - image: cimg/node:14.21.3-browsers
     steps:
       - checkout:
           path: ~/quml-library
