@@ -14,7 +14,7 @@
     "build-web-component": "npm run build-lib && ng build quml-player-wc --output-hashing none && node ./build-wc.js",
     "test-lib": "ng test quml-library",
     "test-lib-coverage": "ng test quml-library --code-coverage=true",
-    "test-lib-ci": "ng test quml-library --watch=false --code-coverage --browsers=ChromeHeadless",
+    "test-lib-ci": "ng test quml-library --watch=false --code-coverage",
     "build:schematics": "npm run build --prefix projects/quml-library"
   },
   "private": true,
