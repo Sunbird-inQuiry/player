@@ -1,44 +1,52 @@
 version: 2.1
-orbs:
-  browser-tools: circleci/browser-tools@1.4.8
 jobs:
   build:
-    working_directory: ~/quml-library
-    docker:
-     - image: cimg/node:14.21.3-browsers
+    machine:
+      image: default
     steps:
-      - browser-tools/install-chrome
-      - browser-tools/install-chromedriver
+      - checkout
       - run:
+          name: Install  Node.js v14 with build in nvm tool
           command: |
-            google-chrome --version
-            chromedriver --version
-          name: Check install
-      - checkout:
-          path: ~/quml-library
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+            nvm install v14 && nvm use 14 && nvm alias default 14
+            node -v
       - run:
-          name: Show current branch
-          command: echo ${CIRCLE_BRANCH}
+          name: Check Node version
+          command: node -v
+      - restore_cache:
+          keys:
+            - node_modules_cache_{{ checksum "package-lock.json" }}
+      - run: 
+          name: Install QuML Library dependencies
+          command: cd projects/quml-library &&  npm install --no-progress
       - run:
-          environment:
-            NG_CLI_ANALYTICS: "ci"
-          command: npm install
-      - run:
-          name: Node version
-          command: 'node --version'
-      - run: cd projects/quml-library && sudo npm install
-      - run:
-          name: Node install
-          command: sudo npm install
+          name: Install project dependencies
+          command: |
+            if [ ! -d "node_modules" ]; then
+            npm i -f
+            fi
+      - save_cache:
+          key: node_modules_cache_{{ checksum "package-lock.json" }}
+          paths:
+            - node_modules
       - run:
           name: Executing test cases
           command: npm run test-lib-ci
       - run:
+          name: Install  Node.js v16 with build in nvm tool
+          command: |
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+            nvm install v16 && nvm use 16 && nvm alias default 16
+            node -v    
+      - run:
           name: Install sonar scanner
-          command: sudo npm install -g sonarqube-scanner
+          command: npm install -g sonarqube-scanner
       - run:
           name: Run Sonar scanner
-          command: cd ~/quml-library && sonar-scanner
+          command: sonar-scanner
       - run:
           name: Publish to NPM
           command: |
