@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   build:
     machine:
-      image: latest
+      image: current
     steps:
       - checkout
       - run:
