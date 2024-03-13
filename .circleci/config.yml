@@ -10,7 +10,7 @@ jobs:
           command: |
             export NVM_DIR="/opt/circleci/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-            nvm install 14
+            nvm install v14
             nvm use 14
             nvm alias default 14
             node -v
@@ -36,6 +36,7 @@ jobs:
       - run:
           name: Executing test cases
           command: |
+            nvm use 14
             node -v
             npm run test-lib-ci
       - run:
@@ -43,7 +44,7 @@ jobs:
           command: |
             export NVM_DIR="/opt/circleci/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-            nvm install 16
+            nvm install v16
             nvm use 16
             nvm alias default 16
             node -v    
