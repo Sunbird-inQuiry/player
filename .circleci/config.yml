@@ -17,6 +17,9 @@ jobs:
       - run:
           name: Check Node version
           command: node -v
+      - run:
+          name: Installing angular cli
+          command: 'npm install -g @angular/cli@15 --no-progress'
       - restore_cache:
           keys:
             - node_modules_cache_{{ checksum "package-lock.json" }}
