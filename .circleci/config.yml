@@ -1,8 +1,8 @@
 version: 2.1
 jobs:
   build:
-    machine:
-      image: default
+    docker:
+    - image: cimg/node:14.21.3-browsers
     steps:
       - checkout
       - run:
