@@ -1,29 +1,23 @@
 version: 2.1
 jobs:
   build:
+    working_directory: ~/quml-library
     docker:
      - image: circleci/node:14.21.3-browsers
     steps:
-      - checkout
+      - checkout:
+          path: ~/quml-library
       - run:
-          name: Check Node version
-          command: node -v
-      - restore_cache:
-          keys:
-            - node_modules_cache_{{ checksum "package-lock.json" }}
-      - run: 
-          name: Install QuML Library dependencies
-          command: cd projects/quml-library &&  npm install --no-progress
+          name: Show current branch
+          command: echo ${CIRCLE_BRANCH}
       - run:
-          name: Install project dependencies
-          command: |
-            if [ ! -d "node_modules" ]; then
-            npm i -f
-            fi
-      - save_cache:
-          key: node_modules_cache_{{ checksum "package-lock.json" }}
-          paths:
-            - node_modules
+          environment:
+            NG_CLI_ANALYTICS: "ci"
+          command: npm install
+      - run: cd projects/quml-library && sudo npm install
+      - run:
+          name: Node install
+          command: sudo npm install
       - run:
           name: Executing test cases
           command: npm run test-lib-ci
@@ -32,7 +26,7 @@ jobs:
           command: sudo npm install -g sonarqube-scanner
       - run:
           name: Run Sonar scanner
-          command: sonar-scanner
+          command: cd ~/quml-library && sonar-scanner
       - run:
           name: Publish to NPM
           command: |
