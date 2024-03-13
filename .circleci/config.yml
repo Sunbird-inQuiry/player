@@ -6,41 +6,17 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install  Node.js v14 with build in nvm tool
-          command: |
-            export NVM_DIR="/opt/circleci/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-            nvm install v14 && nvm use 14 && nvm alias default 14
-            node -v
-      - run:
           name: Check Node version
           command: node -v
-      - restore_cache:
-          keys:
-            - node_modules_cache_{{ checksum "package-lock.json" }}
       - run: 
           name: Install QuML Library dependencies
-          command: cd projects/quml-library &&  npm install --no-progress
+          command: cd projects/quml-library &&  npm install --no-progress --legacy-peer-deps
       - run:
           name: Install project dependencies
-          command: |
-            if [ ! -d "node_modules" ]; then
-            npm i -f
-            fi
-      - save_cache:
-          key: node_modules_cache_{{ checksum "package-lock.json" }}
-          paths:
-            - node_modules
+          command: npm install --no-progress
       - run:
           name: Executing test cases
           command: npm run test-lib-ci
-      - run:
-          name: Install  Node.js v16 with build in nvm tool
-          command: |
-            export NVM_DIR="/opt/circleci/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-            nvm install v16 && nvm use 16 && nvm alias default 16
-            node -v    
       - run:
           name: Install sonar scanner
           command: npm install -g sonarqube-scanner
