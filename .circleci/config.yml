@@ -14,6 +14,12 @@ jobs:
           environment:
             NG_CLI_ANALYTICS: "ci"
           command: npm install
+      - run:
+          name: Node version
+          command: 'node --version'
+      - run:
+          name: Installing angular cli
+          command: 'npm install -g @angular/cli@15 --no-progress'
       - run: cd projects/quml-library && sudo npm install
       - run:
           name: Node install
