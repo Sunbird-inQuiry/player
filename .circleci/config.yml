@@ -1,19 +1,15 @@
 version: 2.1
+orbs:
+  browser-tools: circleci/browser-tools@1.4.8
 jobs:
   build:
-    machine:
-      image: default
+    docker:
+     - image: cimg/node:14.21.3-browsers
     steps:
-      - checkout
+      - browser-tools/install-chrome
       - run:
-          name: Install  Node.js v14 with build in nvm tool
-          command: |
-            export NVM_DIR="/opt/circleci/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-            nvm install v14
-            nvm use 14
-            nvm alias default 14
-            node -v
+          command: google-chrome --version
+      - checkout
       - run:
           name: Check Node version
           command: node -v
@@ -38,19 +34,7 @@ jobs:
             - node_modules
       - run:
           name: Executing test cases
-          command: |
-            nvm use 14
-            node -v
-            npm run test-lib-ci
-      - run:
-          name: Install  Node.js v16 with build in nvm tool
-          command: |
-            export NVM_DIR="/opt/circleci/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-            nvm install v16
-            nvm use 16
-            nvm alias default 16
-            node -v    
+          command: npm run test-lib-ci
       - run:
           name: Install sonar scanner
           command: npm install -g sonarqube-scanner
