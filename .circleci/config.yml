@@ -1,9 +1,14 @@
 version: 2.1
+orbs:
+  browser-tools: circleci/browser-tools@1.4.8
 jobs:
   build:
     docker:
     - image: cimg/node:14.21.3-browsers
     steps:
+      - browser-tools/install-chrome
+      - run:
+          command: google-chrome --version
       - checkout
       - run:
           name: Check Node version
