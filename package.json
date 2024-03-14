@@ -35,7 +35,6 @@
     "core-js": "^2.5.4",
     "document-register-element": "^1.7.2",
     "jquery": "^3.5.1",
-    "karma-mocha-reporter": "^2.2.5",
     "katex": "^0.11.1",
     "lodash-es": "^4.17.21",
     "ngx-bootstrap": "^10.0.0",
