@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ElementRef, EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
 import { waitForAsync, ComponentFixture, fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
-import { ErrorService } from '@project-sunbird/sunbird-player-sdk-v9';
+import { ErrorService, PLAYER_CONFIG } from '@project-sunbird/sunbird-player-sdk-v9';
 import { CarouselComponent } from 'ngx-bootstrap/carousel';
 import { of, Subject } from 'rxjs';
 import { fakeMainProgressBar } from '../main-player/main-player.component.spec.data';
@@ -58,6 +58,7 @@ describe('SectionPlayerComponent', () => {
         QuestionCursor,
         { provide: ViewerService, useClass: ViewerServiceMock },
         { provide: ElementRef, useClass: ElementRefMock },
+        { provide: PLAYER_CONFIG, useValue: { contentCompatibilityLevel: 6 } }
       ],
       schemas: [NO_ERRORS_SCHEMA]
     })
