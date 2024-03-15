@@ -13,21 +13,18 @@ jobs:
       - run:
           name: Check Node version
           command: node -v
-      - run:
-          name: Installing angular cli
-          command: 'npm install -g @angular/cli@16 --no-progress'
-      - restore_cache:
-          keys:
-            - node_modules_cache_{{ checksum "package-lock.json" }}
-      - run: 
-          name: Install QuML Library dependencies
-          command: cd projects/quml-library &&  npm install --no-progress
+      # - run:
+      #     name: Installing angular cli
+      #     command: 'npm install -g @angular/cli@16 --no-progress'
+      # - restore_cache:
+      #     keys:
+      #       - node_modules_cache_{{ checksum "package-lock.json" }}
+      # - run:
+      #     name: Install QuML Library dependencies
+      #     command: cd projects/quml-library &&  npm install --no-progress
       - run:
           name: Install project dependencies
-          command: |
-            if [ ! -d "node_modules" ]; then
-            npm i -f
-            fi
+          command: npm install --no-progress
       - save_cache:
           key: node_modules_cache_{{ checksum "package-lock.json" }}
           paths:
