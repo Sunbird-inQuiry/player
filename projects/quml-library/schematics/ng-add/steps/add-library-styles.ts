@@ -7,7 +7,7 @@ import { Schema } from '../schema';
 
 const STYLE_FILEPATH = [
   'node_modules/@project-sunbird/sunbird-quml-player/lib/assets/styles/quml-carousel.css',
-  'node_modules/@project-sunbird/sb-styles/assets/_styles.scss',
+  'node_modules/@project-sunbird/sb-styles/assets/styles.scss',
   'node_modules/katex/dist/katex.min.css',
 ];
 
