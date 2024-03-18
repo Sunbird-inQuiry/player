@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { DoBootstrap, Injector, NgModule } from '@angular/core';
 import { createCustomElement } from '@angular/elements';
 import { BrowserModule } from '@angular/platform-browser';
-import { SunbirdPlayerSdkModule } from '@project-sunbird/sunbird-player-sdk-v9';
+import { SunbirdPlayerSdkModule, PLAYER_CONFIG } from '@project-sunbird/sunbird-player-sdk-v9';
 import { CarouselModule } from 'ngx-bootstrap/carousel';
 import { MainPlayerComponent } from '../../../quml-library/src/lib/main-player/main-player.component';
 import { QumlLibraryComponent } from '../../../quml-library/src/lib/quml-library.component';
@@ -88,7 +88,9 @@ import { ProgressIndicatorsComponent } from '../../../quml-library/src/lib/progr
         SunbirdPlayerSdkModule,
         HttpClientModule
     ],
-    providers: [{ provide: QuestionCursor, useClass: QuestionCursorImplementationService }]
+    providers: [
+      { provide: QuestionCursor, useClass: QuestionCursorImplementationService },
+      { provide: PLAYER_CONFIG, useValue: { contentCompatibilityLevel: 6 } }]
 })
 export class AppModule implements DoBootstrap {
   constructor(private injector: Injector) { }
