@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
-import { SunbirdPlayerSdkModule } from '@project-sunbird/sunbird-player-sdk-v9';
+import { SunbirdPlayerSdkModule, PLAYER_CONFIG } from '@project-sunbird/sunbird-player-sdk-v9';
 import { QuestionCursor } from './../quml-question-cursor.service';
 import { QumlLibraryService } from '../quml-library.service';
 
@@ -27,7 +27,8 @@ describe('MainPlayerComponent', () => {
         SunbirdPlayerSdkModule,
         CommonModule
       ],
-      providers: [QumlLibraryService, QuestionCursor],
+      providers: [QumlLibraryService, QuestionCursor,
+        { provide: PLAYER_CONFIG, useValue: { contentCompatibilityLevel: 6 } }],
       schemas: [NO_ERRORS_SCHEMA]
     })
       .compileComponents();
