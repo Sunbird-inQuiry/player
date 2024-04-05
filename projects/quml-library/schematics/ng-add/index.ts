@@ -12,13 +12,13 @@ import { Schema } from './schema';
 
 const VERSIONS = {
   // These required peer-dependency will get installed on build time if not exist
-  '@project-sunbird/client-services': '^4.9.1',
-  '@project-sunbird/sb-styles': '0.0.9',
-  'bootstrap': '^4.6.2',
-  'jquery': '^3.5.1',
+  '@project-sunbird/client-services': '^5.1.2',
+  '@project-sunbird/sb-styles': '0.0.16',
+  'bootstrap': '^5.3.3',
+  'jquery': '^3.7.1',
   'lodash-es': '^4.17.21',
-  "katex": "^0.11.1",
-  'ngx-bootstrap': '^10.0.0'
+  "katex": "^0.16.10",
+  'ngx-bootstrap': '^11.0.0'
 };
 
 /**
