@@ -348,5 +348,8 @@ export class ViewerService {
   pauseVideo() {
     const videoElements = Array.from(document.getElementsByTagName('video') as HTMLCollectionOf<Element>);
     videoElements.forEach((element: HTMLVideoElement) => element.pause());
+
+    const audioElements = Array.from(document.getElementsByTagName('audio') as HTMLCollectionOf<Element>);
+    audioElements.forEach((element: HTMLVideoElement) => element.pause());
   }
 }
