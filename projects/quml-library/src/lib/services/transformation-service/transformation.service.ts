@@ -217,7 +217,7 @@ export class TransformationService {
   processSolutions(data) {
     const solutions = _.get(data, 'solutions', []);
 
-    if (!_.isEmpty(solutions)) {
+    if (!_.isEmpty(solutions) && _.isArray(solutions)) {
       const updatedSolutions = _.reduce(solutions, (result, solution) => {
         result[_.get(solution, 'id')] = this.getSolutionString(solution, _.get(data, 'media', []));
         return result;
