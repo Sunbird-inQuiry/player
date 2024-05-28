@@ -1,18 +1,18 @@
 {
   "/api/*": {
-    "target": "https://dev.inquiry.sunbird.org",
+    "target": "https://dev.sunbirded.org",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true
   },
   "/action/*": {
-    "target": "https://dev.inquiry.sunbird.org",
+    "target": "https://dev.sunbirded.org",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true
   },
   "/assets/*": {
-    "target": "https://dev.inquiry.sunbird.org",
+    "target": "https://dev.sunbirded.org",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true
