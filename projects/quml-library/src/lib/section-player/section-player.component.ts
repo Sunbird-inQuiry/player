@@ -11,6 +11,7 @@ import { DEFAULT_SCORE, COMPATABILITY_LEVEL } from '../player-constants';
 import { UtilService } from '../util-service';
 
 @Component({
+  standalone: false,
   selector: 'quml-section-player',
   templateUrl: './section-player.component.html',
   styleUrls: ['./section-player.component.scss', './../startpage/sb-ckeditor-styles.scss']

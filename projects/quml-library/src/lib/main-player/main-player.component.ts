@@ -9,9 +9,10 @@ import { TransformationService } from '../services/transformation-service/transf
 import { eventName, pageId, TelemetryType, MimeType } from './../telemetry-constants';
 import { UtilService } from './../util-service';
 import { fromEvent, Subscription } from 'rxjs';
-import maintain from 'ally.js/esm/maintain/_maintain';
+// import maintain from 'ally.js/esm/maintain/_maintain';
 import { WARNING_TIME_CONFIG } from './../player-constants';
 @Component({
+  standalone: false,
   selector: 'quml-main-player',
   templateUrl: './main-player.component.html',
   styleUrls: ['./main-player.component.scss']
@@ -542,7 +543,8 @@ export class MainPlayerComponent implements OnInit, OnChanges {
 
     if (event.type === 'OPEN_MENU') {
       const isMobile = this.playerConfig.config?.sideMenu?.showExit;
-      this.disabledHandle = isMobile ? maintain.hidden({ filter: [sideBarList, overlayButton, overlayInput] }) : maintain.tabFocus({ context: navBlock });
+      // TODO: ally.js maintain is not compatible with Angular 19, need to find alternative
+      // this.disabledHandle = isMobile ? maintain.hidden({ filter: [sideBarList, overlayButton, overlayInput] }) : maintain.tabFocus({ context: navBlock });
       this.subscription = fromEvent(document, 'keydown').subscribe((e: KeyboardEvent) => {
         console.log("===========", e.key);
         /* istanbul ignore else */

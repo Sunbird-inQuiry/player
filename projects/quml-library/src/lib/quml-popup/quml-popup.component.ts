@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, AfterViewInit } from '@angular/core';
 
 @Component({
+  standalone: false,
   selector: 'quml-quml-popup',
   templateUrl: './quml-popup.component.html',
   styleUrls: ['./quml-popup.component.scss']

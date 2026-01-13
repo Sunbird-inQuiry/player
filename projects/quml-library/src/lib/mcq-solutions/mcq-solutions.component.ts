@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { UtilService } from '../util-service';
 @Component({
+  standalone: false,
   selector: 'quml-mcq-solutions',
   templateUrl: './mcq-solutions.component.html',
   styleUrls: ['./mcq-solutions.component.scss']
