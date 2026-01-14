@@ -43,4 +43,4 @@ jobs:
         run: |
           npm run build-lib && npm pack ./dist/quml-library
           echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc
-          npm publish jeraldj-sunbird-quml-player-* --access public
+          npm publish project-sunbird-sunbird-quml-player-* --access public

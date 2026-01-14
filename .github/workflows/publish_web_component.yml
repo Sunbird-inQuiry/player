@@ -43,4 +43,4 @@ jobs:
         run: |
           npm run build-web-component && npm pack ./web-component
           echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc
-          npm publish jeraldj-sunbird-quml-player-web-component-* --access public
+          npm publish project-sunbird-sunbird-quml-player-web-component-* --access public

@@ -1,5 +1,5 @@
 {
-    "name": "@jeraldj/sunbird-quml-player-web-component",
+    "name": "@project-sunbird/sunbird-quml-player-web-component",
     "version": "8.2.0",
     "description": "The web component package for the sunbird QuML player",
     "main": "sunbird-quml-player.js",
