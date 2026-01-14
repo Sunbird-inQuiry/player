@@ -6,6 +6,7 @@ export interface IIndicator {
   class: string;
 }
 @Component({
+  standalone: false,
   selector: 'quml-progress-indicators',
   templateUrl: './progress-indicators.component.html',
   styleUrls: ['./progress-indicators.component.scss']

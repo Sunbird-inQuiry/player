@@ -4,6 +4,7 @@ import { UtilService } from '../util-service';
 import * as _ from 'lodash-es';
 
 @Component({
+  standalone: false,
   selector: 'quml-mcq-option',
   templateUrl: './mcq-option.component.html',
   styleUrls: ['./mcq-option.component.scss']

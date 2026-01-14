@@ -4,6 +4,7 @@ import * as _ from 'lodash-es';
 import { UtilService } from '../util-service';
 
 @Component({
+  standalone: false,
   selector: 'quml-sa',
   templateUrl: './sa.component.html',
   styleUrls: ['./sa.component.scss', '../quml-library.component.scss']
