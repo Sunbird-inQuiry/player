@@ -1,8 +1,8 @@
 {
     "name": "@project-sunbird/sunbird-quml-player-web-component",
-    "version": "5.0.0",
+    "version": "6.0.0",
     "description": "The web component package for the sunbird QuML player",
-    "main": "sunbird-quml-player.js",
+    "main": "assets/quml-player/sunbird-quml-player.js",
     "scripts": {
       "test": "echo \"Error: no test specified\" && exit 1"
     },
