@@ -1,4 +1,5 @@
 import { Component, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { FocusTrap, FocusTrapFactory } from '@angular/cdk/a11y';
 import { contentErrorMessage } from '@project-sunbird/sunbird-player-sdk-v9/lib/player-utils/interfaces/errorMessage';
 import { NextContent, ISideBarEvent } from '@project-sunbird/sunbird-player-sdk-v9/sunbird-player-sdk.interface';
 import * as _ from 'lodash-es';
@@ -9,9 +10,9 @@ import { TransformationService } from '../services/transformation-service/transf
 import { eventName, pageId, TelemetryType, MimeType } from './../telemetry-constants';
 import { UtilService } from './../util-service';
 import { fromEvent, Subscription } from 'rxjs';
-import maintain from 'ally.js/esm/maintain/_maintain';
 import { WARNING_TIME_CONFIG } from './../player-constants';
 @Component({
+  standalone: false,
   selector: 'quml-main-player',
   templateUrl: './main-player.component.html',
   styleUrls: ['./main-player.component.scss']
@@ -82,13 +83,14 @@ export class MainPlayerComponent implements OnInit, OnChanges {
   jumpToQuestion: any;
   totalVisitedQuestion = 0;
   nextContent: NextContent;
-  disabledHandle: any;
+  disabledHandle: FocusTrap | null;
   subscription: Subscription;
 
   constructor(
     public viewerService: ViewerService,
     private utilService: UtilService,
-    private transformationService: TransformationService) { }
+    private transformationService: TransformationService,
+    private focusTrapFactory: FocusTrapFactory) { }
 
   @HostListener('document:TelemetryEvent', ['$event'])
   onTelemetryEvent(event) {
@@ -542,7 +544,11 @@ export class MainPlayerComponent implements OnInit, OnChanges {
 
     if (event.type === 'OPEN_MENU') {
       const isMobile = this.playerConfig.config?.sideMenu?.showExit;
-      this.disabledHandle = isMobile ? maintain.hidden({ filter: [sideBarList, overlayButton, overlayInput] }) : maintain.tabFocus({ context: navBlock });
+      // Trap focus inside the sidebar while it is open
+      if (navBlock) {
+        this.disabledHandle = this.focusTrapFactory.create(navBlock);
+        this.disabledHandle.focusInitialElementWhenReady();
+      }
       this.subscription = fromEvent(document, 'keydown').subscribe((e: KeyboardEvent) => {
         console.log("===========", e.key);
         /* istanbul ignore else */
@@ -552,14 +558,18 @@ export class MainPlayerComponent implements OnInit, OnChanges {
           document.getElementById('playerSideMenu').style.visibility = 'hidden';
           document.querySelector<HTMLElement>('.navBlock').style.marginLeft = '-100%';
           this.viewerService.raiseHeartBeatEvent('CLOSE_MENU', TelemetryType.interact, this.sectionPlayer.myCarousel.getCurrentSlideIndex() + 1);
-          this.disabledHandle.disengage();
-          this.subscription.unsubscribe();
-          this.disabledHandle = null;
-          this.subscription = null;
+          if (this.disabledHandle) {
+            this.disabledHandle.destroy();
+            this.disabledHandle = null;
+          }
+          if (this.subscription) {
+            this.subscription.unsubscribe();
+            this.subscription = null;
+          }
         }
       });
     } else if (event.type === 'CLOSE_MENU' && this.disabledHandle) {
-      this.disabledHandle.disengage();
+      this.disabledHandle.destroy();
       this.disabledHandle = null;
       /* istanbul ignore else */
       if (this.subscription) {

@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
+  standalone: false,
   selector: 'quml-startpage',
   templateUrl: './startpage.component.html',
   styleUrls: ['./startpage.component.scss', './sb-ckeditor-styles.scss']

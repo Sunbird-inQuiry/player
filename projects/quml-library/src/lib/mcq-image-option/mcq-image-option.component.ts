@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
+  standalone: false,
   selector: 'quml-mcq-image-option',
   templateUrl: './mcq-image-option.component.html',
   styleUrls: ['./mcq-image-option.component.scss']

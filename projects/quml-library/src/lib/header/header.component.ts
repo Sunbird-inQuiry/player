@@ -4,6 +4,7 @@ import { eventName, TelemetryType } from '../telemetry-constants';
 
 
 @Component({
+  standalone: false,
   selector: 'quml-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']

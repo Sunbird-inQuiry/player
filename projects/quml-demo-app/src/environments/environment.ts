@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  baseUrl: 'https://dev.inquiry.sunbird.org',
+  baseUrl: 'https://dev.sunbirded.org',
 };
 
 /*

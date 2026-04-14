@@ -7,6 +7,7 @@ import { fromEvent, Subscription } from 'rxjs';
 type AlertType = "correct" | "wrong";
 
 @Component({
+  standalone: false,
   selector: 'quml-alert',
   templateUrl: './alert.component.html',
   styleUrls: ['./alert.component.scss']

@@ -7,6 +7,7 @@ import * as _ from 'lodash-es';
 declare const katex: any;
 
 @Component({
+  standalone: false,
   selector: 'quml-mcq',
   templateUrl: './mcq.component.html',
   styleUrls: ['./mcq.component.scss', '../quml-library.component.scss'],
