@@ -22,7 +22,7 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies (root)
-        run: npm ci
+        run: npm install --legacy-peer-deps
 
       - name: Submit npm Dependencies (root)
         uses: actions/dependency-review-action@v4.9.0
@@ -42,7 +42,7 @@ jobs:
 
       - name: Install dependencies (react-app)
         working-directory: web-component-examples/react-app
-        run: npm ci
+        run: npm install --legacy-peer-deps
 
       - name: Submit npm Dependencies (react-app)
         uses: actions/dependency-review-action@v4.9.0
