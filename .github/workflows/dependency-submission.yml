@@ -1,0 +1,50 @@
+name: Dependency Submission (npm)
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: write
+
+jobs:
+  dependency-submission-root:
+    name: Submit root npm dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies (root)
+        run: npm install --legacy-peer-deps
+
+      - name: Submit npm Dependencies (root)
+        uses: actions/dependency-review-action@v4.9.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  dependency-submission-react-app:
+    name: Submit web-component-examples/react-app npm dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies (react-app)
+        working-directory: web-component-examples/react-app
+        run: npm install --legacy-peer-deps
+
+      - name: Submit npm Dependencies (react-app)
+        uses: actions/dependency-review-action@v4.9.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
