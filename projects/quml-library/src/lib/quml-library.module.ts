@@ -88,7 +88,6 @@ import { BaseQuestionDirective } from './base-question.directive';
     MtfComponent,
     FtbComponent,
     OrderedComponent,
-    BaseQuestionDirective,
   ],
   imports: [
     CommonModule,

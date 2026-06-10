@@ -8,7 +8,7 @@ declare const katex: any;
  * Holds common inputs, outputs, and utility methods so subclasses
  * only contain their own interaction logic.
  */
-@Directive()
+@Directive({ standalone: false })
 export abstract class BaseQuestionDirective {
   @Input() question: any;
   @Input() replayed: boolean;
