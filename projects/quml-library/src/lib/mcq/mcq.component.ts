@@ -16,8 +16,8 @@ declare const katex: any;
 export class McqComponent implements OnInit, AfterViewInit {
   @Input() shuffleOptions?: boolean;
   @Input() question?: any;
-  @Input() identifier: any;
   @Input() layout?: string;
+  @Input() language: string = 'en';
   @Input() replayed: boolean;
   @Input() tryAgain?: boolean;
   @Output() componentLoaded = new EventEmitter<any>();
@@ -61,7 +61,7 @@ export class McqComponent implements OnInit, AfterViewInit {
         this.layout = 'MULTIIMAGEGRID';
         break;
       default:
-        console.error("Invalid templateId");
+        this.layout = 'DEFAULT';
     }
 
     this.renderLatex();
@@ -103,7 +103,7 @@ export class McqComponent implements OnInit, AfterViewInit {
   }
 
   replaceLatexText() {
-    const questionElement = document.getElementById(this.identifier);
+    const questionElement = document.getElementById(this.question?.identifier ?? this.question?.id);
     if (questionElement != null) {
       const mathTextDivs = questionElement.getElementsByClassName('mathText');
       for (let i = 0; i < mathTextDivs.length; i++) {

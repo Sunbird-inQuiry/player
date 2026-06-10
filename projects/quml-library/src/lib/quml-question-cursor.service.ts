@@ -4,8 +4,8 @@ import { Question } from './quml-library-interface';
 
 export abstract class QuestionCursor {
 
-  abstract getQuestions(identifiers: string[], parentId?: string): Observable<Question>;
-  abstract getQuestion(identifier: string): Observable<Question>;
+  abstract getQuestions(identifiers: string[], parentId?: string, language?: string): Observable<Question>;
+  abstract getQuestion(identifier: string, language?: string): Observable<Question>;
   abstract getQuestionSet(identifier: string): Observable<any>;
   abstract getAllQuestionSet(identifiers: string[]): Observable<any>;
 

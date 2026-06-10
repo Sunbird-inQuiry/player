@@ -249,7 +249,8 @@ export const mockQumlLibraryServiceData = {
       "showReplay": false
     },
     warningTime: 75,
-    showWarningTimer: true
+    showWarningTimer: true,
+    language: 'en'
   },
   telemetryObject: {
     "id": "do_213484313936035840138",

@@ -65,6 +65,7 @@ export interface Config {
     shuffleOptions?: boolean;
     warningTime?: number,
     showWarningTimer?: boolean
+    language?: string;
 }
 
 export interface QumlPlayerConfig {
@@ -116,7 +117,7 @@ export interface IParentConfig {
     metadata?: any;
     warningTime: number;
     showWarningTimer: boolean;
-    
+    language: string;
 }
 
 export interface ISummary {

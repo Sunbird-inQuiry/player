@@ -1,7 +1,7 @@
 <div class="quml-sa">
   <div class="question-container" tabindex="0">
     <div class="sa-title">Question</div>
-    <div class="question" [innerHTML]="question | safeHtml"></div>
+    <div class="question" [innerHTML]="questionHtml | safeHtml"></div>
   </div>
   <div class="sa-button-container">
     <div *ngIf="!showAnswer" id="submit-answer" tabindex="0" class="sb-btn sb-btn-primary sb-btn-normal sb-btn-radius"

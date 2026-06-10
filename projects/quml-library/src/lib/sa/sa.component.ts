@@ -11,33 +11,42 @@ import { UtilService } from '../util-service';
 })
 export class SaComponent implements OnInit, OnChanges, AfterViewInit {
 
-  @Input() questions?: any;
+  @Input() question?: any;
   @Input() replayed?: boolean;
   @Input() baseUrl: string;
-  @Output() componentLoaded = new EventEmitter<any>();
-  @Output() showAnswerClicked = new EventEmitter<any>();
+  @Input() language: string = 'en';
+  @Output() componentLoaded    = new EventEmitter<any>();
+  @Output() optionSelected     = new EventEmitter<any>(); // required by IQuestionPlayer; SA never emits it
+  @Output() showAnswerClicked  = new EventEmitter<any>();
 
   showAnswer = false;
   solutions: any;
-  question: any;
+  questionHtml: any;
   answer: any;
   constructor( public domSanitizer: DomSanitizer, private utilService: UtilService ) { }
 
   ngOnInit() {
-    this.question = this.questions?.body;
-    this.answer = this.questions?.answer;
-    this.solutions = _.isEmpty(this.questions?.solutions) ? null : this.questions?.solutions;
+    this.questionHtml = this.question?.body;
+    this.answer = this.question?.answer ?? this.getFtbAnswer(this.question);
+    this.solutions = _.isEmpty(this.question?.solutions) ? null : this.question?.solutions;
+  }
+
+  private getFtbAnswer(question: any): string | null {
+    const rd = question?.responseDeclaration;
+    if (!rd) { return null; }
+    const values = Object.values(rd).map((r: any) => r?.correctResponse?.value).filter(Boolean);
+    return values.length ? values.join(', ') : null;
   }
 
   ngAfterViewInit() {
     this.handleKeyboardAccessibility();
-    this.utilService.updateSourceOfVideoElement(this.baseUrl, this.questions?.media, this.questions.identifier);
+    this.utilService.updateSourceOfVideoElement(this.baseUrl, this.question?.media, this.question?.identifier);
   }
 
   ngOnChanges() {
     if (this.replayed) {
       this.showAnswer = false;
-    } else if (this.questions?.isAnswerShown) {
+    } else if (this.question?.isAnswerShown) {
       this.showAnswer = true;
     }
   }

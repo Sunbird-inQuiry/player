@@ -46,6 +46,11 @@
               "projects/quml-demo-app/src/assets",
               {
                 "glob": "**/*",
+                "input": "projects/quml-library/src/lib/assets/",
+                "output": "/assets/"
+              },
+              {
+                "glob": "**/*",
                 "input": "node_modules/@project-sunbird/sunbird-quml-player/lib/assets/",
                 "output": "/assets/"
               }
@@ -99,19 +104,19 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "quml-demo-app:build",
+            "buildTarget": "quml-demo-app:build",
             "proxyConfig": "projects/quml-demo-app/src/proxy.conf.json"
           },
           "configurations": {
             "production": {
-              "browserTarget": "quml-demo-app:build:production"
+              "buildTarget": "quml-demo-app:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "quml-demo-app:build"
+            "buildTarget": "quml-demo-app:build"
           }
         },
         "test": {
@@ -233,18 +238,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "quml-player-wc:build"
+            "buildTarget": "quml-player-wc:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "quml-player-wc:build:production"
+              "buildTarget": "quml-player-wc:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "quml-player-wc:build"
+            "buildTarget": "quml-player-wc:build"
           }
         },
         "test": {

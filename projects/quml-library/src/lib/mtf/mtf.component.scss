@@ -1,0 +1,132 @@
+$teal-start: #3bbcac;
+$teal-end:   #2a9e8d;
+$pill-min-h: 52px;
+$pill-gap:   10px;
+
+.question-container {
+  margin-top: 2.5rem;
+}
+
+.mtf-question {
+  margin-bottom: 1.25rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  p { margin: 0; }
+}
+
+// ── Main card ────────────────────────────────────────────
+.mtf-board {
+  background: linear-gradient(145deg, $teal-start, $teal-end);
+  border-radius: 16px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0;
+}
+
+// ── Columns ──────────────────────────────────────────────
+.mtf-col {
+  display: flex;
+  flex-direction: column;
+  gap: $pill-gap;
+}
+
+.left-col  { flex: 1; }
+.right-col { flex: 1; }
+
+.center-col {
+  flex-shrink: 0;
+  width: 52px;
+  padding-top: 0;
+}
+
+// ── Pills ─────────────────────────────────────────────────
+.mtf-pill {
+  min-height: $pill-min-h;
+  background: white;
+  border-radius: 10px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #222;
+  box-sizing: border-box;
+  p { margin: 0; }
+}
+
+.left-pill {
+  justify-content: center;
+  text-align: center;
+}
+
+// Right pill: drag handle + text
+.right-pill {
+  gap: 8px;
+  cursor: grab;
+  user-select: none;
+  position: relative;
+
+  &:active { cursor: grabbing; }
+
+  // CDK drag preview (floating card while dragging)
+  &.cdk-drag-preview {
+    box-shadow: 0 8px 28px rgba(0,0,0,0.22);
+    border-radius: 10px;
+    background: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    min-height: $pill-min-h;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #222;
+  }
+
+  &.cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0,0,0.2,1);
+  }
+}
+
+.cdk-drop-list-dragging .right-pill:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0,0,0.2,1);
+}
+
+// Placeholder hole while dragging
+.mtf-drag-placeholder {
+  background: rgba(255,255,255,0.35);
+  border: 2px dashed rgba(255,255,255,0.6);
+  border-radius: 10px;
+  min-height: $pill-min-h;
+  width: 100%;
+  transition: transform 250ms cubic-bezier(0,0,0.2,1);
+}
+
+
+.pill-text {
+  flex: 1;
+  p { margin: 0; }
+}
+
+// ── Arrow connector ───────────────────────────────────────
+.mtf-arrow {
+  min-height: $pill-min-h;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    display: block;
+    width: 40px;
+    height: 24px;
+  }
+}
+
+// ── RTL ──────────────────────────────────────────────────
+[dir="rtl"] {
+  .mtf-board    { flex-direction: row-reverse; }
+  .center-col   { transform: scaleX(-1); }
+  .right-pill   { flex-direction: row-reverse; }
+}

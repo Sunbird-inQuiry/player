@@ -53,7 +53,8 @@ export class MainPlayerComponent implements OnInit, OnChanges {
     showFeedback: false,
     showLegend: true,
     warningTime: WARNING_TIME_CONFIG.DEFAULT_TIME,
-    showWarningTimer: WARNING_TIME_CONFIG.SHOW_TIMER
+    showWarningTimer: WARNING_TIME_CONFIG.SHOW_TIMER,
+    language: 'en'
   };
 
   showEndPage: boolean;
@@ -216,7 +217,8 @@ export class MainPlayerComponent implements OnInit, OnChanges {
     this.parentConfig.showFeedback = this.showFeedBack = this.playerConfig.metadata?.showFeedback;
     this.parentConfig.sideMenuConfig = { ...this.parentConfig.sideMenuConfig, ...this.playerConfig.config.sideMenu };
     this.parentConfig.warningTime =  _.get(this.playerConfig,'config.warningTime', this.parentConfig.warningTime);
-    this.parentConfig.showWarningTimer =  _.get(this.playerConfig,'config.showWarningTimer', this.parentConfig.showWarningTimer)
+    this.parentConfig.showWarningTimer =  _.get(this.playerConfig,'config.showWarningTimer', this.parentConfig.showWarningTimer);
+    this.parentConfig.language = this.playerConfig.config?.language || 'en';
     if (this.playerConfig?.context?.userData) {
       const firstName = this.playerConfig.context.userData?.firstName ?? '';
       const lastName = this.playerConfig.context.userData?.lastName ?? '';

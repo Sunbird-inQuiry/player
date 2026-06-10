@@ -599,7 +599,8 @@ export const mockSectionPlayerConfig = {
     showFeedback: true,
     showLegend: true,
     warningTime: 75,
-    showWarningTimer: true
+    showWarningTimer: true,
+    language: 'en'
   },
   changes: {
     attempts: {
