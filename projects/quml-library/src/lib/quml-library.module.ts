@@ -109,7 +109,7 @@ import { BaseQuestionDirective } from './base-question.directive';
     },
     {
       provide: QUESTION_TYPE_REGISTRY, multi: true,
-      useValue: { primaryCategory: 'fill in the blank question', component: FtbComponent } as QuestionTypeDefinition,
+      useValue: { primaryCategory: 'ftb question', component: FtbComponent } as QuestionTypeDefinition,
     },
     {
       provide: QUESTION_TYPE_REGISTRY, multi: true,
