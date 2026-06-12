@@ -640,9 +640,9 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     const key = selectedQuestion.responseDeclaration ? this.utilService.getKeyValue(Object.keys(selectedQuestion.responseDeclaration)) : '';
     this.slideDuration = Math.round((new Date().getTime() - this.initialSlideDuration) / 1000);
     const getParams = () => {
-      if (selectedQuestion.qType.toUpperCase() === QuestionType.mcq && selectedQuestion?.editorState?.options) {
+      if (selectedQuestion.qType?.toUpperCase() === QuestionType.mcq && selectedQuestion?.editorState?.options) {
         return selectedQuestion.editorState.options;
-      } else if (selectedQuestion.qType.toUpperCase() === QuestionType.mcq && !_.isEmpty(selectedQuestion?.editorState)) {
+      } else if (selectedQuestion.qType?.toUpperCase() === QuestionType.mcq && !_.isEmpty(selectedQuestion?.editorState)) {
         return [selectedQuestion?.editorState];
       } else {
         return [];
@@ -652,8 +652,8 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       'id': selectedQuestion.identifier,
       'title': selectedQuestion.name,
       'desc': selectedQuestion.description,
-      'type': selectedQuestion.qType.toLowerCase(),
-      'maxscore': key.length === 0 ? 0 : selectedQuestion.outcomeDeclaration.maxScore.defaultValue || 0,
+      'type': selectedQuestion.qType?.toLowerCase() || '',
+      'maxscore': key.length === 0 ? 0 : selectedQuestion.outcomeDeclaration?.maxScore?.defaultValue || 0,
       'params': getParams()
     };
 
@@ -663,14 +663,14 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     }
 
     /* istanbul ignore else */
-    if (!this.optionSelectedObj && !this.isAssessEventRaised && selectedQuestion.qType.toUpperCase() !== QuestionType.sa) {
+    if (!this.optionSelectedObj && !this.isAssessEventRaised && selectedQuestion.qType?.toUpperCase() !== QuestionType.sa) {
       this.isAssessEventRaised = true;
       this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'No', 0, [], this.slideDuration);
     }
 
     if (this.optionSelectedObj) {
       this.currentQuestion = selectedQuestion.body;
-      this.currentOptions = selectedQuestion.interactions[key].options;
+      this.currentOptions = selectedQuestion.interactions?.[key]?.options;
 
       if (option.cardinality === Cardinality.single) {
         const correctOptionValue = Number(selectedQuestion.responseDeclaration[key].correctResponse.value);
@@ -964,7 +964,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.viewerService.raiseHeartBeatEvent(eventName.showAnswer, TelemetryType.impression, this.myCarousel.getCurrentSlideIndex());
     const currentIndex = this.myCarousel.getCurrentSlideIndex() - 1;
     this.currentQuestion = this.questions[currentIndex].body;
-    this.currentOptions = this.questions[currentIndex].interactions.response1.options;
+    this.currentOptions = this.questions[currentIndex].interactions?.response1?.options;
     this.currentQuestionsMedia = _.get(this.questions[currentIndex], 'media');
     setTimeout(() => {
       this.setImageZoom();
@@ -1038,7 +1038,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       if (this.isShuffleQuestions) {
         return DEFAULT_SCORE;
       }
-      return this.questions[currentIndex].outcomeDeclaration.maxScore.defaultValue ?
+      return this.questions[currentIndex].outcomeDeclaration?.maxScore?.defaultValue ?
         this.questions[currentIndex].outcomeDeclaration.maxScore.defaultValue : DEFAULT_SCORE;
     } else {
       const selectedOptionValue = selectedOption.option.value;

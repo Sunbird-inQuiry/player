@@ -66,6 +66,7 @@ export interface Config {
     warningTime?: number,
     showWarningTimer?: boolean
     language?: string;
+    showFeedback?: boolean | string;
 }
 
 export interface QumlPlayerConfig {
