@@ -37,7 +37,6 @@ export class FtbComponent extends BaseQuestionDirective implements OnInit, OnCha
     });
 
     this.segments = this.parseBody(this.resolveBody());
-    this.componentLoaded.emit({ identifier: this.question.identifier });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -53,7 +52,10 @@ export class FtbComponent extends BaseQuestionDirective implements OnInit, OnCha
     }
   }
 
-  ngAfterViewInit(): void { this.renderLatex(); }
+  ngAfterViewInit(): void {
+    this.renderLatex();
+    this.componentLoaded.emit({ identifier: this.question.identifier });
+  }
 
   onAnswerChange(): void {
     const isEmpty = this.responseKeys.every(rk => !this.userAnswers[rk]?.trim());

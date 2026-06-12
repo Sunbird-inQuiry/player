@@ -37,10 +37,22 @@ export abstract class BaseQuestionDirective {
    */
   protected resolveBody(): string {
     const body = this.question?.body;
-    if (body && typeof body === 'object') {
-      return body[this.language] ?? body['en'] ?? '';
+    let resolved: string = (body && typeof body === 'object')
+      ? (body[this.language] ?? body['en'] ?? '')
+      : (body ?? '');
+
+    const imageMedia: any[] = (this.question?.media ?? []).filter((m: any) => m.type === 'image');
+    if (imageMedia.length && resolved.includes('<figure')) {
+      let idx = 0;
+      resolved = resolved.replace(/<figure\b[^>]*class="[^"]*\bimage\b[^"]*"[^>]*>\s*<\/figure>/g, () => {
+        const m = imageMedia[idx++];
+        if (!m) return '<figure class="image"></figure>';
+        const src = m.src?.startsWith('http') ? m.src : (m.baseUrl ?? '') + m.src;
+        return `<figure class="image"><img src="${src}" style="max-width:100%"></figure>`;
+      });
     }
-    return body ?? '';
+
+    return resolved;
   }
 
   /** Re-renders any KaTeX math elements inside this question's container. */
