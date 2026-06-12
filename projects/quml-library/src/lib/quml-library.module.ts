@@ -113,6 +113,10 @@ import { BaseQuestionDirective } from './base-question.directive';
     },
     {
       provide: QUESTION_TYPE_REGISTRY, multi: true,
+      useValue: { primaryCategory: 'ftb question', component: FtbComponent } as QuestionTypeDefinition,
+    },
+    {
+      provide: QUESTION_TYPE_REGISTRY, multi: true,
       useValue: { primaryCategory: 'match the following question', component: MtfComponent } as QuestionTypeDefinition,
     },
     {
