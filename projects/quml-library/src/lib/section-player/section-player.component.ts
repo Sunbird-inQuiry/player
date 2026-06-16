@@ -667,6 +667,11 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'No', 0, [], this.slideDuration);
     }
 
+    if (isSubjectiveQuestion && !this.isAssessEventRaised) {
+      this.isAssessEventRaised = true;
+      this.updateScoreBoard(currentIndex, 'correct', undefined, 0);
+    }
+
     if (this.optionSelectedObj) {
       this.currentQuestion = selectedQuestion.body;
       this.currentOptions = selectedQuestion.interactions?.[key]?.options;
