@@ -35,11 +35,18 @@ const ESM_FILES = {
 };
 
 function patch(filePath, component) {
-  if (!fs.existsSync(filePath)) return;
+  if (!fs.existsSync(filePath)) {
+    console.error(`  ERROR: file not found for ${component}: ${filePath}`);
+    process.exit(1);
+  }
   let content = fs.readFileSync(filePath, 'utf8');
   const before = `ɵɵdefineComponent({ type: ${component},`;
   const after   = `ɵɵdefineComponent({ type: ${component}, standalone: false,`;
-  if (!content.includes(before)) return;
+  if (!content.includes(before)) {
+    console.error(`  ERROR: patch target not found for ${component} in ${filePath}`);
+    console.error('  The SDK build may have changed — update the patch string or switch to patch-package.');
+    process.exit(1);
+  }
   fs.writeFileSync(filePath, content.replaceAll(before, after));
   console.log('  patched', component);
 }
@@ -56,7 +63,12 @@ if (fs.existsSync(fesmPath)) {
     const after   = `ɵɵdefineComponent({ type: ${c}, standalone: false,`;
     if (content.includes(before)) { content = content.replaceAll(before, after); changed = true; }
   }
-  if (changed) fs.writeFileSync(fesmPath, content);
+  if (!changed) {
+    console.error('  ERROR: no patch targets found in fesm2022 bundle.');
+    console.error('  The SDK build may have changed — update the patch string or switch to patch-package.');
+    process.exit(1);
+  }
+  fs.writeFileSync(fesmPath, content);
   console.log('  patched fesm2022 bundle');
 }
 

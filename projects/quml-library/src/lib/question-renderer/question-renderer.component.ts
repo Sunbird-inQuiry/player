@@ -41,6 +41,11 @@ export class QuestionRendererComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes['question'] && !changes['question'].firstChange) {
+      this.mountComponent();
+      return;
+    }
+
     if (!this.componentRef) return;
     const inst = this.componentRef.instance as any;
 
@@ -75,6 +80,7 @@ export class QuestionRendererComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnDestroy(): void {
     this.subs.forEach(s => s.unsubscribe());
+    this.componentRef?.destroy();
   }
 
   private mountComponent(): void {

@@ -774,8 +774,16 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
         const userResponses: Record<string, string> = option.option?.responses ?? {};
 
         const hits = responseKeys.filter(rk => {
-          const correct = String(selectedQuestion.responseDeclaration[rk].correctResponse.value ?? '').trim();
-          const user    = String(userResponses[rk] ?? '').trim();
+          const rd   = selectedQuestion.responseDeclaration[rk];
+          const user = String(userResponses[rk] ?? '').trim();
+          const mappings: any[] = rd.mapping ?? [];
+          if (mappings.length > 0) {
+            return mappings.some(m => {
+              const mv = String(m.value ?? '').trim();
+              return m.caseSensitive ? user === mv : user.toLowerCase() === mv.toLowerCase();
+            });
+          }
+          const correct = String(rd.correctResponse.value ?? '').trim();
           return user.toLowerCase() === correct.toLowerCase();
         }).length;
 
