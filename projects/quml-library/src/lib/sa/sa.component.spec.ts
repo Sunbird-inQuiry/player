@@ -1,4 +1,4 @@
-import { NO_ERRORS_SCHEMA, inject } from '@angular/core';
+import { NO_ERRORS_SCHEMA, SimpleChanges, inject } from '@angular/core';
 import { waitForAsync,  ComponentFixture, TestBed } from '@angular/core/testing';
 import { SafeHtmlPipe } from '../pipes/safe-html/safe-html.pipe';
 import { UtilService } from '../util-service';
@@ -150,14 +150,14 @@ describe('SaComponent', () => {
 
   it('should toggle the answer based on changes, for replayed content', () => {
     component.replayed = true;
-    component.ngOnChanges();
+    component.ngOnChanges({} as SimpleChanges);
     expect(component.showAnswer).toBe(false);
   });
 
   it('should toggle the answer based on changes', () => {
     component.replayed = false;
     ( component as any).questions = { isAnswerShown: true }
-    component.ngOnChanges();
+    component.ngOnChanges({} as SimpleChanges);
     expect(component.showAnswer).toBe(true);
   });
 

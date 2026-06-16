@@ -1,13 +1,9 @@
 import { Directive, EventEmitter, Input, Output } from '@angular/core';
 import { t } from './i18n/translations';
+import { readI18n, getBodyField, I18nValue } from './i18n/i18nField';
 
 declare const katex: any;
 
-/**
- * Shared base for FTB, MTF, and Ordered question components.
- * Holds common inputs, outputs, and utility methods so subclasses
- * only contain their own interaction logic.
- */
 @Directive({ standalone: false })
 export abstract class BaseQuestionDirective {
   @Input() question: any;
@@ -20,26 +16,21 @@ export abstract class BaseQuestionDirective {
   @Output() componentLoaded = new EventEmitter<any>();
   @Output() optionSelected  = new EventEmitter<any>();
 
-  /** 'rtl' for Arabic, 'ltr' for everything else. */
   get dir(): 'ltr' | 'rtl' {
     return this.language === 'ar' ? 'rtl' : 'ltr';
   }
 
-  /** Looks up a UI string in the current language with optional {n} substitution. */
   translate(key: string, n?: number): string {
     return t(this.language, key, n);
   }
 
   /**
-   * Returns the question body as a plain string.
-   * If the body is a bilingual object {en: '...', hi: '...'},
-   * picks the current language, falling back to 'en'.
+   * Resolves the question body for the current language.
+   * Uses readI18n so I18nValue maps ({en: '...', ar: '...'}) are handled
+   * with EN fallback — same contract as the editor's readI18n helper.
    */
   protected resolveBody(): string {
-    const body = this.question?.body;
-    let resolved: string = (body && typeof body === 'object')
-      ? (body[this.language] ?? body['en'] ?? '')
-      : (body ?? '');
+    let resolved = readI18n(getBodyField(this.question), this.language);
 
     const imageMedia: any[] = (this.question?.media ?? []).filter((m: any) => m.type === 'image');
     if (imageMedia.length && resolved.includes('<figure')) {
@@ -55,7 +46,14 @@ export abstract class BaseQuestionDirective {
     return resolved;
   }
 
-  /** Re-renders any KaTeX math elements inside this question's container. */
+  /**
+   * Resolves an option label for the current language.
+   * Accepts I18nValue ({en: '...', ar: '...'}) or plain string.
+   */
+  protected resolveLabel(label: I18nValue | undefined): string {
+    return readI18n(label, this.language);
+  }
+
   protected renderLatex(): void {
     setTimeout(() => {
       const root = document.getElementById(this.question?.identifier);

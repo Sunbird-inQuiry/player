@@ -1,7 +1,8 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import * as _ from 'lodash-es';
 import { UtilService } from '../util-service';
+import { readI18n, getBodyField } from '../i18n/i18nField';
 
 @Component({
   standalone: false,
@@ -21,20 +22,27 @@ export class SaComponent implements OnInit, OnChanges, AfterViewInit {
 
   showAnswer = false;
   solutions: any;
-  questionHtml: any;
-  answer: any;
+
+  get questionHtml(): string {
+    return readI18n(getBodyField(this.question), this.language);
+  }
+
+  get answer(): string {
+    return readI18n(this.question?.answer, this.language) || this.getFtbAnswer() || '';
+  }
+
   constructor( public domSanitizer: DomSanitizer, private utilService: UtilService ) { }
 
   ngOnInit() {
-    this.questionHtml = this.question?.body;
-    this.answer = this.question?.answer ?? this.getFtbAnswer(this.question);
     this.solutions = _.isEmpty(this.question?.solutions) ? null : this.question?.solutions;
   }
 
-  private getFtbAnswer(question: any): string | null {
-    const rd = question?.responseDeclaration;
+  private getFtbAnswer(): string | null {
+    const rd = this.question?.responseDeclaration;
     if (!rd) { return null; }
-    const values = Object.values(rd).map((r: any) => r?.correctResponse?.value).filter(Boolean);
+    const values = Object.values(rd)
+      .map((r: any) => readI18n(r?.correctResponse?.value, this.language))
+      .filter(Boolean);
     return values.length ? values.join(', ') : null;
   }
 
@@ -43,7 +51,7 @@ export class SaComponent implements OnInit, OnChanges, AfterViewInit {
     this.utilService.updateSourceOfVideoElement(this.baseUrl, this.question?.media, this.question?.identifier);
   }
 
-  ngOnChanges() {
+  ngOnChanges(changes: SimpleChanges) {
     if (this.replayed) {
       this.showAnswer = false;
     } else if (this.question?.isAnswerShown) {

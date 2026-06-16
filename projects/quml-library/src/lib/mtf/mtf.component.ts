@@ -89,12 +89,6 @@ export class MtfComponent extends BaseQuestionDirective implements OnInit, OnCha
     });
   }
 
-  private resolveLabel(label: any): string {
-    if (typeof label === 'string') return label;
-    if (label && typeof label === 'object') return label.en ?? Object.values(label)[0] ?? '';
-    return '';
-  }
-
   private stripHtml(html: string): string {
     const el = document.createElement('div');
     el.innerHTML = html;

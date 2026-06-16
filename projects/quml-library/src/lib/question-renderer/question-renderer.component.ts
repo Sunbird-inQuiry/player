@@ -23,6 +23,7 @@ export class QuestionRendererComponent implements OnInit, OnChanges, OnDestroy {
   @Output() optionSelected    = new EventEmitter<any>();
   @Output() showAnswerClicked = new EventEmitter<any>();
   @Output() componentLoaded   = new EventEmitter<any>();
+  @Output() goToNext          = new EventEmitter<void>();
 
   @ViewChild('outlet', { read: ViewContainerRef, static: true })
   private outlet: ViewContainerRef;
@@ -109,6 +110,12 @@ export class QuestionRendererComponent implements OnInit, OnChanges, OnDestroy {
     if (inst.showAnswerClicked) {
       this.subs.push(
         inst.showAnswerClicked.subscribe((e: any) => this.showAnswerClicked.emit(e)),
+      );
+    }
+
+    if (inst.goToNext) {
+      this.subs.push(
+        inst.goToNext.subscribe(() => this.goToNext.emit()),
       );
     }
   }

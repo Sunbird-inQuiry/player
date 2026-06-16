@@ -14,6 +14,8 @@ export interface IQuestionPlayer {
   optionSelected: EventEmitter<any>;
   // Optional output — SA only
   showAnswerClicked?: EventEmitter<any>;
+  // Optional output — FTB only
+  goToNext?: EventEmitter<void>;
 }
 
 export interface QuestionTypeDefinition {

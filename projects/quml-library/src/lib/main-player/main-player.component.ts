@@ -11,6 +11,7 @@ import { eventName, pageId, TelemetryType, MimeType } from './../telemetry-const
 import { UtilService } from './../util-service';
 import { fromEvent, Subscription } from 'rxjs';
 import { WARNING_TIME_CONFIG } from './../player-constants';
+import { t } from '../i18n/translations';
 @Component({
   standalone: false,
   selector: 'quml-main-player',
@@ -92,6 +93,10 @@ export class MainPlayerComponent implements OnInit, OnChanges {
     private utilService: UtilService,
     private transformationService: TransformationService,
     private focusTrapFactory: FocusTrapFactory) { }
+
+  translate(key: string): string {
+    return t(this.parentConfig?.language || 'en', key);
+  }
 
   @HostListener('document:TelemetryEvent', ['$event'])
   onTelemetryEvent(event) {
@@ -218,7 +223,7 @@ export class MainPlayerComponent implements OnInit, OnChanges {
     this.parentConfig.sideMenuConfig = { ...this.parentConfig.sideMenuConfig, ...this.playerConfig.config.sideMenu };
     this.parentConfig.warningTime =  _.get(this.playerConfig,'config.warningTime', this.parentConfig.warningTime);
     this.parentConfig.showWarningTimer =  _.get(this.playerConfig,'config.showWarningTimer', this.parentConfig.showWarningTimer);
-    this.parentConfig.language = this.playerConfig.config?.language || 'en';
+    this.parentConfig.language = localStorage.getItem('app-language') || 'en';
     if (this.playerConfig?.context?.userData) {
       const firstName = this.playerConfig.context.userData?.firstName ?? '';
       const lastName = this.playerConfig.context.userData?.lastName ?? '';

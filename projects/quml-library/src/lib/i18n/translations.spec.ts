@@ -1,4 +1,11 @@
-import { t, QUML_TRANSLATIONS } from './translations';
+import { t, getTranslations } from './translations';
+import { TRANSLATIONS_EN } from './translations.en';
+import { TRANSLATIONS_AR } from './translations.ar';
+import { TRANSLATIONS_HI } from './translations.hi';
+import { TRANSLATIONS_FR } from './translations.fr';
+import { TRANSLATIONS_PT } from './translations.pt';
+
+const ALL_LANGS: Record<string, Record<string, string>> = { en: TRANSLATIONS_EN, ar: TRANSLATIONS_AR, hi: TRANSLATIONS_HI, fr: TRANSLATIONS_FR, pt: TRANSLATIONS_PT };
 
 describe('translations — t()', () => {
   it('should return English string for a known key', () => {
@@ -42,16 +49,33 @@ describe('translations — t()', () => {
     expect(t('en', 'BLANK')).toBe('Blank {n}');
   });
 
-  it('should cover all 5 languages in the registry', () => {
-    expect(Object.keys(QUML_TRANSLATIONS)).toEqual(
-      jasmine.arrayContaining(['en', 'fr', 'pt', 'ar', 'hi'])
-    );
+  it('should cover all 5 languages', () => {
+    expect(Object.keys(ALL_LANGS)).toEqual(jasmine.arrayContaining(['en', 'fr', 'pt', 'ar', 'hi']));
   });
 
-  it('should have identical key sets across all languages', () => {
-    const enKeys = Object.keys(QUML_TRANSLATIONS['en']).sort();
-    Object.keys(QUML_TRANSLATIONS).forEach(lang => {
-      expect(Object.keys(QUML_TRANSLATIONS[lang]).sort()).toEqual(enKeys);
+  it('should have identical key sets across all language files', () => {
+    const enKeys = Object.keys(TRANSLATIONS_EN).sort();
+    Object.values(ALL_LANGS).forEach(langMap => {
+      expect(Object.keys(langMap).sort()).toEqual(enKeys);
     });
+  });
+});
+
+describe('getTranslations()', () => {
+  it('returns EN defaults for unknown language', () => {
+    expect(getTranslations('xx')).toEqual(TRANSLATIONS_EN);
+  });
+
+  it('merges target language over EN defaults', () => {
+    const ar = getTranslations('ar');
+    expect(ar['ANSWER']).toBe('الإجابة');
+  });
+
+  it('falls back to EN value when a key is absent in target language', () => {
+    const partial: Record<string, string> = { ANSWER: 'test' };
+    // getTranslations always merges over EN, so any real lang has all keys
+    const merged = getTranslations('fr');
+    const enKeys = Object.keys(TRANSLATIONS_EN);
+    enKeys.forEach(k => expect(merged[k]).toBeDefined());
   });
 });

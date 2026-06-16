@@ -33,6 +33,13 @@ export class OrderedComponent extends BaseQuestionDirective implements OnInit, O
 
   get isReo(): boolean { return this.question?.qType?.toUpperCase() === 'REO'; }
   get isSeq(): boolean { return !this.isReo; }
+  get seqLayout(): string {
+    switch (this.question?.templateId) {
+      case 'seq-vertical-split': return 'SPLIT';
+      case 'seq-horizontal':     return 'HORIZONTAL';
+      default:                   return 'DEFAULT';
+    }
+  }
 
   constructor(
     public domSanitizer: DomSanitizer,
@@ -42,15 +49,12 @@ export class OrderedComponent extends BaseQuestionDirective implements OnInit, O
   ngOnInit(): void {
     this.resolvedBody = this.resolveBody();
     this.key = this.utilService.getKeyValue(Object.keys(this.question.responseDeclaration));
-    const rawOpts = this.question.interactions[this.key].options ?? [];
-    const processed = this.buildItems(rawOpts);
+    const processed = this.buildItems(this.getLocalizedOptions());
 
     if (this.isReo) {
-      // Start with all words shuffled in the pool; answer area is empty
       this.availableWords = _.shuffle(processed);
       this.selectedWords  = [];
     } else {
-      // SEQ: shuffle all items so user must arrange them
       this.items = _.shuffle(processed);
     }
 
@@ -60,6 +64,13 @@ export class OrderedComponent extends BaseQuestionDirective implements OnInit, O
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['language'] && !changes['language'].firstChange) {
       this.resolvedBody = this.resolveBody();
+      const processed = this.buildItems(this.getLocalizedOptions());
+      if (this.isReo) {
+        this.availableWords = _.shuffle(processed);
+        this.selectedWords  = [];
+      } else {
+        this.items = _.shuffle(processed);
+      }
     }
     if (changes['replayed'] && this.replayed) { this.resetItems(); }
     if (changes['tryAgain'] && this.tryAgain) {
@@ -96,14 +107,27 @@ export class OrderedComponent extends BaseQuestionDirective implements OnInit, O
   }
 
   private resetItems(): void {
-    const rawOpts  = this.question?.interactions?.[this.key]?.options ?? [];
-    const processed = this.buildItems(rawOpts);
+    const processed = this.buildItems(this.getLocalizedOptions());
     if (this.isReo) {
       this.availableWords = _.shuffle(processed);
       this.selectedWords  = [];
     } else {
       this.items = _.shuffle(processed);
     }
+  }
+
+  /**
+   * Returns options for the current language.
+   * Checks interactions[key].i18n[lang].options first (editor's per-language store),
+   * falls back to the top-level options array (English default).
+   */
+  private getLocalizedOptions(): any[] {
+    const interaction = this.question?.interactions?.[this.key];
+    if (!interaction) return [];
+    return interaction.i18n?.[this.language]?.options
+        ?? interaction.i18n?.['en']?.options
+        ?? interaction.options
+        ?? [];
   }
 
   private buildItems(rawOpts: any[]): OrderedItem[] {
@@ -134,12 +158,6 @@ export class OrderedComponent extends BaseQuestionDirective implements OnInit, O
       ) || '';
       return { value: String(o.value), label: safeHtml, labelText: this.stripHtml(safeHtml) };
     });
-  }
-
-  private resolveLabel(label: any): string {
-    if (typeof label === 'string') return label;
-    if (label && typeof label === 'object') return label.en ?? Object.values(label)[0] ?? '';
-    return '';
   }
 
   private stripHtml(html: string): string {

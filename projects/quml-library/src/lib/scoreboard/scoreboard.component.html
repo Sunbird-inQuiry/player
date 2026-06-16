@@ -1,7 +1,7 @@
 <div class="scoreboard">
   <div class="scoreboard__header">
     <div class="scoreboard__title">
-      Are you ready to submit?
+      {{ translate('SUBMIT_TITLE') }}
     </div>
     <div class="scoreboard__subtitle">
       {{contentName}}
@@ -10,10 +10,10 @@
 
   <div class="sections-score-card">
     <div class="sections-score-count-info">
-      <div class="mb-15">Total Questions: {{totalNoOfQuestions}}</div>
-      <div class="mb-15">Questions Answered: {{summary?.correct + summary?.wrong}}</div>
-      <div class="mb-15">Questions Skipped: {{summary?.skipped}}</div>
-      <div class="mb-15">Questions not Viewed: {{totalNoOfQuestions - (summary?.correct + summary?.wrong + summary?.skipped)}}</div>
+      <div class="mb-15">{{ translate('TOTAL_QUESTIONS') }}: {{totalNoOfQuestions}}</div>
+      <div class="mb-15">{{ translate('QUESTIONS_ANSWERED') }}: {{summary?.correct + summary?.wrong}}</div>
+      <div class="mb-15">{{ translate('QUESTIONS_SKIPPED') }}: {{summary?.skipped}}</div>
+      <div class="mb-15">{{ translate('QUESTIONS_NOT_VIEWED') }}: {{totalNoOfQuestions - (summary?.correct + summary?.wrong + summary?.skipped)}}</div>
     </div>
 
     <div class="sections-score-count-sections">
@@ -27,7 +27,7 @@
 
       <div *ngIf="isSections">
         <div *ngFor="let section of scores" class="sections-score-counts">
-          <div class="sections-score-card__title">Section {{section?.index}}</div>
+          <div class="sections-score-card__title">{{ translate('SECTION') }} {{section?.index}}</div>
           <div class="sections-score-card__points">
             <div *ngFor="let score of section?.children; let i = index" class="scoreboard__index" tabindex="0"
               attr.aria-label="question number {{score.index}}" (click)="goToQuestion(i+1, section.identifier)"
@@ -42,8 +42,8 @@
 
   <div class="scoreboard__btn-container">
     <button type="submit" class="sb-btn sb-btn-outline-primary sb-btn-normal sb-btn-radius px-20 mx-8"
-      (click)="onReviewClicked()">Review</button>
+      (click)="onReviewClicked()">{{ translate('REVIEW') }}</button>
     <button type="submit" class="sb-btn sb-btn-primary sb-btn-normal sb-btn-radius px-20 mx-8"
-      (click)="submitClicked.emit({type:'submit-clicked'})">Submit</button>
+      (click)="submitClicked.emit({type:'submit-clicked'})">{{ translate('SUBMIT') }}</button>
   </div>
 </div>

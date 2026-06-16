@@ -217,11 +217,9 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.showWarningTimer = this.parentConfig.showWarningTimer;
     this.showTimer = this.sectionConfig.metadata?.showTimer;
 
-    if (this.sectionConfig.metadata?.showFeedback) {
-      this.showFeedBack = this.sectionConfig.metadata?.showFeedback; // prioritize the section level config
-    } else {
-      this.showFeedBack = this.parentConfig.showFeedback; // Fallback to parent config
-    }
+    this.showFeedBack = this.sectionConfig.metadata?.showFeedback
+      ?? this.parentConfig.showFeedback
+      ?? 'Yes';
 
     this.showUserSolution = this.sectionConfig.metadata?.showSolutions;
     this.startPageInstruction = this.sectionConfig.metadata?.instructions || this.parentConfig.instructions;
@@ -751,6 +749,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
             this.isAssessEventRaised = true;
             this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'No', currentScore, [option.option], this.slideDuration);
           }
+          if (this.showFeedBack) { this.correctFeedBackTimeOut(type); }
         } else {
           this.alertType = 'wrong';
           this.updateScoreBoard(currentIndex, 'wrong', undefined, 0);
@@ -759,6 +758,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
             this.isAssessEventRaised = true;
             this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'No', 0, [option.option], this.slideDuration);
           }
+          if (this.showFeedBack) { this.correctFeedBackTimeOut(type); }
         }
         this.optionSelectedObj = undefined;
       }
@@ -798,6 +798,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
             this.isAssessEventRaised = true;
             this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'No', currentScore, [option.option], this.slideDuration);
           }
+          if (this.showFeedBack) { this.correctFeedBackTimeOut(type); }
         } else {
           this.alertType = 'wrong';
           this.updateScoreBoard(currentIndex, 'wrong', undefined, 0);
@@ -806,6 +807,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
             this.isAssessEventRaised = true;
             this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'No', 0, [option.option], this.slideDuration);
           }
+          if (this.showFeedBack) { this.correctFeedBackTimeOut(type); }
         }
         this.optionSelectedObj = undefined;
       }
@@ -838,6 +840,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
             this.isAssessEventRaised = true;
             this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'No', 0, [option.option], this.slideDuration);
           }
+          if (this.showFeedBack) { this.correctFeedBackTimeOut(type); }
         }
         this.optionSelectedObj = undefined;
       }

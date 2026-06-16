@@ -9,7 +9,7 @@
         [attr.aria-label]="'Blank ' + seg.key"
         [(ngModel)]="userAnswers[seg.key]"
         (ngModelChange)="onAnswerChange()"
-        (keydown)="$event.stopPropagation()"
+        (keydown)="onKeyDown($event)"
         autocomplete="off"
         spellcheck="false"
       />
@@ -25,7 +25,7 @@
         type="text"
         [(ngModel)]="userAnswers[rk]"
         (ngModelChange)="onAnswerChange()"
-        (keydown)="$event.stopPropagation()"
+        (keydown)="onKeyDown($event)"
         autocomplete="off"
         spellcheck="false"
       />

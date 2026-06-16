@@ -3,6 +3,7 @@ import { fromEvent, Subscription } from 'rxjs';
 import { ISummary } from '../quml-library-interface';
 import { ViewerService } from '../services/viewer-service/viewer-service';
 import { eventName, pageId, TelemetryType } from '../telemetry-constants';
+import { t } from '../i18n/translations';
 
 @Component({
   standalone: false,
@@ -17,12 +18,17 @@ export class ScoreboardComponent implements OnInit, OnDestroy {
   @Input() showFeedBack: boolean;
   @Input() isSections: boolean;
   @Input() summary: ISummary;
+  @Input() language: string = 'en';
   @Output() submitClicked = new EventEmitter<any>();
   @Output() emitQuestionNo = new EventEmitter<any>();
   @Output() scoreBoardLoaded = new EventEmitter<any>();
 
   subscription: Subscription;
   constructor(private viewerService: ViewerService) { }
+
+  translate(key: string): string {
+    return t(this.language, key);
+  }
 
   ngOnInit() {
     this.scoreBoardLoaded.emit({

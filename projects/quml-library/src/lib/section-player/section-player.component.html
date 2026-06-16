@@ -7,7 +7,8 @@
       [showFeedBack]="showFeedBack" [currentSolutions]="currentSolutions" (showSolution)="viewSolution()"
       [initializeTimer]="initializeTimer" [replayed]="parentConfig?.isReplayed" [disableNext]="disableNext"
       [startPageInstruction]="startPageInstruction" [attempts]="attempts" [showStartPage]="showStartPage"
-      [showDeviceOrientation]="sectionConfig?.config?.showDeviceOrientation" (toggleScreenRotate)="toggleScreenRotate()">
+      [showDeviceOrientation]="sectionConfig?.config?.showDeviceOrientation" (toggleScreenRotate)="toggleScreenRotate()"
+      [language]="parentConfig?.language">
     </quml-header>
 
     <div class="landscape-mode">
@@ -27,7 +28,8 @@
               [instructions]="showRootInstruction ? parentConfig?.instructions : sectionConfig.metadata?.instructions"
               [points]="points" [time]="showRootInstruction ? timeLimit : null" [showTimer]="showTimer"
               [totalNoOfQuestions]="showRootInstruction ? parentConfig?.questionCount : noOfQuestions"
-              [contentName]="showRootInstruction ? parentConfig?.contentName : parentConfig?.isSectionsAvailable ? sectionConfig?.metadata?.name : parentConfig?.contentName">
+              [contentName]="showRootInstruction ? parentConfig?.contentName : parentConfig?.isSectionsAvailable ? sectionConfig?.metadata?.name : parentConfig?.contentName"
+              [language]="parentConfig?.language">
             </quml-startpage>
           </slide>
           <slide *ngFor="let question of questions; let i= index" #questionSlide>
@@ -40,7 +42,8 @@
                 [shuffleOptions]="shuffleOptions"
                 [language]="parentConfig?.language"
                 (optionSelected)="getOptionSelected($event)"
-                (showAnswerClicked)="showAnswerClicked($event, question)">
+                (showAnswerClicked)="showAnswerClicked($event, question)"
+                (goToNext)="nextSlideClicked({type: 'next'})">
               </quml-question-renderer>
             </div>
           </slide>

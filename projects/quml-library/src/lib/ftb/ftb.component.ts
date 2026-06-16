@@ -1,5 +1,5 @@
 import {
-  Component, OnInit, OnChanges, SimpleChanges, AfterViewInit,
+  Component, OnInit, OnChanges, SimpleChanges, AfterViewInit, Output, EventEmitter,
 } from '@angular/core';
 import { UtilService } from '../util-service';
 import { BaseQuestionDirective } from '../base-question.directive';
@@ -17,6 +17,8 @@ interface Segment {
   styleUrls: ['./ftb.component.scss', '../quml-library.component.scss'],
 })
 export class FtbComponent extends BaseQuestionDirective implements OnInit, OnChanges, AfterViewInit {
+  @Output() goToNext = new EventEmitter<void>();
+
   segments: Segment[] = [];
   responseKeys: string[] = [];
   userAnswers: Record<string, string>    = {};
@@ -55,6 +57,13 @@ export class FtbComponent extends BaseQuestionDirective implements OnInit, OnCha
   ngAfterViewInit(): void {
     this.renderLatex();
     this.componentLoaded.emit({ identifier: this.question.identifier });
+  }
+
+  onKeyDown(event: KeyboardEvent): void {
+    event.stopPropagation();
+    if (event.key === 'Enter') {
+      this.goToNext.emit();
+    }
   }
 
   onAnswerChange(): void {

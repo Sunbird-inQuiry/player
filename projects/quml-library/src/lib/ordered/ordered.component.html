@@ -1,8 +1,8 @@
 <div class="question-container" [id]="question.identifier" [dir]="dir">
   <div class="ordered-question" [innerHTML]="resolvedBody | safeHtml"></div>
 
-  <!-- ── SEQ: drag-and-drop vertical list ─────────────── -->
-  <ng-container *ngIf="isSeq">
+  <!-- ── SEQ: drag-and-drop vertical list (seq-vertical) ─ -->
+  <ng-container *ngIf="isSeq && seqLayout === 'DEFAULT'">
     <div class="seq-board"
          cdkDropList
          (cdkDropListDropped)="drop($event)">
@@ -11,6 +11,35 @@
            *ngFor="let item of items">
         <div class="card-label" [innerHTML]="item.label | safeHtml"></div>
         <div class="seq-placeholder" *cdkDragPlaceholder></div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ── SEQ: horizontal row (seq-horizontal) ────────────── -->
+  <ng-container *ngIf="isSeq && seqLayout === 'HORIZONTAL'">
+    <div class="seq-horizontal-board"
+         cdkDropList
+         cdkDropListOrientation="horizontal"
+         (cdkDropListDropped)="drop($event)">
+      <div class="seq-horizontal-card"
+           cdkDrag
+           *ngFor="let item of items">
+        <div class="card-label" [innerHTML]="item.label | safeHtml"></div>
+        <div class="seq-horizontal-placeholder" *cdkDragPlaceholder></div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ── SEQ: 2-column grid (seq-vertical-split) ────────── -->
+  <ng-container *ngIf="isSeq && seqLayout === 'SPLIT'">
+    <div class="seq-grid-board"
+         cdkDropList
+         (cdkDropListDropped)="drop($event)">
+      <div class="seq-grid-card"
+           cdkDrag
+           *ngFor="let item of items">
+        <div class="card-label" [innerHTML]="item.label | safeHtml"></div>
+        <div class="seq-grid-placeholder" *cdkDragPlaceholder></div>
       </div>
     </div>
   </ng-container>
@@ -37,7 +66,7 @@
             {{ w.labelText }}
           </span>
           <span class="reo-placeholder-text" *ngIf="selectedWords.length === 0">
-            Tap words below to build the answer
+            {{ translate('REO_PLACEHOLDER') }}
           </span>
         </div>
       </div>
