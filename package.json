@@ -15,7 +15,8 @@
     "test-lib": "ng test quml-library",
     "test-lib-coverage": "ng test quml-library --code-coverage=true",
     "test-lib-ci": "ng test quml-library --watch=false --code-coverage",
-    "build:schematics": "npm run build --prefix projects/quml-library"
+    "build:schematics": "npm run build --prefix projects/quml-library",
+    "postinstall": "node scripts/patchSdk.js"
   },
   "private": true,
   "dependencies": {
