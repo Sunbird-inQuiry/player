@@ -88,7 +88,10 @@ export class QuestionRendererComponent implements OnInit, OnChanges, OnDestroy {
     const def = registry.find(
       d => d.primaryCategory === this.question?.primaryCategory?.toLowerCase(),
     );
-    if (!def) return;
+    if (!def) {
+      console.error(`[QuestionRenderer] No component registered for primaryCategory: "${this.question?.primaryCategory}"`);
+      return;
+    }
 
     this.componentRef = this.outlet.createComponent(def.component);
     const inst = this.componentRef.instance;

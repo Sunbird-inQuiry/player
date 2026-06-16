@@ -43,6 +43,7 @@ export class MtfComponent extends BaseQuestionDirective implements OnInit, OnCha
     this.correctValue = this.question.responseDeclaration[this.key].correctResponse.value || {};
     this.solutions    = this.question.solutions ? _.values(this.question.solutions) : [];
     this.componentLoaded.emit({ identifier: this.question.identifier });
+    setTimeout(() => this.emitAnswer());
   }
 
   ngOnChanges(changes: SimpleChanges): void {

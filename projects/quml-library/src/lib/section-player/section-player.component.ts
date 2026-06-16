@@ -530,6 +530,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.active = true;
     this.currentOptionSelected = optionSelected;
     const currentIndex = this.myCarousel.getCurrentSlideIndex() - 1;
+    if (currentIndex < 0 || !this.questions[currentIndex]) return;
     this.viewerService.raiseHeartBeatEvent(eventName.optionClicked, TelemetryType.interact, this.myCarousel.getCurrentSlideIndex());
 
     // This optionSelected comes empty whenever the try again is clicked on feedback popup
@@ -626,7 +627,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
   validateSelectedOption(option, type?: string) {
     const selectedOptionValue = option?.option?.value;
     const currentIndex = this.myCarousel.getCurrentSlideIndex() - 1;
-    const questionType = this.utilService.getQuestionType(this.questions, currentIndex);
+    const questionType = this.utilService.getQuestionType(this.questions, currentIndex)?.toUpperCase();
     const isSubjectiveQuestion = questionType === QuestionType.sa;
     const isQuestionSkipAllowed = !this.optionSelectedObj && this.allowSkip &&
       (questionType === QuestionType.mcq || questionType === QuestionType.mtf ||

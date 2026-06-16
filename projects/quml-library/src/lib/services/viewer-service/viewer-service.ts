@@ -259,7 +259,7 @@ export class ViewerService {
   }
 
   fetchIncompleteQuestionsData(availableQuestions, questionsIdNotHavingCompleteData) {
-    return this.questionCursor.getQuestions(questionsIdNotHavingCompleteData, this.parentIdentifier).pipe(
+    return this.questionCursor.getQuestions(questionsIdNotHavingCompleteData, this.parentIdentifier, this.language).pipe(
       switchMap((questionData: any) => {
         const fetchedQuestions = questionData.questions;
         const allQuestions = _.concat(availableQuestions, fetchedQuestions);
