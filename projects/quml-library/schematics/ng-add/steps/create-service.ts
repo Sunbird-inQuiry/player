@@ -42,9 +42,10 @@ function getQuestionCursorImplementationService() {
         listUrl: string | undefined; // Define this url to call list api in server
         constructor(private http: HttpClient) { }
     
-        getQuestions(identifiers: string[], parentId?: string): Observable<Question> {
+        getQuestions(identifiers: string[], parentId?: string, language?: string): Observable<Question> {
+            const url = language ? \`\${this.listUrl}?lang=\${language}\` : this.listUrl;
             const option: any = {
-                url: this.listUrl,
+                url,
                 data: {
                     request: {
                         search: { identifier: identifiers }
@@ -53,10 +54,11 @@ function getQuestionCursorImplementationService() {
             };
             return this.post(option).pipe(map((data) => data.result));
         }
-      
-        getQuestion(identifier: string): Observable<Question> {
+
+        getQuestion(identifier: string, language?: string): Observable<Question> {
+            const url = language ? \`\${this.listUrl}?lang=\${language}\` : this.listUrl;
             const option: any = {
-                url: this.listUrl,
+                url,
                 data: {
                     request: {
                         search: { identifier: [identifier] }

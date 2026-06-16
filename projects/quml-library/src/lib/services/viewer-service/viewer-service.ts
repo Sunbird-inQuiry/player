@@ -35,6 +35,7 @@ export class ViewerService {
   isSectionsAvailable = false;
   questionSetId: string;
   parentIdentifier: string;
+  language: string;
   sectionQuestions = [];
   sectionConfig:any;
   constructor(
@@ -56,6 +57,7 @@ export class ViewerService {
     this.contentName = config.metadata.name;
     this.isAvailableLocally = parentConfig.isAvailableLocally;
     this.isSectionsAvailable = parentConfig?.isSectionsAvailable;
+    this.language = parentConfig.language || 'en';
     this.src = config.metadata.artifactUrl || '';
     this.questionSetId = config.metadata.identifier;
 
@@ -257,7 +259,7 @@ export class ViewerService {
   }
 
   fetchIncompleteQuestionsData(availableQuestions, questionsIdNotHavingCompleteData) {
-    return this.questionCursor.getQuestions(questionsIdNotHavingCompleteData, this.parentIdentifier).pipe(
+    return this.questionCursor.getQuestions(questionsIdNotHavingCompleteData, this.parentIdentifier, this.language).pipe(
       switchMap((questionData: any) => {
         const fetchedQuestions = questionData.questions;
         const allQuestions = _.concat(availableQuestions, fetchedQuestions);
@@ -276,11 +278,8 @@ export class ViewerService {
       indentifersForQuestions = this.identifiers.splice(0, this.threshold);
     }
     if (!_.isEmpty(indentifersForQuestions)) {
-      let requests: any;
       const chunkArray = _.chunk(indentifersForQuestions, 10);
-      _.forEach(chunkArray, (value) => {
-        requests = this.getSectionQuestionData(sectionChildren, value)
-      });
+      const requests = chunkArray.map(value => this.getSectionQuestionData(sectionChildren, value));
       forkJoin(requests).subscribe(questions => {
         _.forEach(questions, (value) => {
           const transformedquestionsList = this.transformationService.getTransformedQuestionMetadata(value);
@@ -305,7 +304,7 @@ export class ViewerService {
         const transformedquestionsList = this.transformationService.getTransformedQuestionMetadata(fetchedQuestionData);
         this.qumlQuestionEvent.emit(transformedquestionsList);
       } else {
-        this.questionCursor.getQuestion(questionIdentifier[0]).subscribe((question) => {
+        this.questionCursor.getQuestion(questionIdentifier[0], this.language).subscribe((question) => {
           const fetchedQuestionData = question;
           const transformedquestionsList = this.transformationService.getTransformedQuestionMetadata(fetchedQuestionData);
           this.qumlQuestionEvent.emit(transformedquestionsList);

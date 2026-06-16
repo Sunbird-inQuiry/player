@@ -490,7 +490,7 @@ describe('MainPlayerComponent', () => {
     component.playerConfig = playerConfig;
     component.disabledHandle = {
       disengage: () => { }
-    };
+    } as any;
     component.subscription = of(1, 2, 3).subscribe();
     component.handleSideBarAccessibility({ type: 'CLOSE_MENU' });
     expect(component.disabledHandle).toBeNull();

@@ -1,6 +1,7 @@
 import { Component, OnInit, Output, EventEmitter, Input, OnChanges, OnDestroy, AfterViewInit, HostListener } from '@angular/core';
 import { ViewerService } from '../services/viewer-service/viewer-service';
 import { eventName, TelemetryType } from '../telemetry-constants';
+import { t } from '../i18n/translations';
 
 
 @Component({
@@ -32,6 +33,7 @@ export class HeaderComponent implements OnInit, OnChanges, AfterViewInit, OnDest
   @Input() attempts?: { max: number, current: number };
   @Input() showDeviceOrientation: boolean = false;
   @Input() showLegend: boolean;
+  @Input() language: string = 'en';
 
   @Output() nextSlideClicked = new EventEmitter<any>();
   @Output() prevSlideClicked = new EventEmitter<any>();
@@ -47,7 +49,10 @@ export class HeaderComponent implements OnInit, OnChanges, AfterViewInit, OnDest
   isMobilePortrait = false;
   time: any;
   showProgressIndicatorPopUp = false;
-  constructor(private viewerService: ViewerService) {
+  constructor(private viewerService: ViewerService) { }
+
+  translate(key: string): string {
+    return t(this.language, key);
   }
 
 

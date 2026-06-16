@@ -1,7 +1,8 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import * as _ from 'lodash-es';
 import { UtilService } from '../util-service';
+import { readI18n, getBodyField } from '../i18n/i18nField';
 
 @Component({
   standalone: false,
@@ -11,33 +12,49 @@ import { UtilService } from '../util-service';
 })
 export class SaComponent implements OnInit, OnChanges, AfterViewInit {
 
-  @Input() questions?: any;
+  @Input() question?: any;
   @Input() replayed?: boolean;
   @Input() baseUrl: string;
-  @Output() componentLoaded = new EventEmitter<any>();
-  @Output() showAnswerClicked = new EventEmitter<any>();
+  @Input() language: string = 'en';
+  @Output() componentLoaded    = new EventEmitter<any>();
+  @Output() optionSelected     = new EventEmitter<any>(); // required by IQuestionPlayer; SA never emits it
+  @Output() showAnswerClicked  = new EventEmitter<any>();
 
   showAnswer = false;
   solutions: any;
-  question: any;
-  answer: any;
+
+  get questionHtml(): string {
+    return readI18n(getBodyField(this.question), this.language);
+  }
+
+  get answer(): string {
+    return readI18n(this.question?.answer, this.language) || this.getFtbAnswer() || '';
+  }
+
   constructor( public domSanitizer: DomSanitizer, private utilService: UtilService ) { }
 
   ngOnInit() {
-    this.question = this.questions?.body;
-    this.answer = this.questions?.answer;
-    this.solutions = _.isEmpty(this.questions?.solutions) ? null : this.questions?.solutions;
+    this.solutions = _.isEmpty(this.question?.solutions) ? null : this.question?.solutions;
+  }
+
+  private getFtbAnswer(): string | null {
+    const rd = this.question?.responseDeclaration;
+    if (!rd) { return null; }
+    const values = Object.values(rd)
+      .map((r: any) => readI18n(r?.correctResponse?.value, this.language))
+      .filter(Boolean);
+    return values.length ? values.join(', ') : null;
   }
 
   ngAfterViewInit() {
     this.handleKeyboardAccessibility();
-    this.utilService.updateSourceOfVideoElement(this.baseUrl, this.questions?.media, this.questions.identifier);
+    this.utilService.updateSourceOfVideoElement(this.baseUrl, this.question?.media, this.question?.identifier);
   }
 
-  ngOnChanges() {
+  ngOnChanges(changes: SimpleChanges) {
     if (this.replayed) {
       this.showAnswer = false;
-    } else if (this.questions?.isAnswerShown) {
+    } else if (this.question?.isAnswerShown) {
       this.showAnswer = true;
     }
   }

@@ -13,10 +13,11 @@ export class QuestionCursorImplementationService implements QuestionCursor {
         this.listUrl = url ? url : this.listUrl;
     }
 
-    getQuestions(identifiers: string[]): Observable<any> {
+    getQuestions(identifiers: string[], parentId?: string, language?: string): Observable<any> {
         if (this.listUrl) {
+            const url = language ? `${this.listUrl}?lang=${language}` : this.listUrl;
             const option: any = {
-                url: this.listUrl,
+                url,
                 data: {
                     request: {
                         search: { identifier: identifiers }
@@ -31,7 +32,7 @@ export class QuestionCursorImplementationService implements QuestionCursor {
         }
     }
 
-    getQuestion(identifier: string): Observable<any> {
+    getQuestion(identifier: string, language?: string): Observable<any> {
 
         // Added below block code to support single question preview while creating new question in the editor.
         try {
@@ -44,8 +45,9 @@ export class QuestionCursorImplementationService implements QuestionCursor {
         }
 
         if (this.listUrl) {
+            const url = language ? `${this.listUrl}?lang=${language}` : this.listUrl;
             const option: any = {
-                url: this.listUrl,
+                url,
                 data: {
                     request: {
                         search: { identifier: [identifier] }

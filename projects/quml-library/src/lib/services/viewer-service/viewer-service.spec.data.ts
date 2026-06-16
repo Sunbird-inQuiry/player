@@ -293,7 +293,8 @@ export const mockData = {
       "showReplay": false
     },
     warningTime: 75,
-    showWarningTimer: true
+    showWarningTimer: true,
+    language: 'en'
   },
   spineEvent: {
     items: [

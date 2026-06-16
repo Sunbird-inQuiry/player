@@ -1,4 +1,4 @@
-import { NO_ERRORS_SCHEMA, inject } from '@angular/core';
+import { NO_ERRORS_SCHEMA, SimpleChanges, inject } from '@angular/core';
 import { waitForAsync,  ComponentFixture, TestBed } from '@angular/core/testing';
 import { SafeHtmlPipe } from '../pipes/safe-html/safe-html.pipe';
 import { UtilService } from '../util-service';
@@ -124,7 +124,7 @@ describe('SaComponent', () => {
   });
 
   it('should initialize the component with proper data', () => {
-    component.questions = questions;
+    ( component as any).questions = questions;
     component.ngOnInit();
     expect(component.question).toEqual('<p>What is lorem ipsum?</p>');
     expect(component.answer).toEqual('<p><a href="">Test</a><span style=\"background-color:rgb(255,255,255);color:rgb(77,81,86);\">In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without relying on meaningful content. Lorem ipsum may be used as a placeholder before the final copy is available</span></p>');
@@ -132,15 +132,15 @@ describe('SaComponent', () => {
 
 
   it('#ngOnInit() should not set solution if not exist', () => {
-    component.questions = {...questions};
-    component.questions.solutions = null;
+    ( component as any).questions = {...questions};
+    ( component as any).questions.solutions = null;
     component.ngOnInit();
     expect(component.solutions).toBe(null);
   });
 
 
   it('should initialize the component with proper data for local database', () => {
-    component.questions = questions;
+    ( component as any).questions = questions;
     component.baseUrl = 'http://localhost:3000/';
     component.ngOnInit();
     expect(component.question).toEqual('<p>What is lorem ipsum?</p>');
@@ -150,14 +150,14 @@ describe('SaComponent', () => {
 
   it('should toggle the answer based on changes, for replayed content', () => {
     component.replayed = true;
-    component.ngOnChanges();
+    component.ngOnChanges({} as SimpleChanges);
     expect(component.showAnswer).toBe(false);
   });
 
   it('should toggle the answer based on changes', () => {
     component.replayed = false;
-    component.questions = { isAnswerShown: true }
-    component.ngOnChanges();
+    ( component as any).questions = { isAnswerShown: true }
+    component.ngOnChanges({} as SimpleChanges);
     expect(component.showAnswer).toBe(true);
   });
 
@@ -182,7 +182,7 @@ describe('SaComponent', () => {
   });
 
   it('should handle keyboard accessibility', () => {
-    component.questions = questions;
+    ( component as any).questions = questions;
     fixture.detectChanges();
     const optionBody = document.createElement('div');
     const anchor = document.createElement('a');
@@ -196,14 +196,14 @@ describe('SaComponent', () => {
   });
 
   it('should handle Accessibility, on view init', () => {
-    component.questions = questions;
+    ( component as any).questions = questions;
     component.baseUrl = 'https://dev.com'
     const utilService = TestBed.inject(UtilService);
     spyOn(utilService, 'updateSourceOfVideoElement').and.callThrough();
     spyOn(component, 'handleKeyboardAccessibility');
     component.ngAfterViewInit();
     expect(component.handleKeyboardAccessibility).toHaveBeenCalled();
-    expect(utilService.updateSourceOfVideoElement).toHaveBeenCalledWith('https://dev.com',component.questions.media, component.questions.identifier )
+    expect(utilService.updateSourceOfVideoElement).toHaveBeenCalledWith('https://dev.com',( component as any).questions.media, ( component as any).questions.identifier )
   });
 
 });

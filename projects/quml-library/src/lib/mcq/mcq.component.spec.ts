@@ -234,7 +234,7 @@ describe('McqComponent', () => {
   });
 
   it('should call replaceLatexText', () => {
-    component.identifier = 'do_123';
+    (component as any).identifier = 'do_123';
     const element = document.createElement('div');
     const mathElement = document.createElement('div');
     mathElement.classList.add('mathText');

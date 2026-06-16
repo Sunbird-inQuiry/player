@@ -1,0 +1,84 @@
+<div class="question-container" [id]="question.identifier" [dir]="dir">
+  <div class="ordered-question" [innerHTML]="resolvedBody | safeHtml"></div>
+
+  <!-- ── SEQ: drag-and-drop vertical list (seq-vertical) ─ -->
+  <ng-container *ngIf="isSeq && seqLayout === 'DEFAULT'">
+    <div class="seq-board"
+         cdkDropList
+         (cdkDropListDropped)="drop($event)">
+      <div class="seq-card"
+           cdkDrag
+           *ngFor="let item of items">
+        <div class="card-label" [innerHTML]="item.label | safeHtml"></div>
+        <div class="seq-placeholder" *cdkDragPlaceholder></div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ── SEQ: horizontal row (seq-horizontal) ────────────── -->
+  <ng-container *ngIf="isSeq && seqLayout === 'HORIZONTAL'">
+    <div class="seq-horizontal-board"
+         cdkDropList
+         cdkDropListOrientation="horizontal"
+         (cdkDropListDropped)="drop($event)">
+      <div class="seq-horizontal-card"
+           cdkDrag
+           *ngFor="let item of items">
+        <div class="card-label" [innerHTML]="item.label | safeHtml"></div>
+        <div class="seq-horizontal-placeholder" *cdkDragPlaceholder></div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ── SEQ: 2-column grid (seq-vertical-split) ────────── -->
+  <ng-container *ngIf="isSeq && seqLayout === 'SPLIT'">
+    <div class="seq-grid-board"
+         cdkDropList
+         (cdkDropListDropped)="drop($event)">
+      <div class="seq-grid-card"
+           cdkDrag
+           *ngFor="let item of items">
+        <div class="card-label" [innerHTML]="item.label | safeHtml"></div>
+        <div class="seq-grid-placeholder" *cdkDragPlaceholder></div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ── REO: word-chip sentence builder ──────────────── -->
+  <ng-container *ngIf="isReo">
+    <div class="reo-board">
+      <!-- Answer area: words placed here in order -->
+      <div class="reo-answer-area">
+        <button class="reo-clear-btn"
+                (click)="clearAll()"
+                [disabled]="selectedWords.length === 0"
+                title="Clear all">
+          <svg viewBox="0 0 20 20" width="18" height="18">
+            <path d="M6 6l8 8M14 6l-8 8"
+                  stroke="currentColor" stroke-width="2.2"
+                  stroke-linecap="round"/>
+          </svg>
+        </button>
+        <div class="reo-selected-words">
+          <span class="reo-chip selected-chip"
+                *ngFor="let w of selectedWords"
+                (click)="removeWord(w)">
+            {{ w.labelText }}
+          </span>
+          <span class="reo-placeholder-text" *ngIf="selectedWords.length === 0">
+            {{ translate('REO_PLACEHOLDER') }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Word pool: available chips to tap -->
+      <div class="reo-word-pool">
+        <span class="reo-chip available-chip"
+              *ngFor="let w of availableWords"
+              (click)="addWord(w)">
+          {{ w.labelText }}
+        </span>
+      </div>
+    </div>
+  </ng-container>
+</div>

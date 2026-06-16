@@ -3,6 +3,7 @@ import { samplePlayerConfig } from './quml-library-data';
 import { DataService } from './services/data.service';
 
 @Component({
+  standalone: false,
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']

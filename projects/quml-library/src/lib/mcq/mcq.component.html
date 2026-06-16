@@ -4,7 +4,7 @@
         <quml-mcq-question [mcqQuestion]="mcqQuestion" [layout]="layout" (showPopup)="showPopup()"></quml-mcq-question>
     </div>
     <div class="quml-mcq--option">
-        <quml-mcq-option [mcqOptions]="options" [replayed]="replayed" [cardinality]="cardinality"
+        <quml-mcq-option [mcqOptions]="mcqOptions" [replayed]="replayed" [cardinality]="cardinality"
             [solutions]="solutions" [layout]="layout" [numberOfCorrectOptions]="numberOfCorrectOptions" (optionSelected)="getSelectedOptionAndResult($event)"
             (showPopup)="showPopup()" [tryAgain]="tryAgain"></quml-mcq-option>
     </div>
@@ -16,7 +16,7 @@
         <quml-mcq-question [mcqQuestion]="mcqQuestion" [layout]="layout"></quml-mcq-question>
     </div>
     <div class="quml-mcq--option">
-        <quml-mcq-option [mcqOptions]="options" [replayed]="replayed" [cardinality]="cardinality" [layout]="layout"
+        <quml-mcq-option [mcqOptions]="mcqOptions" [replayed]="replayed" [cardinality]="cardinality" [layout]="layout"
             [solutions]="solutions" (optionSelected)="getSelectedOptionAndResult($event)" [tryAgain]="tryAgain"
             [numberOfCorrectOptions]="numberOfCorrectOptions">
         </quml-mcq-option>
@@ -30,7 +30,7 @@
             <quml-mcq-question [mcqQuestion]="mcqQuestion" [layout]="layout"></quml-mcq-question>
         </div>
         <div class="quml-mcq--option">
-            <quml-mcq-option [shuffleOptions]="shuffleOptions" [mcqOptions]="options" [replayed]="replayed" [cardinality]="cardinality"
+            <quml-mcq-option [shuffleOptions]="shuffleOptions" [mcqOptions]="mcqOptions" [replayed]="replayed" [cardinality]="cardinality"
                 [solutions]="solutions" (optionSelected)="getSelectedOptionAndResult($event)" [layout]="layout" [tryAgain]="tryAgain"
                 [numberOfCorrectOptions]="numberOfCorrectOptions">
             </quml-mcq-option>
@@ -45,7 +45,7 @@
             <quml-mcq-question [mcqQuestion]="mcqQuestion" [layout]="layout"></quml-mcq-question>
         </div>
         <div class="quml-mcq--option">
-            <quml-mcq-option [mcqOptions]="options" [replayed]="replayed" [cardinality]="cardinality"
+            <quml-mcq-option [mcqOptions]="mcqOptions" [replayed]="replayed" [cardinality]="cardinality"
                 [solutions]="solutions" (optionSelected)="getSelectedOptionAndResult($event)" [layout]="layout"
                 [tryAgain]="tryAgain" [numberOfCorrectOptions]="numberOfCorrectOptions">
             </quml-mcq-option>
@@ -59,7 +59,7 @@
         <quml-mcq-question [mcqQuestion]="mcqQuestion" [layout]="layout"></quml-mcq-question>
     </div>
     <div class="columnBlock quml-mcq--option">
-        <quml-mcq-option [mcqOptions]="options" [replayed]="replayed" [cardinality]="cardinality"
+        <quml-mcq-option [mcqOptions]="mcqOptions" [replayed]="replayed" [cardinality]="cardinality"
             [solutions]="solutions" [layout]="layout" (optionSelected)="getSelectedOptionAndResult($event)"
             [tryAgain]="tryAgain" [numberOfCorrectOptions]="numberOfCorrectOptions">
         </quml-mcq-option>

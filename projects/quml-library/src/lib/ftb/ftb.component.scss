@@ -1,0 +1,82 @@
+.question-container {
+  margin-top: 2.5rem;
+}
+
+// Inline body — mixes html spans and input elements on one line
+.ftb-body {
+  font-size: 1rem;
+  line-height: 1.8;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.ftb-text {
+  display: inline;
+  // allow inner block-level HTML (p, div) from body to flow properly
+  p, div { display: inline; }
+}
+
+.ftb-inline-input {
+  display: inline-block;
+  width: 140px;
+  padding: 5px 10px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  background: #f5f5f5;
+  font-size: 1rem;
+  font-family: inherit;
+  vertical-align: middle;
+  text-align: center;
+  outline: none;
+  color: #222;
+
+  &:focus {
+    border-color: #e07b39;
+    background: #fff;
+    box-shadow: 0 0 0 2px rgba(224, 123, 57, 0.15);
+  }
+
+  &:not(:placeholder-shown) {
+    background: #fff;
+    border-color: #bbb;
+  }
+
+  &::placeholder { color: transparent; }
+}
+
+// Fallback layout when body has no [[response]] tokens
+.ftb-fallback-inputs {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ftb-input-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ftb-label {
+  font-weight: 600;
+  min-width: 80px;
+  font-size: 0.9rem;
+}
+
+.ftb-fallback-field {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  &:focus { outline: none; border-color: #1890ff; box-shadow: 0 0 0 2px rgba(24,144,255,.2); }
+}
+
+[dir="rtl"] {
+  .ftb-label { text-align: right; }
+  .ftb-input-row { flex-direction: row-reverse; }
+}

@@ -59,7 +59,7 @@ export class TransformationService {
 
   processBooleanProps(data: any) {
     const booleanProps = ["showSolutions", "showFeedback", "showHints", "showTimer"];
-    const getBooleanValue = (str: any) => str === "Yes";
+    const getBooleanValue = (str: any) => typeof str === 'boolean' ? str : str === "Yes";
 
     _.forEach(booleanProps, (prop: any) => {
       if (_.has(data, prop)) {
@@ -185,11 +185,15 @@ export class TransformationService {
   getUpdatedMapping(responseData) {
     const mappingData = responseData.mapping || [];
     if (!_.isEmpty(mappingData)) {
-      const updatedMapping = mappingData.map(mapData => ({
+      // New QUML 1.1 format already has { value, score, caseSensitive }
+      if (mappingData[0]?.value !== undefined) {
+        return mappingData;
+      }
+      // Old format: { response, outcomes: { score } }
+      return mappingData.map(mapData => ({
         value: mapData.response,
         score: _.get(mapData, 'outcomes.score', 0),
       }));
-      return updatedMapping;
     }
     return mappingData;
   }
