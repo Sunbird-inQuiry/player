@@ -6,11 +6,27 @@ const DEFAULT = 'en';
 /** Read with language fallback — used in player/preview. Falls back to EN, then first key. */
 export function readI18n(field: I18nValue | undefined, lang: string): string {
   if (!field) return '';
-  if (typeof field === 'string') return field;
-  const first = Object.keys(field)[0];
-  return field[lang] !== undefined ? field[lang]
-       : field[DEFAULT] !== undefined ? field[DEFAULT]
-       : first ? field[first] : '';
+  let map: I18nMap;
+  if (typeof field === 'string') {
+    // Some sources (v3 API / editor edit-data) store the i18n map as a JSON STRING,
+    // e.g. '{"en":"...","ar":"..."}'. Parse it so we can pick the language instead of
+    // rendering the raw JSON. A normal string (or non-JSON) is returned untouched.
+    const s = field.trim();
+    if (!(s.startsWith('{') && s.endsWith('}'))) return field;
+    try {
+      const parsed = JSON.parse(s);
+      if (!parsed || typeof parsed !== 'object') return field;
+      map = parsed as I18nMap;
+    } catch {
+      return field;
+    }
+  } else {
+    map = field;
+  }
+  const first = Object.keys(map)[0];
+  return map[lang] !== undefined ? map[lang]
+       : map[DEFAULT] !== undefined ? map[DEFAULT]
+       : first ? map[first] : '';
 }
 
 /** Read with no fallback — for editor inputs. Returns '' when lang slot not yet authored. */
