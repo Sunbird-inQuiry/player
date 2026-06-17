@@ -145,8 +145,15 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
         if (!res?.questions) {
           return;
         }
-        const unCommonQuestions = _.xorBy(this.questions, res.questions, 'identifier');
-        this.questions = _.uniqBy(this.questions.concat(unCommonQuestions), 'identifier');
+        // Merge API question data into existing questions, keyed by identifier:
+        // - existing order is preserved; each stub is replaced by its full API version when available
+        // - any questions only present in the API response are appended
+        // Using a Map gives O(1) lookups and guarantees uniqueness by identifier.
+        const apiById = new Map(res.questions.map((q: any) => [q.identifier, q]));
+        const mergedById = new Map<string, any>();
+        this.questions.forEach((q: any) => mergedById.set(q.identifier, apiById.get(q.identifier) || q));
+        res.questions.forEach((q: any) => { if (!mergedById.has(q.identifier)) { mergedById.set(q.identifier, q); } });
+        this.questions = Array.from(mergedById.values());
         this.sortQuestions();
         this.viewerService.updateSectionQuestions(this.sectionConfig.metadata.identifier, this.questions);
         this.cdRef.detectChanges();
@@ -675,6 +682,23 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     if (this.optionSelectedObj) {
       this.currentQuestion = selectedQuestion.body;
       this.currentOptions = selectedQuestion.interactions?.[key]?.options;
+
+      // A question with no correct-answer definition (responseDeclaration) — e.g. a stub
+      // left in place because the API didn't return its full data — cannot be scored.
+      // Mark it wrong and continue instead of crashing validateSelectedOption.
+      if (!selectedQuestion.responseDeclaration || !key || !selectedQuestion.responseDeclaration[key]) {
+        console.warn('[SectionPlayer] Missing responseDeclaration for question; cannot score:', selectedQuestion?.identifier);
+        this.showAlert = true;
+        this.alertType = 'wrong';
+        this.updateScoreBoard(currentIndex, 'wrong', undefined, 0);
+        if (!this.isAssessEventRaised) {
+          this.isAssessEventRaised = true;
+          this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'No', 0, [option.option], this.slideDuration);
+        }
+        if (this.showFeedBack) { this.correctFeedBackTimeOut(type); }
+        this.optionSelectedObj = undefined;
+        return;
+      }
 
       if (option.cardinality === Cardinality.single) {
         const correctOptionValue = Number(selectedQuestion.responseDeclaration[key].correctResponse.value);

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { Observable, of, throwError as observableThrowError } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
-import { QuestionCursor } from '../../../quml-library/src/lib/quml-question-cursor.service';
+import { QuestionCursor } from '@project-sunbird/sunbird-quml-player';
 import { DOCUMENT } from '@angular/common';
 
 @Injectable()
