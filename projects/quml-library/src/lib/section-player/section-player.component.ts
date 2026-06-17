@@ -145,8 +145,10 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
         if (!res?.questions) {
           return;
         }
-        const unCommonQuestions = _.xorBy(this.questions, res.questions, 'identifier');
-        this.questions = _.uniqBy(this.questions.concat(unCommonQuestions), 'identifier');
+        const apiById = new Map(res.questions.map((q: any) => [q.identifier, q]));
+        const mergedQuestions = this.questions.map((q: any) => apiById.get(q.identifier) || q);
+        const newQuestions = res.questions.filter((q: any) => !this.questions.some((eq: any) => eq.identifier === q.identifier));
+        this.questions = mergedQuestions.concat(newQuestions);
         this.sortQuestions();
         this.viewerService.updateSectionQuestions(this.sectionConfig.metadata.identifier, this.questions);
         this.cdRef.detectChanges();
