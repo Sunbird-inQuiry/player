@@ -6,11 +6,38 @@ const DEFAULT = 'en';
 /** Read with language fallback — used in player/preview. Falls back to EN, then first key. */
 export function readI18n(field: I18nValue | undefined, lang: string): string {
   if (!field) return '';
-  if (typeof field === 'string') return field;
-  const first = Object.keys(field)[0];
-  return field[lang] !== undefined ? field[lang]
-       : field[DEFAULT] !== undefined ? field[DEFAULT]
-       : first ? field[first] : '';
+  let map: I18nMap;
+  if (typeof field === 'string') {
+    // Some sources (v3 API / editor edit-data) store the i18n map as a JSON STRING,
+    // e.g. '{"en":"...","ar":"..."}'. Parse it so we can pick the language instead of
+    // rendering the raw JSON. A normal string (or non-JSON) is returned untouched.
+    const s = field.trim();
+    if (!(s.startsWith('{') && s.endsWith('}'))) return field;
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(s);
+    } catch {
+      return field;
+    }
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return field;
+    // Sanitize external JSON into a null-prototype map with only own, string-valued
+    // keys — guards against prototype-pollution keys (__proto__/constructor/prototype)
+    // and non-string values that would otherwise render as '[object Object]'.
+    const safe: I18nMap = Object.create(null);
+    for (const k of Object.keys(parsed)) {
+      if (k === '__proto__' || k === 'constructor' || k === 'prototype') continue;
+      const v = (parsed as Record<string, unknown>)[k];
+      if (typeof v === 'string') safe[k] = v;
+    }
+    map = safe;
+  } else {
+    map = field;
+  }
+  const first = Object.keys(map)[0];
+  const val = map[lang] !== undefined ? map[lang]
+            : map[DEFAULT] !== undefined ? map[DEFAULT]
+            : first !== undefined ? map[first] : '';
+  return typeof val === 'string' ? val : '';
 }
 
 /** Read with no fallback — for editor inputs. Returns '' when lang slot not yet authored. */
