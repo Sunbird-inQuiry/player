@@ -1,19 +1,14 @@
 import { t, getTranslations } from './translations';
 import { TRANSLATIONS_EN } from './translations.en';
 import { TRANSLATIONS_AR } from './translations.ar';
-import { TRANSLATIONS_HI } from './translations.hi';
 import { TRANSLATIONS_FR } from './translations.fr';
 import { TRANSLATIONS_PT } from './translations.pt';
 
-const ALL_LANGS: Record<string, Record<string, string>> = { en: TRANSLATIONS_EN, ar: TRANSLATIONS_AR, hi: TRANSLATIONS_HI, fr: TRANSLATIONS_FR, pt: TRANSLATIONS_PT };
+const ALL_LANGS: Record<string, Record<string, string>> = { en: TRANSLATIONS_EN, ar: TRANSLATIONS_AR, fr: TRANSLATIONS_FR, pt: TRANSLATIONS_PT };
 
 describe('translations — t()', () => {
   it('should return English string for a known key', () => {
     expect(t('en', 'ANSWER')).toBe('Answer');
-  });
-
-  it('should return Hindi string for a known key', () => {
-    expect(t('hi', 'ANSWER')).toBe('उत्तर');
   });
 
   it('should return French string for a known key', () => {
@@ -41,16 +36,12 @@ describe('translations — t()', () => {
     expect(t('en', 'BLANK', 3)).toBe('Blank 3');
   });
 
-  it('should substitute {n} placeholder in Hindi BLANK key', () => {
-    expect(t('hi', 'BLANK', 2)).toBe('रिक्त 2');
-  });
-
   it('should not substitute {n} when n is not provided', () => {
     expect(t('en', 'BLANK')).toBe('Blank {n}');
   });
 
-  it('should cover all 5 languages', () => {
-    expect(Object.keys(ALL_LANGS)).toEqual(jasmine.arrayContaining(['en', 'fr', 'pt', 'ar', 'hi']));
+  it('should cover all 4 languages', () => {
+    expect(Object.keys(ALL_LANGS)).toEqual(jasmine.arrayContaining(['en', 'fr', 'pt', 'ar']));
   });
 
   it('should have identical key sets across all language files', () => {

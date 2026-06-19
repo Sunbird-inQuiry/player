@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ElementRef, EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
 import { waitForAsync, ComponentFixture, fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
 import { ErrorService, PLAYER_CONFIG } from '@project-sunbird/sunbird-player-sdk-v9';
-import { CarouselComponent } from 'ngx-bootstrap/carousel';
+import { CarouselModule } from 'ngx-bootstrap/carousel';
 import { of, Subject } from 'rxjs';
 import { fakeMainProgressBar } from '../main-player/main-player.component.spec.data';
 import { QumlLibraryService } from '../quml-library.service';
@@ -11,6 +11,7 @@ import { UtilService } from '../util-service';
 import { QuestionCursor } from './../quml-question-cursor.service';
 import { SectionPlayerComponent } from './section-player.component';
 import { mockSectionPlayerConfig } from './section-player.component.spec.data';
+import { Cardinality } from '../telemetry-constants';
 
 
 describe('SectionPlayerComponent', () => {
@@ -49,9 +50,10 @@ describe('SectionPlayerComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [SectionPlayerComponent, CarouselComponent],
+      declarations: [SectionPlayerComponent],
       imports: [
-        CommonModule
+        CommonModule,
+        CarouselModule
       ],
       providers: [
         QumlLibraryService,
@@ -994,5 +996,213 @@ describe('SectionPlayerComponent', () => {
     component.setImageHeightWidthClass();
     expect(document.querySelectorAll).toHaveBeenCalled();
     expect(element.classList.contains('neutral'))
+  });
+
+  /* ── Auto-scoring (MTF map / FTB ftb / SEQ-REO ordered) ───────────────── */
+  describe('Auto-scoring', () => {
+
+    describe('capScore', () => {
+      it('should cap the earned score at maxScore when a ceiling is declared', () => {
+        expect(component.capScore(7, 5)).toBe(5);
+      });
+      it('should return the earned score when it is below the ceiling', () => {
+        expect(component.capScore(3, 5)).toBe(3);
+      });
+      it('should return the earned score untouched when maxScore is undefined', () => {
+        expect(component.capScore(8, undefined)).toBe(8);
+      });
+      it('should return the earned score untouched when maxScore is null', () => {
+        expect(component.capScore(8, null)).toBe(8);
+      });
+    });
+
+    describe('evaluateAutoScored - MTF (map)', () => {
+      it('should award per-item scores and full credit on a complete MAP_RESPONSE match', () => {
+        const question = {
+          responseProcessing: { template: 'MAP_RESPONSE' },
+          outcomeDeclaration: { maxScore: { defaultValue: 5 } },
+          responseDeclaration: {
+            response1: { mapping: [{ key: 'a', value: '1', score: 2 }, { key: 'b', value: '2', score: 3 }] }
+          }
+        };
+        const option = { cardinality: Cardinality.map, option: { userResponse: { a: '1', b: '2' } } };
+        expect(component.evaluateAutoScored(question, 'response1', option)).toEqual({ earned: 5, isFull: true });
+      });
+
+      it('should award partial credit for a partially-correct MAP_RESPONSE match', () => {
+        const question = {
+          responseProcessing: { template: 'MAP_RESPONSE' },
+          responseDeclaration: {
+            response1: { mapping: [{ key: 'a', value: '1', score: 2 }, { key: 'b', value: '2', score: 3 }] }
+          }
+        };
+        const option = { cardinality: Cardinality.map, option: { userResponse: { a: '1', b: 'wrong' } } };
+        expect(component.evaluateAutoScored(question, 'response1', option)).toEqual({ earned: 2, isFull: false });
+      });
+
+      it('should cap the summed MAP_RESPONSE score at maxScore', () => {
+        const question = {
+          responseProcessing: { template: 'MAP_RESPONSE' },
+          outcomeDeclaration: { maxScore: { defaultValue: 4 } },
+          responseDeclaration: {
+            response1: { mapping: [{ key: 'a', value: '1', score: 3 }, { key: 'b', value: '2', score: 3 }] }
+          }
+        };
+        const option = { cardinality: Cardinality.map, option: { userResponse: { a: '1', b: '2' } } };
+        expect(component.evaluateAutoScored(question, 'response1', option)).toEqual({ earned: 4, isFull: true });
+      });
+
+      it('should fall back to proportional maxScore × hits/total for legacy (non MAP_RESPONSE) maps', () => {
+        const question = {
+          outcomeDeclaration: { maxScore: { defaultValue: 10 } },
+          responseDeclaration: { response1: { correctResponse: { value: { a: '1', b: '2', c: '3', d: '4' } } } }
+        };
+        const option = { cardinality: Cardinality.map, option: { userResponse: { a: '1', b: '2', c: 'x', d: 'y' } } };
+        // 2 of 4 correct → round(10 * 2/4) = 5
+        expect(component.evaluateAutoScored(question, 'response1', option)).toEqual({ earned: 5, isFull: false });
+      });
+    });
+
+    describe('evaluateAutoScored - FTB (ftb)', () => {
+      it('should score each blank against its own mapping for ordered MAP_RESPONSE', () => {
+        const question = {
+          responseProcessing: { template: 'MAP_RESPONSE' },
+          responseDeclaration: {
+            response1: { mapping: [{ value: 'cat', score: 1 }] },
+            response2: { mapping: [{ value: 'dog', score: 1 }] }
+          }
+        };
+        const option = { cardinality: Cardinality.ftb, option: { responses: { response1: 'cat', response2: 'dog' } } };
+        expect(component.evaluateAutoScored(question, 'response1', option)).toEqual({ earned: 2, isFull: true });
+      });
+
+      it('should honour caseSensitive mappings for FTB blanks', () => {
+        const question = {
+          responseProcessing: { template: 'MAP_RESPONSE' },
+          responseDeclaration: {
+            response1: { mapping: [{ value: 'Cat', score: 1, caseSensitive: true }] }
+          }
+        };
+        const lower = { cardinality: Cardinality.ftb, option: { responses: { response1: 'cat' } } };
+        const exact = { cardinality: Cardinality.ftb, option: { responses: { response1: 'Cat' } } };
+        expect(component.evaluateAutoScored(question, 'response1', lower)).toEqual({ earned: 0, isFull: false });
+        expect(component.evaluateAutoScored(question, 'response1', exact)).toEqual({ earned: 1, isFull: true });
+      });
+
+      it('should award each distinct correct answer once for evalUnordered FTB', () => {
+        // Editor places every correct answer in every blank's mapping.
+        const mapping = [{ value: 'red', score: 1 }, { value: 'blue', score: 1 }];
+        const question = {
+          responseProcessing: { template: 'MAP_RESPONSE' },
+          evalUnordered: true,
+          responseDeclaration: { response1: { mapping }, response2: { mapping } }
+        };
+        // Answers given in the opposite order — still full credit.
+        const swapped = { cardinality: Cardinality.ftb, option: { responses: { response1: 'blue', response2: 'red' } } };
+        expect(component.evaluateAutoScored(question, 'response1', swapped)).toEqual({ earned: 2, isFull: true });
+
+        // Same correct answer repeated in both blanks → credited once, not full.
+        const repeated = { cardinality: Cardinality.ftb, option: { responses: { response1: 'red', response2: 'red' } } };
+        expect(component.evaluateAutoScored(question, 'response1', repeated)).toEqual({ earned: 1, isFull: false });
+      });
+
+      it('should fall back to proportional scoring for legacy (non MAP_RESPONSE) FTB', () => {
+        const question = {
+          outcomeDeclaration: { maxScore: { defaultValue: 4 } },
+          responseDeclaration: {
+            response1: { correctResponse: { value: 'cat' } },
+            response2: { correctResponse: { value: 'dog' } }
+          }
+        };
+        const option = { cardinality: Cardinality.ftb, option: { responses: { response1: 'cat', response2: 'fish' } } };
+        // 1 of 2 → round(4 * 1/2) = 2
+        expect(component.evaluateAutoScored(question, 'response1', option)).toEqual({ earned: 2, isFull: false });
+      });
+    });
+
+    describe('evaluateAutoScored - SEQ/REO (ordered)', () => {
+      it('should take position from correctResponse and score from mapping for MAP_RESPONSE', () => {
+        const question = {
+          responseProcessing: { template: 'MAP_RESPONSE' },
+          responseDeclaration: {
+            response1: {
+              correctResponse: { value: ['a', 'b', 'c'] },
+              mapping: [{ value: 'a', score: 1 }, { value: 'b', score: 2 }, { value: 'c', score: 3 }]
+            }
+          }
+        };
+        const full = { cardinality: Cardinality.ordered, option: { userOrder: ['a', 'b', 'c'] } };
+        expect(component.evaluateAutoScored(question, 'response1', full)).toEqual({ earned: 6, isFull: true });
+
+        const partial = { cardinality: Cardinality.ordered, option: { userOrder: ['a', 'c', 'b'] } };
+        // only position 0 ('a') is right → score 1
+        expect(component.evaluateAutoScored(question, 'response1', partial)).toEqual({ earned: 1, isFull: false });
+      });
+
+      it('should be all-or-nothing for legacy (non MAP_RESPONSE) ordered questions', () => {
+        const question = {
+          outcomeDeclaration: { maxScore: { defaultValue: 5 } },
+          responseDeclaration: { response1: { correctResponse: { value: ['a', 'b', 'c'] } } }
+        };
+        const exact = { cardinality: Cardinality.ordered, option: { userOrder: ['a', 'b', 'c'] } };
+        const wrong = { cardinality: Cardinality.ordered, option: { userOrder: ['a', 'c', 'b'] } };
+        expect(component.evaluateAutoScored(question, 'response1', exact)).toEqual({ earned: 5, isFull: true });
+        expect(component.evaluateAutoScored(question, 'response1', wrong)).toEqual({ earned: 0, isFull: false });
+      });
+
+      it('should default the legacy ordered maxScore to 1 when none is declared', () => {
+        const question = { responseDeclaration: { response1: { correctResponse: { value: ['a'] } } } };
+        const exact = { cardinality: Cardinality.ordered, option: { userOrder: ['a'] } };
+        expect(component.evaluateAutoScored(question, 'response1', exact)).toEqual({ earned: 1, isFull: true });
+      });
+    });
+
+    describe('applyAutoScore', () => {
+      const edataItem = { id: 'q1' };
+      const option = { option: { value: 'x' } };
+
+      beforeEach(() => {
+        spyOn(component, 'updateScoreBoard');
+        spyOn(viewerService, 'raiseAssesEvent');
+        spyOn(component, 'correctFeedBackTimeOut');
+        component.isAssessEventRaised = false;
+        component.slideDuration = 12;
+      });
+
+      it('should mark correct and raise an affirmative assess event on full credit', () => {
+        component.applyAutoScore(0, edataItem, option, 'mtf', 5, true);
+        expect(component.showAlert).toBe(true);
+        expect(component.alertType).toBe('correct');
+        expect(component.updateScoreBoard).toHaveBeenCalledWith(0, 'correct', undefined, 5);
+        expect(viewerService.raiseAssesEvent).toHaveBeenCalledWith(edataItem, 1, 'Yes', 5, [option.option], 12);
+      });
+
+      it('should mark partial on the scoreboard (alert stays wrong) when some credit is earned', () => {
+        component.applyAutoScore(1, edataItem, option, 'ftb', 3, false);
+        expect(component.alertType).toBe('wrong');
+        expect(component.updateScoreBoard).toHaveBeenCalledWith(1, 'partial', undefined, 3);
+        expect(viewerService.raiseAssesEvent).toHaveBeenCalledWith(edataItem, 2, 'No', 3, [option.option], 12);
+      });
+
+      it('should mark wrong with a zero score when nothing is earned', () => {
+        component.applyAutoScore(2, edataItem, option, 'ordered', 0, false);
+        expect(component.alertType).toBe('wrong');
+        expect(component.updateScoreBoard).toHaveBeenCalledWith(2, 'wrong', undefined, 0);
+        expect(viewerService.raiseAssesEvent).toHaveBeenCalledWith(edataItem, 3, 'No', 0, [option.option], 12);
+      });
+
+      it('should not raise a second assess event when one was already raised', () => {
+        component.isAssessEventRaised = true;
+        component.applyAutoScore(0, edataItem, option, 'mtf', 5, true);
+        expect(viewerService.raiseAssesEvent).not.toHaveBeenCalled();
+      });
+
+      it('should trigger the feedback timeout only when showFeedBack is enabled', () => {
+        component.showFeedBack = true;
+        component.applyAutoScore(0, edataItem, option, 'mtf', 5, true);
+        expect(component.correctFeedBackTimeOut).toHaveBeenCalledWith('mtf');
+        expect(component.optionSelectedObj).toBeUndefined();
+      });
+    });
   });
 });
