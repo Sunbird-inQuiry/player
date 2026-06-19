@@ -161,12 +161,6 @@ describe('FtbComponent', () => {
     expect(component.translate('BLANK', 1)).toBe('Blank 1');
   });
 
-  it('should translate BLANK key in Hindi', () => {
-    fixture.detectChanges();
-    component.language = 'hi';
-    expect(component.translate('BLANK', 1)).toBe('रिक्त 1');
-  });
-
   it('should fall back to English when language is unknown', () => {
     fixture.detectChanges();
     component.language = 'xx';

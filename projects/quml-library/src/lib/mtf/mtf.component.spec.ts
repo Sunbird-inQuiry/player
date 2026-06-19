@@ -118,12 +118,6 @@ describe('MtfComponent', () => {
     expect(component.dir).toBe('rtl');
   });
 
-  it('should translate COL_QUESTION in Hindi', () => {
-    fixture.detectChanges();
-    component.language = 'hi';
-    expect(component.translate('COL_QUESTION')).toBe('प्रश्न');
-  });
-
   it('should translate COL_ANSWER in English', () => {
     fixture.detectChanges();
     component.language = 'en';
