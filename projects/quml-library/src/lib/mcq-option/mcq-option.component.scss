@@ -205,3 +205,59 @@ img {
 .disabled{
   opacity:0.4;
 }
+
+.layoutBooleanOptions {
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+  justify-content: center;
+  align-items: stretch;
+  margin-top: 1.5rem;
+  width: 100%;
+
+  @media only screen and (max-width: 600px) {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .boolean-card {
+    flex: 1;
+    margin-bottom: 0;
+    cursor: pointer;
+    outline: none;
+
+    .quml-option {
+      padding: 1.25rem 2rem;
+      border: 0.125rem solid var(--quml-btn-border);
+      border-radius: 0.5rem;
+      text-align: center;
+      justify-content: center;
+      transition: all 0.2s ease-in-out;
+      background-color: var(--quml-option-card-bg);
+
+      .option {
+        font-size: 1.125rem;
+        font-weight: 500;
+        color: var(--quml-color-gray);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    }
+
+    &:hover:not(.disabled) .quml-option {
+      border-color: var(--primary-color);
+      box-shadow: 0 0.25rem 1rem 0 var(--quml-color-primary-shade);
+      transform: translateY(-2px);
+    }
+
+    &.selected .quml-option, .quml-option--selected {
+      border: 0.125rem solid var(--primary-color);
+      box-shadow: 0 0.25rem 1rem 0 var(--quml-color-primary-shade);
+      .option {
+        color: var(--primary-color) !important;
+        font-weight: 600;
+      }
+    }
+  }
+}

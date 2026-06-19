@@ -65,6 +65,9 @@ export class McqComponent implements OnInit, OnChanges, AfterViewInit {
       case "mcq-grid-split":
         this.layout = 'MULTIIMAGEGRID';
         break;
+      case "mcq-boolean":
+        this.layout = 'BOOLEAN';
+        break;
       default:
         this.layout = 'DEFAULT';
     }
