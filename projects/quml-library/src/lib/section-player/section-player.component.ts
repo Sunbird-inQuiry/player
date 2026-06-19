@@ -751,136 +751,17 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
         }
       }
 
-      if (option.cardinality === Cardinality.map) {
-        const correctMap: Record<string, string> =
-          selectedQuestion.responseDeclaration[key].correctResponse.value;
-        const maxScore: number =
-          selectedQuestion.outcomeDeclaration?.maxScore?.defaultValue ?? Object.keys(correctMap).length;
-        const total = Object.keys(correctMap).length;
-        const userResp: Record<string, string> = option.option?.userResponse ?? {};
-        const hits = Object.keys(correctMap).filter(k => userResp[k] === correctMap[k]).length;
-        const currentScore = total > 0 ? Math.round(maxScore * hits / total) : 0;
-
-        this.showAlert = true;
-        if (hits === total) {
-          this.alertType = 'correct';
-          this.updateScoreBoard(currentIndex, 'correct', undefined, currentScore);
-          /* istanbul ignore else */
-          if (!this.isAssessEventRaised) {
-            this.isAssessEventRaised = true;
-            this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'Yes', currentScore, [option.option], this.slideDuration);
-          }
-          if (this.showFeedBack) { this.correctFeedBackTimeOut(type); }
-        } else if (hits > 0) {
-          this.alertType = 'wrong';
-          this.updateScoreBoard(currentIndex, 'partial', undefined, currentScore);
-          /* istanbul ignore else */
-          if (!this.isAssessEventRaised) {
-            this.isAssessEventRaised = true;
-            this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'No', currentScore, [option.option], this.slideDuration);
-          }
-          if (this.showFeedBack) { this.correctFeedBackTimeOut(type); }
-        } else {
-          this.alertType = 'wrong';
-          this.updateScoreBoard(currentIndex, 'wrong', undefined, 0);
-          /* istanbul ignore else */
-          if (!this.isAssessEventRaised) {
-            this.isAssessEventRaised = true;
-            this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'No', 0, [option.option], this.slideDuration);
-          }
-          if (this.showFeedBack) { this.correctFeedBackTimeOut(type); }
-        }
-        this.optionSelectedObj = undefined;
-      }
-
-      if (option.cardinality === Cardinality.ftb) {
-        const responseKeys = Object.keys(selectedQuestion.responseDeclaration)
-          .filter(k => k.includes('response'))
-          .sort();
-        const maxScore: number =
-          selectedQuestion.outcomeDeclaration?.maxScore?.defaultValue ?? responseKeys.length;
-        const total = responseKeys.length;
-        const userResponses: Record<string, string> = option.option?.responses ?? {};
-
-        const hits = responseKeys.filter(rk => {
-          const rd   = selectedQuestion.responseDeclaration[rk];
-          const user = String(userResponses[rk] ?? '').trim();
-          const mappings: any[] = rd.mapping ?? [];
-          if (mappings.length > 0) {
-            return mappings.some(m => {
-              const mv = String(m.value ?? '').trim();
-              return m.caseSensitive ? user === mv : user.toLowerCase() === mv.toLowerCase();
-            });
-          }
-          const correct = String(rd.correctResponse.value ?? '').trim();
-          return user.toLowerCase() === correct.toLowerCase();
-        }).length;
-
-        const currentScore = total > 0 ? Math.round(maxScore * hits / total) : 0;
-
-        this.showAlert = true;
-        if (hits === total) {
-          this.alertType = 'correct';
-          this.updateScoreBoard(currentIndex, 'correct', undefined, currentScore);
-          /* istanbul ignore else */
-          if (!this.isAssessEventRaised) {
-            this.isAssessEventRaised = true;
-            this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'Yes', currentScore, [option.option], this.slideDuration);
-          }
-          if (this.showFeedBack) { this.correctFeedBackTimeOut(type); }
-        } else if (hits > 0) {
-          this.alertType = 'wrong';
-          this.updateScoreBoard(currentIndex, 'partial', undefined, currentScore);
-          /* istanbul ignore else */
-          if (!this.isAssessEventRaised) {
-            this.isAssessEventRaised = true;
-            this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'No', currentScore, [option.option], this.slideDuration);
-          }
-          if (this.showFeedBack) { this.correctFeedBackTimeOut(type); }
-        } else {
-          this.alertType = 'wrong';
-          this.updateScoreBoard(currentIndex, 'wrong', undefined, 0);
-          /* istanbul ignore else */
-          if (!this.isAssessEventRaised) {
-            this.isAssessEventRaised = true;
-            this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'No', 0, [option.option], this.slideDuration);
-          }
-          if (this.showFeedBack) { this.correctFeedBackTimeOut(type); }
-        }
-        this.optionSelectedObj = undefined;
-      }
-
-      if (option.cardinality === Cardinality.ordered) {
-        const correctOrder: string[] =
-          selectedQuestion.responseDeclaration[key].correctResponse.value ?? [];
-        const maxScore: number =
-          selectedQuestion.outcomeDeclaration?.maxScore?.defaultValue ?? 1;
-        const userOrder: string[] = option.option?.userOrder ?? [];
-
-        const isExactMatch = correctOrder.length === userOrder.length &&
-          correctOrder.every((v, i) => v === userOrder[i]);
-
-        this.showAlert = true;
-        if (isExactMatch) {
-          this.alertType = 'correct';
-          this.updateScoreBoard(currentIndex, 'correct', undefined, maxScore);
-          /* istanbul ignore else */
-          if (!this.isAssessEventRaised) {
-            this.isAssessEventRaised = true;
-            this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'Yes', maxScore, [option.option], this.slideDuration);
-          }
-          if (this.showFeedBack) { this.correctFeedBackTimeOut(type); }
-        } else {
-          this.alertType = 'wrong';
-          this.updateScoreBoard(currentIndex, 'wrong', undefined, 0);
-          /* istanbul ignore else */
-          if (!this.isAssessEventRaised) {
-            this.isAssessEventRaised = true;
-            this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'No', 0, [option.option], this.slideDuration);
-          }
-          if (this.showFeedBack) { this.correctFeedBackTimeOut(type); }
-        }
-        this.optionSelectedObj = undefined;
+      // Auto-scored types (MTF map / FTB / SEQ-REO ordered). One shared path:
+      //   responseProcessing.template === 'MAP_RESPONSE' → partial credit
+      //     (sum the per-item `score` from responseDeclaration.mapping)
+      //   otherwise → all-or-nothing / legacy proportional (no mapping).
+      if (
+        option.cardinality === Cardinality.map ||
+        option.cardinality === Cardinality.ftb ||
+        option.cardinality === Cardinality.ordered
+      ) {
+        const { earned, isFull } = this.evaluateAutoScored(selectedQuestion, key, option);
+        this.applyAutoScore(currentIndex, edataItem, option, type, earned, isFull);
       }
 
       this.optionSelectedObj = undefined;
@@ -931,6 +812,8 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
 
   goToSlide(index) {
     this.viewerService.raiseHeartBeatEvent(eventName.goToQuestion, TelemetryType.interact, this.myCarousel.getCurrentSlideIndex());
+    this.clearTimeInterval();
+    this.showAlert = false;
     this.disableNext = false;
     this.currentSlideIndex = index;
     this.showRootInstruction = false;
@@ -1071,6 +954,183 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       this.viewerService.raiseHeartBeatEvent(eventName.showAnswer, TelemetryType.interact, pageId.shortAnswer);
       this.viewerService.raiseHeartBeatEvent(eventName.pageScrolled, TelemetryType.impression, this.myCarousel.getCurrentSlideIndex() - 1);
     }
+  }
+
+  /** Cap an earned score at the question's maxScore ceiling (when one is declared). */
+  capScore(earned: number, maxScore: number | undefined): number {
+    return (maxScore !== undefined && maxScore !== null) ? Math.min(earned, maxScore) : earned;
+  }
+
+  /**
+   * Auto-scoring for map (MTF), ftb (FTB) and ordered (SEQ / REO) questions.
+   *
+   * `responseProcessing.template` decides the mode:
+   *  - `MAP_RESPONSE`  → partial credit. Each correctly-answered item contributes its
+   *    own `score` from the response declaration's `mapping`:
+   *      FTB → per-blank `mapping[{ value, score, caseSensitive }]`;
+   *      MTF → `mapping[{ key, value, score }]` (key = left id, value = right id);
+   *      SEQ/REO → correct position from `correctResponse.value`, score from `mapping[{ value, score }]`.
+   *  - anything else (`MATCH_CORRECT` / legacy with no mapping) → existing behaviour:
+   *    all-or-nothing for ordered, proportional `maxScore × hits/total` for map/ftb.
+   *
+   * Returns the earned score and whether every item was answered correctly.
+   */
+  evaluateAutoScored(question: any, key: string, option: any): { earned: number; isFull: boolean } {
+    const rd = question?.responseDeclaration?.[key];
+    const isMapResponse =
+      String(question?.responseProcessing?.template || '').toUpperCase() === 'MAP_RESPONSE';
+    const maxScore: number | undefined = question?.outcomeDeclaration?.maxScore?.defaultValue;
+
+    // ── MTF (map) ─────────────────────────────────────────────
+    if (option.cardinality === Cardinality.map) {
+      const userResp: Record<string, string> = option.option?.userResponse ?? {};
+      const mapping: any[] = Array.isArray(rd?.mapping) ? rd.mapping : [];
+
+      if (isMapResponse && mapping.length) {
+        // mapping: [{ key: leftId, value: rightId, score }]
+        let earned = 0; let matched = 0;
+        for (const m of mapping) {
+          if (userResp[m.key] === m.value) { earned += Number(m.score) || 0; matched++; }
+        }
+        return { earned: this.capScore(earned, maxScore), isFull: matched === mapping.length };
+      }
+
+      const correctMap: Record<string, string> = rd?.correctResponse?.value ?? {};
+      const total = Object.keys(correctMap).length;
+      const matched = Object.keys(correctMap).filter(k => userResp[k] === correctMap[k]).length;
+      const max = maxScore ?? total;
+      return { earned: total ? Math.round((max * matched) / total) : 0, isFull: total > 0 && matched === total };
+    }
+
+    // ── FTB (ftb) ─────────────────────────────────────────────
+    if (option.cardinality === Cardinality.ftb) {
+      const responseKeys = Object.keys(question?.responseDeclaration ?? {})
+        .filter(k => k.includes('response')).sort();
+      const userResponses: Record<string, string> = option.option?.responses ?? {};
+
+      // Score earned for a single blank (0 when no match). Honours per-blank `mapping`
+      // (each entry has its own `score`); falls back to `correctResponse.value` (score 1).
+      const blankScore = (rk: string): number => {
+        const r = question.responseDeclaration[rk];
+        const user = String(userResponses[rk] ?? '').trim();
+        const mappings: any[] = Array.isArray(r?.mapping) ? r.mapping : [];
+        if (mappings.length) {
+          const hit = mappings.find(m => {
+            const mv = String(m.value ?? '').trim();
+            return m.caseSensitive ? user === mv : user.toLowerCase() === mv.toLowerCase();
+          });
+          return hit ? (Number(hit.score) || 0) : 0;
+        }
+        const correct = String(r?.correctResponse?.value ?? '').trim();
+        return user && user.toLowerCase() === correct.toLowerCase() ? 1 : 0;
+      };
+
+      const total = responseKeys.length;
+      if (isMapResponse) {
+        // "Allow answers in any order" — strict set-intersection. The editor puts every
+        // correct answer in every blank's mapping; we award each DISTINCT correct answer
+        // once, no matter which blank(s) the student used it in (so repeating the same
+        // answer in two blanks does not earn double credit).
+        const evalUnordered =
+          question?.evalUnordered === true ||
+          String(question?.evalUnordered).toLowerCase() === 'true';
+
+        if (evalUnordered) {
+          // Pool of unique correct answers across all blanks.
+          const pool: { value: string; score: number; caseSensitive: boolean }[] = [];
+          const seen = new Set<string>();
+          for (const rk of responseKeys) {
+            const r = question.responseDeclaration[rk];
+            for (const m of (Array.isArray(r?.mapping) ? r.mapping : [])) {
+              const cs = !!m.caseSensitive;
+              const raw = String(m.value ?? '').trim();
+              if (!raw) continue;
+              const dedupKey = (cs ? raw : raw.toLowerCase()) + ' ' + cs;
+              if (!seen.has(dedupKey)) { seen.add(dedupKey); pool.push({ value: raw, score: Number(m.score) || 0, caseSensitive: cs }); }
+            }
+          }
+          const studentAnswers = responseKeys
+            .map(rk => String(userResponses[rk] ?? '').trim())
+            .filter(Boolean);
+
+          let earned = 0; let matched = 0;
+          for (const p of pool) {
+            const hit = studentAnswers.some(a => p.caseSensitive ? a === p.value : a.toLowerCase() === p.value.toLowerCase());
+            if (hit) { earned += p.score; matched++; }
+          }
+          return { earned: this.capScore(earned, maxScore), isFull: total > 0 && matched === total };
+        }
+
+        // Ordered: each blank checked against its own mapping.
+        let earned = 0; let matched = 0;
+        for (const rk of responseKeys) { const s = blankScore(rk); if (s > 0) { earned += s; matched++; } }
+        return { earned: this.capScore(earned, maxScore), isFull: total > 0 && matched === total };
+      }
+
+      const matched = responseKeys.filter(rk => blankScore(rk) > 0).length;
+      const max = maxScore ?? total;
+      return { earned: total ? Math.round((max * matched) / total) : 0, isFull: total > 0 && matched === total };
+    }
+
+    // ── SEQ / REO (ordered) ───────────────────────────────────
+    if (option.cardinality === Cardinality.ordered) {
+      const userOrder: string[] = option.option?.userOrder ?? [];
+      const mapping: any[] = Array.isArray(rd?.mapping) ? rd.mapping : [];
+      const correctOrder: string[] = rd?.correctResponse?.value ?? [];
+
+      if (isMapResponse && mapping.length && correctOrder.length) {
+        // Correct position is authoritative from correctResponse.value; the per-item
+        // score is looked up from `mapping` by value (mapping: [{ value, score }]).
+        const scoreByValue = new Map<string, number>(
+          mapping.map((m: any) => [String(m.value), Number(m.score) || 0]),
+        );
+        let earned = 0; let matched = 0;
+        correctOrder.forEach((correctVal, i) => {
+          if (userOrder[i] === correctVal) { earned += scoreByValue.get(String(correctVal)) ?? 0; matched++; }
+        });
+        return { earned: this.capScore(earned, maxScore), isFull: matched === correctOrder.length };
+      }
+
+      const isExact = correctOrder.length === userOrder.length &&
+        correctOrder.every((v, i) => v === userOrder[i]);
+      const max = maxScore ?? 1;
+      return { earned: isExact ? max : 0, isFull: isExact };
+    }
+
+    return { earned: 0, isFull: false };
+  }
+
+  /**
+   * Shared alert + scoreboard + assess handling for auto-scored questions.
+   * Full credit → 'correct'; some credit → 'partial' (alert stays 'wrong' — there is
+   * no partial alert UI); no credit → 'wrong'.
+   */
+  applyAutoScore(currentIndex: number, edataItem: any, option: any, type: string | undefined, earned: number, isFull: boolean): void {
+    this.showAlert = true;
+    if (isFull) {
+      this.alertType = 'correct';
+      this.updateScoreBoard(currentIndex, 'correct', undefined, earned);
+      if (!this.isAssessEventRaised) {
+        this.isAssessEventRaised = true;
+        this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'Yes', earned, [option.option], this.slideDuration);
+      }
+    } else if (earned > 0) {
+      this.alertType = 'wrong';
+      this.updateScoreBoard(currentIndex, 'partial', undefined, earned);
+      if (!this.isAssessEventRaised) {
+        this.isAssessEventRaised = true;
+        this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'No', earned, [option.option], this.slideDuration);
+      }
+    } else {
+      this.alertType = 'wrong';
+      this.updateScoreBoard(currentIndex, 'wrong', undefined, 0);
+      if (!this.isAssessEventRaised) {
+        this.isAssessEventRaised = true;
+        this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'No', 0, [option.option], this.slideDuration);
+      }
+    }
+    if (this.showFeedBack) { this.correctFeedBackTimeOut(type); }
+    this.optionSelectedObj = undefined;
   }
 
   getScore(currentIndex, key, isCorrectAnswer, selectedOption?) {

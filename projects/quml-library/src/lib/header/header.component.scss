@@ -112,6 +112,20 @@
     }
   }
 
+  // RTL (Arabic): dir="rtl" on this flex container already swaps the prev/next
+  // positions; flip the chevrons so "next" points ◄ and "previous" points ►,
+  // keeping the pair visually "< >".
+  &[dir="rtl"] {
+    .quml-navigation__next::after {
+      transform: translate(-50%, -50%) rotate(135deg);
+      -webkit-transform: translate(-50%, -50%) rotate(135deg);
+    }
+    .quml-navigation__previous::after {
+      transform: translate(-50%, -50%) rotate(-45deg);
+      -webkit-transform: translate(-50%, -50%) rotate(-45deg);
+    }
+  }
+
 }
 
 .blink {
