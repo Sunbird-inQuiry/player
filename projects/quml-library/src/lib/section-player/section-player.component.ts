@@ -1045,7 +1045,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
               const cs = !!m.caseSensitive;
               const raw = String(m.value ?? '').trim();
               if (!raw) continue;
-              const dedupKey = (cs ? raw : raw.toLowerCase()) + ' ' + cs;
+              const dedupKey = (cs ? raw : raw.toLowerCase()) + '\u0000' + cs;
               if (!seen.has(dedupKey)) { seen.add(dedupKey); pool.push({ value: raw, score: Number(m.score) || 0, caseSensitive: cs }); }
             }
           }
