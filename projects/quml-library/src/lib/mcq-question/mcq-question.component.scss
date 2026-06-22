@@ -11,8 +11,14 @@
   align-items: flex-start;
 }
 
-img {
-  width: 100% !important;
+// Question image comes via [innerHTML], so it needs ::ng-deep (component-scoped
+// `img` rules don't reach innerHTML content). Scale with device, bounded.
+.quml-question ::ng-deep img {
+  max-width: 100%;
+  max-height: clamp(9rem, 35vh, 22rem);
+  width: auto !important;
+  height: auto;
+  object-fit: contain;
 }
 
 quml-audio {
