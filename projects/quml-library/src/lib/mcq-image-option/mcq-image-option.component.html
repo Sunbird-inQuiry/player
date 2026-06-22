@@ -3,7 +3,7 @@
 [ngClass]="mcqOption?.selected ? 'quml-mcq-option-card quml-option--selected' : 'quml-mcq-option-card'">
   <div class="option" *ngIf="mcqOption" [innerHTML]="mcqOption?.label | safeHtml"
   [ngClass]="{'disabled': mcqOption.isDisabled === true}"></div>
-    <div class="container">
+    <div class="option-mark-container">
       <input type="radio" *ngIf="cardinality==='single'" name="radio" [checked]="mcqOption.selected" id="option-checkbox" tabindex="-1" (click)="optionClicked($event, mcqOption)">
       <input type="checkbox" *ngIf="cardinality==='multiple'" name="checkbox" [checked]="mcqOption.selected" id="option-checkbox"
       tabindex="-1" [disabled]="mcqOption?.isDisabled">
