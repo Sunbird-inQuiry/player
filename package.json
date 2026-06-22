@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve quml-demo-app",
     "build": "ng build quml-library --watch=true",
     "test": "ng test",
     "lint": "ng lint",
