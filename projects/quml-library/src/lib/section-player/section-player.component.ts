@@ -1212,6 +1212,8 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
             if (currentQuestionId) {
               image['src'] = `${baseUrl}/${currentQuestionId}/${val.src}`;
             }
+          } else if (val.src?.startsWith('http')) {
+            image['src'] = val.src;
           } else if (val.baseUrl) {
             image['src'] = val.baseUrl + val.src;
           }
