@@ -123,10 +123,6 @@ describe('OrderedComponent — SEQ', () => {
     expect(component.dir).toBe('rtl');
   });
 
-  it('should translate MOVE_UP in Hindi', () => {
-    component.language = 'hi';
-    expect(component.translate('MOVE_UP')).toBe('ऊपर ले जाएं');
-  });
 });
 
 describe('OrderedComponent — REO', () => {

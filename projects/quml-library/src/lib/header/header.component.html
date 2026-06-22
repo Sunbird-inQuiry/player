@@ -24,7 +24,7 @@
       </div>
     </ng-container>
 
-    <div class="quml-navigation" *ngIf="!disableNext && !isMobilePortrait">
+    <div class="quml-navigation" [attr.dir]="dir" *ngIf="!disableNext && !isMobilePortrait">
       <div class="quml-navigation__previous" (click)="prevSlide()" aria-label="preview slide" title="preview slide"
         role="navigation"
         [ngClass]="(startPageInstruction && currentSlideIndex === 0) || (!showStartPage && currentSlideIndex === 1) ? 'navigation-icon-disabled': '' "
@@ -46,7 +46,7 @@
   <div class="ml-16" *ngIf="currentSolutions && showFeedBack">
     <quml-ans (click)="showSolution.emit()" (keydown)="onAnswerKeyDown($event)"></quml-ans>
   </div>
-  <div class="quml-navigation ml-auto">
+  <div class="quml-navigation ml-auto" [attr.dir]="dir">
     <div class="quml-navigation__previous" tabindex="0" (click)="prevSlide()" (keydown.enter)="prevSlide()"
       aria-label="preview slide"></div>
     <div class="quml-navigation__next ml-8" tabindex="0" (click)="nextSlide()" (keydown.enter)="nextSlide()"
