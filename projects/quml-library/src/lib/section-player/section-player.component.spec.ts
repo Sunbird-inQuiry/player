@@ -893,6 +893,34 @@ describe('SectionPlayerComponent', () => {
     component.setImageZoom();
   });
 
+  it('setImageZoom should use an absolute http(s) image url as-is (case-insensitive) and not prepend baseUrl', () => {
+    component.myCarousel = myCarousel; // getCurrentSlideIndex => 1
+    component.questions = [{ identifier: 'do_q1' }] as any;
+    component.parentConfig = { isAvailableLocally: false, baseUrl: '' } as any;
+    component.currentQuestionsMedia = [
+      { id: 'a1', src: 'https://cdn.example.com/lower.png', baseUrl: 'https://test.sunbirded.org' },
+      { id: 'a2', src: 'HTTPS://cdn.example.com/upper.png', baseUrl: 'https://test.sunbirded.org' }
+    ] as any;
+
+    const makeImg = (assetId: string) => ({
+      nodeName: 'IMG',
+      getAttribute: () => assetId,
+      setAttribute: jasmine.createSpy('setAttribute'),
+      parentNode: { insertBefore: jasmine.createSpy('insertBefore') },
+      nextSibling: null,
+    } as any);
+    const img1 = makeImg('a1');
+    const img2 = makeImg('a2');
+    spyOn(document, 'querySelectorAll').and.returnValue([img1, img2] as any);
+
+    component.setImageZoom();
+
+    // absolute URL is used directly — no 'https://test.sunbirded.org' prefix,
+    // and the uppercase scheme still matches the case-insensitive check.
+    expect(img1.src).toBe('https://cdn.example.com/lower.png');
+    expect(img2.src).toBe('HTTPS://cdn.example.com/upper.png');
+  });
+
   it('should zoom in the image', () => {
     component.imageZoomCount = 10;
     component.myCarousel = myCarousel;
