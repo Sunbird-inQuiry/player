@@ -293,6 +293,51 @@ describe('ViewerService', () => {
     expect(service.qumlQuestionEvent.emit).toHaveBeenCalled();
   });
 
+  it('should save and retrieve a user response by identifier', () => {
+    const service = TestBed.inject(ViewerService);
+    const response = { cardinality: 'single', option: { value: 2 }, solutions: [] };
+    service.saveUserResponse('do_q1', response);
+    expect(service.getUserResponse('do_q1')).toEqual(response);
+  });
+
+  it('should clear a saved response when the option is empty (skip / try-again)', () => {
+    const service = TestBed.inject(ViewerService);
+    service.saveUserResponse('do_q1', { cardinality: 'single', option: { value: 2 }, solutions: [] });
+    service.saveUserResponse('do_q1', { cardinality: 'single', option: {}, solutions: [] });
+    expect(service.getUserResponse('do_q1')).toBeUndefined();
+  });
+
+  it('should not store a response without an identifier', () => {
+    const service = TestBed.inject(ViewerService);
+    service.saveUserResponse('', { cardinality: 'single', option: { value: 2 }, solutions: [] });
+    expect(service.getUserResponse('')).toBeUndefined();
+  });
+
+  it('clearUserResponses should reset saved responses and assess flags', () => {
+    const service = TestBed.inject(ViewerService);
+    service.saveUserResponse('do_q1', { cardinality: 'single', option: { value: 2 }, solutions: [] });
+    service.raiseAssesEvent(mockData.questionData, 1, 'Yes', 1, mockData.resValues, 2);
+    service.clearUserResponses();
+    expect(service.getUserResponse('do_q1')).toBeUndefined();
+    // assessedIdentifiers cleared -> a fresh ASSESS emits again
+    const emitSpy = spyOn(service.qumlPlayerEvent, 'emit');
+    service.raiseAssesEvent(mockData.questionData, 1, 'Yes', 1, mockData.resValues, 2);
+    expect(emitSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('raiseAssesEvent should dedup per question per attempt and re-emit after clearAssessed', () => {
+    const service = TestBed.inject(ViewerService);
+    const emitSpy = spyOn(service.qumlPlayerEvent, 'emit');
+    service.raiseAssesEvent(mockData.questionData, 1, 'Yes', 1, mockData.resValues, 2);
+    // second assess for the same question id is deduped (no emit)
+    service.raiseAssesEvent(mockData.questionData, 1, 'Yes', 1, mockData.resValues, 2);
+    expect(emitSpy).toHaveBeenCalledTimes(1);
+    // after clearing the flag (answer changed), a fresh assess emits again
+    service.clearAssessed(mockData.questionData.id);
+    service.raiseAssesEvent(mockData.questionData, 1, 'Yes', 1, mockData.resValues, 2);
+    expect(emitSpy).toHaveBeenCalledTimes(2);
+  });
+
   it('should emit error if error received', () => {
     const service = TestBed.inject(ViewerService);
     service.parentIdentifier = 'do_555';

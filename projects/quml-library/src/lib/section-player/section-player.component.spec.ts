@@ -30,6 +30,10 @@ describe('SectionPlayerComponent', () => {
     raiseResponseEvent() { }
     getSectionQuestions() { }
     raiseAssesEvent() { }
+    saveUserResponse() { }
+    getUserResponse() { return undefined; }
+    clearAssessed() { }
+    clearUserResponses() { }
     qumlPlayerEvent = new EventEmitter<any>();
     qumlQuestionEvent = new EventEmitter<any>();
     pauseVideo() { }

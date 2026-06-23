@@ -283,7 +283,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
    * object identity, tears down and rebuilds every slide, and the carousel can
    * desync and show two questions on one page.
    */
-  trackByQuestionIdentifier(index: number, question: any): string {
+  trackByQuestionIdentifier(index: number, question: any): string | number {
     return question?.identifier ?? index;
   }
 
@@ -431,6 +431,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
    * and ASSESS is deduped by identifier in viewerService.
    */
   private restoreSavedResponseForCurrentSlide(): void {
+    if (!this.myCarousel) { return; }
     const currentIndex = this.myCarousel.getCurrentSlideIndex() - 1;
     if (currentIndex < 0 || !this.questions[currentIndex]) { return; }
     const saved = this.viewerService.getUserResponse(this.questions[currentIndex].identifier);
