@@ -408,6 +408,31 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     }
 
     this.viewerService.pauseVideo();
+    this.restoreSavedResponseForCurrentSlide();
+  }
+
+  /**
+   * Re-establishes section-player state for a previously-answered question when
+   * the learner lands on its slide (e.g. returning to an earlier section). The
+   * component itself restores the visible selection from `savedResponse`; here we
+   * restore optionSelectedObj so navigation/feedback behave as if it were answered.
+   * Scoring/ASSESS are NOT re-run here — the score already lives in mainProgressBar
+   * and ASSESS is deduped by identifier in viewerService.
+   */
+  private restoreSavedResponseForCurrentSlide(): void {
+    const currentIndex = this.myCarousel.getCurrentSlideIndex() - 1;
+    if (currentIndex < 0 || !this.questions[currentIndex]) { return; }
+    const saved = this.viewerService.getUserResponse(this.questions[currentIndex].identifier);
+    if (!saved) { return; }
+    this.optionSelectedObj = saved;
+    this.currentOptionSelected = saved;
+    this.currentSolutions = !_.isEmpty(saved.solutions) ? saved.solutions : undefined;
+    this.active = true;
+  }
+
+  /** Saved answer for a question, passed to the renderer so it can pre-fill the UI. */
+  getSavedResponse(question: any): any {
+    return this.viewerService.getUserResponse(question?.identifier);
   }
 
   nextSlideClicked(event) {
@@ -552,7 +577,17 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     }
     this.currentQuestionIndetifier = this.questions[currentIndex].identifier;
     this.media = _.get(this.questions[currentIndex], 'media', []);
-   
+
+    // Persist the learner's answer so it survives section navigation (and is
+    // re-shown on revisit). A real user selection also clears the assessed flag
+    // so a changed answer is re-assessed. Empty option (skip / try-again) clears
+    // the stored answer.
+    this.viewerService.clearAssessed(this.currentQuestionIndetifier);
+    this.viewerService.saveUserResponse(
+      this.currentQuestionIndetifier,
+      _.isEmpty(optionSelected?.option) ? null : optionSelected,
+    );
+
     /* istanbul ignore else */
     if (!this.showFeedBack) {
       this.validateSelectedOption(this.optionSelectedObj);

@@ -40,6 +40,7 @@ export class MtfComponent extends BaseQuestionDirective implements OnInit, OnCha
     this.left  = this.sanitizeOptions(opts.left);
     // Shuffle right items so user has to actually match them
     this.right = _.shuffle(this.sanitizeOptions(opts.right));
+    this.restoreSavedOrder();
     this.correctValue = this.question.responseDeclaration[this.key].correctResponse.value || {};
     this.solutions    = this.question.solutions ? _.values(this.question.solutions) : [];
     this.componentLoaded.emit({ identifier: this.question.identifier });
@@ -65,6 +66,25 @@ export class MtfComponent extends BaseQuestionDirective implements OnInit, OnCha
   drop(event: CdkDragDrop<MtfOption[]>): void {
     moveItemInArray(this.right, event.previousIndex, event.currentIndex);
     this.emitAnswer();
+  }
+
+  /**
+   * Reorders the right column to the learner's previously saved pairing on
+   * revisit. userResponse maps leftValue → rightValue; pairing is left[i] ↔
+   * right[i] by position, so we order `right` to satisfy that mapping.
+   */
+  private restoreSavedOrder(): void {
+    const userResponse = this.savedResponse?.option?.userResponse;
+    if (_.isEmpty(userResponse)) { return; }
+    const byValue = new Map(this.right.map(r => [r.value, r]));
+    const restored: MtfOption[] = [];
+    this.left.forEach(l => {
+      const rv = String(userResponse[l.value]);
+      const r = byValue.get(rv);
+      if (r) { restored.push(r); byValue.delete(rv); }
+    });
+    byValue.forEach(r => restored.push(r));
+    if (restored.length === this.right.length) { this.right = restored; }
   }
 
   private emitAnswer(): void {

@@ -38,6 +38,14 @@ export class FtbComponent extends BaseQuestionDirective implements OnInit, OnCha
       );
     });
 
+    // Restore previously entered text on revisit (visual only, no emit).
+    const savedResponses = this.savedResponse?.option?.responses;
+    if (savedResponses) {
+      this.responseKeys.forEach(rk => {
+        if (savedResponses[rk] !== undefined) { this.userAnswers[rk] = savedResponses[rk]; }
+      });
+    }
+
     this.segments = this.parseBody(this.resolveBody());
   }
 

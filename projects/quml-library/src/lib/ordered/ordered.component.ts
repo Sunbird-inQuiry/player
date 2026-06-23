@@ -58,7 +58,32 @@ export class OrderedComponent extends BaseQuestionDirective implements OnInit, O
       this.items = _.shuffle(processed);
     }
 
+    this.restoreSavedOrder();
     this.componentLoaded.emit({ identifier: this.question.identifier });
+  }
+
+  /**
+   * Restores the learner's previously saved ordering on revisit (visual only).
+   * SEQ: reorders `items` to the saved value order. REO: rebuilds selectedWords
+   * (in saved order) and leaves the rest in availableWords.
+   */
+  private restoreSavedOrder(): void {
+    const userOrder: string[] = this.savedResponse?.option?.userOrder;
+    if (_.isEmpty(userOrder)) { return; }
+    if (this.isReo) {
+      const pool = [...this.availableWords, ...this.selectedWords];
+      const byValue = new Map(pool.map(w => [w.value, w]));
+      this.selectedWords = userOrder.map(v => byValue.get(String(v))).filter(Boolean) as OrderedItem[];
+      const chosen = new Set(this.selectedWords.map(w => w.value));
+      this.availableWords = pool.filter(w => !chosen.has(w.value));
+    } else {
+      const byValue = new Map(this.items.map(i => [i.value, i]));
+      const ordered = userOrder.map(v => byValue.get(String(v))).filter(Boolean) as OrderedItem[];
+      const placed = new Set(ordered.map(i => i.value));
+      const leftover = this.items.filter(i => !placed.has(i.value));
+      const restored = [...ordered, ...leftover];
+      if (restored.length === this.items.length) { this.items = restored; }
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {

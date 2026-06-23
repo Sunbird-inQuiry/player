@@ -18,6 +18,7 @@ export class QuestionRendererComponent implements OnInit, OnChanges, OnDestroy {
   @Input() tryAgain: boolean;
   @Input() baseUrl: string;
   @Input() shuffleOptions: boolean;
+  @Input() savedResponse: any;
   @Input() language: string = 'en';
 
   @Output() optionSelected    = new EventEmitter<any>();
@@ -108,6 +109,7 @@ export class QuestionRendererComponent implements OnInit, OnChanges, OnDestroy {
     inst.baseUrl        = this.baseUrl;
     inst.language       = this.language;
     inst.shuffleOptions = this.shuffleOptions;
+    (inst as any).savedResponse = this.savedResponse;
 
     this.subs.push(
       inst.optionSelected.subscribe((e: any) => this.optionSelected.emit(e)),

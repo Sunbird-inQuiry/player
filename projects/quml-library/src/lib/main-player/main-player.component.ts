@@ -136,6 +136,8 @@ export class MainPlayerComponent implements OnInit, OnChanges {
     this.parentConfig.isSectionsAvailable = this.isSectionsAvailable = childMimeType[0] === MimeType.questionSet;
     this.parentConfig.metadata = { ...this.playerConfig.metadata };
     this.viewerService.sectionQuestions = [];
+    // Reset persisted answers at the start of each attempt (fresh load or replay).
+    this.viewerService.clearUserResponses();
     if (this.isSectionsAvailable) {
       this.isMultiLevelSection = this.getMultilevelSection(this.playerConfig.metadata);
 

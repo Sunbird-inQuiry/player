@@ -12,6 +12,7 @@ export abstract class BaseQuestionDirective {
   @Input() baseUrl: string;
   @Input() language: string = 'en';
   @Input() shuffleOptions: boolean;
+  @Input() savedResponse: any;
 
   @Output() componentLoaded = new EventEmitter<any>();
   @Output() optionSelected  = new EventEmitter<any>();
