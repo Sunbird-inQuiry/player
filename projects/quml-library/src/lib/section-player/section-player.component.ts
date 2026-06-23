@@ -276,6 +276,17 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     }, 100);
   }
 
+  /**
+   * Tracks carousel slides by question identifier so the slide views are reused
+   * across re-renders (e.g. when `questions` is reassigned by the per-section
+   * re-fetch/merge on returning to a section). Without this, Angular tracks by
+   * object identity, tears down and rebuilds every slide, and the carousel can
+   * desync and show two questions on one page.
+   */
+  trackByQuestionIdentifier(index: number, question: any): string {
+    return question?.identifier ?? index;
+  }
+
   sortQuestions() {
     /* istanbul ignore else */
     if (this.questions.length && this.questionIds.length) {

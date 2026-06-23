@@ -32,7 +32,7 @@
               [language]="parentConfig?.language">
             </quml-startpage>
           </slide>
-          <slide *ngFor="let question of questions; let i= index" #questionSlide>
+          <slide *ngFor="let question of questions; let i= index; trackBy: trackByQuestionIdentifier" #questionSlide>
             <div [id]="question.identifier">
               <quml-question-renderer
                 [question]="question"
