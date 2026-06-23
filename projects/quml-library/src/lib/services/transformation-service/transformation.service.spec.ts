@@ -63,4 +63,45 @@ describe('TransformationService', () => {
     updatedHints = service.processHints(data);
     expect(updatedHints).toBeDefined();
   })
+
+  it('#getAnswer() should build answer HTML for MCQ single cardinality', () => {
+    const data = {
+      primaryCategory: 'Multiple Choice Question',
+      responseDeclaration: { response1: { cardinality: 'single', correctResponse: { value: 0 } } },
+      interactions: { response1: { options: [{ label: '<p>A1</p>', value: 0 }, { label: '<p>A2</p>', value: 1 }] } }
+    };
+    expect(service.getAnswer(data)).toContain('<p>A1</p>');
+  });
+
+  it('#getAnswer() should not crash and return empty answer when correctResponse has no matching option (non-MCQ single)', () => {
+    // FTB-style: single cardinality but no choice `options` indexable by correctResponse.value
+    const data = {
+      primaryCategory: 'FTB Question',
+      responseDeclaration: { response1: { cardinality: 'single', correctResponse: { value: 'algebra' } } },
+      interactions: { response1: { type: 'text' } }
+    };
+    expect(() => service.getAnswer(data)).not.toThrow();
+    expect(service.getAnswer(data)).toBe('');
+  });
+
+  it('#getAnswer() should build answer HTML for multiple cardinality', () => {
+    const data = {
+      primaryCategory: 'Multiple Choice Question',
+      responseDeclaration: { response1: { cardinality: 'multiple', correctResponse: { value: [0, 1] } } },
+      interactions: { response1: { options: [{ label: '<p>A1</p>', value: 0 }, { label: '<p>A2</p>', value: 1 }, { label: '<p>A3</p>', value: 2 }] } }
+    };
+    const answer = service.getAnswer(data);
+    expect(answer).toContain('<p>A1</p>');
+    expect(answer).toContain('<p>A2</p>');
+    expect(answer).not.toContain('<p>A3</p>');
+  });
+
+  it('#getAnswer() should return the stored answer for Subjective Question', () => {
+    const data = {
+      primaryCategory: 'Subjective Question',
+      answer: '<div class="answer-container">subjective answer</div>',
+      interactions: {}
+    };
+    expect(service.getAnswer(data)).toBe('<div class="answer-container">subjective answer</div>');
+  });
 });
