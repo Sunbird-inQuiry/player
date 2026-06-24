@@ -93,9 +93,13 @@ export class McqComponent implements OnInit, OnChanges, AfterViewInit {
   private applySavedResponse(): void {
     const option = this.savedResponse?.option;
     if (_.isEmpty(option)) { return; }
-    const selectedValues = _.castArray(option).map((o: any) => o?.value);
+    // Normalize to string before comparing (mtf/ordered do the same): the saved
+    // value and the option value share an in-memory source today, but a real
+    // persistence layer may serialize numeric values to strings, and a strict
+    // === would then silently fail to restore the selection.
+    const selectedValues = _.castArray(option).map((o: any) => String(o?.value));
     this.mcqOptions.forEach(mo => {
-      mo.selected = selectedValues.includes(mo.value);
+      mo.selected = selectedValues.includes(String(mo.value));
     });
   }
 

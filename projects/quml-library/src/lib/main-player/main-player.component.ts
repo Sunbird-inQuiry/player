@@ -128,6 +128,14 @@ export class MainPlayerComponent implements OnInit, OnChanges {
     if (changes.playerConfig.firstChange && this.isInitialized) {
       // This explicitly calling ngOnInit is for the web-component. Life cycle methods works in different order there.
       this.ngOnInit();
+    } else if (!changes.playerConfig.firstChange) {
+      // Web-component host reusing the same <sunbird-quml-player> element and
+      // assigning a new playerConfig (without the in-player Replay) → init is not
+      // re-run, so the root-singleton ViewerService would keep the previous
+      // content's saved answers / assess flags. For shared question identifiers
+      // that suppresses ASSESS on first answer and pre-fills a stale answer.
+      // Clear the persisted state on any content (re)load, not just firstChange.
+      this.viewerService.clearUserResponses();
     }
   }
 

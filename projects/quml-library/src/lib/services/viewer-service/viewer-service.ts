@@ -65,7 +65,13 @@ export class ViewerService {
     }
   }
 
-  /** Returns the previously saved response for a question, or undefined. */
+  /**
+   * Returns the previously saved response for a question, or undefined.
+   * The returned object is the STORED reference (not a copy) — treat it as
+   * read-only. It is assigned into optionSelectedObj/currentOptionSelected and
+   * handed to child components as @Input savedResponse; mutating its `option` /
+   * `solutions` in place would corrupt the persisted store for the whole attempt.
+   */
   getUserResponse(identifier: string): any {
     return identifier ? this.userResponses.get(identifier) : undefined;
   }

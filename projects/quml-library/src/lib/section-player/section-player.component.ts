@@ -346,9 +346,13 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       this.emitSectionEnd();
       return;
     }
+    // Reset BEFORE moving: myCarousel.move() fires activeSlideChange →
+    // restoreSavedResponseForCurrentSlide(), which is the single point that
+    // (re)establishes per-slide state. Resetting after move() would wipe that
+    // restore, making it take effect only on backward/jump navigation.
+    this.resetQuestionState();
     this.myCarousel.move(this.carouselConfig.NEXT);
     this.setImageZoom();
-    this.resetQuestionState();
     this.clearTimeInterval();
   }
 
@@ -435,11 +439,21 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     const currentIndex = this.myCarousel.getCurrentSlideIndex() - 1;
     if (currentIndex < 0 || !this.questions[currentIndex]) { return; }
     const saved = this.viewerService.getUserResponse(this.questions[currentIndex].identifier);
-    if (!saved) { return; }
-    this.optionSelectedObj = saved;
-    this.currentOptionSelected = saved;
-    this.currentSolutions = !_.isEmpty(saved.solutions) ? saved.solutions : undefined;
-    this.active = true;
+    if (saved) {
+      this.optionSelectedObj = saved;
+      this.currentOptionSelected = saved;
+      this.currentSolutions = !_.isEmpty(saved.solutions) ? saved.solutions : undefined;
+      this.active = true;
+    } else {
+      // No saved answer for this question — clear any selection that may have been
+      // restored on a previously-visited slide. prevSlide()/goToSlide() don't call
+      // resetQuestionState(), so without this an answered slide's optionSelectedObj
+      // would leak forward and the next (unanswered) question would be scored with it.
+      this.optionSelectedObj = undefined;
+      this.currentOptionSelected = undefined;
+      this.currentSolutions = undefined;
+      this.active = false;
+    }
   }
 
   /** Saved answer for a question, passed to the renderer so it can pre-fill the UI. */
@@ -591,10 +605,14 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.media = _.get(this.questions[currentIndex], 'media', []);
 
     // Persist the learner's answer so it survives section navigation (and is
-    // re-shown on revisit). A real user selection also clears the assessed flag
-    // so a changed answer is re-assessed. Empty option (skip / try-again) clears
-    // the stored answer.
-    this.viewerService.clearAssessed(this.currentQuestionIndetifier);
+    // re-shown on revisit). A real (non-empty) user selection also clears the
+    // assessed flag so a changed answer is re-assessed. The empty-option path
+    // (skip / try-again) only clears the stored answer — it must NOT re-open the
+    // ASSESS dedup gate, or a skip-then-reselect-the-same-answer would emit a
+    // redundant ASSESS for an answer already assessed this attempt.
+    if (!_.isEmpty(optionSelected?.option)) {
+      this.viewerService.clearAssessed(this.currentQuestionIndetifier);
+    }
     this.viewerService.saveUserResponse(
       this.currentQuestionIndetifier,
       _.isEmpty(optionSelected?.option) ? null : optionSelected,
