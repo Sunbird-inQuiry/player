@@ -41,6 +41,14 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
   showStartPage = true;
   threshold: number;
   questions = [];
+  /**
+   * Saved answers for the current section's questions, keyed by identifier, so the
+   * template binds a plain property read instead of calling viewerService on every
+   * change-detection tick. Rebuilt whenever `questions` (re)load — slides only read
+   * it at mount, and trackBy reuses views within a section, so a per-save refresh
+   * isn't needed (the child owns its live state once mounted).
+   */
+  savedResponses: Record<string, any> = {};
   questionIds: string[];
   noOfQuestions: number;
   initialTime: number;
@@ -155,6 +163,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
         res.questions.forEach((q: any) => { if (!mergedById.has(q.identifier)) { mergedById.set(q.identifier, q); } });
         this.questions = Array.from(mergedById.values());
         this.sortQuestions();
+        this.refreshSavedResponses();
         this.viewerService.updateSectionQuestions(this.sectionConfig.metadata.identifier, this.questions);
         this.cdRef.detectChanges();
         this.noOfTimesApiCalled++;
@@ -245,6 +254,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
 
     this.questions = this.viewerService.getSectionQuestions(this.sectionConfig.metadata.identifier);
     this.sortQuestions();
+    this.refreshSavedResponses();
     this.viewerService.updateSectionQuestions(this.sectionConfig.metadata.identifier, this.questions);
     this.resetQuestionState();
     if (this.jumpToQuestion) {
@@ -274,6 +284,17 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
         firstSlide.removeAttribute("tabindex");
       }
     }, 100);
+  }
+
+  /**
+   * Tracks carousel slides by question identifier so the slide views are reused
+   * across re-renders (e.g. when `questions` is reassigned by the per-section
+   * re-fetch/merge on returning to a section). Without this, Angular tracks by
+   * object identity, tears down and rebuilds every slide, and the carousel can
+   * desync and show two questions on one page.
+   */
+  trackByQuestionIdentifier(index: number, question: any): string | number {
+    return question?.identifier ?? index;
   }
 
   sortQuestions() {
@@ -335,9 +356,13 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       this.emitSectionEnd();
       return;
     }
+    // Reset BEFORE moving: myCarousel.move() fires activeSlideChange →
+    // restoreSavedResponseForCurrentSlide(), which is the single point that
+    // (re)establishes per-slide state. Resetting after move() would wipe that
+    // restore, making it take effect only on backward/jump navigation.
+    this.resetQuestionState();
     this.myCarousel.move(this.carouselConfig.NEXT);
     this.setImageZoom();
-    this.resetQuestionState();
     this.clearTimeInterval();
   }
 
@@ -408,6 +433,50 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     }
 
     this.viewerService.pauseVideo();
+    this.restoreSavedResponseForCurrentSlide();
+  }
+
+  /**
+   * Re-establishes section-player state for a previously-answered question when
+   * the learner lands on its slide (e.g. returning to an earlier section). The
+   * component itself restores the visible selection from `savedResponse`; here we
+   * restore optionSelectedObj so navigation/feedback behave as if it were answered.
+   * Scoring/ASSESS are NOT re-run here — the score already lives in mainProgressBar
+   * and ASSESS is deduped by identifier in viewerService.
+   */
+  private restoreSavedResponseForCurrentSlide(): void {
+    if (!this.myCarousel) { return; }
+    const currentIndex = this.myCarousel.getCurrentSlideIndex() - 1;
+    if (currentIndex < 0 || !this.questions[currentIndex]) { return; }
+    const saved = this.viewerService.getUserResponse(this.questions[currentIndex].identifier);
+    if (saved) {
+      this.optionSelectedObj = saved;
+      this.currentOptionSelected = saved;
+      this.currentSolutions = !_.isEmpty(saved.solutions) ? saved.solutions : undefined;
+      this.active = true;
+    } else {
+      // No saved answer for this question — clear any selection that may have been
+      // restored on a previously-visited slide. prevSlide()/goToSlide() don't call
+      // resetQuestionState(), so without this an answered slide's optionSelectedObj
+      // would leak forward and the next (unanswered) question would be scored with it.
+      this.optionSelectedObj = undefined;
+      this.currentOptionSelected = undefined;
+      this.currentSolutions = undefined;
+      this.active = false;
+    }
+  }
+
+  /**
+   * Rebuilds the saved-answer lookup for the current section's questions from the
+   * ViewerService store. Called whenever `questions` are (re)loaded.
+   */
+  private refreshSavedResponses(): void {
+    const map: Record<string, any> = {};
+    (this.questions || []).forEach((q: any) => {
+      const saved = this.viewerService.getUserResponse(q?.identifier);
+      if (saved) { map[q.identifier] = saved; }
+    });
+    this.savedResponses = map;
   }
 
   nextSlideClicked(event) {
@@ -552,7 +621,21 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     }
     this.currentQuestionIndetifier = this.questions[currentIndex].identifier;
     this.media = _.get(this.questions[currentIndex], 'media', []);
-   
+
+    // Persist the learner's answer so it survives section navigation (and is
+    // re-shown on revisit). A real (non-empty) user selection also clears the
+    // assessed flag so a changed answer is re-assessed. The empty-option path
+    // (skip / try-again) only clears the stored answer — it must NOT re-open the
+    // ASSESS dedup gate, or a skip-then-reselect-the-same-answer would emit a
+    // redundant ASSESS for an answer already assessed this attempt.
+    if (!_.isEmpty(optionSelected?.option)) {
+      this.viewerService.clearAssessed(this.currentQuestionIndetifier);
+    }
+    this.viewerService.saveUserResponse(
+      this.currentQuestionIndetifier,
+      _.isEmpty(optionSelected?.option) ? null : optionSelected,
+    );
+
     /* istanbul ignore else */
     if (!this.showFeedBack) {
       this.validateSelectedOption(this.optionSelectedObj);

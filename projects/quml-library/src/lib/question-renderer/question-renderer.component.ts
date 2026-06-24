@@ -18,6 +18,7 @@ export class QuestionRendererComponent implements OnInit, OnChanges, OnDestroy {
   @Input() tryAgain: boolean;
   @Input() baseUrl: string;
   @Input() shuffleOptions: boolean;
+  @Input() savedResponse: any;
   @Input() language: string = 'en';
 
   @Output() optionSelected    = new EventEmitter<any>();
@@ -68,6 +69,16 @@ export class QuestionRendererComponent implements OnInit, OnChanges, OnDestroy {
       childChanges['shuffleOptions'] = changes['shuffleOptions'];
     }
 
+    // savedResponse is propagated here (not only at mount) and re-applied via the
+    // applySavedResponse() hook, so restore stays correct even when trackBy reuses
+    // the slide view instead of recreating the child component.
+    if (changes['savedResponse']) {
+      inst.savedResponse = this.savedResponse;
+      if (typeof inst.applySavedResponse === 'function') {
+        inst.applySavedResponse();
+      }
+    }
+
     // Propagate changes to the dynamically-created component.
     // createComponent() doesn't wire up @Input bindings so Angular never
     // calls ngOnChanges on the child automatically — we do it ourselves.
@@ -108,6 +119,7 @@ export class QuestionRendererComponent implements OnInit, OnChanges, OnDestroy {
     inst.baseUrl        = this.baseUrl;
     inst.language       = this.language;
     inst.shuffleOptions = this.shuffleOptions;
+    (inst as any).savedResponse = this.savedResponse;
 
     this.subs.push(
       inst.optionSelected.subscribe((e: any) => this.optionSelected.emit(e)),

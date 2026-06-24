@@ -87,6 +87,12 @@ describe('OrderedComponent — SEQ', () => {
     expect(component.availableWords.length).toBe(0);
   });
 
+  it('should restore the saved item order via applySavedResponse (SEQ)', () => {
+    component.savedResponse = { option: { userOrder: ['C', 'A', 'B'] } };
+    component.applySavedResponse();
+    expect(component.items.map(i => i.value)).toEqual(['C', 'A', 'B']);
+  });
+
   it('should emit componentLoaded on init', () => {
     spyOn(component.componentLoaded, 'emit');
     component.ngOnInit();

@@ -1,17 +1,12 @@
 import {
-  Component, OnInit, OnChanges, SimpleChanges, SecurityContext, AfterViewInit,
+  Component, OnInit, OnChanges, SimpleChanges, AfterViewInit,
 } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import * as _ from 'lodash-es';
 import { UtilService } from '../util-service';
-import { BaseQuestionDirective } from '../base-question.directive';
+import { BaseQuestionDirective, SanitizedOption } from '../base-question.directive';
 
-interface MtfOption {
-  value: string;
-  label: string;
-  labelText: string;
-}
+type MtfOption = SanitizedOption;
 
 @Component({
   standalone: false,
@@ -28,10 +23,7 @@ export class MtfComponent extends BaseQuestionDirective implements OnInit, OnCha
   solutions: string[] = [];
   resolvedBody: string = '';
 
-  constructor(
-    public domSanitizer: DomSanitizer,
-    public utilService: UtilService,
-  ) { super(); }
+  constructor(public utilService: UtilService) { super(); }
 
   ngOnInit(): void {
     this.resolvedBody = this.resolveBody();
@@ -40,6 +32,7 @@ export class MtfComponent extends BaseQuestionDirective implements OnInit, OnCha
     this.left  = this.sanitizeOptions(opts.left);
     // Shuffle right items so user has to actually match them
     this.right = _.shuffle(this.sanitizeOptions(opts.right));
+    this.applySavedResponse();
     this.correctValue = this.question.responseDeclaration[this.key].correctResponse.value || {};
     this.solutions    = this.question.solutions ? _.values(this.question.solutions) : [];
     this.componentLoaded.emit({ identifier: this.question.identifier });
@@ -67,6 +60,19 @@ export class MtfComponent extends BaseQuestionDirective implements OnInit, OnCha
     this.emitAnswer();
   }
 
+  /**
+   * Reorders the right column to the learner's previously saved pairing on
+   * revisit. userResponse maps leftValue → rightValue; pairing is left[i] ↔
+   * right[i] by position, so the saved right-value sequence is the right values
+   * in left order — reorderByValues (on the base) then satisfies that mapping.
+   */
+  override applySavedResponse(): void {
+    const userResponse = this.savedResponse?.option?.userResponse;
+    if (_.isEmpty(userResponse)) { return; }
+    const valueOrder = this.left.map(l => String(userResponse[l.value]));
+    this.right = this.reorderByValues(this.right, valueOrder);
+  }
+
   private emitAnswer(): void {
     // Pairing: left[i] ↔ right[i] by position after reorder
     const userResponse: Record<string, string> = {};
@@ -78,22 +84,6 @@ export class MtfComponent extends BaseQuestionDirective implements OnInit, OnCha
       option: { userResponse },
       solutions: [],
     });
-  }
-
-  private sanitizeOptions(opts: any[]): MtfOption[] {
-    return (opts || []).map(o => {
-      const rawHtml  = this.resolveLabel(o.label);
-      const safeHtml = this.domSanitizer.sanitize(
-        SecurityContext.HTML, this.domSanitizer.bypassSecurityTrustHtml(rawHtml),
-      ) || '';
-      return { value: String(o.value), label: safeHtml, labelText: this.stripHtml(safeHtml) };
-    });
-  }
-
-  private stripHtml(html: string): string {
-    const el = document.createElement('div');
-    el.innerHTML = html;
-    return el.innerText || el.textContent || '';
   }
 
 }

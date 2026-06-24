@@ -30,6 +30,10 @@ describe('SectionPlayerComponent', () => {
     raiseResponseEvent() { }
     getSectionQuestions() { }
     raiseAssesEvent() { }
+    saveUserResponse() { }
+    getUserResponse() { return undefined; }
+    clearAssessed() { }
+    clearUserResponses() { }
     qumlPlayerEvent = new EventEmitter<any>();
     qumlQuestionEvent = new EventEmitter<any>();
     pauseVideo() { }
@@ -227,6 +231,35 @@ describe('SectionPlayerComponent', () => {
     component.activeSlideChange({});
     expect(component.initialSlideDuration > 0).toBeTruthy();
     expect(viewerService.pauseVideo).toHaveBeenCalled();
+  });
+
+  it('should restore a previously saved response on slide change', () => {
+    const saved = { cardinality: 'single', option: { value: 2 }, solutions: [{ type: 'video', value: 'v1' }] };
+    spyOn(viewerService, 'pauseVideo');
+    spyOn(viewerService, 'getUserResponse').and.returnValue(saved);
+    component.myCarousel = myCarousel;
+    component.questions = mockSectionQuestions;
+    component.activeSlideChange({});
+    expect(component.optionSelectedObj).toBe(saved);
+    expect(component.currentOptionSelected).toBe(saved);
+    expect(component.currentSolutions).toEqual(saved.solutions);
+    expect(component.active).toBe(true);
+  });
+
+  it('should clear a stale selection when landing on a slide with no saved response', () => {
+    spyOn(viewerService, 'pauseVideo');
+    spyOn(viewerService, 'getUserResponse').and.returnValue(undefined);
+    component.myCarousel = myCarousel;
+    component.questions = mockSectionQuestions;
+    // Stale state leaked from a previously-restored slide (prev/jump don't reset).
+    component.optionSelectedObj = { option: { value: 9 } };
+    component.currentOptionSelected = { option: { value: 9 } };
+    component.active = true;
+    component.activeSlideChange({});
+    expect(component.optionSelectedObj).toBeUndefined();
+    expect(component.currentOptionSelected).toBeUndefined();
+    expect(component.currentSolutions).toBeUndefined();
+    expect(component.active).toBe(false);
   });
 
   it('should getQuestion', () => {
@@ -450,6 +483,37 @@ describe('SectionPlayerComponent', () => {
     // expect(component.currentOptionSelected).toEqual({ option: { value: 2 } });
     expect(viewerService.raiseHeartBeatEvent).toHaveBeenCalledWith('OPTION_CLICKED', 'interact', 1);
     expect(component.validateSelectedOption).toHaveBeenCalled()
+  });
+
+  it('should NOT clear the assessed flag when skipping (empty option)', () => {
+    component.myCarousel = myCarousel;
+    component.questions = mockSectionQuestions;
+    component.parentConfig = mockParentConfig;
+    component.showFeedBack = true;
+    component.progressBarClass = [{ index: 1, class: 'unattempted', score: 0 }];
+    spyOn(component, 'focusOnNextButton');
+    spyOn(viewerService, 'raiseHeartBeatEvent');
+    spyOn(viewerService, 'clearAssessed');
+    spyOn(viewerService, 'saveUserResponse');
+    component.getOptionSelected({ option: {}, cardinality: 'single' });
+    expect(viewerService.clearAssessed).not.toHaveBeenCalled();
+    expect(viewerService.saveUserResponse).toHaveBeenCalledWith(jasmine.any(String), null);
+  });
+
+  it('should clear the assessed flag when a real (non-empty) option is selected', () => {
+    component.myCarousel = myCarousel;
+    component.questions = mockSectionQuestions;
+    component.parentConfig = mockParentConfig;
+    component.showFeedBack = true;
+    component.progressBarClass = [{ index: 1, class: 'unattempted', score: 0 }];
+    spyOn(component, 'focusOnNextButton');
+    spyOn(viewerService, 'raiseHeartBeatEvent');
+    spyOn(viewerService, 'clearAssessed');
+    spyOn(viewerService, 'saveUserResponse');
+    const selection = { option: { value: 2 }, cardinality: 'single' };
+    component.getOptionSelected(selection);
+    expect(viewerService.clearAssessed).toHaveBeenCalled();
+    expect(viewerService.saveUserResponse).toHaveBeenCalledWith(jasmine.any(String), selection);
   });
 
   it('should mark it as selected option and solution as empty if not exists', () => {

@@ -62,6 +62,12 @@ describe('FtbComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should restore previously entered answers via applySavedResponse', () => {
+    component.savedResponse = { option: { responses: { response1: 'Paris' } } };
+    fixture.detectChanges();
+    expect(component.userAnswers['response1']).toBe('Paris');
+  });
+
   it('should parse body into html and blank segments', () => {
     fixture.detectChanges();
     expect(component.segments.length).toBe(3);

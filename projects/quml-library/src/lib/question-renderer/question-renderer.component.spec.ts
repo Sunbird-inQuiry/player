@@ -12,9 +12,12 @@ class StubPlayerComponent {
   @Input() baseUrl: string;
   @Input() language: string = 'en';
   @Input() shuffleOptions: boolean;
+  @Input() savedResponse: any;
   @Output() componentLoaded = new EventEmitter<any>();
   @Output() optionSelected  = new EventEmitter<any>();
   @Output() showAnswerClicked = new EventEmitter<any>();
+  appliedCount = 0;
+  applySavedResponse(): void { this.appliedCount++; }
 }
 
 const mcqQuestion = {
@@ -70,6 +73,17 @@ describe('QuestionRendererComponent', () => {
     component.question = unknownQuestion;
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('stub-player')).toBeFalsy();
+  });
+
+  it('should propagate a savedResponse change and re-apply it on the mounted component', () => {
+    fixture.detectChanges();
+    const inst = (component as any).componentRef.instance;
+    const before = inst.appliedCount;
+    const saved = { option: { value: 1 } };
+    component.savedResponse = saved;
+    component.ngOnChanges({ savedResponse: new SimpleChange(undefined, saved, false) });
+    expect(inst.savedResponse).toBe(saved);
+    expect(inst.appliedCount).toBe(before + 1);
   });
 
   it('should forward language change to the mounted component', () => {

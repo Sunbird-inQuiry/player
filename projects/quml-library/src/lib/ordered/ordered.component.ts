@@ -1,17 +1,12 @@
 import {
-  Component, OnInit, OnChanges, SimpleChanges, SecurityContext, AfterViewInit,
+  Component, OnInit, OnChanges, SimpleChanges, AfterViewInit,
 } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import * as _ from 'lodash-es';
 import { UtilService } from '../util-service';
-import { BaseQuestionDirective } from '../base-question.directive';
+import { BaseQuestionDirective, SanitizedOption } from '../base-question.directive';
 
-interface OrderedItem {
-  value: string;
-  label: string;
-  labelText: string;
-}
+type OrderedItem = SanitizedOption;
 
 @Component({
   standalone: false,
@@ -41,10 +36,7 @@ export class OrderedComponent extends BaseQuestionDirective implements OnInit, O
     }
   }
 
-  constructor(
-    public domSanitizer: DomSanitizer,
-    public utilService: UtilService,
-  ) { super(); }
+  constructor(public utilService: UtilService) { super(); }
 
   ngOnInit(): void {
     this.resolvedBody = this.resolveBody();
@@ -58,7 +50,28 @@ export class OrderedComponent extends BaseQuestionDirective implements OnInit, O
       this.items = _.shuffle(processed);
     }
 
+    this.applySavedResponse();
     this.componentLoaded.emit({ identifier: this.question.identifier });
+  }
+
+  /**
+   * Restores the learner's previously saved ordering on revisit (visual only).
+   * SEQ: reorders `items` to the saved value order (shared reorderByValues on the
+   * base). REO: rebuilds selectedWords (in saved order) and leaves the rest in
+   * availableWords — a different operation, so it stays here.
+   */
+  override applySavedResponse(): void {
+    const userOrder: string[] = this.savedResponse?.option?.userOrder;
+    if (_.isEmpty(userOrder)) { return; }
+    if (this.isReo) {
+      const pool = [...this.availableWords, ...this.selectedWords];
+      const byValue = new Map(pool.map(w => [w.value, w]));
+      this.selectedWords = userOrder.map(v => byValue.get(String(v))).filter(Boolean) as OrderedItem[];
+      const chosen = new Set(this.selectedWords.map(w => w.value));
+      this.availableWords = pool.filter(w => !chosen.has(w.value));
+    } else {
+      this.items = this.reorderByValues(this.items, userOrder);
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -148,22 +161,6 @@ export class OrderedComponent extends BaseQuestionDirective implements OnInit, O
       option: { userOrder: this.selectedWords.map(i => i.value) },
       solutions: [],
     });
-  }
-
-  private sanitizeOptions(opts: any[]): OrderedItem[] {
-    return (opts || []).map(o => {
-      const rawHtml  = this.resolveLabel(o.label);
-      const safeHtml = this.domSanitizer.sanitize(
-        SecurityContext.HTML, this.domSanitizer.bypassSecurityTrustHtml(rawHtml),
-      ) || '';
-      return { value: String(o.value), label: safeHtml, labelText: this.stripHtml(safeHtml) };
-    });
-  }
-
-  private stripHtml(html: string): string {
-    const el = document.createElement('div');
-    el.innerHTML = html;
-    return el.innerText || el.textContent || '';
   }
 
 }

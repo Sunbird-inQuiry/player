@@ -71,6 +71,14 @@ describe('MtfComponent', () => {
     expect(component.correctValue).toEqual({ A: '1', B: '2' });
   });
 
+  it('should restore the saved pairing via applySavedResponse', () => {
+    // userResponse maps left→right (A→2, B→1); pairing is left[i]↔right[i], so
+    // the right column must be ordered ['2','1'] after restore.
+    component.savedResponse = { option: { userResponse: { A: '2', B: '1' } } };
+    fixture.detectChanges();
+    expect(component.right.map(r => r.value)).toEqual(['2', '1']);
+  });
+
   it('should emit componentLoaded on init', () => {
     spyOn(component.componentLoaded, 'emit');
     fixture.detectChanges();

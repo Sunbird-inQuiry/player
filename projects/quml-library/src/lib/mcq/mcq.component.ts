@@ -16,6 +16,7 @@ declare const katex: any;
 })
 export class McqComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() shuffleOptions?: boolean;
+  @Input() savedResponse?: any;
   @Input() question?: any;
   @Input() layout?: string;
   @Input() language: string = 'en';
@@ -72,13 +73,35 @@ export class McqComponent implements OnInit, OnChanges, AfterViewInit {
     this.renderLatex();
     this.options = this.question.interactions[key].options;
     this.initOptions();
+    this.applySavedResponse();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['language'] && !changes['language'].firstChange) {
       this.mcqOptions = [];
       this.initOptions();
+      this.applySavedResponse();
     }
+  }
+
+  /**
+   * Re-applies a previously saved answer to the freshly built options so the
+   * learner's prior selection is shown on revisit. Matches by option `value`
+   * (stable identity), so it is correct regardless of shuffled display order.
+   * Visual only — does not emit, to avoid scoring on mount.
+   * Public: the renderer also calls this when savedResponse changes (not just at mount).
+   */
+  applySavedResponse(): void {
+    const option = this.savedResponse?.option;
+    if (_.isEmpty(option)) { return; }
+    // Normalize to string before comparing (mtf/ordered do the same): the saved
+    // value and the option value share an in-memory source today, but a real
+    // persistence layer may serialize numeric values to strings, and a strict
+    // === would then silently fail to restore the selection.
+    const selectedValues = _.castArray(option).map((o: any) => String(o?.value));
+    this.mcqOptions.forEach(mo => {
+      mo.selected = selectedValues.includes(String(mo.value));
+    });
   }
 
   ngAfterViewInit() {

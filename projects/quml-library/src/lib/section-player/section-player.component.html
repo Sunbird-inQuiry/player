@@ -32,7 +32,7 @@
               [language]="parentConfig?.language">
             </quml-startpage>
           </slide>
-          <slide *ngFor="let question of questions; let i= index" #questionSlide>
+          <slide *ngFor="let question of questions; let i= index; trackBy: trackByQuestionIdentifier" #questionSlide>
             <div [id]="question.identifier">
               <quml-question-renderer
                 [question]="question"
@@ -40,6 +40,7 @@
                 [baseUrl]="parentConfig?.baseUrl"
                 [tryAgain]="tryAgainClicked"
                 [shuffleOptions]="shuffleOptions"
+                [savedResponse]="savedResponses[question.identifier]"
                 [language]="parentConfig?.language"
                 (optionSelected)="getOptionSelected($event)"
                 (showAnswerClicked)="showAnswerClicked($event, question)"
