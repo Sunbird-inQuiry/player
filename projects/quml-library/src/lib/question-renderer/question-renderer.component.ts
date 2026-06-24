@@ -69,6 +69,16 @@ export class QuestionRendererComponent implements OnInit, OnChanges, OnDestroy {
       childChanges['shuffleOptions'] = changes['shuffleOptions'];
     }
 
+    // savedResponse is propagated here (not only at mount) and re-applied via the
+    // applySavedResponse() hook, so restore stays correct even when trackBy reuses
+    // the slide view instead of recreating the child component.
+    if (changes['savedResponse']) {
+      inst.savedResponse = this.savedResponse;
+      if (typeof inst.applySavedResponse === 'function') {
+        inst.applySavedResponse();
+      }
+    }
+
     // Propagate changes to the dynamically-created component.
     // createComponent() doesn't wire up @Input bindings so Angular never
     // calls ngOnChanges on the child automatically — we do it ourselves.

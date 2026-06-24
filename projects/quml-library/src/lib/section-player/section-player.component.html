@@ -40,7 +40,7 @@
                 [baseUrl]="parentConfig?.baseUrl"
                 [tryAgain]="tryAgainClicked"
                 [shuffleOptions]="shuffleOptions"
-                [savedResponse]="getSavedResponse(question)"
+                [savedResponse]="savedResponses[question.identifier]"
                 [language]="parentConfig?.language"
                 (optionSelected)="getOptionSelected($event)"
                 (showAnswerClicked)="showAnswerClicked($event, question)"

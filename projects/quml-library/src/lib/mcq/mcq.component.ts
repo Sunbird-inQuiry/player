@@ -89,8 +89,9 @@ export class McqComponent implements OnInit, OnChanges, AfterViewInit {
    * learner's prior selection is shown on revisit. Matches by option `value`
    * (stable identity), so it is correct regardless of shuffled display order.
    * Visual only — does not emit, to avoid scoring on mount.
+   * Public: the renderer also calls this when savedResponse changes (not just at mount).
    */
-  private applySavedResponse(): void {
+  applySavedResponse(): void {
     const option = this.savedResponse?.option;
     if (_.isEmpty(option)) { return; }
     // Normalize to string before comparing (mtf/ordered do the same): the saved

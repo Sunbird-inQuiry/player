@@ -37,6 +37,13 @@ export class SaComponent implements OnInit, OnChanges, AfterViewInit {
     this.solutions = _.isEmpty(this.question?.solutions) ? null : this.question?.solutions;
   }
 
+  /**
+   * Restore hook (part of the question-type contract). Short answer is subjective
+   * and never emits/persists an answer, so there is intentionally nothing to
+   * restore — the blank input on revisit is correct.
+   */
+  applySavedResponse(): void { /* no-op: SA has no persisted answer */ }
+
   private getFtbAnswer(): string | null {
     const rd = this.question?.responseDeclaration;
     if (!rd) { return null; }

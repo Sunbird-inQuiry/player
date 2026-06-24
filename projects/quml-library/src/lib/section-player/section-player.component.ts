@@ -41,6 +41,14 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
   showStartPage = true;
   threshold: number;
   questions = [];
+  /**
+   * Saved answers for the current section's questions, keyed by identifier, so the
+   * template binds a plain property read instead of calling viewerService on every
+   * change-detection tick. Rebuilt whenever `questions` (re)load — slides only read
+   * it at mount, and trackBy reuses views within a section, so a per-save refresh
+   * isn't needed (the child owns its live state once mounted).
+   */
+  savedResponses: Record<string, any> = {};
   questionIds: string[];
   noOfQuestions: number;
   initialTime: number;
@@ -155,6 +163,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
         res.questions.forEach((q: any) => { if (!mergedById.has(q.identifier)) { mergedById.set(q.identifier, q); } });
         this.questions = Array.from(mergedById.values());
         this.sortQuestions();
+        this.refreshSavedResponses();
         this.viewerService.updateSectionQuestions(this.sectionConfig.metadata.identifier, this.questions);
         this.cdRef.detectChanges();
         this.noOfTimesApiCalled++;
@@ -245,6 +254,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
 
     this.questions = this.viewerService.getSectionQuestions(this.sectionConfig.metadata.identifier);
     this.sortQuestions();
+    this.refreshSavedResponses();
     this.viewerService.updateSectionQuestions(this.sectionConfig.metadata.identifier, this.questions);
     this.resetQuestionState();
     if (this.jumpToQuestion) {
@@ -456,9 +466,17 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     }
   }
 
-  /** Saved answer for a question, passed to the renderer so it can pre-fill the UI. */
-  getSavedResponse(question: any): any {
-    return this.viewerService.getUserResponse(question?.identifier);
+  /**
+   * Rebuilds the saved-answer lookup for the current section's questions from the
+   * ViewerService store. Called whenever `questions` are (re)loaded.
+   */
+  private refreshSavedResponses(): void {
+    const map: Record<string, any> = {};
+    (this.questions || []).forEach((q: any) => {
+      const saved = this.viewerService.getUserResponse(q?.identifier);
+      if (saved) { map[q.identifier] = saved; }
+    });
+    this.savedResponses = map;
   }
 
   nextSlideClicked(event) {
