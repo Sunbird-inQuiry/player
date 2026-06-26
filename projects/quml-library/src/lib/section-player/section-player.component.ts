@@ -937,9 +937,27 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.disableNext = false;
     this.initializeTimer = true;
     const index = event.questionNo;
-    this.viewerService.getQuestions(0, index);
     this.currentSlideIndex = index;
+    // Only fetch when the target question isn't already loaded. Calling
+    // getQuestions() unconditionally re-splices identifiers and re-emits the
+    // question event, which rebuilds the questions array and desyncs the
+    // carousel — the jumped-to question briefly renders twice. Mirrors goToSlide.
+    if (this.questions[index - 1] === undefined) {
+      // Not loaded yet: fetch. The qumlQuestionEvent subscription selects the
+      // slide, sets media, and runs setImageZoom()/highlightQuestion() once the
+      // questions arrive and the DOM has updated — doing it here would run
+      // against the previous slide's DOM (duplicate magnify icons / wrong srcs).
+      this.showQuestions = false;
+      this.viewerService.getQuestions(0, index);
+      return;
+    }
+    // Already loaded (review): no fetch will fire, so set the slide media and
+    // re-run setImageZoom() here. Otherwise the jumped-to (first reviewed)
+    // question keeps its relative <img src> and the image 404s until the learner
+    // navigates to the next slide. Mirrors goToSlide/nextSlide.
     this.myCarousel.selectSlide(index);
+    this.currentQuestionsMedia = _.get(this.questions[index - 1], 'media');
+    setTimeout(() => { this.setImageZoom(); });
     this.highlightQuestion();
   }
 
