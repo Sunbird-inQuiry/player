@@ -207,6 +207,33 @@ describe('SectionPlayerComponent', () => {
     expect(component.clearTimeInterval).toHaveBeenCalled();
   });
 
+  it('should select slide, set media and run setImageZoom when jumping to an already-loaded question (review)', fakeAsync(() => {
+    component.myCarousel = jasmine.createSpyObj("CarouselComponent", { selectSlide: {}, getCurrentSlideIndex: 1 });
+    component.questions = mockSectionQuestions;
+    spyOn(viewerService, 'getQuestions');
+    spyOn(component, 'setImageZoom');
+    spyOn(component, 'highlightQuestion');
+    component.goToQuestion({ questionNo: 1 });
+    tick();
+    expect(component.currentSlideIndex).toBe(1);
+    expect(viewerService.getQuestions).not.toHaveBeenCalled();
+    expect(component.myCarousel.selectSlide).toHaveBeenCalledWith(1);
+    expect(component.currentQuestionsMedia).toEqual(mockSectionQuestions[0].media);
+    expect(component.setImageZoom).toHaveBeenCalled();
+  }));
+
+  it('should fetch when jumping to a not-yet-loaded question', fakeAsync(() => {
+    component.myCarousel = jasmine.createSpyObj("CarouselComponent", { selectSlide: {}, getCurrentSlideIndex: 1 });
+    component.questions = [];
+    spyOn(viewerService, 'getQuestions');
+    spyOn(component, 'setImageZoom');
+    spyOn(component, 'highlightQuestion');
+    component.goToQuestion({ questionNo: 1 });
+    tick();
+    expect(viewerService.getQuestions).toHaveBeenCalledWith(0, 1);
+    expect(component.myCarousel.selectSlide).not.toHaveBeenCalled();
+  }));
+
   it('should navigate to previous slide', () => {
     spyOn(viewerService, 'raiseHeartBeatEvent');
     spyOn(component, 'setImageZoom');

@@ -88,6 +88,17 @@
   font-size: 1rem;
   color: #222;
   p { margin: 0; }
+
+  // SEQ item images (rendered via innerHTML) have no inherent cap, so each
+  // renders at its natural size and a wide image dominates the card while
+  // others stay small. Cap to a uniform height so every card lines up.
+  ::ng-deep img {
+    max-width: 100%;
+    max-height: 6rem;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
 }
 
 // ════════════════════════════════════════════════════════

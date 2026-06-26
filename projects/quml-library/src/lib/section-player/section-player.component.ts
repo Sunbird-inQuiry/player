@@ -937,9 +937,22 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.disableNext = false;
     this.initializeTimer = true;
     const index = event.questionNo;
-    this.viewerService.getQuestions(0, index);
     this.currentSlideIndex = index;
-    this.myCarousel.selectSlide(index);
+    // Only fetch when the target question isn't already loaded. Calling
+    // getQuestions() unconditionally re-splices identifiers and re-emits the
+    // question event, which rebuilds the questions array and desyncs the
+    // carousel — the jumped-to question briefly renders twice. Mirrors goToSlide.
+    if (this.questions[index - 1] === undefined) {
+      this.showQuestions = false;
+      this.viewerService.getQuestions(0, index);
+    } else {
+      this.myCarousel.selectSlide(index);
+    }
+    // Mirror goToSlide/nextSlide: without setting the slide media and re-running
+    // setImageZoom(), the jumped-to (first reviewed) question keeps its relative
+    // <img src> and the image 404s until the learner navigates to the next slide.
+    this.currentQuestionsMedia = _.get(this.questions[this.currentSlideIndex - 1], 'media');
+    setTimeout(() => { this.setImageZoom(); });
     this.highlightQuestion();
   }
 
