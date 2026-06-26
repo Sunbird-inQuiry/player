@@ -222,7 +222,7 @@ describe('SectionPlayerComponent', () => {
     expect(component.setImageZoom).toHaveBeenCalled();
   }));
 
-  it('should fetch when jumping to a not-yet-loaded question', fakeAsync(() => {
+  it('should fetch and defer slide/zoom to the subscription when jumping to a not-yet-loaded question', fakeAsync(() => {
     component.myCarousel = jasmine.createSpyObj("CarouselComponent", { selectSlide: {}, getCurrentSlideIndex: 1 });
     component.questions = [];
     spyOn(viewerService, 'getQuestions');
@@ -231,7 +231,10 @@ describe('SectionPlayerComponent', () => {
     component.goToQuestion({ questionNo: 1 });
     tick();
     expect(viewerService.getQuestions).toHaveBeenCalledWith(0, 1);
+    // Fetch path returns early: the qumlQuestionEvent subscription handles these.
     expect(component.myCarousel.selectSlide).not.toHaveBeenCalled();
+    expect(component.setImageZoom).not.toHaveBeenCalled();
+    expect(component.highlightQuestion).not.toHaveBeenCalled();
   }));
 
   it('should navigate to previous slide', () => {
@@ -854,7 +857,9 @@ describe('SectionPlayerComponent', () => {
     spyOn(component, 'highlightQuestion');
     component.goToQuestion({ questionNo: 2 });
     expect(viewerService.getQuestions).toHaveBeenCalled();
-    expect(component.highlightQuestion).toHaveBeenCalled();
+    // Fetch path returns early; highlightQuestion is handled by the
+    // qumlQuestionEvent subscription once the questions arrive.
+    expect(component.highlightQuestion).not.toHaveBeenCalled();
   });
 
   it('should hight light the question on click of question', () => {
