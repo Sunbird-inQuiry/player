@@ -95,6 +95,30 @@ describe('MtfComponent', () => {
     );
   });
 
+  it('should load solutions from the question on init', () => {
+    const sol = [{ type: 'html', value: '<p>A->1, B->2</p>' }];
+    component.question = { ...question, solutions: sol };
+    component.ngOnInit();
+    expect(component.solutions).toEqual(sol);
+  });
+
+  it('should default solutions to [] when the question has none', () => {
+    component.question = { ...question, solutions: undefined };
+    component.ngOnInit();
+    expect(component.solutions).toEqual([]);
+  });
+
+  it('should emit the question solutions with the answer on drop', () => {
+    const sol = [{ type: 'html', value: '<p>answer</p>' }];
+    component.question = { ...question, solutions: sol };
+    component.ngOnInit();
+    spyOn(component.optionSelected, 'emit');
+    component.drop({ previousIndex: 0, currentIndex: 0 } as any);
+    expect(component.optionSelected.emit).toHaveBeenCalledWith(
+      jasmine.objectContaining({ cardinality: 'map', solutions: sol })
+    );
+  });
+
   it('should shuffle right options on replayed change', () => {
     fixture.detectChanges();
     spyOn(component.optionSelected, 'emit');

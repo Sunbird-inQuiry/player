@@ -854,6 +854,54 @@ describe('SectionPlayerComponent', () => {
     expect(component.clearTimeInterval).toHaveBeenCalled();
   });
 
+  it('should build MTF correct pairs (interleaved) with pairs layout', () => {
+    component.myCarousel = myCarousel;
+    component.questions = [{
+      identifier: 'q_mtf', body: 'b',
+      responseDeclaration: { response1: { correctResponse: { value: { '0': 'b', '1': 'a' } } } },
+      interactions: { response1: { options: {
+        left:  [{ value: '0', label: 'L0' }, { value: '1', label: 'L1' }],
+        right: [{ value: 'a', label: 'Ra' }, { value: 'b', label: 'Rb' }]
+      } } },
+      media: []
+    }] as any;
+    component.currentSolutions = {};
+    spyOn(viewerService, 'raiseHeartBeatEvent');
+    spyOn(component, 'clearTimeInterval');
+    component.getSolutions();
+    // left0 -> 'b' (Rb), left1 -> 'a' (Ra); interleaved left,right per pair
+    expect(component.currentOptions.map((o: any) => o.value)).toEqual(['0', 'b', '1', 'a']);
+    expect(component.currentOptionsLayout).toBe('pairs');
+  });
+
+  it('should fall back to positional MTF pairing when no correctResponse', () => {
+    component.myCarousel = myCarousel;
+    component.questions = [{
+      identifier: 'q_mtf2', body: 'b',
+      interactions: { response1: { options: {
+        left:  [{ value: '0', label: 'L0' }],
+        right: [{ value: 'a', label: 'Ra' }]
+      } } },
+      media: []
+    }] as any;
+    component.currentSolutions = {};
+    spyOn(viewerService, 'raiseHeartBeatEvent');
+    spyOn(component, 'clearTimeInterval');
+    component.getSolutions();
+    expect(component.currentOptions.map((o: any) => o.value)).toEqual(['0', 'a']);
+    expect(component.currentOptionsLayout).toBe('pairs');
+  });
+
+  it('should set [] options for a question type without options', () => {
+    component.myCarousel = myCarousel;
+    component.questions = [{ identifier: 'q_ftb', body: 'b', interactions: { response1: { type: 'text' } }, media: [] }] as any;
+    component.currentSolutions = {};
+    spyOn(viewerService, 'raiseHeartBeatEvent');
+    spyOn(component, 'clearTimeInterval');
+    component.getSolutions();
+    expect(component.currentOptions).toEqual([]);
+  });
+
   it('should show solution page if solution is available', () => {
     component.showSolution = false;
     component.myCarousel = myCarousel;
@@ -863,6 +911,20 @@ describe('SectionPlayerComponent', () => {
     expect(component.showSolution).toBeTruthy();
     expect(component.showAlert).toBeFalsy();
     expect(window.clearTimeout).toHaveBeenCalled();
+  });
+
+  it('viewSolution should populate the panel question and options', () => {
+    component.myCarousel = myCarousel;
+    component.questions = [{
+      identifier: 'q', body: '<p>Q</p>',
+      interactions: { response1: { options: [{ value: 0, label: 'A' }, { value: 1, label: 'B' }] } },
+      media: []
+    }] as any;
+    spyOn(viewerService, 'raiseHeartBeatEvent');
+    component.viewSolution();
+    expect(component.currentQuestion).toBe('<p>Q</p>');
+    expect(component.currentOptions.length).toBe(2);
+    expect(component.currentOptionsLayout).toBe('list');
   });
 
   it('should close the solution Modal', () => {

@@ -107,6 +107,28 @@ describe('OrderedComponent — SEQ', () => {
     );
   });
 
+  it('should load solutions from the question on init (SEQ)', () => {
+    const sol = [{ type: 'html', value: '<p>A, B, C</p>' }];
+    component.question = { ...seqQuestion, solutions: sol };
+    component.ngOnInit();
+    expect(component.solutions).toEqual(sol);
+  });
+
+  it('should default solutions to [] when the question has none (SEQ)', () => {
+    expect(component.solutions).toEqual([]);
+  });
+
+  it('should emit the question solutions with the answer on drop (SEQ)', () => {
+    const sol = [{ type: 'html', value: '<p>A, B, C</p>' }];
+    component.question = { ...seqQuestion, solutions: sol };
+    component.ngOnInit();
+    spyOn(component.optionSelected, 'emit');
+    component.drop({ previousIndex: 0, currentIndex: 1 } as any);
+    expect(component.optionSelected.emit).toHaveBeenCalledWith(
+      jasmine.objectContaining({ cardinality: 'ordered', solutions: sol })
+    );
+  });
+
   it('should reset items on replayed change', () => {
     component.replayed = true;
     component.ngOnChanges({ replayed: new SimpleChange(false, true, false) });
@@ -170,6 +192,17 @@ describe('OrderedComponent — REO', () => {
     expect(component.availableWords.length).toBe(2);
     expect(component.optionSelected.emit).toHaveBeenCalledWith(
       jasmine.objectContaining({ cardinality: 'ordered', option: jasmine.objectContaining({ userOrder: [word.value] }) })
+    );
+  });
+
+  it('should emit the question solutions with the answer on addWord (REO)', () => {
+    const sol = [{ type: 'html', value: '<p>X, Y, Z</p>' }];
+    component.question = { ...reoQuestion, solutions: sol };
+    component.ngOnInit();
+    spyOn(component.optionSelected, 'emit');
+    component.addWord(component.availableWords[0]);
+    expect(component.optionSelected.emit).toHaveBeenCalledWith(
+      jasmine.objectContaining({ cardinality: 'ordered', solutions: sol })
     );
   });
 

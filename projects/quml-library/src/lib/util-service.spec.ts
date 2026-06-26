@@ -194,6 +194,21 @@ describe('UtilService', () => {
     expect(video.poster).toBe('https://dev.sunbird.org/assets/public/content/assets/do_2137930188655902721387/gateway-of-india.jpg')
   });
 
+  it('#updateSourceOfVideoElement() Should not re-prefix already-absolute src/poster', () => {
+    const service: UtilService = TestBed.inject(UtilService);
+    const video = document.createElement('video');
+    video.poster = 'https://test.sunbirded.org/assets/poster.jpg';
+    video.setAttribute('data-asset-variable', 'do_113143853080248320171');
+    const source1 = document.createElement('source');
+    source1.setAttribute('type', 'video/webm');
+    source1.setAttribute('src', 'https://test.sunbirded.org/assets/bunny.webm');
+    video.appendChild(source1);
+    document.getElementsByTagName = jasmine.createSpy('getElementsByTagName').and.returnValue([video]);
+    service.updateSourceOfVideoElement(null, questions[0].media, 'do_1234');
+    expect(video.poster).toBe('https://test.sunbirded.org/assets/poster.jpg');
+    expect(source1.getAttribute('src')).toBe('https://test.sunbirded.org/assets/bunny.webm');
+  });
+
   it('#updateSourceOfVideoElement() Should not sets when asset variable attribut not available', () => {
     const service: UtilService = TestBed.inject(UtilService);
     const video = document.createElement('video');
