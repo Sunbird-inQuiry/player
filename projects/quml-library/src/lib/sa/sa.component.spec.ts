@@ -147,6 +147,11 @@ describe('SaComponent', () => {
     expect(component.resolvedSolutions).toEqual([]);
   });
 
+  it('should unwrap legacy array {type,value} solutions to their value', () => {
+    component.solutions = [{ type: 'html', value: '<p>legacy</p>' }];
+    expect(component.resolvedSolutions).toEqual(['<p>legacy</p>']);
+  });
+
   it('#ngOnInit() should not set solution if not exist', () => {
     ( component as any).questions = {...questions};
     ( component as any).questions.solutions = null;

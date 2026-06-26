@@ -69,6 +69,11 @@ describe('SolutionsComponent', () => {
     expect(component.resolvedSolutions).toEqual(['<p>plain-sol</p>']);
   });
 
+  it('should unwrap legacy array {type,value} solutions to their value', () => {
+    component.solutions = [{ type: 'html', value: '<p>legacy</p>' }];
+    expect(component.resolvedSolutions).toEqual(['<p>legacy</p>']);
+  });
+
   it('should drop empty solution values', () => {
     component.solutions = { abc: '' };
     expect(component.resolvedSolutions).toEqual([]);

@@ -39,7 +39,14 @@ export class SaComponent implements OnInit, OnChanges, AfterViewInit {
   get resolvedSolutions(): string[] {
     if (!this.solutions) { return []; }
     const values = Array.isArray(this.solutions) ? this.solutions : Object.values(this.solutions);
-    return values.map((v: any) => this.resolveAssetSrc(readI18n(v, this.language))).filter(Boolean);
+    return values
+      .map((v: any) => {
+        // Legacy shape: an array of { type, value, src } objects — unwrap to the
+        // payload. New shape: an I18nValue map or plain HTML string — use as-is.
+        const raw = v && typeof v === 'object' && 'value' in v ? v.value : v;
+        return this.resolveAssetSrc(readI18n(raw, this.language));
+      })
+      .filter(Boolean);
   }
 
   /**
