@@ -913,6 +913,20 @@ describe('SectionPlayerComponent', () => {
     expect(window.clearTimeout).toHaveBeenCalled();
   });
 
+  it('viewSolution should populate the panel question and options', () => {
+    component.myCarousel = myCarousel;
+    component.questions = [{
+      identifier: 'q', body: '<p>Q</p>',
+      interactions: { response1: { options: [{ value: 0, label: 'A' }, { value: 1, label: 'B' }] } },
+      media: []
+    }] as any;
+    spyOn(viewerService, 'raiseHeartBeatEvent');
+    component.viewSolution();
+    expect(component.currentQuestion).toBe('<p>Q</p>');
+    expect(component.currentOptions.length).toBe(2);
+    expect(component.currentOptionsLayout).toBe('list');
+  });
+
   it('should close the solution Modal', () => {
     component.showSolution = true;
     spyOn(component, 'setImageZoom');

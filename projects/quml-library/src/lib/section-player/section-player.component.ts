@@ -970,13 +970,35 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.showAlert = false;
     this.viewerService.raiseHeartBeatEvent(eventName.showAnswer, TelemetryType.interact, this.myCarousel.getCurrentSlideIndex());
     this.viewerService.raiseHeartBeatEvent(eventName.showAnswer, TelemetryType.impression, this.myCarousel.getCurrentSlideIndex());
+    this.prepareSolutionView();
+    setTimeout(() => {
+      this.setImageZoom();
+    });
+    setTimeout(() => {
+      this.setImageHeightWidthClass();
+    }, 100);
+    /* istanbul ignore else */
+    if (this.currentSolutions) {
+      this.showSolution = true;
+    }
+    this.clearTimeInterval();
+  }
+
+  /**
+   * Populates the solution panel's question/options/media for the current slide.
+   * Shared by getSolutions() (left "answer" button) and viewSolution() (feedback
+   * popup) so both entry points render a fully populated panel — previously
+   * viewSolution() only toggled showSolution, leaving question/options stale.
+   */
+  private prepareSolutionView(): void {
     const currentIndex = this.myCarousel.getCurrentSlideIndex() - 1;
-    this.currentQuestion = this.questions[currentIndex].body;
+    const question: any = this.questions[currentIndex];
+    if (!question) { return; }
+    this.currentQuestion = question.body;
     // The solution panel renders options via *ngFor, so it needs an iterable.
     // MCQ-style options are already an array; MTF stores them as {left, right},
     // which we flatten into one list so the pairs still show; anything else (no
     // options) falls back to [] to avoid an NgFor error.
-    const question: any = this.questions[currentIndex];
     const options = question.interactions?.response1?.options;
     if (_.isArray(options)) {
       this.currentOptions = options;
@@ -990,18 +1012,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       this.currentOptions = [];
       this.currentOptionsLayout = 'list';
     }
-    this.currentQuestionsMedia = _.get(this.questions[currentIndex], 'media');
-    setTimeout(() => {
-      this.setImageZoom();
-    });
-    setTimeout(() => {
-      this.setImageHeightWidthClass();
-    }, 100);
-    /* istanbul ignore else */
-    if (this.currentSolutions) {
-      this.showSolution = true;
-    }
-    this.clearTimeInterval();
+    this.currentQuestionsMedia = _.get(question, 'media');
   }
 
   /**
@@ -1025,9 +1036,9 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
 
   viewSolution() {
     this.viewerService.raiseHeartBeatEvent(eventName.viewSolutionClicked, TelemetryType.interact, this.myCarousel.getCurrentSlideIndex());
+    this.prepareSolutionView();
     this.showSolution = true;
     this.showAlert = false;
-    this.currentQuestionsMedia = _.get(this.questions[this.myCarousel.getCurrentSlideIndex() - 1], 'media');
     setTimeout(() => {
       this.setImageZoom();
       this.setImageHeightWidthClass();
