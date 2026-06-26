@@ -58,6 +58,24 @@
     .solution-options {
         margin-bottom: 0.5rem;
     }
+
+    // MTF: show each correct pair (left ↔ right) side by side, two per row.
+    &.pairs-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 1rem;
+        row-gap: 0.5rem;
+        align-items: center;
+
+        // Keep option images compact so every pair (and the Options header)
+        // stays visible instead of each image filling the viewport.
+        .solution-options img {
+            max-width: 100%;
+            max-height: 8rem;
+            height: auto;
+            object-fit: contain;
+        }
+    }
   }
   .image-style-align-right {
     float: right !important;

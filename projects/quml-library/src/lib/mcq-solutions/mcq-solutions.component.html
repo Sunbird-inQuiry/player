@@ -3,18 +3,20 @@
         <quml-close tabindex="-1"></quml-close>
     </div>
     <div class="solution-header">Question</div>
-    <div [innerHtml]="question | safeHtml"></div>
+    <div [innerHtml]="resolvedQuestion | safeHtml"></div>
+    <ng-container *ngIf="resolvedOptions.length">
     <div class="solution-header">Options</div>
-    <div class="solution-options-container">
-    <div class="solution-options" *ngFor="let option of options">
+    <div class="solution-options-container" [class.pairs-layout]="optionsLayout === 'pairs'">
+    <div class="solution-options" *ngFor="let option of resolvedOptions">
         <div [innerHtml]="option.label | safeHtml"></div>
     </div>
 </div>
-    <ng-container *ngIf="solutions">
+</ng-container>
+    <ng-container *ngIf="resolvedSolutions.length">
     <div class="solution-header">Solution</div>
     <div *ngIf="!showVideoSolution">
-        <div *ngFor="let solution of solutions | keyvalue">
-            <div  [innerHtml]="solution.value | safeHtml"></div>
+        <div *ngFor="let solution of resolvedSolutions">
+            <div  [innerHtml]="solution | safeHtml"></div>
         </div>
     </div>
 </ng-container>

@@ -10,10 +10,10 @@
   <div id="answer-container" [ngClass]="showAnswer ? 'option-container-blurred-out': 'option-container-blurred'">
     <div class="sa-title" [attr.aria-hidden]="showAnswer ? null : true">Answer</div>
     <div class="option-body" [innerHTML]="answer | safeHtml" [attr.aria-hidden]="showAnswer ? null : true"></div>
-    <ng-container *ngIf="solutions"> 
+    <ng-container *ngIf="resolvedSolutions.length">
       <div class="sa-title" [attr.aria-hidden]="showAnswer ? null : true">Solution</div>
-      <div class="solutions" *ngFor="let solution of solutions | keyvalue" [attr.aria-hidden]="showAnswer ? null : true">
-        <div [innerHTML]="solution.value | safeHtml" tabindex="-1"></div>
+      <div class="solutions" *ngFor="let solution of resolvedSolutions" [attr.aria-hidden]="showAnswer ? null : true">
+        <div [innerHTML]="solution | safeHtml" tabindex="-1"></div>
       </div>
     </ng-container>
   </div>

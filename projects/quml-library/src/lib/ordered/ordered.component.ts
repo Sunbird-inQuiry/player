@@ -18,6 +18,7 @@ export class OrderedComponent extends BaseQuestionDirective implements OnInit, O
 
   key: string;
   resolvedBody: string = '';
+  solutions: any = [];
 
   // SEQ: draggable vertical list
   items: OrderedItem[] = [];
@@ -49,6 +50,10 @@ export class OrderedComponent extends BaseQuestionDirective implements OnInit, O
     } else {
       this.items = _.shuffle(processed);
     }
+
+    // Raw solutions (same shape MCQ emits) so the shared solution panel can
+    // render them when "Show Answer" is clicked.
+    this.solutions = this.question.solutions || [];
 
     this.applySavedResponse();
     this.componentLoaded.emit({ identifier: this.question.identifier });
@@ -151,7 +156,7 @@ export class OrderedComponent extends BaseQuestionDirective implements OnInit, O
     this.optionSelected.emit({
       cardinality: 'ordered',
       option: { userOrder: this.items.map(i => i.value) },
-      solutions: [],
+      solutions: this.solutions,
     });
   }
 
@@ -159,7 +164,7 @@ export class OrderedComponent extends BaseQuestionDirective implements OnInit, O
     this.optionSelected.emit({
       cardinality: 'ordered',
       option: { userOrder: this.selectedWords.map(i => i.value) },
-      solutions: [],
+      solutions: this.solutions,
     });
   }
 

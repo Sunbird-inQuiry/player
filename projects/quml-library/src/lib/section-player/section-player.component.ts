@@ -78,6 +78,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
   active = false;
   showAlert: boolean;
   currentOptions: any;
+  currentOptionsLayout: 'list' | 'pairs' = 'list';
   currentQuestion: any;
   currentQuestionIndetifier: string;
   media: any;
@@ -971,7 +972,24 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.viewerService.raiseHeartBeatEvent(eventName.showAnswer, TelemetryType.impression, this.myCarousel.getCurrentSlideIndex());
     const currentIndex = this.myCarousel.getCurrentSlideIndex() - 1;
     this.currentQuestion = this.questions[currentIndex].body;
-    this.currentOptions = this.questions[currentIndex].interactions?.response1?.options;
+    // The solution panel renders options via *ngFor, so it needs an iterable.
+    // MCQ-style options are already an array; MTF stores them as {left, right},
+    // which we flatten into one list so the pairs still show; anything else (no
+    // options) falls back to [] to avoid an NgFor error.
+    const question: any = this.questions[currentIndex];
+    const options = question.interactions?.response1?.options;
+    if (_.isArray(options)) {
+      this.currentOptions = options;
+      this.currentOptionsLayout = 'list';
+    } else if (options && (options.left || options.right)) {
+      // MTF: interleave each left with its CORRECT right (per correctResponse) so
+      // the panel's two-column 'pairs' layout shows the matched pairs side by side.
+      this.currentOptions = this.buildMatchPairs(question, options.left || [], options.right || []);
+      this.currentOptionsLayout = 'pairs';
+    } else {
+      this.currentOptions = [];
+      this.currentOptionsLayout = 'list';
+    }
     this.currentQuestionsMedia = _.get(this.questions[currentIndex], 'media');
     setTimeout(() => {
       this.setImageZoom();
@@ -984,6 +1002,25 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       this.showSolution = true;
     }
     this.clearTimeInterval();
+  }
+
+  /**
+   * Builds the MTF correct-pair list for the solution panel: each left option
+   * followed by the right option it correctly maps to (per correctResponse,
+   * leftValue -> rightValue). Falls back to positional pairing when there is no
+   * correctResponse. The flat [left, right, left, right, ...] order fills the
+   * panel's two-column 'pairs' grid so each pair lands on one row.
+   */
+  private buildMatchPairs(question: any, left: any[], right: any[]): any[] {
+    const correct = question?.responseDeclaration?.response1?.correctResponse?.value || {};
+    const rightByValue = new Map(right.map((r: any) => [String(r.value), r]));
+    const pairs: any[] = [];
+    left.forEach((l: any, i: number) => {
+      pairs.push(l);
+      const match = rightByValue.get(String(correct[l.value])) ?? right[i];
+      if (match) { pairs.push(match); }
+    });
+    return pairs;
   }
 
   viewSolution() {

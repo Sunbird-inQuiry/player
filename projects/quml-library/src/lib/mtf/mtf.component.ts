@@ -20,7 +20,7 @@ export class MtfComponent extends BaseQuestionDirective implements OnInit, OnCha
   left: MtfOption[]  = [];
   right: MtfOption[] = [];
   correctValue: Record<string, string> = {};
-  solutions: string[] = [];
+  solutions: any = [];
   resolvedBody: string = '';
 
   constructor(public utilService: UtilService) { super(); }
@@ -34,7 +34,9 @@ export class MtfComponent extends BaseQuestionDirective implements OnInit, OnCha
     this.right = _.shuffle(this.sanitizeOptions(opts.right));
     this.applySavedResponse();
     this.correctValue = this.question.responseDeclaration[this.key].correctResponse.value || {};
-    this.solutions    = this.question.solutions ? _.values(this.question.solutions) : [];
+    // Raw solutions (same shape MCQ emits) so the shared solution panel can
+    // render them via the keyvalue pipe when "Show Answer" is clicked.
+    this.solutions    = this.question.solutions || [];
     this.componentLoaded.emit({ identifier: this.question.identifier });
     setTimeout(() => this.emitAnswer());
   }
@@ -82,7 +84,7 @@ export class MtfComponent extends BaseQuestionDirective implements OnInit, OnCha
     this.optionSelected.emit({
       cardinality: 'map',
       option: { userResponse },
-      solutions: [],
+      solutions: this.solutions,
     });
   }
 
