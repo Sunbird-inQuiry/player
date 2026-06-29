@@ -2,15 +2,14 @@
 
 ::ng-deep :root {
   --quml-color-primary: #FFD555;
-  --quml-color-primary-contrast: #333;
+  --quml-color-primary-contrast:#333;
   --quml-color-warning: #ff0000;
   --quml-btn-border: #ccc;
   --quml-color-gray: #666;
   --quml-main-bg: #fff;
-  --quml-navigation-btns: #333;
+  --quml-navigation-btns:#333;
   --quml-header-metadata: #fff;
 }
-
 .quml-header {
 
   &__container,
@@ -24,7 +23,7 @@
     justify-content: space-between;
     position: absolute;
     top: 0;
-    background: var(--quml-main-bg);
+    background: var( --quml-main-bg);
     min-height: calculateRem(56px);
     width: 100%;
     padding: calculateRem(8px) calculateRem(16px) calculateRem(8px) 0;
@@ -45,10 +44,9 @@
       margin: 0 1rem;
       cursor: pointer;
     }
-
     &--portrait {
       display: none;
-
+      
       @media only screen and (max-width: 480px) {
         display: flex;
         position: fixed;
@@ -58,7 +56,6 @@
         background-color: var(--white);
         z-index: 5;
         min-height: 3rem;
-
         .quml-navigation {
           display: flex;
         }
@@ -70,11 +67,10 @@
 .quml-navigation {
   display: flex;
   align-items: center;
-
   @media only screen and (max-width: 480px) {
     display: none;
   }
-
+  
   &__next,
   &__previous {
     position: relative;
@@ -97,10 +93,7 @@
       border: solid var(--quml-navigation-btns);
       border-width: 0 calculateRem(2px) calculateRem(2px) 0;
     }
-
-    &:hover,
-    &--active,
-    &:focus {
+    &:hover,&--active,&:focus {
       background-color: var(--quml-color-primary);
     }
   }
@@ -122,13 +115,11 @@
   // RTL (Arabic): dir="rtl" on this flex container already swaps the prev/next
   // positions; flip the chevrons so "next" points ◄ and "previous" points ►,
   // keeping the pair visually "< >".
-
   &[dir="rtl"] {
     .quml-navigation__next::after {
       transform: translate(-50%, -50%) rotate(135deg);
       -webkit-transform: translate(-50%, -50%) rotate(135deg);
     }
-
     .quml-navigation__previous::after {
       transform: translate(-50%, -50%) rotate(-45deg);
       -webkit-transform: translate(-50%, -50%) rotate(-45deg);
@@ -180,3 +171,4 @@ quml-durationtimer {
     opacity: 1;
   }
 }
+
