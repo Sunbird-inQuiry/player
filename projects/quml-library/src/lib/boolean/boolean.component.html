@@ -1,0 +1,17 @@
+<div class="quml-mcq layoutBoolean">
+    <div class="quml-mcq--question mb-16">
+        <quml-mcq-question [mcqQuestion]="mcqQuestion" [layout]="'BOOLEAN'"></quml-mcq-question>
+    </div>
+    <div class="quml-mcq--option">
+        <div class="quml-mcq-options layoutBooleanOptions" role="radiogroup">
+            <div class="quml-option-card boolean-card" tabindex="0" role="checkbox" [attr.aria-checked]="mcqOption.selected" *ngFor="let mcqOption of mcqOptions; let index = index"
+            (keydown)="tryAgain ? null: onEnter($event, mcqOption, index)"
+            (click)="tryAgain ? null: onOptionSelect($event, mcqOption, index)"
+            [ngClass]="{'disabled': tryAgain === true, 'selected': mcqOption.selected}">
+                <div class="quml-option" [ngClass]="mcqOption.selected ? 'quml-option quml-option--selected' : 'quml-option'">
+                    <div class="option" [innerHTML]="mcqOption.label | safeHtml"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

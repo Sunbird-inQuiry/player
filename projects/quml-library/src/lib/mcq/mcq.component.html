@@ -9,28 +9,7 @@
             (showPopup)="showPopup()" [tryAgain]="tryAgain"></quml-mcq-option>
     </div>
 </div>
-<!-- End of Default Layout-->
-<!-- Boolean Layout -->
-<div class="quml-mcq layoutBoolean" *ngIf="layout=='BOOLEAN'">
-    <div class="quml-mcq--question mb-16">
-        <quml-mcq-question [mcqQuestion]="mcqQuestion" [layout]="layout" (showPopup)="showPopup()"></quml-mcq-question>
-    </div>
-    <div class="quml-mcq--option">
-        <quml-mcq-option 
-            [mcqOptions]="mcqOptions" 
-            [replayed]="replayed" 
-            [cardinality]="cardinality"
-            [solutions]="solutions" 
-            [layout]="layout" 
-            [numberOfCorrectOptions]="numberOfCorrectOptions" 
-            (optionSelected)="getSelectedOptionAndResult($event)"
-            (showPopup)="showPopup()" 
-            [tryAgain]="tryAgain" 
-            [shuffleOptions]="false">
-        </quml-mcq-option>
-    </div>
-</div>
-<!-- End of Boolean Layout -->
+
 <!--Image Grid Layout-->
 <div class="quml-mcq layoutImageGrid-mcq-horizontal" *ngIf="layout=='IMAGEGRID'">
     <div class="quml-mcq--question mb-16">

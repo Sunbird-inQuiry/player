@@ -723,16 +723,16 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     const isQuestionSkipAllowed = !this.optionSelectedObj && this.allowSkip &&
       (questionType === QuestionType.mcq || questionType === QuestionType.mtf ||
        questionType === QuestionType.ftb || questionType === QuestionType.seq ||
-       questionType === QuestionType.reo);
+       questionType === QuestionType.reo || questionType === QuestionType.boolean);
     const onStartPage = this.startPageInstruction && this.myCarousel.getCurrentSlideIndex() === 0;
     const isActive = !this.optionSelectedObj && this.active;
     const selectedQuestion = this.questions[currentIndex];
     const key = selectedQuestion.responseDeclaration ? this.utilService.getKeyValue(Object.keys(selectedQuestion.responseDeclaration)) : '';
     this.slideDuration = Math.round((new Date().getTime() - this.initialSlideDuration) / 1000);
     const getParams = () => {
-      if (selectedQuestion.qType?.toUpperCase() === QuestionType.mcq && selectedQuestion?.editorState?.options) {
+      if ((selectedQuestion.qType?.toUpperCase() === QuestionType.mcq || selectedQuestion.qType?.toUpperCase() === QuestionType.boolean) && selectedQuestion?.editorState?.options) {
         return selectedQuestion.editorState.options;
-      } else if (selectedQuestion.qType?.toUpperCase() === QuestionType.mcq && !_.isEmpty(selectedQuestion?.editorState)) {
+      } else if ((selectedQuestion.qType?.toUpperCase() === QuestionType.mcq || selectedQuestion.qType?.toUpperCase() === QuestionType.boolean) && !_.isEmpty(selectedQuestion?.editorState)) {
         return [selectedQuestion?.editorState];
       } else {
         return [];
@@ -857,13 +857,13 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       this.myCarousel.getCurrentSlideIndex() > 0 &&
       (questionType === QuestionType.mcq  || questionType === QuestionType.mtf ||
        questionType === QuestionType.ftb  || questionType === QuestionType.seq ||
-       questionType === QuestionType.reo)
+       questionType === QuestionType.reo  || questionType === QuestionType.boolean)
       && this.utilService.canGo(this.progressBarClass[this.myCarousel.getCurrentSlideIndex()])) {
       this.infoPopupTimeOut();
     } else if (!this.optionSelectedObj && !this.active && !this.allowSkip && this.myCarousel.getCurrentSlideIndex() >= 0 &&
       (questionType === QuestionType.mcq  || questionType === QuestionType.mtf ||
        questionType === QuestionType.ftb  || questionType === QuestionType.seq ||
-       questionType === QuestionType.reo)
+       questionType === QuestionType.reo  || questionType === QuestionType.boolean)
       && this.utilService.canGo(this.progressBarClass[this.myCarousel.getCurrentSlideIndex()])) {
       this.infoPopupTimeOut();
     }
@@ -970,6 +970,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
 
       switch (questionType) {
         case QuestionType.mcq:
+        case QuestionType.boolean:
           questionTitleElement = element.querySelector('.mcq-title');
           break;
         default:

@@ -1,20 +1,16 @@
 import { Component, OnInit, OnChanges, SimpleChanges, Input, SecurityContext, Output, EventEmitter, AfterViewInit } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { katex } from 'katex';
 import { UtilService } from '../util-service';
 import * as _ from 'lodash-es';
 import { readI18n, getBodyField } from '../i18n/i18nField';
 
-declare const katex: any;
-
 @Component({
   standalone: false,
-  selector: 'quml-mcq',
-  templateUrl: './mcq.component.html',
-  styleUrls: ['./mcq.component.scss', '../quml-library.component.scss'],
-
+  selector: 'quml-boolean',
+  templateUrl: './boolean.component.html',
+  styleUrls: ['./boolean.component.scss', '../quml-library.component.scss'],
 })
-export class McqComponent implements OnInit, OnChanges, AfterViewInit {
+export class BooleanComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() shuffleOptions?: boolean;
   @Input() savedResponse?: any;
   @Input() question?: any;
@@ -24,26 +20,23 @@ export class McqComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() tryAgain?: boolean;
   @Output() componentLoaded = new EventEmitter<any>();
   @Output() answerChanged = new EventEmitter<any>();
-  @Output() optionSelected = new EventEmitter<number>();
+  @Output() optionSelected = new EventEmitter<any>();
 
   options: any;
   mcqOptions: any[] = [];
-  selectedOptionTarget: any;
-  showQumlPopup = false;
   solutions: Array<[]>;
-  cardinality: string;
-  numberOfCorrectOptions: number;
+  cardinality: string = 'single';
+  numberOfCorrectOptions: number = 1;
 
   get mcqQuestion(): string {
     return this.domSanitizer.sanitize(SecurityContext.HTML,
       this.domSanitizer.bypassSecurityTrustHtml(readI18n(getBodyField(this.question), this.language))) || '';
   }
-  
 
   constructor(
     public domSanitizer: DomSanitizer,
-    public utilService: UtilService) {
-  }
+    public utilService: UtilService
+  ) { }
 
   ngOnInit() {
     this.numberOfCorrectOptions = _.castArray(this.question.responseDeclaration.response1.correctResponse.value).length;
@@ -53,25 +46,6 @@ export class McqComponent implements OnInit, OnChanges, AfterViewInit {
     let key: any = this.utilService.getKeyValue(Object.keys(this.question.responseDeclaration));
     this.cardinality = this.question.responseDeclaration[key]['cardinality'];
 
-    switch(this.question.templateId) {
-      case "mcq-vertical": 
-        this.layout = 'DEFAULT';
-        break;
-      case "mcq-horizontal": 
-        this.layout = 'IMAGEGRID';
-        break;
-      case "mcq-vertical-split":
-        this.layout = 'IMAGEQAGRID';
-        break;
-      case "mcq-grid-split":
-        this.layout = 'MULTIIMAGEGRID';
-        break;
-
-      default:
-        this.layout = 'DEFAULT';
-    }
-
-    this.renderLatex();
     this.options = this.question.interactions[key].options;
     this.initOptions();
     this.applySavedResponse();
@@ -83,22 +57,17 @@ export class McqComponent implements OnInit, OnChanges, AfterViewInit {
       this.initOptions();
       this.applySavedResponse();
     }
+    if (changes['replayed'] && this.replayed) {
+      this.mcqOptions.forEach(mo => mo.selected = false);
+    }
+    if (changes['tryAgain'] && this.tryAgain) {
+      this.mcqOptions.forEach(mo => mo.selected = false);
+    }
   }
 
-  /**
-   * Re-applies a previously saved answer to the freshly built options so the
-   * learner's prior selection is shown on revisit. Matches by option `value`
-   * (stable identity), so it is correct regardless of shuffled display order.
-   * Visual only — does not emit, to avoid scoring on mount.
-   * Public: the renderer also calls this when savedResponse changes (not just at mount).
-   */
   applySavedResponse(): void {
     const option = this.savedResponse?.option;
     if (_.isEmpty(option)) { return; }
-    // Normalize to string before comparing (mtf/ordered do the same): the saved
-    // value and the option value share an in-memory source today, but a real
-    // persistence layer may serialize numeric values to strings, and a strict
-    // === would then silently fail to restore the selection.
     const selectedValues = _.castArray(option).map((o: any) => String(o?.value));
     this.mcqOptions.forEach(mo => {
       mo.selected = selectedValues.includes(String(mo.value));
@@ -106,10 +75,7 @@ export class McqComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    const el = document.getElementsByClassName('mcq-options');
-    if (el != null && el.length > 0) {
-      el[0].remove();
-    }
+    // Component loaded hook
   }
 
   initOptions() {
@@ -128,33 +94,23 @@ export class McqComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
-  renderLatex() {
-    setTimeout(() => {
-      this.replaceLatexText();
-    }, 100);
+  onOptionSelect(event: MouseEvent | KeyboardEvent, mcqOption, index: number) {
+    if (this.tryAgain) { return; }
+    this.mcqOptions.forEach((mo, idx) => {
+      mo.selected = (idx === index);
+    });
+    this.optionSelected.emit({
+      name: 'optionSelect',
+      option: mcqOption,
+      cardinality: 'single',
+      solutions: this.solutions
+    });
   }
 
-  replaceLatexText() {
-    const questionElement = document.getElementById(this.question?.identifier ?? this.question?.id);
-    if (questionElement != null) {
-      const mathTextDivs = questionElement.getElementsByClassName('mathText');
-      for (let i = 0; i < mathTextDivs.length; i++) {
-        const mathExp = mathTextDivs[i];
-        const textToRender = mathExp.innerHTML;
-        katex.render(textToRender, mathExp, { displayMode: false, output: 'html', throwOnError: true });
-      }
+  onEnter(event: KeyboardEvent, mcqOption, index: number) {
+    if (event.key === 'Enter') {
+      event.stopPropagation();
+      this.onOptionSelect(event, mcqOption, index);
     }
-  }
-
-  getSelectedOptionAndResult(optionObj) {
-    this.optionSelected.emit(optionObj);
-  }
-
-  showPopup() {
-    this.showQumlPopup = true;
-  }
-
-  closePopUp() {
-    this.showQumlPopup = false;
   }
 }

@@ -59,4 +59,5 @@ export enum QuestionType {
     ftb = 'FTB',
     seq = 'SEQ',
     reo = 'REO',
+    boolean = 'BOOL',
 }

@@ -46,11 +46,13 @@ import { FtbComponent } from './ftb/ftb.component';
 import { OrderedComponent } from './ordered/ordered.component';
 import { QUESTION_TYPE_REGISTRY, QuestionTypeDefinition } from './registry/question-type.interface';
 import { BaseQuestionDirective } from './base-question.directive';
+import { BooleanComponent } from './boolean/boolean.component';
 
 @NgModule({
   declarations: [
     QumlLibraryComponent,
     McqComponent,
+    BooleanComponent,
     HeaderComponent,
     SaComponent,
     McqQuestionComponent,
@@ -102,6 +104,10 @@ import { BaseQuestionDirective } from './base-question.directive';
     {
       provide: QUESTION_TYPE_REGISTRY, multi: true,
       useValue: { primaryCategory: 'multiple choice question', component: McqComponent } as QuestionTypeDefinition,
+    },
+    {
+      provide: QUESTION_TYPE_REGISTRY, multi: true,
+      useValue: { primaryCategory: 'boolean question', component: BooleanComponent } as QuestionTypeDefinition,
     },
     {
       provide: QUESTION_TYPE_REGISTRY, multi: true,

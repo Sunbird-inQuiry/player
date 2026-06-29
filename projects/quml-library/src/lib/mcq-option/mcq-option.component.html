@@ -44,13 +44,3 @@
     </div>
 </div>
 
-<div class="quml-mcq-options layoutBooleanOptions" role="radiogroup" *ngIf="layout === 'BOOLEAN'">
-    <div class="quml-option-card boolean-card" tabindex="0" role="checkbox" [attr.aria-checked]="mcqOption.selected" *ngFor="let mcqOption of mcqOptions; let index = index"
-    (keydown)="mcqOption.isDisabled ? null: onEnter($event, mcqOption, index)"
-    (click)="mcqOption.isDisabled ? null: onOptionSelect($event, mcqOption, index)"
-    [ngClass]="{'disabled': mcqOption.isDisabled === true, 'selected': mcqOption.selected}">
-        <div class="quml-option" [ngClass]="mcqOption.selected ? 'quml-option quml-option--selected' : 'quml-option'">
-            <div class="option" [innerHTML]="mcqOption.label | safeHtml"></div>
-        </div>
-    </div>
-</div>
