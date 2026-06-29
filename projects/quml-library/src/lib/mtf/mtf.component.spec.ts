@@ -71,6 +71,14 @@ describe('MtfComponent', () => {
     expect(component.correctValue).toEqual({ A: '1', B: '2' });
   });
 
+  it('should restore the saved pairing via applySavedResponse', () => {
+    // userResponse maps left→right (A→2, B→1); pairing is left[i]↔right[i], so
+    // the right column must be ordered ['2','1'] after restore.
+    component.savedResponse = { option: { userResponse: { A: '2', B: '1' } } };
+    fixture.detectChanges();
+    expect(component.right.map(r => r.value)).toEqual(['2', '1']);
+  });
+
   it('should emit componentLoaded on init', () => {
     spyOn(component.componentLoaded, 'emit');
     fixture.detectChanges();
@@ -84,6 +92,30 @@ describe('MtfComponent', () => {
     component.drop({ previousIndex: 0, currentIndex: 0 } as any);
     expect(component.optionSelected.emit).toHaveBeenCalledWith(
       jasmine.objectContaining({ cardinality: 'map' })
+    );
+  });
+
+  it('should load solutions from the question on init', () => {
+    const sol = [{ type: 'html', value: '<p>A->1, B->2</p>' }];
+    component.question = { ...question, solutions: sol };
+    component.ngOnInit();
+    expect(component.solutions).toEqual(sol);
+  });
+
+  it('should default solutions to [] when the question has none', () => {
+    component.question = { ...question, solutions: undefined };
+    component.ngOnInit();
+    expect(component.solutions).toEqual([]);
+  });
+
+  it('should emit the question solutions with the answer on drop', () => {
+    const sol = [{ type: 'html', value: '<p>answer</p>' }];
+    component.question = { ...question, solutions: sol };
+    component.ngOnInit();
+    spyOn(component.optionSelected, 'emit');
+    component.drop({ previousIndex: 0, currentIndex: 0 } as any);
+    expect(component.optionSelected.emit).toHaveBeenCalledWith(
+      jasmine.objectContaining({ cardinality: 'map', solutions: sol })
     );
   });
 

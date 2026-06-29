@@ -41,6 +41,14 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
   showStartPage = true;
   threshold: number;
   questions = [];
+  /**
+   * Saved answers for the current section's questions, keyed by identifier, so the
+   * template binds a plain property read instead of calling viewerService on every
+   * change-detection tick. Rebuilt whenever `questions` (re)load — slides only read
+   * it at mount, and trackBy reuses views within a section, so a per-save refresh
+   * isn't needed (the child owns its live state once mounted).
+   */
+  savedResponses: Record<string, any> = {};
   questionIds: string[];
   noOfQuestions: number;
   initialTime: number;
@@ -70,6 +78,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
   active = false;
   showAlert: boolean;
   currentOptions: any;
+  currentOptionsLayout: 'list' | 'pairs' = 'list';
   currentQuestion: any;
   currentQuestionIndetifier: string;
   media: any;
@@ -155,6 +164,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
         res.questions.forEach((q: any) => { if (!mergedById.has(q.identifier)) { mergedById.set(q.identifier, q); } });
         this.questions = Array.from(mergedById.values());
         this.sortQuestions();
+        this.refreshSavedResponses();
         this.viewerService.updateSectionQuestions(this.sectionConfig.metadata.identifier, this.questions);
         this.cdRef.detectChanges();
         this.noOfTimesApiCalled++;
@@ -245,6 +255,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
 
     this.questions = this.viewerService.getSectionQuestions(this.sectionConfig.metadata.identifier);
     this.sortQuestions();
+    this.refreshSavedResponses();
     this.viewerService.updateSectionQuestions(this.sectionConfig.metadata.identifier, this.questions);
     this.resetQuestionState();
     if (this.jumpToQuestion) {
@@ -274,6 +285,17 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
         firstSlide.removeAttribute("tabindex");
       }
     }, 100);
+  }
+
+  /**
+   * Tracks carousel slides by question identifier so the slide views are reused
+   * across re-renders (e.g. when `questions` is reassigned by the per-section
+   * re-fetch/merge on returning to a section). Without this, Angular tracks by
+   * object identity, tears down and rebuilds every slide, and the carousel can
+   * desync and show two questions on one page.
+   */
+  trackByQuestionIdentifier(index: number, question: any): string | number {
+    return question?.identifier ?? index;
   }
 
   sortQuestions() {
@@ -335,9 +357,13 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       this.emitSectionEnd();
       return;
     }
+    // Reset BEFORE moving: myCarousel.move() fires activeSlideChange →
+    // restoreSavedResponseForCurrentSlide(), which is the single point that
+    // (re)establishes per-slide state. Resetting after move() would wipe that
+    // restore, making it take effect only on backward/jump navigation.
+    this.resetQuestionState();
     this.myCarousel.move(this.carouselConfig.NEXT);
     this.setImageZoom();
-    this.resetQuestionState();
     this.clearTimeInterval();
   }
 
@@ -408,6 +434,50 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     }
 
     this.viewerService.pauseVideo();
+    this.restoreSavedResponseForCurrentSlide();
+  }
+
+  /**
+   * Re-establishes section-player state for a previously-answered question when
+   * the learner lands on its slide (e.g. returning to an earlier section). The
+   * component itself restores the visible selection from `savedResponse`; here we
+   * restore optionSelectedObj so navigation/feedback behave as if it were answered.
+   * Scoring/ASSESS are NOT re-run here — the score already lives in mainProgressBar
+   * and ASSESS is deduped by identifier in viewerService.
+   */
+  private restoreSavedResponseForCurrentSlide(): void {
+    if (!this.myCarousel) { return; }
+    const currentIndex = this.myCarousel.getCurrentSlideIndex() - 1;
+    if (currentIndex < 0 || !this.questions[currentIndex]) { return; }
+    const saved = this.viewerService.getUserResponse(this.questions[currentIndex].identifier);
+    if (saved) {
+      this.optionSelectedObj = saved;
+      this.currentOptionSelected = saved;
+      this.currentSolutions = !_.isEmpty(saved.solutions) ? saved.solutions : undefined;
+      this.active = true;
+    } else {
+      // No saved answer for this question — clear any selection that may have been
+      // restored on a previously-visited slide. prevSlide()/goToSlide() don't call
+      // resetQuestionState(), so without this an answered slide's optionSelectedObj
+      // would leak forward and the next (unanswered) question would be scored with it.
+      this.optionSelectedObj = undefined;
+      this.currentOptionSelected = undefined;
+      this.currentSolutions = undefined;
+      this.active = false;
+    }
+  }
+
+  /**
+   * Rebuilds the saved-answer lookup for the current section's questions from the
+   * ViewerService store. Called whenever `questions` are (re)loaded.
+   */
+  private refreshSavedResponses(): void {
+    const map: Record<string, any> = {};
+    (this.questions || []).forEach((q: any) => {
+      const saved = this.viewerService.getUserResponse(q?.identifier);
+      if (saved) { map[q.identifier] = saved; }
+    });
+    this.savedResponses = map;
   }
 
   nextSlideClicked(event) {
@@ -552,7 +622,21 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     }
     this.currentQuestionIndetifier = this.questions[currentIndex].identifier;
     this.media = _.get(this.questions[currentIndex], 'media', []);
-   
+
+    // Persist the learner's answer so it survives section navigation (and is
+    // re-shown on revisit). A real (non-empty) user selection also clears the
+    // assessed flag so a changed answer is re-assessed. The empty-option path
+    // (skip / try-again) only clears the stored answer — it must NOT re-open the
+    // ASSESS dedup gate, or a skip-then-reselect-the-same-answer would emit a
+    // redundant ASSESS for an answer already assessed this attempt.
+    if (!_.isEmpty(optionSelected?.option)) {
+      this.viewerService.clearAssessed(this.currentQuestionIndetifier);
+    }
+    this.viewerService.saveUserResponse(
+      this.currentQuestionIndetifier,
+      _.isEmpty(optionSelected?.option) ? null : optionSelected,
+    );
+
     /* istanbul ignore else */
     if (!this.showFeedBack) {
       this.validateSelectedOption(this.optionSelectedObj);
@@ -853,9 +937,27 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.disableNext = false;
     this.initializeTimer = true;
     const index = event.questionNo;
-    this.viewerService.getQuestions(0, index);
     this.currentSlideIndex = index;
+    // Only fetch when the target question isn't already loaded. Calling
+    // getQuestions() unconditionally re-splices identifiers and re-emits the
+    // question event, which rebuilds the questions array and desyncs the
+    // carousel — the jumped-to question briefly renders twice. Mirrors goToSlide.
+    if (this.questions[index - 1] === undefined) {
+      // Not loaded yet: fetch. The qumlQuestionEvent subscription selects the
+      // slide, sets media, and runs setImageZoom()/highlightQuestion() once the
+      // questions arrive and the DOM has updated — doing it here would run
+      // against the previous slide's DOM (duplicate magnify icons / wrong srcs).
+      this.showQuestions = false;
+      this.viewerService.getQuestions(0, index);
+      return;
+    }
+    // Already loaded (review): no fetch will fire, so set the slide media and
+    // re-run setImageZoom() here. Otherwise the jumped-to (first reviewed)
+    // question keeps its relative <img src> and the image 404s until the learner
+    // navigates to the next slide. Mirrors goToSlide/nextSlide.
     this.myCarousel.selectSlide(index);
+    this.currentQuestionsMedia = _.get(this.questions[index - 1], 'media');
+    setTimeout(() => { this.setImageZoom(); });
     this.highlightQuestion();
   }
 
@@ -886,10 +988,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.showAlert = false;
     this.viewerService.raiseHeartBeatEvent(eventName.showAnswer, TelemetryType.interact, this.myCarousel.getCurrentSlideIndex());
     this.viewerService.raiseHeartBeatEvent(eventName.showAnswer, TelemetryType.impression, this.myCarousel.getCurrentSlideIndex());
-    const currentIndex = this.myCarousel.getCurrentSlideIndex() - 1;
-    this.currentQuestion = this.questions[currentIndex].body;
-    this.currentOptions = this.questions[currentIndex].interactions?.response1?.options;
-    this.currentQuestionsMedia = _.get(this.questions[currentIndex], 'media');
+    this.prepareSolutionView();
     setTimeout(() => {
       this.setImageZoom();
     });
@@ -903,11 +1002,61 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.clearTimeInterval();
   }
 
+  /**
+   * Populates the solution panel's question/options/media for the current slide.
+   * Shared by getSolutions() (left "answer" button) and viewSolution() (feedback
+   * popup) so both entry points render a fully populated panel — previously
+   * viewSolution() only toggled showSolution, leaving question/options stale.
+   */
+  private prepareSolutionView(): void {
+    const currentIndex = this.myCarousel.getCurrentSlideIndex() - 1;
+    const question: any = this.questions[currentIndex];
+    if (!question) { return; }
+    this.currentQuestion = question.body;
+    // The solution panel renders options via *ngFor, so it needs an iterable.
+    // MCQ-style options are already an array; MTF stores them as {left, right},
+    // which we flatten into one list so the pairs still show; anything else (no
+    // options) falls back to [] to avoid an NgFor error.
+    const options = question.interactions?.response1?.options;
+    if (_.isArray(options)) {
+      this.currentOptions = options;
+      this.currentOptionsLayout = 'list';
+    } else if (options && (options.left || options.right)) {
+      // MTF: interleave each left with its CORRECT right (per correctResponse) so
+      // the panel's two-column 'pairs' layout shows the matched pairs side by side.
+      this.currentOptions = this.buildMatchPairs(question, options.left || [], options.right || []);
+      this.currentOptionsLayout = 'pairs';
+    } else {
+      this.currentOptions = [];
+      this.currentOptionsLayout = 'list';
+    }
+    this.currentQuestionsMedia = _.get(question, 'media');
+  }
+
+  /**
+   * Builds the MTF correct-pair list for the solution panel: each left option
+   * followed by the right option it correctly maps to (per correctResponse,
+   * leftValue -> rightValue). Falls back to positional pairing when there is no
+   * correctResponse. The flat [left, right, left, right, ...] order fills the
+   * panel's two-column 'pairs' grid so each pair lands on one row.
+   */
+  private buildMatchPairs(question: any, left: any[], right: any[]): any[] {
+    const correct = question?.responseDeclaration?.response1?.correctResponse?.value || {};
+    const rightByValue = new Map(right.map((r: any) => [String(r.value), r]));
+    const pairs: any[] = [];
+    left.forEach((l: any, i: number) => {
+      pairs.push(l);
+      const match = rightByValue.get(String(correct[l.value])) ?? right[i];
+      if (match) { pairs.push(match); }
+    });
+    return pairs;
+  }
+
   viewSolution() {
     this.viewerService.raiseHeartBeatEvent(eventName.viewSolutionClicked, TelemetryType.interact, this.myCarousel.getCurrentSlideIndex());
+    this.prepareSolutionView();
     this.showSolution = true;
     this.showAlert = false;
-    this.currentQuestionsMedia = _.get(this.questions[this.myCarousel.getCurrentSlideIndex() - 1], 'media');
     setTimeout(() => {
       this.setImageZoom();
       this.setImageHeightWidthClass();
@@ -1212,6 +1361,8 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
             if (currentQuestionId) {
               image['src'] = `${baseUrl}/${currentQuestionId}/${val.src}`;
             }
+          } else if (/^https?:\/\//i.test(val.src ?? '')) {
+            image['src'] = val.src;
           } else if (val.baseUrl) {
             image['src'] = val.baseUrl + val.src;
           }

@@ -31,11 +31,49 @@ export class SaComponent implements OnInit, OnChanges, AfterViewInit {
     return readI18n(this.question?.answer, this.language) || this.getFtbAnswer() || '';
   }
 
+  /**
+   * Solution values resolved to the current language. `solutions` is a map
+   * ({id: value}); each value is an I18nValue ({en, ar, ...}) or plain HTML.
+   * Bound raw they render as "[object Object]", so resolve to strings here.
+   */
+  get resolvedSolutions(): string[] {
+    if (!this.solutions) { return []; }
+    const values = Array.isArray(this.solutions) ? this.solutions : Object.values(this.solutions);
+    return values
+      .map((v: any) => {
+        // Legacy shape: an array of { type, value, src } objects — unwrap to the
+        // payload. New shape: an I18nValue map or plain HTML string — use as-is.
+        const raw = v && typeof v === 'object' && 'value' in v ? v.value : v;
+        return this.resolveAssetSrc(readI18n(raw, this.language));
+      })
+      .filter(Boolean);
+  }
+
+  /**
+   * Absolutises root-relative src/poster (img/video/audio/source) in solution
+   * HTML using the question's media host, so image/video/audio solutions load
+   * from the content host instead of the asset-less local proxy.
+   */
+  private resolveAssetSrc(html: string): string {
+    if (!html) { return html || ''; }
+    const mediaArr: any[] = Array.isArray(this.question?.media) ? this.question.media : [];
+    const host = (mediaArr.find((m: any) => m.baseUrl)?.baseUrl || this.baseUrl || '').replace(/\/$/, '');
+    if (!host) { return html; }
+    return html.replace(/\b(src|poster)="(\/[^"]*)"/g, (_m, attr, path) => `${attr}="${host}${path}"`);
+  }
+
   constructor( public domSanitizer: DomSanitizer, private utilService: UtilService ) { }
 
   ngOnInit() {
     this.solutions = _.isEmpty(this.question?.solutions) ? null : this.question?.solutions;
   }
+
+  /**
+   * Restore hook (part of the question-type contract). Short answer is subjective
+   * and never emits/persists an answer, so there is intentionally nothing to
+   * restore — the blank input on revisit is correct.
+   */
+  applySavedResponse(): void { /* no-op: SA has no persisted answer */ }
 
   private getFtbAnswer(): string | null {
     const rd = this.question?.responseDeclaration;

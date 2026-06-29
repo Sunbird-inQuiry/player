@@ -131,6 +131,27 @@ describe('SaComponent', () => {
   });
 
 
+  it('should resolve solution map values to the current language', () => {
+    component.solutions = { s1: { en: '<p>sol-en</p>', ar: '<p>sol-ar</p>' } };
+    component.language = 'ar';
+    expect(component.resolvedSolutions).toEqual(['<p>sol-ar</p>']);
+  });
+
+  it('should resolve plain-string solution values and drop empties', () => {
+    component.solutions = { s1: '<p>plain</p>', s2: '' };
+    expect(component.resolvedSolutions).toEqual(['<p>plain</p>']);
+  });
+
+  it('should return [] solutions when none set', () => {
+    component.solutions = null;
+    expect(component.resolvedSolutions).toEqual([]);
+  });
+
+  it('should unwrap legacy array {type,value} solutions to their value', () => {
+    component.solutions = [{ type: 'html', value: '<p>legacy</p>' }];
+    expect(component.resolvedSolutions).toEqual(['<p>legacy</p>']);
+  });
+
   it('#ngOnInit() should not set solution if not exist', () => {
     ( component as any).questions = {...questions};
     ( component as any).questions.solutions = null;

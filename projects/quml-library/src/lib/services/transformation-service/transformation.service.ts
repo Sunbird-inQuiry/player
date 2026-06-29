@@ -292,15 +292,18 @@ export class TransformationService {
       let answerData = _.get(responseData, 'cardinality');
 
       if (answerData === 'single') {
-        const correctResp = _.get(_.get(responseData, 'correctResponse', {}), 'value', 0);
+        const correctResp = _.get(responseData, 'correctResponse.value', 0);
         const label = options[correctResp];
-
-        formatedAnswer = `<div class="answer-container"><div class="answer-body">${label.label}</div></div>`;
+        // Guard: non-MCQ types (FTB/MTF/SEQ/REO) don't expose a choice `options`
+        // array indexable by correctResponse.value, so `label` can be undefined.
+        if (!_.isEmpty(label)) {
+          formatedAnswer = `<div class="answer-container"><div class="answer-body">${_.get(label, 'label', '')}</div></div>`;
+        }
       } else {
         const correctResp = _.get(responseData, 'correctResponse.value');
         let singleAns = '<div class="answer-body">answer_html</div>';
-        const answerList = [];
-        _.forEach(options, (option) => {
+        const answerList: string[] = [];
+        _.forEach(options, (option: any) => {
           if (_.includes(correctResp, option.value,)) {
             const replAns = _.replace(singleAns, 'answer_html', _.get(option, 'label'))
             answerList.push(replAns)

@@ -32,7 +32,7 @@
               [language]="parentConfig?.language">
             </quml-startpage>
           </slide>
-          <slide *ngFor="let question of questions; let i= index" #questionSlide>
+          <slide *ngFor="let question of questions; let i= index; trackBy: trackByQuestionIdentifier" #questionSlide>
             <div [id]="question.identifier">
               <quml-question-renderer
                 [question]="question"
@@ -40,6 +40,7 @@
                 [baseUrl]="parentConfig?.baseUrl"
                 [tryAgain]="tryAgainClicked"
                 [shuffleOptions]="shuffleOptions"
+                [savedResponse]="savedResponses[question.identifier]"
                 [language]="parentConfig?.language"
                 (optionSelected)="getOptionSelected($event)"
                 (showAnswerClicked)="showAnswerClicked($event, question)"
@@ -127,7 +128,8 @@
     (closeAlert)="closeAlertBox($event)"></quml-alert>
 
   <quml-mcq-solutions *ngIf="showSolution" [question]="currentQuestion" [options]="currentOptions"
-    [solutions]="currentSolutions" [baseUrl]="parentConfig?.baseUrl" [media]="media" [identifier]="currentQuestionIndetifier" (close)="closeSolution()"></quml-mcq-solutions>
+    [solutions]="currentSolutions" [baseUrl]="parentConfig?.baseUrl" [media]="media" [identifier]="currentQuestionIndetifier"
+    [language]="parentConfig?.language" [optionsLayout]="currentOptionsLayout" (close)="closeSolution()"></quml-mcq-solutions>
 </div>
 
 <div class="info-popup" *ngIf="infoPopup">

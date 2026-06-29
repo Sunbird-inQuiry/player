@@ -9,6 +9,25 @@
   font-weight: 400;
   font-family: inherit;
   p { margin: 0; }
+
+  // Question-body images (rendered via innerHTML) have no container cap here
+  // unlike MCQ's .questionBlock. Default unresized images to a sensible bound;
+  // the author's CKEditor resize class (resize-25/50/75/100) still controls
+  // width when present.
+  ::ng-deep figure.image,
+  ::ng-deep .image {
+    max-width: 100%;
+  }
+
+  ::ng-deep img {
+    max-width: 100%;
+    // Scale the cap with the device: ~35% of viewport height, but never
+    // smaller than 9rem (144px) or larger than 22rem (352px).
+    max-height: clamp(9rem, 35vh, 22rem);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
 }
 
 // ════════════════════════════════════════════════════════
@@ -69,6 +88,17 @@
   font-size: 1rem;
   color: #222;
   p { margin: 0; }
+
+  // SEQ item images (rendered via innerHTML) have no inherent cap, so each
+  // renders at its natural size and a wide image dominates the card while
+  // others stay small. Cap to a uniform height so every card lines up.
+  ::ng-deep img {
+    max-width: 100%;
+    max-height: 6rem;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
 }
 
 // ════════════════════════════════════════════════════════

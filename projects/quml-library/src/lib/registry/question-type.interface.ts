@@ -16,6 +16,11 @@ export interface IQuestionPlayer {
   showAnswerClicked?: EventEmitter<any>;
   // Optional output — FTB only
   goToNext?: EventEmitter<void>;
+  // Optional input — the learner's saved answer, for restore on revisit
+  savedResponse?: any;
+  // Optional restore hook — re-applies savedResponse to the visible state.
+  // Called by the renderer on mount and whenever savedResponse changes.
+  applySavedResponse?(): void;
 }
 
 export interface QuestionTypeDefinition {

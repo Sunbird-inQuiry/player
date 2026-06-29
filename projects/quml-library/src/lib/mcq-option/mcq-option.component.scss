@@ -155,8 +155,14 @@ input:checked~.radiomark:after, .quml-option--selected .radiomark:after {
   opacity: 1;
 }
 
-img {
-  width: 100% !important;
+// Option content comes via [innerHTML], so use ::ng-deep (component-scoped
+// `img` rules don't reach innerHTML). Compact, device-scaled cap.
+.option ::ng-deep img {
+  max-width: 100%;
+  max-height: clamp(6rem, 20vh, 12rem);
+  width: auto !important;
+  height: auto;
+  object-fit: contain;
 }
 
 .option-img {

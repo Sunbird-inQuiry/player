@@ -23,6 +23,7 @@ export class FtbComponent extends BaseQuestionDirective implements OnInit, OnCha
   responseKeys: string[] = [];
   userAnswers: Record<string, string>    = {};
   correctAnswers: Record<string, string> = {};
+  solutions: any = [];
 
   constructor(public utilService: UtilService) { super(); }
 
@@ -38,7 +39,23 @@ export class FtbComponent extends BaseQuestionDirective implements OnInit, OnCha
       );
     });
 
+    // Raw solutions (same shape MCQ emits) so the shared solution panel can
+    // render them when "Show Answer" is clicked.
+    this.solutions = this.question.solutions || [];
+
+    // Restore previously entered text on revisit (visual only, no emit).
+    this.applySavedResponse();
+
     this.segments = this.parseBody(this.resolveBody());
+  }
+
+  /** Re-applies the learner's previously typed blanks on revisit (visual only). */
+  override applySavedResponse(): void {
+    const savedResponses = this.savedResponse?.option?.responses;
+    if (!savedResponses) { return; }
+    this.responseKeys.forEach(rk => {
+      if (savedResponses[rk] !== undefined) { this.userAnswers[rk] = savedResponses[rk]; }
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -71,7 +88,7 @@ export class FtbComponent extends BaseQuestionDirective implements OnInit, OnCha
     this.optionSelected.emit({
       cardinality: 'ftb',
       option: isEmpty ? null : { responses: { ...this.userAnswers } },
-      solutions: [],
+      solutions: isEmpty ? [] : this.solutions,
     });
   }
 

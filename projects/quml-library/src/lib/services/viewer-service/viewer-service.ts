@@ -38,6 +38,54 @@ export class ViewerService {
   language: string;
   sectionQuestions = [];
   sectionConfig:any;
+
+  /**
+   * Persists the learner's answer for each question across the whole attempt,
+   * keyed by question identifier (NOT by index/order). Survives section
+   * navigation because ViewerService is a root singleton, and is decoupled from
+   * the question objects (which get replaced on the per-section re-fetch).
+   * Mirrors the ECML player's `_questionStates` map on the persistent theme.
+   */
+  userResponses = new Map<string, any>();
+
+  /**
+   * Identifiers already assessed this attempt. Used to dedup ASSESS telemetry:
+   * a question is assessed once per attempt unless its answer is changed
+   * (the change clears its entry via clearAssessed). Cleared on replay.
+   */
+  private assessedIdentifiers = new Set<string>();
+
+  /** Save (or clear, when empty) the learner's response for a question. */
+  saveUserResponse(identifier: string, optionSelected: any): void {
+    if (!identifier) { return; }
+    if (!optionSelected || _.isEmpty(optionSelected.option)) {
+      this.userResponses.delete(identifier);
+    } else {
+      this.userResponses.set(identifier, optionSelected);
+    }
+  }
+
+  /**
+   * Returns the previously saved response for a question, or undefined.
+   * The returned object is the STORED reference (not a copy) — treat it as
+   * read-only. It is assigned into optionSelectedObj/currentOptionSelected and
+   * handed to child components as @Input savedResponse; mutating its `option` /
+   * `solutions` in place would corrupt the persisted store for the whole attempt.
+   */
+  getUserResponse(identifier: string): any {
+    return identifier ? this.userResponses.get(identifier) : undefined;
+  }
+
+  /** Allow a question to be assessed again (e.g. the learner changed their answer). */
+  clearAssessed(identifier: string): void {
+    if (identifier) { this.assessedIdentifiers.delete(identifier); }
+  }
+
+  /** Clears all saved responses and assess flags (e.g. on replay / new attempt). */
+  clearUserResponses(): void {
+    this.userResponses.clear();
+    this.assessedIdentifiers.clear();
+  }
   constructor(
     public qumlLibraryService: QumlLibraryService,
     public utilService: UtilService,
@@ -149,6 +197,15 @@ export class ViewerService {
   }
 
   raiseAssesEvent(questionData, index: number, pass: string, score, resValues, duration: number) {
+    // Dedup: raise ASSESS at most once per question per attempt. Revisiting an
+    // already-answered question (e.g. returning to a prior section) must not
+    // re-emit ASSESS. Changing the answer clears the flag via clearAssessed,
+    // allowing a fresh ASSESS. Mirrors ECML's assess-keyed-by-item.id model.
+    const assessedId = questionData?.id;
+    if (assessedId) {
+      if (this.assessedIdentifiers.has(assessedId)) { return; }
+      this.assessedIdentifiers.add(assessedId);
+    }
     const assessEvent = {
       item: questionData,
       index: index,

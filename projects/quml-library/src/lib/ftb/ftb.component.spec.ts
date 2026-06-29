@@ -62,6 +62,12 @@ describe('FtbComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should restore previously entered answers via applySavedResponse', () => {
+    component.savedResponse = { option: { responses: { response1: 'Paris' } } };
+    fixture.detectChanges();
+    expect(component.userAnswers['response1']).toBe('Paris');
+  });
+
   it('should parse body into html and blank segments', () => {
     fixture.detectChanges();
     expect(component.segments.length).toBe(3);
@@ -115,6 +121,46 @@ describe('FtbComponent', () => {
   });
 
   it('should emit null option when all answers are empty', () => {
+    fixture.detectChanges();
+    spyOn(component.optionSelected, 'emit');
+    component.userAnswers['response1'] = '';
+    component.onAnswerChange();
+    expect(component.optionSelected.emit).toHaveBeenCalledWith({
+      cardinality: 'ftb',
+      option: null,
+      solutions: []
+    });
+  });
+
+  it('should load solutions from the question on init', () => {
+    const sol = [{ type: 'html', value: '<p>Paris</p>' }];
+    component.question = { ...question, solutions: sol };
+    fixture.detectChanges();
+    expect(component.solutions).toEqual(sol);
+  });
+
+  it('should default solutions to [] when the question has none', () => {
+    fixture.detectChanges();
+    expect(component.solutions).toEqual([]);
+  });
+
+  it('should emit the question solutions when an answer is entered', () => {
+    const sol = [{ type: 'html', value: '<p>Paris</p>' }];
+    component.question = { ...question, solutions: sol };
+    fixture.detectChanges();
+    spyOn(component.optionSelected, 'emit');
+    component.userAnswers['response1'] = 'Paris';
+    component.onAnswerChange();
+    expect(component.optionSelected.emit).toHaveBeenCalledWith({
+      cardinality: 'ftb',
+      option: { responses: { response1: 'Paris' } },
+      solutions: sol
+    });
+  });
+
+  it('should emit empty solutions when all answers are empty even if solutions exist', () => {
+    const sol = [{ type: 'html', value: '<p>Paris</p>' }];
+    component.question = { ...question, solutions: sol };
     fixture.detectChanges();
     spyOn(component.optionSelected, 'emit');
     component.userAnswers['response1'] = '';

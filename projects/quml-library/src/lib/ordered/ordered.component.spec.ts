@@ -87,6 +87,12 @@ describe('OrderedComponent — SEQ', () => {
     expect(component.availableWords.length).toBe(0);
   });
 
+  it('should restore the saved item order via applySavedResponse (SEQ)', () => {
+    component.savedResponse = { option: { userOrder: ['C', 'A', 'B'] } };
+    component.applySavedResponse();
+    expect(component.items.map(i => i.value)).toEqual(['C', 'A', 'B']);
+  });
+
   it('should emit componentLoaded on init', () => {
     spyOn(component.componentLoaded, 'emit');
     component.ngOnInit();
@@ -98,6 +104,28 @@ describe('OrderedComponent — SEQ', () => {
     component.drop({ previousIndex: 0, currentIndex: 1 } as any);
     expect(component.optionSelected.emit).toHaveBeenCalledWith(
       jasmine.objectContaining({ cardinality: 'ordered', option: jasmine.objectContaining({ userOrder: jasmine.any(Array) }) })
+    );
+  });
+
+  it('should load solutions from the question on init (SEQ)', () => {
+    const sol = [{ type: 'html', value: '<p>A, B, C</p>' }];
+    component.question = { ...seqQuestion, solutions: sol };
+    component.ngOnInit();
+    expect(component.solutions).toEqual(sol);
+  });
+
+  it('should default solutions to [] when the question has none (SEQ)', () => {
+    expect(component.solutions).toEqual([]);
+  });
+
+  it('should emit the question solutions with the answer on drop (SEQ)', () => {
+    const sol = [{ type: 'html', value: '<p>A, B, C</p>' }];
+    component.question = { ...seqQuestion, solutions: sol };
+    component.ngOnInit();
+    spyOn(component.optionSelected, 'emit');
+    component.drop({ previousIndex: 0, currentIndex: 1 } as any);
+    expect(component.optionSelected.emit).toHaveBeenCalledWith(
+      jasmine.objectContaining({ cardinality: 'ordered', solutions: sol })
     );
   });
 
@@ -164,6 +192,17 @@ describe('OrderedComponent — REO', () => {
     expect(component.availableWords.length).toBe(2);
     expect(component.optionSelected.emit).toHaveBeenCalledWith(
       jasmine.objectContaining({ cardinality: 'ordered', option: jasmine.objectContaining({ userOrder: [word.value] }) })
+    );
+  });
+
+  it('should emit the question solutions with the answer on addWord (REO)', () => {
+    const sol = [{ type: 'html', value: '<p>X, Y, Z</p>' }];
+    component.question = { ...reoQuestion, solutions: sol };
+    component.ngOnInit();
+    spyOn(component.optionSelected, 'emit');
+    component.addWord(component.availableWords[0]);
+    expect(component.optionSelected.emit).toHaveBeenCalledWith(
+      jasmine.objectContaining({ cardinality: 'ordered', solutions: sol })
     );
   });
 

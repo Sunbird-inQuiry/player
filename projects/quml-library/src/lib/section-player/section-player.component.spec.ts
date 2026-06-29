@@ -30,6 +30,10 @@ describe('SectionPlayerComponent', () => {
     raiseResponseEvent() { }
     getSectionQuestions() { }
     raiseAssesEvent() { }
+    saveUserResponse() { }
+    getUserResponse() { return undefined; }
+    clearAssessed() { }
+    clearUserResponses() { }
     qumlPlayerEvent = new EventEmitter<any>();
     qumlQuestionEvent = new EventEmitter<any>();
     pauseVideo() { }
@@ -203,6 +207,36 @@ describe('SectionPlayerComponent', () => {
     expect(component.clearTimeInterval).toHaveBeenCalled();
   });
 
+  it('should select slide, set media and run setImageZoom when jumping to an already-loaded question (review)', fakeAsync(() => {
+    component.myCarousel = jasmine.createSpyObj("CarouselComponent", { selectSlide: {}, getCurrentSlideIndex: 1 });
+    component.questions = mockSectionQuestions;
+    spyOn(viewerService, 'getQuestions');
+    spyOn(component, 'setImageZoom');
+    spyOn(component, 'highlightQuestion');
+    component.goToQuestion({ questionNo: 1 });
+    tick();
+    expect(component.currentSlideIndex).toBe(1);
+    expect(viewerService.getQuestions).not.toHaveBeenCalled();
+    expect(component.myCarousel.selectSlide).toHaveBeenCalledWith(1);
+    expect(component.currentQuestionsMedia).toEqual(mockSectionQuestions[0].media);
+    expect(component.setImageZoom).toHaveBeenCalled();
+  }));
+
+  it('should fetch and defer slide/zoom to the subscription when jumping to a not-yet-loaded question', fakeAsync(() => {
+    component.myCarousel = jasmine.createSpyObj("CarouselComponent", { selectSlide: {}, getCurrentSlideIndex: 1 });
+    component.questions = [];
+    spyOn(viewerService, 'getQuestions');
+    spyOn(component, 'setImageZoom');
+    spyOn(component, 'highlightQuestion');
+    component.goToQuestion({ questionNo: 1 });
+    tick();
+    expect(viewerService.getQuestions).toHaveBeenCalledWith(0, 1);
+    // Fetch path returns early: the qumlQuestionEvent subscription handles these.
+    expect(component.myCarousel.selectSlide).not.toHaveBeenCalled();
+    expect(component.setImageZoom).not.toHaveBeenCalled();
+    expect(component.highlightQuestion).not.toHaveBeenCalled();
+  }));
+
   it('should navigate to previous slide', () => {
     spyOn(viewerService, 'raiseHeartBeatEvent');
     spyOn(component, 'setImageZoom');
@@ -227,6 +261,35 @@ describe('SectionPlayerComponent', () => {
     component.activeSlideChange({});
     expect(component.initialSlideDuration > 0).toBeTruthy();
     expect(viewerService.pauseVideo).toHaveBeenCalled();
+  });
+
+  it('should restore a previously saved response on slide change', () => {
+    const saved = { cardinality: 'single', option: { value: 2 }, solutions: [{ type: 'video', value: 'v1' }] };
+    spyOn(viewerService, 'pauseVideo');
+    spyOn(viewerService, 'getUserResponse').and.returnValue(saved);
+    component.myCarousel = myCarousel;
+    component.questions = mockSectionQuestions;
+    component.activeSlideChange({});
+    expect(component.optionSelectedObj).toBe(saved);
+    expect(component.currentOptionSelected).toBe(saved);
+    expect(component.currentSolutions).toEqual(saved.solutions);
+    expect(component.active).toBe(true);
+  });
+
+  it('should clear a stale selection when landing on a slide with no saved response', () => {
+    spyOn(viewerService, 'pauseVideo');
+    spyOn(viewerService, 'getUserResponse').and.returnValue(undefined);
+    component.myCarousel = myCarousel;
+    component.questions = mockSectionQuestions;
+    // Stale state leaked from a previously-restored slide (prev/jump don't reset).
+    component.optionSelectedObj = { option: { value: 9 } };
+    component.currentOptionSelected = { option: { value: 9 } };
+    component.active = true;
+    component.activeSlideChange({});
+    expect(component.optionSelectedObj).toBeUndefined();
+    expect(component.currentOptionSelected).toBeUndefined();
+    expect(component.currentSolutions).toBeUndefined();
+    expect(component.active).toBe(false);
   });
 
   it('should getQuestion', () => {
@@ -450,6 +513,37 @@ describe('SectionPlayerComponent', () => {
     // expect(component.currentOptionSelected).toEqual({ option: { value: 2 } });
     expect(viewerService.raiseHeartBeatEvent).toHaveBeenCalledWith('OPTION_CLICKED', 'interact', 1);
     expect(component.validateSelectedOption).toHaveBeenCalled()
+  });
+
+  it('should NOT clear the assessed flag when skipping (empty option)', () => {
+    component.myCarousel = myCarousel;
+    component.questions = mockSectionQuestions;
+    component.parentConfig = mockParentConfig;
+    component.showFeedBack = true;
+    component.progressBarClass = [{ index: 1, class: 'unattempted', score: 0 }];
+    spyOn(component, 'focusOnNextButton');
+    spyOn(viewerService, 'raiseHeartBeatEvent');
+    spyOn(viewerService, 'clearAssessed');
+    spyOn(viewerService, 'saveUserResponse');
+    component.getOptionSelected({ option: {}, cardinality: 'single' });
+    expect(viewerService.clearAssessed).not.toHaveBeenCalled();
+    expect(viewerService.saveUserResponse).toHaveBeenCalledWith(jasmine.any(String), null);
+  });
+
+  it('should clear the assessed flag when a real (non-empty) option is selected', () => {
+    component.myCarousel = myCarousel;
+    component.questions = mockSectionQuestions;
+    component.parentConfig = mockParentConfig;
+    component.showFeedBack = true;
+    component.progressBarClass = [{ index: 1, class: 'unattempted', score: 0 }];
+    spyOn(component, 'focusOnNextButton');
+    spyOn(viewerService, 'raiseHeartBeatEvent');
+    spyOn(viewerService, 'clearAssessed');
+    spyOn(viewerService, 'saveUserResponse');
+    const selection = { option: { value: 2 }, cardinality: 'single' };
+    component.getOptionSelected(selection);
+    expect(viewerService.clearAssessed).toHaveBeenCalled();
+    expect(viewerService.saveUserResponse).toHaveBeenCalledWith(jasmine.any(String), selection);
   });
 
   it('should mark it as selected option and solution as empty if not exists', () => {
@@ -763,7 +857,9 @@ describe('SectionPlayerComponent', () => {
     spyOn(component, 'highlightQuestion');
     component.goToQuestion({ questionNo: 2 });
     expect(viewerService.getQuestions).toHaveBeenCalled();
-    expect(component.highlightQuestion).toHaveBeenCalled();
+    // Fetch path returns early; highlightQuestion is handled by the
+    // qumlQuestionEvent subscription once the questions arrive.
+    expect(component.highlightQuestion).not.toHaveBeenCalled();
   });
 
   it('should hight light the question on click of question', () => {
@@ -790,6 +886,54 @@ describe('SectionPlayerComponent', () => {
     expect(component.clearTimeInterval).toHaveBeenCalled();
   });
 
+  it('should build MTF correct pairs (interleaved) with pairs layout', () => {
+    component.myCarousel = myCarousel;
+    component.questions = [{
+      identifier: 'q_mtf', body: 'b',
+      responseDeclaration: { response1: { correctResponse: { value: { '0': 'b', '1': 'a' } } } },
+      interactions: { response1: { options: {
+        left:  [{ value: '0', label: 'L0' }, { value: '1', label: 'L1' }],
+        right: [{ value: 'a', label: 'Ra' }, { value: 'b', label: 'Rb' }]
+      } } },
+      media: []
+    }] as any;
+    component.currentSolutions = {};
+    spyOn(viewerService, 'raiseHeartBeatEvent');
+    spyOn(component, 'clearTimeInterval');
+    component.getSolutions();
+    // left0 -> 'b' (Rb), left1 -> 'a' (Ra); interleaved left,right per pair
+    expect(component.currentOptions.map((o: any) => o.value)).toEqual(['0', 'b', '1', 'a']);
+    expect(component.currentOptionsLayout).toBe('pairs');
+  });
+
+  it('should fall back to positional MTF pairing when no correctResponse', () => {
+    component.myCarousel = myCarousel;
+    component.questions = [{
+      identifier: 'q_mtf2', body: 'b',
+      interactions: { response1: { options: {
+        left:  [{ value: '0', label: 'L0' }],
+        right: [{ value: 'a', label: 'Ra' }]
+      } } },
+      media: []
+    }] as any;
+    component.currentSolutions = {};
+    spyOn(viewerService, 'raiseHeartBeatEvent');
+    spyOn(component, 'clearTimeInterval');
+    component.getSolutions();
+    expect(component.currentOptions.map((o: any) => o.value)).toEqual(['0', 'a']);
+    expect(component.currentOptionsLayout).toBe('pairs');
+  });
+
+  it('should set [] options for a question type without options', () => {
+    component.myCarousel = myCarousel;
+    component.questions = [{ identifier: 'q_ftb', body: 'b', interactions: { response1: { type: 'text' } }, media: [] }] as any;
+    component.currentSolutions = {};
+    spyOn(viewerService, 'raiseHeartBeatEvent');
+    spyOn(component, 'clearTimeInterval');
+    component.getSolutions();
+    expect(component.currentOptions).toEqual([]);
+  });
+
   it('should show solution page if solution is available', () => {
     component.showSolution = false;
     component.myCarousel = myCarousel;
@@ -799,6 +943,20 @@ describe('SectionPlayerComponent', () => {
     expect(component.showSolution).toBeTruthy();
     expect(component.showAlert).toBeFalsy();
     expect(window.clearTimeout).toHaveBeenCalled();
+  });
+
+  it('viewSolution should populate the panel question and options', () => {
+    component.myCarousel = myCarousel;
+    component.questions = [{
+      identifier: 'q', body: '<p>Q</p>',
+      interactions: { response1: { options: [{ value: 0, label: 'A' }, { value: 1, label: 'B' }] } },
+      media: []
+    }] as any;
+    spyOn(viewerService, 'raiseHeartBeatEvent');
+    component.viewSolution();
+    expect(component.currentQuestion).toBe('<p>Q</p>');
+    expect(component.currentOptions.length).toBe(2);
+    expect(component.currentOptionsLayout).toBe('list');
   });
 
   it('should close the solution Modal', () => {
@@ -891,6 +1049,34 @@ describe('SectionPlayerComponent', () => {
   it('should call setImageZoom', () => {
     component.myCarousel = myCarousel;
     component.setImageZoom();
+  });
+
+  it('setImageZoom should use an absolute http(s) image url as-is (case-insensitive) and not prepend baseUrl', () => {
+    component.myCarousel = myCarousel; // getCurrentSlideIndex => 1
+    component.questions = [{ identifier: 'do_q1' }] as any;
+    component.parentConfig = { isAvailableLocally: false, baseUrl: '' } as any;
+    component.currentQuestionsMedia = [
+      { id: 'a1', src: 'https://cdn.example.com/lower.png', baseUrl: 'https://test.sunbirded.org' },
+      { id: 'a2', src: 'HTTPS://cdn.example.com/upper.png', baseUrl: 'https://test.sunbirded.org' }
+    ] as any;
+
+    const makeImg = (assetId: string) => ({
+      nodeName: 'IMG',
+      getAttribute: () => assetId,
+      setAttribute: jasmine.createSpy('setAttribute'),
+      parentNode: { insertBefore: jasmine.createSpy('insertBefore') },
+      nextSibling: null,
+    } as any);
+    const img1 = makeImg('a1');
+    const img2 = makeImg('a2');
+    spyOn(document, 'querySelectorAll').and.returnValue([img1, img2] as any);
+
+    component.setImageZoom();
+
+    // absolute URL is used directly — no 'https://test.sunbirded.org' prefix,
+    // and the uppercase scheme still matches the case-insensitive check.
+    expect(img1.src).toBe('https://cdn.example.com/lower.png');
+    expect(img2.src).toBe('HTTPS://cdn.example.com/upper.png');
   });
 
   it('should zoom in the image', () => {

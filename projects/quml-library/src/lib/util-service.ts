@@ -108,14 +108,20 @@ export class UtilService {
             const asset = _.filter(media, ['id', videoId]);
             const posterSrc = element.getAttribute('poster');
             
-            if(!_.isEmpty(asset) && posterSrc) {
+            // Skip srcs already absolutised (e.g. by the solution panel's
+            // bind-time resolver); re-prefixing baseUrl would yield a broken
+            // "https://...https://..." URL and the video would not play.
+            const isAbsolute = (s?: string | null) => /^https?:\/\//i.test(s ?? '');
+
+            if(!_.isEmpty(asset) && posterSrc && !isAbsolute(posterSrc)) {
                 element['poster'] = baseUrl ? `${baseUrl}/${identifier}/${posterSrc}` : asset[0].baseUrl + posterSrc;
-            }  
+            }
 
             if(!_.isEmpty(asset)) {
                 const sourceElement = Array.from(element.getElementsByTagName('source') as HTMLCollectionOf<Element>);
                 _.forEach(sourceElement, (element: HTMLElement) => {
                     const sourceSrc = element.getAttribute('src');
+                    if (!sourceSrc || isAbsolute(sourceSrc)) { return; }
                     element['src'] = baseUrl ? `${baseUrl}/${identifier}/${sourceSrc}` : asset[0].baseUrl + sourceSrc;
                 });
             }
