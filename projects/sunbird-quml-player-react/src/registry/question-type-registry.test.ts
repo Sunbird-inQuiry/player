@@ -11,17 +11,32 @@ import type { QuestionComponent } from './question-type-registry';
 
 const Dummy: QuestionComponent = () => null;
 
-describe('question-type-registry', () => {
+// Default population (Phase 4) — must run BEFORE the helper tests that clear the registry.
+describe('question-type-registry (default population)', () => {
+  it('registers all six question types (+ ftb alias)', () => {
+    [
+      'multiple choice question',
+      'subjective question',
+      'fill in the blank question',
+      'ftb question',
+      'match the following question',
+      'sequence question',
+      'reorder question',
+    ].forEach((cat) => {
+      expect(isQuestionTypeRegistered(cat)).toBe(true);
+      expect(getQuestionComponent(cat)).toBeTypeOf('function');
+    });
+    expect(questionTypeRegistry.size).toBe(7);
+  });
+});
+
+describe('question-type-registry (helpers)', () => {
   beforeEach(() => {
     clearRegistry();
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
-  });
-
-  it('starts empty (no components registered in Phase 2)', () => {
-    expect(questionTypeRegistry.size).toBe(0);
   });
 
   it('registers and retrieves a component (case-insensitive)', () => {

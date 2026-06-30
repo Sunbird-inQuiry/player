@@ -1,0 +1,34 @@
+@use '../../../styles/variables' as v;
+
+.sa {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-5;
+}
+
+.answer {
+  padding: v.$space-4 v.$space-5;
+  background: v.$gray-200;
+  border: 1px solid v.$gray-200;
+  border-radius: v.$r-md;
+}
+
+.answerLabel {
+  margin: 0 0 v.$space-2;
+  font-size: v.$text-xs;
+  font-weight: v.$fw-bold;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: v.$g500;
+}
+
+.answerText {
+  font-family: v.$ff-base;
+  font-size: v.$text-sm;
+  line-height: v.$lh-relaxed;
+  color: v.$g700;
+
+  :global(p) {
+    margin: 0 0 v.$space-2;
+  }
+}

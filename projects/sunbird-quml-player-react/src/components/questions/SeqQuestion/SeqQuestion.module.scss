@@ -1,0 +1,81 @@
+@use '../../../styles/variables' as v;
+@use '../../../styles/mixins' as m;
+
+.seq {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-3;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: v.$space-3;
+  padding: v.$space-3 v.$space-4;
+  background: v.$white;
+  border: 1.5px solid v.$gray-200;
+  border-radius: v.$r-md;
+  box-shadow: v.$shadow-card;
+  cursor: grab;
+  transition: border-color v.$dur-fast v.$ease-out, background v.$dur-fast v.$ease-out;
+}
+
+.dragging {
+  opacity: 0.45;
+  border-color: v.$brick;
+}
+
+.over {
+  border-color: v.$wave;
+  background: v.$info-bg;
+}
+
+.grip {
+  color: v.$g300;
+  font-size: v.$text-md;
+  cursor: grab;
+}
+
+.label {
+  flex: 1;
+  font-family: v.$ff-base;
+  font-size: v.$text-sm;
+  color: v.$g700;
+
+  :global(p) {
+    margin: 0;
+  }
+}
+
+.controls {
+  display: inline-flex;
+  gap: v.$space-1;
+}
+
+.nudge {
+  @include m.focus-ring;
+
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: v.$white;
+  border: 1.5px solid v.$gray-200;
+  border-radius: v.$r-sm;
+  color: v.$g600;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    border-color: v.$brick;
+    color: v.$brick;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}

@@ -1,0 +1,100 @@
+@use '../../../styles/variables' as v;
+@use '../../../styles/mixins' as m;
+
+.mtf {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-4;
+}
+
+.columns {
+  display: flex;
+  gap: v.$space-6;
+
+  @include m.mobile {
+    flex-direction: column;
+    gap: v.$space-4;
+  }
+}
+
+.leftCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-3;
+}
+
+.rightCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-2;
+  align-content: flex-start;
+}
+
+.leftRow {
+  display: flex;
+  align-items: center;
+  gap: v.$space-3;
+  padding: v.$space-3 v.$space-4;
+  background: v.$white;
+  border: 1.5px solid v.$gray-200;
+  border-radius: v.$r-md;
+  transition: border-color v.$dur-fast v.$ease-out, background v.$dur-fast v.$ease-out;
+}
+
+.over {
+  border-color: v.$wave;
+  background: v.$info-bg;
+}
+
+.term {
+  flex: 1;
+  font-family: v.$ff-base;
+  font-size: v.$text-sm;
+  color: v.$g700;
+
+  :global(p) {
+    margin: 0;
+  }
+}
+
+.select {
+  @include m.focus-ring;
+
+  min-width: 120px;
+  padding: v.$space-2 v.$space-3;
+  border: 1.5px solid v.$gray-200;
+  border-radius: v.$r-sm;
+  background: v.$white;
+  font-family: v.$ff-base;
+  font-size: v.$text-sm;
+  color: v.$g700;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.7;
+  }
+}
+
+.rightChip {
+  padding: v.$space-3 v.$space-4;
+  background: v.$white;
+  border: 1.5px solid v.$gray-200;
+  border-radius: v.$r-md;
+  font-family: v.$ff-base;
+  font-size: v.$text-sm;
+  color: v.$g700;
+  cursor: grab;
+  box-shadow: v.$shadow-card;
+
+  :global(p) {
+    margin: 0;
+  }
+}
+
+.dragging {
+  opacity: 0.45;
+  border-color: v.$brick;
+}

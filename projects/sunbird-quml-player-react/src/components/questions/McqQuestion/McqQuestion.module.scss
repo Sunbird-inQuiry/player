@@ -1,0 +1,101 @@
+@use '../../../styles/variables' as v;
+@use '../../../styles/mixins' as m;
+
+.mcq {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-5;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-3;
+}
+
+.option {
+  @include m.focus-ring;
+
+  display: flex;
+  align-items: center;
+  gap: v.$space-3;
+  padding: v.$space-3 v.$space-4;
+  background: v.$white;
+  border: 1.5px solid v.$gray-200;
+  border-radius: v.$r-xs;
+  cursor: pointer;
+  font-family: v.$ff-base;
+  font-size: v.$text-sm;
+  color: v.$g600;
+  text-align: left;
+  transition: border-color v.$dur-fast v.$ease-out, background v.$dur-fast v.$ease-out;
+
+  &:hover:not(:disabled) {
+    border-color: v.$brick;
+    background: v.$cream-bg;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.85;
+  }
+}
+
+.selected {
+  border-color: v.$brick;
+  background: v.$brick-lt;
+}
+
+.indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid v.$g300;
+  flex-shrink: 0;
+}
+
+.radio {
+  border-radius: v.$r-pill;
+}
+
+.checkbox {
+  border-radius: v.$r-xxs;
+}
+
+.selected .indicator {
+  border-color: v.$brick;
+}
+
+.indicatorMark {
+  width: 8px;
+  height: 8px;
+  border-radius: inherit;
+  background: v.$brick;
+}
+
+.alpha {
+  min-width: 18px;
+  font-weight: v.$fw-bold;
+  font-size: v.$text-xs;
+  color: v.$brick;
+}
+
+.label {
+  flex: 1;
+  line-height: v.$lh-snug;
+
+  :global(p) {
+    margin: 0;
+  }
+}
+
+.review {
+  padding: v.$space-3;
+  background: v.$success-bg;
+  border-left: 3px solid v.$success;
+  border-radius: v.$r-sm;
+  font-weight: v.$fw-medium;
+  color: v.$success;
+}

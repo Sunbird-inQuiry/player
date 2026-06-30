@@ -1,0 +1,68 @@
+@use '../../../styles/variables' as v;
+
+.ftb {
+  font-family: v.$ff-question;
+}
+
+.template {
+  margin: 0;
+  font-size: v.$text-md;
+  line-height: 2.4;
+  color: v.$g700;
+}
+
+.blankWrap {
+  position: relative;
+  display: inline-block;
+  margin: 0 v.$space-1;
+}
+
+.blankNum {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: v.$ff-base;
+  font-size: 10px;
+  font-weight: v.$fw-bold;
+  color: v.$brick;
+  background: v.$brick-lt;
+  border-radius: v.$r-xxs;
+  padding: 0 5px;
+}
+
+.blank {
+  min-width: 110px;
+  border: none;
+  border-bottom: 2.5px solid v.$gray-300;
+  border-radius: v.$r-xxs v.$r-xxs 0 0;
+  padding: 2px v.$space-2 4px;
+  background: rgba(0, 0, 0, 0.02);
+  font-family: v.$ff-base;
+  font-size: v.$text-base;
+  font-weight: v.$fw-semibold;
+  color: v.$brick;
+  text-align: center;
+  outline: none;
+  transition: border-color v.$dur-fast v.$ease-out, background v.$dur-fast v.$ease-out;
+
+  &:focus-visible {
+    border-bottom-color: v.$brick;
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+}
+
+.filled {
+  border-bottom-color: v.$brick;
+  background: v.$brick-lt;
+}
+
+.fallbackBlanks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: v.$space-4;
+  margin-top: v.$space-4;
+}

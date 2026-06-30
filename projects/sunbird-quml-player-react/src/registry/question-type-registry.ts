@@ -2,11 +2,16 @@
  * Question Type Registry
  * Maps primaryCategory → React component.
  *
- * This registry is created EMPTY here (Phase 2 infrastructure). Question
- * components are registered in Phase 4; this file does not import any of them.
+ * Populated in Phase 4 with all six question-type renderers.
  */
 
 import type { ComponentType } from 'react';
+import { McqQuestion } from '../components/questions/McqQuestion/McqQuestion';
+import { SaQuestion } from '../components/questions/SaQuestion/SaQuestion';
+import { FtbQuestion } from '../components/questions/FtbQuestion/FtbQuestion';
+import { MtfQuestion } from '../components/questions/MtfQuestion/MtfQuestion';
+import { SeqQuestion } from '../components/questions/SeqQuestion/SeqQuestion';
+import { ReoQuestion } from '../components/questions/ReoQuestion/ReoQuestion';
 
 /**
  * A registered question component. Props vary per question type, so the registry
@@ -16,8 +21,13 @@ import type { ComponentType } from 'react';
 export type QuestionComponent = ComponentType<any>;
 
 export const questionTypeRegistry = new Map<string, QuestionComponent>([
-  // Will be populated after question types are implemented (Phase 4).
-  // Format: ['primaryCategory.toLowerCase()', ComponentName]
+  ['multiple choice question', McqQuestion],
+  ['subjective question', SaQuestion],
+  ['fill in the blank question', FtbQuestion],
+  ['ftb question', FtbQuestion],
+  ['match the following question', MtfQuestion],
+  ['sequence question', SeqQuestion],
+  ['reorder question', ReoQuestion],
 ]);
 
 /**
