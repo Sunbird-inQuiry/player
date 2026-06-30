@@ -204,26 +204,29 @@ Each phase includes:
   qType: "MCQ",
   mimeType: "application/vnd.sunbird.question",
   
-  // Interactions (user input)
-  interactions: [
-    {
-      cardinality: "single",                // or "multiple"
+  // Interactions (user input) — keyed by responseN; options are { value, label }
+  interactions: {
+    response1: {
       options: [
-        { value: "A", label: "Apple" },
-        { value: "B", label: "Banana" },
+        { value: 0, label: "Apple" },
+        { value: 1, label: "Banana" },
       ],
     },
-  ],
-  
-  // Correct answer definition (QUML 1.1)
-  responseDeclaration: {
-    correctResponse: { value: "A" },
-    mapping: [ /* For multilingual FTB */ ],
   },
-  
+
+  // Correct answer definition (QUML 1.1) — keyed by responseN
+  responseDeclaration: {
+    response1: {
+      cardinality: "single",                // or "multiple" | "ordered"
+      type: "integer",                      // "integer" | "string" | "map"
+      correctResponse: { value: 0 },        // int | int[] | string[] | { left: right }
+      mapping: [ /* QUML 1.1 partial scoring: { value|key, score, caseSensitive? } */ ],
+    },
+  },
+
   // Scoring
   outcomeDeclaration: {
-    score: { baseValue: 1 },  // Or extracted to maxScore
+    maxScore: { defaultValue: 1 },
   },
   maxScore: 1,
   
@@ -247,23 +250,21 @@ Each phase includes:
 ## UserResponse (User's answer)
 
 ```javascript
+// React-native runtime answer model (NOT the QuML file format / Angular wrapper).
+// Each question type sets exactly ONE answer field; SA sets none.
 {
   // Keyed by question.identifier
   "do_789": {
-    answer: "A",                          // Single choice
-    // OR for multiple choice:
-    answer: ["A", "B"],                   // Array
-    // OR for FTB:
-    response1: "New York",
-    response2: "Paris",
-    // OR for MTF:
-    option1: "match1",
-    option2: "match2",
-    // OR for SEQ:
-    answer: ["item1", "item3", "item2"], // Reordered array
-    // OR for REO:
-    answer: ["word3", "word1", "word2"], // Selected order
-    
+    value: 0,                             // MCQ single (option value)
+    // OR MCQ multiple:
+    values: [0, 2],
+    // OR FTB (responseN -> text):
+    responses: { response1: "New York", response2: "Paris" },
+    // OR MTF (leftValue -> rightValue):
+    matches: { A: "1", B: "2" },
+    // OR SEQ / REO (ordered values):
+    order: ["item1", "item3", "item2"],
+
     timestamp: 1624512345678,
     score: 1,                             // After assessment
     maxScore: 1,
@@ -288,8 +289,8 @@ Each phase includes:
   
   // User's state
   answers: {                              // SINGLE SOURCE OF TRUTH
-    "do_789": { answer: "A", timestamp: ... },
-    "do_790": { answer: ["X", "Y"], timestamp: ... },
+    "do_789": { value: 0, timestamp: ... },
+    "do_790": { values: [0, 2], timestamp: ... },
     // ... one entry per answered question
   },
   
@@ -417,7 +418,7 @@ export function McqQuestion({ question, onOptionSelected }) {
 export function McqQuestion({ question, onOptionSelected }) {
   const handleClick = (option) => {
     // ✓ Just emit user intent
-    onOptionSelected({ answer: option });
+    onOptionSelected({ value: option });
   };
 }
 
@@ -710,46 +711,65 @@ export interface TimeLimits {
 }
 
 export interface Option {
-  value: string;
+  value: number | string; // MCQ → integer; SEQ/REO/MTF → string
   label: string | I18nValue;
 }
 
+/**
+ * Interaction options:
+ * - MCQ / SEQ / REO → a flat `Option[]`
+ * - MTF             → `{ left, right }` columns
+ */
+export type InteractionOptions = Option[] | { left: Option[]; right: Option[] };
+
 export interface Interaction {
-  cardinality: string; // 'single' | 'multiple' | 'map' | 'ordered' | ...
-  options?: Option[];
-  [key: string]: unknown;
+  options?: InteractionOptions;
 }
 
-export interface ResponseDeclaration {
-  correctResponse?: { value: unknown };
-  mapping?: Array<{
-    placeholder: string;
-    correctResponse: { value: string };
-  }>;
-  [key: string]: unknown;
+/** `interactions` is keyed by responseN, e.g. { response1: { options: [...] } } */
+export type Interactions = Record<string, Interaction>;
+
+/** A single mapping entry (QuML 1.1 partial scoring). */
+export interface ResponseMapping {
+  value?: number | string; // FTB / SEQ / REO / MCQ
+  key?: string;            // MTF (left value)
+  score: number;
+  caseSensitive?: boolean; // FTB
 }
+
+export interface ResponseDeclarationItem {
+  cardinality: 'single' | 'multiple' | 'ordered' | string;
+  type: 'integer' | 'string' | 'map' | string;
+  correctResponse?: {
+    value: number | string | number[] | string[] | Record<string, string>;
+  };
+  mapping?: ResponseMapping[];
+}
+
+/** `responseDeclaration` is keyed by responseN, e.g. { response1: { ... } } */
+export type ResponseDeclaration = Record<string, ResponseDeclarationItem>;
 
 export interface OutcomeDeclaration {
-  score?: { baseValue?: number };
-  [key: string]: unknown;
+  maxScore?: { cardinality?: string; type?: string; defaultValue?: number };
 }
 
 export interface Question {
   identifier: string;        // GLOBALLY UNIQUE — used as the answers map key
   code?: string;
   name?: string;
-  body: string;              // HTML, may contain KaTeX
+  body: string;              // HTML, may contain KaTeX; FTB has [[responseN]] blank tokens
   primaryCategory: string;   // maps to registry (lowercased after transform)
   qType?: string;
   mimeType?: string;
-  interactions?: Interaction[];
+  interactions?: Interactions;               // keyed by responseN
   interactionTypes?: string[];
-  responseDeclaration?: ResponseDeclaration;
+  responseDeclaration?: ResponseDeclaration; // keyed by responseN (absent for SA)
   outcomeDeclaration?: OutcomeDeclaration;
+  answer?: string | I18nValue;               // SA model answer
   maxScore: number;
   media?: unknown[];
-  solutions?: unknown[];
-  hints?: unknown[];
+  solutions?: unknown[];                      // QuML array form (not an object map)
+  hints?: unknown[];                          // QuML array form
   templateId?: string;
   language?: string[];
   status?: string;
@@ -786,18 +806,24 @@ export interface Assessment {
 }
 
 /**
- * One user's answer to one question. Concrete fields vary by question type:
- * - MCQ:  answer: string | string[]
- * - FTB:  response1, response2, ...
- * - MTF:  option1, option2, ...
- * - SEQ/REO: answer: string[]
+ * One user's answer to one question (React-native runtime model — NOT the QuML
+ * file format and NOT the Angular event wrapper). Each question type sets exactly
+ * one of the answer fields; SA sets none.
+ * - MCQ single   → value
+ * - MCQ multiple → values
+ * - FTB          → responses   (responseN → text)
+ * - MTF          → matches     (leftValue → rightValue)
+ * - SEQ / REO    → order       (ordered values)
  */
 export interface UserResponse {
-  answer?: string | string[];
+  value?: number | string;             // MCQ single
+  values?: Array<number | string>;     // MCQ multiple
+  responses?: Record<string, string>;  // FTB
+  matches?: Record<string, string>;    // MTF
+  order?: Array<number | string>;      // SEQ / REO
   timestamp?: number;
   score?: number;
   maxScore?: number;
-  [key: string]: unknown;
 }
 
 /** Runtime answers map, keyed by question.identifier (single source of truth). */
@@ -945,55 +971,50 @@ export function generateID(): string {
 
 **`src/utils/score.ts`** — scoring functions for all question types
 ```typescript
-import type { Question, UserResponse } from '../types';
+import type { Question, UserResponse, ResponseDeclarationItem } from '../types';
+
+/** Get the first responseN declaration (most question types have exactly one). */
+function firstResponse(question: Question): ResponseDeclarationItem | undefined {
+  const rd = question.responseDeclaration;
+  if (!rd) return undefined;
+  const keys = Object.keys(rd);
+  return keys.length ? rd[keys[0]] : undefined;
+}
 
 /**
- * Calculate score for an MCQ question.
- * @param options - { cardinality: 'single' | 'multiple' }
- * @returns Score (0 or 1)
+ * Calculate score for an MCQ question (0 or 1).
+ * Cardinality is read from the responseDeclaration; `options.cardinality` overrides.
  */
 export function calculateMCQScore(
   question: Question,
   response: UserResponse | null,
   options: { cardinality?: string } = {},
 ): number {
-  const { cardinality = 'single' } = options;
+  if (!response) return 0;
 
-  if (!response || !response.answer) {
-    return 0;
-  }
+  const decl = firstResponse(question);
+  if (!decl) return 0;
 
-  const correctAnswer = question.responseDeclaration?.correctResponse?.value;
-  if (!correctAnswer) {
-    return 0;
-  }
+  const cardinality = options.cardinality ?? decl.cardinality ?? 'single';
+  const correct = decl.correctResponse?.value;
+  if (correct === undefined || correct === null) return 0;
 
   if (cardinality === 'single') {
-    return response.answer === correctAnswer ? 1 : 0;
+    if (response.value === undefined || response.value === null) return 0;
+    return response.value === correct ? 1 : 0;
   }
 
   if (cardinality === 'multiple') {
-    // For multiple, check if user selected exactly the correct options
-    const userAnswers = Array.isArray(response.answer)
-      ? response.answer
-      : [response.answer];
-    const correct = Array.isArray(correctAnswer)
-      ? correctAnswer
-      : [correctAnswer];
+    const userValues = response.values ?? [];
+    const correctValues = Array.isArray(correct) ? correct : [correct];
+    if (userValues.length === 0) return 0;
 
-    const userSet = new Set<unknown>(userAnswers);
-    const correctSet = new Set<unknown>(correct);
-
-    if (userSet.size !== correctSet.size) {
-      return 0;
+    const userSet = new Set<unknown>(userValues);
+    const correctSet = new Set<unknown>(correctValues);
+    if (userSet.size !== correctSet.size) return 0;
+    for (const v of userSet) {
+      if (!correctSet.has(v)) return 0;
     }
-
-    for (const answer of userSet) {
-      if (!correctSet.has(answer)) {
-        return 0;
-      }
-    }
-
     return 1;
   }
 
@@ -1002,75 +1023,91 @@ export function calculateMCQScore(
 
 /**
  * Calculate score for FTB (Fill The Blank). Partial scoring (0..1).
+ * One blank per responseN; per-blank `mapping` (QuML 1.1) takes precedence,
+ * else compares to `correctResponse.value`.
  */
 export function calculateFTBScore(question: Question, response: UserResponse | null): number {
-  if (!response || Object.keys(response).length === 0) {
-    return 0;
-  }
+  const rd = question.responseDeclaration;
+  const responses = response?.responses;
+  if (!rd || !responses) return 0;
 
-  const correctMapping = question.responseDeclaration?.mapping || [];
+  const keys = Object.keys(rd);
+  if (keys.length === 0) return 0;
+
   let correctCount = 0;
-  let totalBlanks = 0;
+  for (const key of keys) {
+    const decl = rd[key];
+    const userAnswer = String(responses[key] ?? '').trim();
+    const mapping = decl.mapping;
 
-  for (const mapping of correctMapping) {
-    totalBlanks += 1;
-    const userAnswer = response[mapping.placeholder];
-
-    // Case-insensitive comparison, trim whitespace
-    const trimmedUser = String(userAnswer ?? '').trim().toLowerCase();
-    const trimmedCorrect = mapping.correctResponse.value.toLowerCase();
-
-    if (trimmedUser === trimmedCorrect) {
-      correctCount += 1;
+    let isCorrect = false;
+    if (mapping && mapping.length) {
+      isCorrect = mapping.some((m) => {
+        const expected = String(m.value ?? '').trim();
+        return m.caseSensitive === true
+          ? userAnswer === expected
+          : userAnswer.toLowerCase() === expected.toLowerCase();
+      });
+    } else if (typeof decl.correctResponse?.value === 'string') {
+      const expected = decl.correctResponse.value.trim();
+      isCorrect = userAnswer.toLowerCase() === expected.toLowerCase();
     }
+
+    if (isCorrect) correctCount += 1;
   }
 
-  return totalBlanks > 0 ? correctCount / totalBlanks : 0;
+  return correctCount / keys.length;
 }
 
 /**
  * Calculate score for MTF (Match The Following). Partial scoring (0..1).
+ * Uses `mapping` ({key,value,score}) when present, else `correctResponse.value`
+ * as a { leftValue: rightValue } map.
  */
 export function calculateMTFScore(question: Question, response: UserResponse | null): number {
-  if (!response || Object.keys(response).length === 0) {
-    return 0;
-  }
+  const decl = firstResponse(question);
+  const matches = response?.matches;
+  if (!decl || !matches) return 0;
 
-  const correctMapping =
-    (question.responseDeclaration?.correctResponse?.value || {}) as Record<string, string>;
-  let correctCount = 0;
-  const totalMatches = Object.keys(correctMapping).length;
-
-  for (const [key, correctMatch] of Object.entries(correctMapping)) {
-    if (response[key] === correctMatch) {
-      correctCount += 1;
+  const mapping = decl.mapping;
+  if (mapping && mapping.length) {
+    let correctCount = 0;
+    for (const m of mapping) {
+      if (m.key !== undefined && matches[m.key] === m.value) correctCount += 1;
     }
+    return correctCount / mapping.length;
   }
 
-  return totalMatches > 0 ? correctCount / totalMatches : 0;
+  const correct = decl.correctResponse?.value;
+  const correctMap =
+    correct && typeof correct === 'object' && !Array.isArray(correct)
+      ? (correct as Record<string, string>)
+      : {};
+  const keys = Object.keys(correctMap);
+  if (keys.length === 0) return 0;
+
+  let correctCount = 0;
+  for (const k of keys) {
+    if (matches[k] === correctMap[k]) correctCount += 1;
+  }
+  return correctCount / keys.length;
 }
 
 /**
- * Calculate score for SEQ/REO (Sequence/Reorder). 0 or 1 for exact match.
+ * Calculate score for SEQ/REO (Sequence/Reorder). 0 or 1 for exact order match.
  */
 export function calculateOrderedScore(question: Question, response: UserResponse | null): number {
-  if (!response || !response.answer) {
-    return 0;
+  const decl = firstResponse(question);
+  const order = response?.order;
+  if (!decl || !order) return 0;
+
+  const correct = decl.correctResponse?.value;
+  const correctOrder = Array.isArray(correct) ? (correct as Array<number | string>) : [];
+  if (correctOrder.length === 0 || order.length !== correctOrder.length) return 0;
+
+  for (let i = 0; i < order.length; i++) {
+    if (order[i] !== correctOrder[i]) return 0;
   }
-
-  const correctOrder = (question.responseDeclaration?.correctResponse?.value || []) as string[];
-  const userOrder = (response.answer || []) as string[];
-
-  if (userOrder.length !== correctOrder.length) {
-    return 0;
-  }
-
-  for (let i = 0; i < userOrder.length; i++) {
-    if (userOrder[i] !== correctOrder[i]) {
-      return 0;
-    }
-  }
-
   return 1;
 }
 ```
@@ -1291,69 +1328,128 @@ const autoAdvance = shouldAutoAdvance(currentQuestion);
 ## 1.4 Transformation Service (src/services/transformation-service.ts)
 
 ```typescript
-import type { Question, Section, TimeLimits, I18nValue, UserResponse } from '../types';
+import type {
+  Question,
+  Section,
+  TimeLimits,
+  I18nValue,
+  UserResponse,
+  Interactions,
+  ResponseDeclaration,
+  ResponseDeclarationItem,
+  ResponseMapping,
+} from '../types';
 
 /**
  * Transformation Service - Normalize and transform QUML data.
  *
  * Inputs are RAW QUML API payloads (loosely typed as `any`); outputs are the
- * normalized interfaces from §1.0.
+ * normalized interfaces from §1.0. The SAME function is used for online (fetched)
+ * and offline (embedded) questions — there is no separate adapter.
  */
 
 /** Transform raw question data to the normalized Question shape. */
 export function transformQuestion(question: any): Question | null {
   if (!question) return null;
 
-  return {
-    // Core
+  const primaryCategory = (question.primaryCategory || '').toLowerCase();
+  const isSubjective =
+    primaryCategory === 'subjective question' ||
+    (question.qType || '').toUpperCase() === 'SA';
+
+  const normalized: Question = {
     identifier: question.identifier,
     code: question.code,
     name: question.name,
     body: question.body || '',
     qType: question.qType?.toUpperCase() || '',
-    primaryCategory: question.primaryCategory?.toLowerCase() || '',
+    primaryCategory,
     mimeType: question.mimeType || 'application/vnd.sunbird.question',
-
-    // Interactions
-    interactions: question.interactions || [],
+    interactions: (question.interactions || {}) as Interactions, // keyed by responseN
     interactionTypes: question.interactionTypes || [],
-
-    // Declarations (QUML 1.1 standard)
-    responseDeclaration: question.responseDeclaration || {},
-    outcomeDeclaration: question.outcomeDeclaration || {},
-
-    // Metadata
+    outcomeDeclaration: { maxScore: { defaultValue: extractMaxScore(question) } },
     maxScore: extractMaxScore(question),
     media: question.media || [],
-    solutions: question.solutions || [],
+    solutions: question.solutions || [], // QuML array form (not an object map)
     hints: question.hints || [],
-
-    // Display
     templateId: question.templateId || '',
     language: question.language || [],
     status: question.status || 'Draft',
-
-    // Flags
     showFeedback: question.showFeedback === 'Yes' || question.showFeedback === true,
     showSolutions: question.showSolutions === 'Yes' || question.showSolutions === true,
     showHints: question.showHints === 'Yes' || question.showHints === true,
     shuffleOptions: question.shuffleOptions === true,
   };
+
+  if (isSubjective) {
+    // SA: surface the model answer; QuML has no responseDeclaration for SA.
+    normalized.answer = question.answer;
+  } else {
+    normalized.responseDeclaration = normalizeResponseDeclaration(question.responseDeclaration);
+  }
+
+  return normalized;
+}
+
+/** Normalize the keyed responseDeclaration (parseInt integers, convert legacy mapping). */
+function normalizeResponseDeclaration(rd: any): ResponseDeclaration {
+  const out: ResponseDeclaration = {};
+  if (!rd || typeof rd !== 'object') return out;
+
+  for (const key of Object.keys(rd)) {
+    const item = rd[key];
+    if (!item || typeof item !== 'object') continue;
+    out[key] = {
+      cardinality: item.cardinality || 'single',
+      type: item.type || 'string',
+      correctResponse: normalizeCorrectResponse(item.correctResponse, item.type),
+      mapping: normalizeMapping(item.mapping),
+    } as ResponseDeclarationItem;
+  }
+  return out;
+}
+
+/** parseInt the correctResponse value(s) when the response type is 'integer'. */
+function normalizeCorrectResponse(
+  cr: any,
+  type: string,
+): ResponseDeclarationItem['correctResponse'] {
+  if (!cr || cr.value === undefined || cr.value === null) return undefined;
+  let value = cr.value;
+  if (type === 'integer') {
+    value = Array.isArray(value)
+      ? value.map((v: any) => parseInt(v, 10))
+      : parseInt(value, 10);
+  }
+  return { value };
+}
+
+/** Convert legacy mapping ({response,outcomes.score}) → {value,score}; pass new shape through. */
+function normalizeMapping(mapping: any): ResponseMapping[] | undefined {
+  if (!Array.isArray(mapping) || mapping.length === 0) return undefined;
+  return mapping.map((m: any): ResponseMapping => {
+    // Legacy format
+    if (m && m.outcomes && m.value === undefined && m.key === undefined) {
+      return { value: m.response, score: Number(m.outcomes.score) || 0 };
+    }
+    // New QuML 1.1: { value, score, caseSensitive } or MTF { key, value, score }
+    const entry: ResponseMapping = { score: Number(m.score) || 0 };
+    if (m.key !== undefined) entry.key = m.key;
+    if (m.value !== undefined) entry.value = m.value;
+    if (m.caseSensitive !== undefined) entry.caseSensitive = !!m.caseSensitive;
+    return entry;
+  });
 }
 
 /** Extract max score from a raw question (defaults to 1). */
 function extractMaxScore(question: any): number {
-  // Try maxScore property first
   if (question.maxScore) {
     return Number(question.maxScore);
   }
-
-  // Try from outcomeDeclaration
-  if (question.outcomeDeclaration?.score?.baseValue) {
-    return Number(question.outcomeDeclaration.score.baseValue);
+  // QuML: outcomeDeclaration.maxScore.defaultValue
+  if (question.outcomeDeclaration?.maxScore?.defaultValue !== undefined) {
+    return Number(question.outcomeDeclaration.maxScore.defaultValue);
   }
-
-  // Default
   return 1;
 }
 
@@ -1750,7 +1846,7 @@ describe('StorageService', () => {
   });
 
   it('should persist answers to localStorage', () => {
-    const answers: AnswersMap = { q1: { answer: 'A' }, q2: { answer: 'B' } };
+    const answers: AnswersMap = { q1: { value: 0 }, q2: { value: 1 } };
     persistAnswersToLocalStorage(answers, testKey);
 
     const stored = localStorage.getItem(testKey);
@@ -1759,7 +1855,7 @@ describe('StorageService', () => {
   });
 
   it('should restore answers from localStorage', () => {
-    const answers: AnswersMap = { q1: { answer: 'A' } };
+    const answers: AnswersMap = { q1: { value: 0 } };
     persistAnswersToLocalStorage(answers, testKey);
 
     const restored = restoreAnswersFromLocalStorage(testKey);
@@ -1772,7 +1868,7 @@ describe('StorageService', () => {
   });
 
   it('should clear persisted answers', () => {
-    persistAnswersToLocalStorage({ q1: { answer: 'A' } }, testKey);
+    persistAnswersToLocalStorage({ q1: { value: 0 } }, testKey);
     clearPersistedAnswers(testKey);
 
     const restored = restoreAnswersFromLocalStorage(testKey);
@@ -1794,14 +1890,14 @@ describe('utils', () => {
   it('should calculate MCQ score correctly for single', () => {
     const question = {
       responseDeclaration: {
-        correctResponse: { value: 'A' },
+        response1: { cardinality: 'single', type: 'integer', correctResponse: { value: 0 } },
       },
-    } as Question;
+    } as unknown as Question;
 
-    const score = calculateMCQScore(question, { answer: 'A' }, { cardinality: 'single' });
+    const score = calculateMCQScore(question, { value: 0 });
     expect(score).toBe(1);
 
-    const wrongScore = calculateMCQScore(question, { answer: 'B' }, { cardinality: 'single' });
+    const wrongScore = calculateMCQScore(question, { value: 1 });
     expect(wrongScore).toBe(0);
   });
 
@@ -2504,11 +2600,11 @@ function TestComponent() {
   return (
     <div>
       <div data-testid="language">{state.language}</div>
-      <button onClick={() => storeAnswer('q1', { answer: 'A' })}>
+      <button onClick={() => storeAnswer('q1', { value: 0 })}>
         Store Answer
       </button>
       <div data-testid="answer-q1">
-        {state.answers.q1?.answer || 'No answer'}
+        {state.answers.q1?.value ?? 'No answer'}
       </div>
     </div>
   );
@@ -3318,7 +3414,7 @@ This architecture:
  *     - replayed: boolean (locked in review mode)
  *     - language: 'en' | 'ar' | 'fr' | 'pt'
  *     - shuffleOptions?: boolean (default true)
- *     - savedResponse?: { answer: 'A' | ['A', 'B'] } (restore on revisit)
+ *     - savedResponse?: UserResponse (value | values | responses | matches | order) — restore on revisit
  *     - baseUrl?: string
  *   
  *   Outputs (via props callbacks ONLY):
@@ -3360,10 +3456,11 @@ export function McqQuestion({
     if (!question) return;
 
     try {
-      // Extract options from interactions
-      const interactions = question.interactions || [];
-      const interaction = interactions[0];
-      if (!interaction || !interaction.options) {
+      // Extract options from the first responseN interaction (keyed model)
+      const interactions = question.interactions || {};
+      const responseKey = Object.keys(interactions)[0];
+      const interaction = responseKey ? interactions[responseKey] : null;
+      if (!interaction || !Array.isArray(interaction.options)) {
         console.warn('[MCQ] No options found in question');
         return;
       }
@@ -3393,8 +3490,10 @@ export function McqQuestion({
 
   // Restore saved response
   const applySavedResponse = () => {
-    if (savedResponse?.answer) {
-      setSelectedAnswer(savedResponse.answer);
+    // MCQ single → value; MCQ multiple → values
+    const restored = savedResponse?.values ?? savedResponse?.value;
+    if (restored !== undefined && restored !== null) {
+      setSelectedAnswer(restored);
     }
   };
 
@@ -3402,7 +3501,8 @@ export function McqQuestion({
   const handleOptionClick = (optionValue) => {
     if (replayed) return; // Can't select in replay mode
 
-    const cardinality = question.interactions?.[0]?.cardinality || 'single';
+    const responseKey = Object.keys(question.responseDeclaration || {})[0];
+    const cardinality = question.responseDeclaration?.[responseKey]?.cardinality || 'single';
     let newAnswer;
 
     if (cardinality === 'single') {
@@ -3423,12 +3523,13 @@ export function McqQuestion({
       setSelectedAnswer(newAnswer);
     }
 
-    // ✓ ONLY emit user intent to parent
+    // ✓ ONLY emit user intent to parent (clean UserResponse: value/values)
     // ✓ Parent (SectionPlayer) handles: storage, telemetry, scoring, feedback
-    onOptionSelected?.({
-      answer: newAnswer,
-      timestamp: Date.now(),
-    });
+    onOptionSelected?.(
+      cardinality === 'multiple'
+        ? { values: newAnswer, timestamp: Date.now() }
+        : { value: newAnswer, timestamp: Date.now() },
+    );
   };
 
   // ✗ DO NOT render body here
@@ -3443,7 +3544,8 @@ export function McqQuestion({
     return selectedAnswer === optionValue;
   };
 
-  const cardinality = question.interactions?.[0]?.cardinality || 'single';
+  const mcqResponseKey = Object.keys(question.responseDeclaration || {})[0];
+  const cardinality = question.responseDeclaration?.[mcqResponseKey]?.cardinality || 'single';
   const isMultiple = cardinality === 'multiple';
 
   return (
@@ -3942,13 +4044,14 @@ export function SectionPlayer({
     storeAnswer(currentQuestion.identifier, answer);  // Context action
 
     // 2. Log the interaction (user chose an option)
-    logOptionSelected(currentQuestion.identifier, answer.answer);
+    const selected = answer.values ?? answer.value ?? answer.order ?? answer.responses ?? answer.matches;
+    logOptionSelected(currentQuestion.identifier, selected);
 
     // 3. Calculate score (uses scoring registry for all question types)
     const score = calculateScore(currentQuestion, answer);
 
     // 4. Log the assessment (answer was submitted/scored)
-    logAnswerSubmitted(currentQuestion.identifier, answer.answer, score, 1);
+    logAnswerSubmitted(currentQuestion.identifier, selected, score, 1);
 
     // 5. Show feedback alert if enabled
     if (state.config?.showFeedback) {
@@ -4212,12 +4315,12 @@ Timeline:
 ─────────────────────────────────────────────
 
 User in Section 1
-  ├─ Answers Q "do_111" with "A"
-  │  └─ storeAnswer("do_111", { answer: "A" })
-  │     Context.state.answers = { "do_111": { answer: "A" } }
+  ├─ Answers Q "do_111" (selects option 0)
+  │  └─ storeAnswer("do_111", { value: 0 })
+  │     Context.state.answers = { "do_111": { value: 0 } }
   │
-  ├─ Answers Q "do_112" with "B"
-  │  └─ storeAnswer("do_112", { answer: "B" })
+  ├─ Answers Q "do_112" (selects option 1)
+  │  └─ storeAnswer("do_112", { value: 1 })
   │     Context.state.answers = { "do_111": {...}, "do_112": {...} }
   │
   └─ Navigates to Section 2
@@ -4225,8 +4328,8 @@ User in Section 1
         Context.state.answers is PRESERVED
 
 User in Section 2
-  ├─ Answers Q "do_221" with "C"
-  │  └─ storeAnswer("do_221", { answer: "C" })
+  ├─ Answers Q "do_221" (selects option 2)
+  │  └─ storeAnswer("do_221", { value: 2 })
   │     Context.state.answers = { "do_111": {...}, "do_112": {...}, "do_221": {...} }
   │
   └─ Navigates back to Section 1
@@ -4236,13 +4339,13 @@ User in Section 2
 User back in Section 1
   ├─ Views Q "do_111" again
   │  └─ QuestionRenderer checks state.answers["do_111"]
-  │     └─ FOUND: { answer: "A", timestamp: ... }
+  │     └─ FOUND: { value: 0, timestamp: ... }
   │        └─ Passes to question component as savedResponse prop
-  │           └─ Question renders with user's previous answer "A" ✓
+  │           └─ Question renders with the user's previous answer ✓
   │
   └─ Views Q "do_112" again
-     └─ FOUND: { answer: "B", timestamp: ... }
-        └─ Renders with "B" ✓
+     └─ FOUND: { value: 1, timestamp: ... }
+        └─ Renders with the previous answer ✓
 ```
 
 **Key points:**
@@ -4793,7 +4896,8 @@ These are real pitfalls. Read them.
 // ✓ RIGHT (in SectionPlayer):
 const [shuffledQuestion, setShuffledQuestion] = useState(null);
 useEffect(() => {
-  const opts = question.interactions[0].options;
+  const responseKey = Object.keys(question.interactions || {})[0];
+  const opts = question.interactions[responseKey].options;
   const shuffled = fisherYatesShuffle(opts);
   setShuffledQuestion({ ...question, options: shuffled });
 }, [question.id]);
@@ -4908,7 +5012,7 @@ const handleClick = () => {
 ```javascript
 // ✅ Question component pure UI only
 const handleClick = () => {
-  onOptionSelected({ answer: newAnswer, timestamp: Date.now() });
+  onOptionSelected({ value: newAnswer, timestamp: Date.now() });
 };
 ```
 

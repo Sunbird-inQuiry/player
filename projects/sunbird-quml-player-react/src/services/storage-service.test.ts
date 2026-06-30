@@ -14,7 +14,7 @@ describe('StorageService', () => {
   });
 
   it('should persist answers to localStorage', () => {
-    const answers: AnswersMap = { q1: { answer: 'A' }, q2: { answer: 'B' } };
+    const answers: AnswersMap = { q1: { value: 0 }, q2: { value: 1 } };
     persistAnswersToLocalStorage(answers, testKey);
 
     const stored = localStorage.getItem(testKey);
@@ -23,7 +23,7 @@ describe('StorageService', () => {
   });
 
   it('should restore answers from localStorage', () => {
-    const answers: AnswersMap = { q1: { answer: 'A' } };
+    const answers: AnswersMap = { q1: { value: 0 } };
     persistAnswersToLocalStorage(answers, testKey);
 
     const restored = restoreAnswersFromLocalStorage(testKey);
@@ -36,7 +36,7 @@ describe('StorageService', () => {
   });
 
   it('should clear persisted answers', () => {
-    persistAnswersToLocalStorage({ q1: { answer: 'A' } }, testKey);
+    persistAnswersToLocalStorage({ q1: { value: 0 } }, testKey);
     clearPersistedAnswers(testKey);
 
     const restored = restoreAnswersFromLocalStorage(testKey);

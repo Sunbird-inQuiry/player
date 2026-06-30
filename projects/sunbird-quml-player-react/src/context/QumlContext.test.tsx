@@ -98,9 +98,9 @@ describe('qumlReducer', () => {
   it('STORE_ANSWER adds an answer keyed by identifier (immutably)', () => {
     const next = qumlReducer(initialState, {
       type: QumlActionTypes.STORE_ANSWER,
-      payload: { identifier: 'q1', response: { answer: 'A' } },
+      payload: { identifier: 'q1', response: { value: 0 } },
     });
-    expect(next.answers.q1).toEqual({ answer: 'A' });
+    expect(next.answers.q1).toEqual({ value: 0 });
     // original state not mutated
     expect(initialState.answers.q1).toBeUndefined();
   });
@@ -108,13 +108,13 @@ describe('qumlReducer', () => {
   it('STORE_ANSWER overwrites the answer for the same identifier', () => {
     const first = qumlReducer(initialState, {
       type: QumlActionTypes.STORE_ANSWER,
-      payload: { identifier: 'q1', response: { answer: 'A' } },
+      payload: { identifier: 'q1', response: { value: 0 } },
     });
     const second = qumlReducer(first, {
       type: QumlActionTypes.STORE_ANSWER,
-      payload: { identifier: 'q1', response: { answer: 'B' } },
+      payload: { identifier: 'q1', response: { value: 1 } },
     });
-    expect(second.answers.q1).toEqual({ answer: 'B' });
+    expect(second.answers.q1).toEqual({ value: 1 });
   });
 
   it('SET_LOADING toggles loading', () => {
@@ -142,7 +142,7 @@ describe('qumlReducer', () => {
   });
 
   it('RESET_STATE returns the initial state', () => {
-    const seeded = { ...initialState, language: 'fr', answers: { q1: { answer: 'A' } } };
+    const seeded = { ...initialState, language: 'fr', answers: { q1: { value: 0 } } };
     expect(qumlReducer(seeded, { type: QumlActionTypes.RESET_STATE })).toEqual(initialState);
   });
 
@@ -160,8 +160,8 @@ function TestComponent() {
   return (
     <div>
       <div data-testid="language">{state.language}</div>
-      <button onClick={() => storeAnswer('q1', { answer: 'A' })}>Store Answer</button>
-      <div data-testid="answer-q1">{(state.answers.q1?.answer as string) || 'No answer'}</div>
+      <button onClick={() => storeAnswer('q1', { value: 0 })}>Store Answer</button>
+      <div data-testid="answer-q1">{state.answers.q1?.value ?? 'No answer'}</div>
     </div>
   );
 }
@@ -195,7 +195,7 @@ describe('QumlProvider', () => {
     act(() => {
       screen.getByRole('button').click();
     });
-    expect(screen.getByTestId('answer-q1')).toHaveTextContent('A');
+    expect(screen.getByTestId('answer-q1')).toHaveTextContent('0');
   });
 
   it('supports section and question changes', () => {

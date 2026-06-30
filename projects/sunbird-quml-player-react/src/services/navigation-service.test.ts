@@ -30,7 +30,7 @@ describe('NavigationService', () => {
   it('canGoToNextQuestion honors requireAnswer', () => {
     expect(canGoToNextQuestion(0, questions, {}, { requireAnswer: true })).toBe(false);
     expect(
-      canGoToNextQuestion(0, questions, { q0: { answer: 'A' } }, { requireAnswer: true }),
+      canGoToNextQuestion(0, questions, { q0: { value: 0 } }, { requireAnswer: true }),
     ).toBe(true);
   });
 

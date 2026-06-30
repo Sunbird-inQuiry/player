@@ -15,46 +15,65 @@ export interface TimeLimits {
 }
 
 export interface Option {
-  value: string;
+  value: number | string; // MCQ → integer; SEQ/REO/MTF → string
   label: string | I18nValue;
 }
 
+/**
+ * Interaction options:
+ * - MCQ / SEQ / REO → a flat `Option[]`
+ * - MTF             → `{ left, right }` columns
+ */
+export type InteractionOptions = Option[] | { left: Option[]; right: Option[] };
+
 export interface Interaction {
-  cardinality: string; // 'single' | 'multiple' | 'map' | 'ordered' | ...
-  options?: Option[];
-  [key: string]: unknown;
+  options?: InteractionOptions;
 }
 
-export interface ResponseDeclaration {
-  correctResponse?: { value: unknown };
-  mapping?: Array<{
-    placeholder: string;
-    correctResponse: { value: string };
-  }>;
-  [key: string]: unknown;
+/** `interactions` is keyed by responseN, e.g. { response1: { options: [...] } } */
+export type Interactions = Record<string, Interaction>;
+
+/** A single mapping entry (QuML 1.1 partial scoring). */
+export interface ResponseMapping {
+  value?: number | string; // FTB / SEQ / REO / MCQ
+  key?: string; // MTF (left value)
+  score: number;
+  caseSensitive?: boolean; // FTB
 }
+
+export interface ResponseDeclarationItem {
+  cardinality: 'single' | 'multiple' | 'ordered' | string;
+  type: 'integer' | 'string' | 'map' | string;
+  correctResponse?: {
+    value: number | string | number[] | string[] | Record<string, string>;
+  };
+  mapping?: ResponseMapping[];
+}
+
+/** `responseDeclaration` is keyed by responseN, e.g. { response1: { ... } } */
+export type ResponseDeclaration = Record<string, ResponseDeclarationItem>;
 
 export interface OutcomeDeclaration {
-  score?: { baseValue?: number };
-  [key: string]: unknown;
+  maxScore?: { cardinality?: string; type?: string; defaultValue?: number };
 }
 
 export interface Question {
   identifier: string; // GLOBALLY UNIQUE — used as the answers map key
   code?: string;
   name?: string;
-  body: string; // HTML, may contain KaTeX
+  body: string; // HTML, may contain KaTeX; FTB has [[responseN]] blank tokens
   primaryCategory: string; // maps to registry (lowercased after transform)
   qType?: string;
   mimeType?: string;
-  interactions?: Interaction[];
+  interactions?: Interactions; // keyed by responseN
   interactionTypes?: string[];
-  responseDeclaration?: ResponseDeclaration;
+  responseDeclaration?: ResponseDeclaration; // keyed by responseN (absent for SA)
   outcomeDeclaration?: OutcomeDeclaration;
+  answer?: string | I18nValue; // SA model answer
   maxScore: number;
   media?: unknown[];
-  solutions?: unknown[];
-  hints?: unknown[];
+  solutions?: unknown[]; // QuML array form (not an object map)
+  hints?: unknown[]; // QuML array form
   templateId?: string;
   language?: string[];
   status?: string;
@@ -91,18 +110,24 @@ export interface Assessment {
 }
 
 /**
- * One user's answer to one question. Concrete fields vary by question type:
- * - MCQ:     answer: string | string[]
- * - FTB:     response1, response2, ...
- * - MTF:     option1, option2, ...
- * - SEQ/REO: answer: string[]
+ * One user's answer to one question (React-native runtime model — NOT the QuML
+ * file format and NOT the Angular event wrapper). Each question type sets exactly
+ * one of the answer fields; SA sets none.
+ * - MCQ single   → value
+ * - MCQ multiple → values
+ * - FTB          → responses   (responseN → text)
+ * - MTF          → matches     (leftValue → rightValue)
+ * - SEQ / REO    → order       (ordered values)
  */
 export interface UserResponse {
-  answer?: string | string[];
+  value?: number | string; // MCQ single
+  values?: Array<number | string>; // MCQ multiple
+  responses?: Record<string, string>; // FTB
+  matches?: Record<string, string>; // MTF
+  order?: Array<number | string>; // SEQ / REO
   timestamp?: number;
   score?: number;
   maxScore?: number;
-  [key: string]: unknown;
 }
 
 /** Runtime answers map, keyed by question.identifier (single source of truth). */

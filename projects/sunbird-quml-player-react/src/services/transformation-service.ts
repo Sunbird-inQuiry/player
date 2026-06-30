@@ -1,66 +1,124 @@
-import type { Question, Section, TimeLimits, I18nValue, UserResponse } from '../types';
+import type {
+  Question,
+  Section,
+  TimeLimits,
+  I18nValue,
+  UserResponse,
+  Interactions,
+  ResponseDeclaration,
+  ResponseDeclarationItem,
+  ResponseMapping,
+} from '../types';
 
 /**
  * Transformation Service - Normalize and transform QUML data.
  *
  * Inputs are RAW QUML API payloads (loosely typed as `any`); outputs are the
- * normalized interfaces from the shared types.
+ * normalized interfaces from the shared types. The SAME function is used for
+ * online (fetched) and offline (embedded) questions — there is no separate adapter.
  */
 
 /** Transform raw question data to the normalized Question shape. */
 export function transformQuestion(question: any): Question | null {
   if (!question) return null;
 
-  return {
-    // Core
+  const primaryCategory = (question.primaryCategory || '').toLowerCase();
+  const isSubjective =
+    primaryCategory === 'subjective question' || (question.qType || '').toUpperCase() === 'SA';
+
+  const normalized: Question = {
     identifier: question.identifier,
     code: question.code,
     name: question.name,
     body: question.body || '',
     qType: question.qType?.toUpperCase() || '',
-    primaryCategory: question.primaryCategory?.toLowerCase() || '',
+    primaryCategory,
     mimeType: question.mimeType || 'application/vnd.sunbird.question',
-
-    // Interactions
-    interactions: question.interactions || [],
+    interactions: (question.interactions || {}) as Interactions, // keyed by responseN
     interactionTypes: question.interactionTypes || [],
-
-    // Declarations (QUML 1.1 standard)
-    responseDeclaration: question.responseDeclaration || {},
-    outcomeDeclaration: question.outcomeDeclaration || {},
-
-    // Metadata
+    outcomeDeclaration: { maxScore: { defaultValue: extractMaxScore(question) } },
     maxScore: extractMaxScore(question),
     media: question.media || [],
-    solutions: question.solutions || [],
+    solutions: question.solutions || [], // QuML array form (not an object map)
     hints: question.hints || [],
-
-    // Display
     templateId: question.templateId || '',
     language: question.language || [],
     status: question.status || 'Draft',
-
-    // Flags
     showFeedback: question.showFeedback === 'Yes' || question.showFeedback === true,
     showSolutions: question.showSolutions === 'Yes' || question.showSolutions === true,
     showHints: question.showHints === 'Yes' || question.showHints === true,
     shuffleOptions: question.shuffleOptions === true,
   };
+
+  if (isSubjective) {
+    // SA: surface the model answer; QuML has no responseDeclaration for SA.
+    normalized.answer = question.answer;
+  } else {
+    normalized.responseDeclaration = normalizeResponseDeclaration(question.responseDeclaration);
+  }
+
+  return normalized;
+}
+
+/** Normalize the keyed responseDeclaration (parseInt integers, convert legacy mapping). */
+function normalizeResponseDeclaration(rd: any): ResponseDeclaration {
+  const out: ResponseDeclaration = {};
+  if (!rd || typeof rd !== 'object') return out;
+
+  for (const key of Object.keys(rd)) {
+    const item = rd[key];
+    if (!item || typeof item !== 'object') continue;
+    out[key] = {
+      cardinality: item.cardinality || 'single',
+      type: item.type || 'string',
+      correctResponse: normalizeCorrectResponse(item.correctResponse, item.type),
+      mapping: normalizeMapping(item.mapping),
+    } as ResponseDeclarationItem;
+  }
+  return out;
+}
+
+/** parseInt the correctResponse value(s) when the response type is 'integer'. */
+function normalizeCorrectResponse(
+  cr: any,
+  type: string,
+): ResponseDeclarationItem['correctResponse'] {
+  if (!cr || cr.value === undefined || cr.value === null) return undefined;
+  let value = cr.value;
+  if (type === 'integer') {
+    value = Array.isArray(value)
+      ? value.map((v: any) => parseInt(v, 10))
+      : parseInt(value, 10);
+  }
+  return { value };
+}
+
+/** Convert legacy mapping ({response,outcomes.score}) → {value,score}; pass new shape through. */
+function normalizeMapping(mapping: any): ResponseMapping[] | undefined {
+  if (!Array.isArray(mapping) || mapping.length === 0) return undefined;
+  return mapping.map((m: any): ResponseMapping => {
+    // Legacy format
+    if (m && m.outcomes && m.value === undefined && m.key === undefined) {
+      return { value: m.response, score: Number(m.outcomes.score) || 0 };
+    }
+    // New QuML 1.1: { value, score, caseSensitive } or MTF { key, value, score }
+    const entry: ResponseMapping = { score: Number(m.score) || 0 };
+    if (m.key !== undefined) entry.key = m.key;
+    if (m.value !== undefined) entry.value = m.value;
+    if (m.caseSensitive !== undefined) entry.caseSensitive = !!m.caseSensitive;
+    return entry;
+  });
 }
 
 /** Extract max score from a raw question (defaults to 1). */
 function extractMaxScore(question: any): number {
-  // Try maxScore property first
   if (question.maxScore) {
     return Number(question.maxScore);
   }
-
-  // Try from outcomeDeclaration
-  if (question.outcomeDeclaration?.score?.baseValue) {
-    return Number(question.outcomeDeclaration.score.baseValue);
+  // QuML: outcomeDeclaration.maxScore.defaultValue
+  if (question.outcomeDeclaration?.maxScore?.defaultValue !== undefined) {
+    return Number(question.outcomeDeclaration.maxScore.defaultValue);
   }
-
-  // Default
   return 1;
 }
 

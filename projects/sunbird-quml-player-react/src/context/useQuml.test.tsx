@@ -50,7 +50,7 @@ describe('useQumlActions', () => {
       { wrapper },
     );
     expect(typeof result.current.actions.storeAnswer).toBe('function');
-    act(() => result.current.actions.storeAnswer('q1', { answer: 'Z' }));
-    expect(result.current.state.answers.q1).toEqual({ answer: 'Z' });
+    act(() => result.current.actions.storeAnswer('q1', { value: 5 }));
+    expect(result.current.state.answers.q1).toEqual({ value: 5 });
   });
 });
