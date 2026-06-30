@@ -1,0 +1,38 @@
+@use '../../styles/variables' as v;
+
+.mainPlayer {
+  height: 100%;
+  background: v.$cream-bg;
+  font-family: v.$ff-base;
+}
+
+.endPage {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: v.$space-12 v.$space-6;
+  text-align: center;
+}
+
+.title {
+  margin: 0 0 v.$space-2;
+  font-size: v.$text-2xl;
+  font-weight: v.$fw-bold;
+  color: v.$dark;
+}
+
+.subtitle {
+  margin: 0 0 v.$space-8;
+  color: v.$g500;
+}
+
+.status,
+.error {
+  padding: v.$space-12;
+  text-align: center;
+  font-family: v.$ff-base;
+  color: v.$g600;
+}
+
+.error {
+  color: v.$danger;
+}

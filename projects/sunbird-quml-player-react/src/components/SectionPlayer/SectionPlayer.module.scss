@@ -1,0 +1,49 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.sectionPlayer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: v.$cream-bg;
+}
+
+.content {
+  flex: 1;
+  padding: v.$space-8 v.$space-12;
+  overflow-y: auto;
+
+  @include m.mobile {
+    padding: v.$space-5 v.$space-4;
+  }
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: v.$space-6 v.$space-12;
+  border-top: 1px solid v.$gray-200;
+  background: v.$white;
+
+  @include m.mobile {
+    padding: v.$space-4;
+  }
+}
+
+.submit {
+  @include m.button-base;
+  @include m.focus-ring;
+
+  background: v.$dark;
+  color: v.$white;
+
+  &:hover:not(:disabled) {
+    background: v.$g800;
+  }
+}
+
+.error {
+  padding: v.$space-6;
+  color: v.$danger;
+  font-family: v.$ff-base;
+}

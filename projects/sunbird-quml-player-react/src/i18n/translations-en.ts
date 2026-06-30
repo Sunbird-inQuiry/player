@@ -49,6 +49,7 @@ export const translations: Record<string, string> = {
 
   // Errors
   ERROR_LOADING: 'Error loading content',
+  LOADING: 'Loading…',
   RETRY_LOADING: 'Retry Loading',
   NETWORK_ERROR: 'Network error. Please check your connection.',
 
