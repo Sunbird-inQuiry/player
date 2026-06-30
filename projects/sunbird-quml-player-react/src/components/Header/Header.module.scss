@@ -1,0 +1,91 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: v.$space-4;
+  min-height: 54px;
+  padding: v.$space-2 v.$space-4;
+  background: v.$ivory;
+  border-bottom: 1px solid v.$gray-200;
+}
+
+.left,
+.center,
+.right {
+  display: flex;
+  align-items: center;
+  gap: v.$space-3;
+}
+
+.counter {
+  font-family: v.$ff-base;
+  font-size: v.$text-sm;
+  font-weight: v.$fw-medium;
+  color: v.$g600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.timer {
+  display: inline-flex;
+  align-items: center;
+  gap: v.$space-2;
+  padding: v.$space-1 v.$space-3;
+  border-radius: v.$r-sm;
+  background: v.$g100;
+  color: v.$g600;
+  font-family: v.$ff-base;
+  font-size: v.$text-xs;
+  font-weight: v.$fw-semibold;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  transition: background v.$dur-fast v.$ease-out, color v.$dur-fast v.$ease-out;
+}
+
+.timerIcon {
+  display: block;
+}
+
+// Low-time warning (≤ 60s): red + gentle pulse — visual fidelity to the design.
+.timerLow {
+  background: v.$danger-bg;
+  color: v.$danger;
+  animation: header-timer-pulse 1s ease-in-out infinite;
+}
+
+@keyframes header-timer-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.navBtn {
+  @include m.button-base;
+  @include m.focus-ring;
+
+  background: transparent;
+  color: v.$g600;
+  border: 1.5px solid v.$gray-200;
+
+  &:hover:not(:disabled) {
+    border-color: v.$g400;
+    color: v.$g900;
+    background: v.$cream-bg;
+  }
+}
+
+.navLabel {
+  @include m.mobile {
+    display: none;
+  }
+}

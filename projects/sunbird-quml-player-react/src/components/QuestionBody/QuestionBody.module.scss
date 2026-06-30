@@ -1,0 +1,44 @@
+@use '../../styles/variables' as v;
+
+.body {
+  font-family: v.$ff-question; // Noto Serif — editorial question stem (design)
+  font-size: v.$text-base;
+  line-height: v.$lh-normal;
+  color: v.$g700;
+  word-wrap: break-word;
+
+  // Images in body
+  img {
+    max-width: 100%;
+    height: auto;
+    margin: v.$space-3 0;
+    border-radius: v.$r-sm;
+  }
+
+  // Tables
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: v.$space-3 0;
+
+    td,
+    th {
+      border: 1px solid v.$gray-200;
+      padding: v.$space-2;
+      text-align: left;
+    }
+  }
+
+  // RTL language support
+  &.rtl {
+    direction: rtl;
+    text-align: right;
+
+    table {
+      td,
+      th {
+        text-align: right;
+      }
+    }
+  }
+}
