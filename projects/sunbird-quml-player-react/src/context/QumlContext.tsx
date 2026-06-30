@@ -62,6 +62,7 @@ export const QumlActionTypes = {
   SET_ERROR: 'SET_ERROR',
   SET_LANGUAGE: 'SET_LANGUAGE',
   SET_SHOW_FEEDBACK: 'SET_SHOW_FEEDBACK',
+  SET_ATTEMPT: 'SET_ATTEMPT',
   RESET_STATE: 'RESET_STATE',
   CLEAR_ERROR: 'CLEAR_ERROR',
 } as const;
@@ -78,6 +79,7 @@ export type QumlAction =
   | { type: typeof QumlActionTypes.SET_ERROR; payload: string | null }
   | { type: typeof QumlActionTypes.SET_LANGUAGE; payload: string }
   | { type: typeof QumlActionTypes.SET_SHOW_FEEDBACK; payload: boolean }
+  | { type: typeof QumlActionTypes.SET_ATTEMPT; payload: number }
   | { type: typeof QumlActionTypes.RESET_STATE }
   | { type: typeof QumlActionTypes.CLEAR_ERROR };
 
@@ -157,6 +159,12 @@ export function qumlReducer(state: AssessmentState, action: QumlAction): Assessm
         showFeedback: action.payload,
       };
 
+    case QumlActionTypes.SET_ATTEMPT:
+      return {
+        ...state,
+        attemptNumber: action.payload,
+      };
+
     case QumlActionTypes.RESET_STATE:
       return initialState;
 
@@ -186,6 +194,7 @@ export interface QumlContextValue {
   clearError: () => void;
   setLanguage: (language: string) => void;
   setShowFeedback: (show: boolean) => void;
+  setAttempt: (attempt: number) => void;
   resetState: () => void;
 }
 
@@ -252,6 +261,10 @@ export function QumlProvider({ children, playerConfig }: QumlProviderProps) {
     dispatch({ type: QumlActionTypes.SET_SHOW_FEEDBACK, payload: show });
   }, []);
 
+  const setAttempt = useCallback((attempt: number) => {
+    dispatch({ type: QumlActionTypes.SET_ATTEMPT, payload: attempt });
+  }, []);
+
   const resetState = useCallback(() => {
     dispatch({ type: QumlActionTypes.RESET_STATE });
   }, []);
@@ -272,6 +285,7 @@ export function QumlProvider({ children, playerConfig }: QumlProviderProps) {
       clearError,
       setLanguage,
       setShowFeedback,
+      setAttempt,
       resetState,
     }),
     [

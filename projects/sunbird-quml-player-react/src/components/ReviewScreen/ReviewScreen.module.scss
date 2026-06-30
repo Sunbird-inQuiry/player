@@ -1,0 +1,154 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.review {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: v.$cream-bg;
+  font-family: v.$ff-base;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: v.$space-4;
+  height: v.$header-h;
+  padding: 0 v.$space-6;
+  background: v.$white;
+  border-bottom: 1px solid v.$gray-200;
+
+  @include m.mobile {
+    padding: 0 v.$space-4;
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: v.$text-lg;
+  font-weight: v.$fw-bold;
+  color: v.$g900;
+}
+
+.exitBtn {
+  @include m.button-base;
+  @include m.focus-ring;
+
+  background: transparent;
+  color: v.$g700;
+  border: 1.5px solid v.$gray-300;
+
+  &:hover:not(:disabled) {
+    border-color: v.$g400;
+    background: v.$cream-bg;
+  }
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.paletteCol {
+  flex-shrink: 0;
+  width: v.$sidebar-w;
+  padding: v.$space-6 v.$space-5;
+  overflow-y: auto;
+  border-inline-end: 1px solid v.$gray-200;
+  background: v.$ivory;
+
+  @include m.mobile {
+    display: none;
+  }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: v.$space-8 v.$space-12;
+
+  @include m.mobile {
+    padding: v.$space-5 v.$space-4;
+  }
+}
+
+.verdict {
+  align-self: center;
+  margin-bottom: v.$space-5;
+  padding: v.$space-2 v.$space-5;
+  border-radius: v.$r-pill;
+  font-size: v.$text-sm;
+  font-weight: v.$fw-semibold;
+}
+
+.correct {
+  background: v.$success-bg;
+  color: v.$success;
+}
+
+.incorrect {
+  background: v.$danger-bg;
+  color: v.$danger;
+}
+
+.partial {
+  background: v.$warning-bg;
+  color: v.$warning;
+}
+
+.skipped {
+  background: v.$g100;
+  color: v.$g600;
+}
+
+.pending {
+  background: v.$info-bg;
+  color: v.$ink;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: v.$space-4;
+  margin-top: v.$space-6;
+}
+
+.counter {
+  font-size: v.$text-sm;
+  font-weight: v.$fw-medium;
+  color: v.$g600;
+  font-variant-numeric: tabular-nums;
+}
+
+.navBtn {
+  @include m.button-base;
+  @include m.focus-ring;
+
+  background: transparent;
+  color: v.$g600;
+  border: 1.5px solid v.$gray-200;
+
+  &:hover:not(:disabled) {
+    border-color: v.$g400;
+    color: v.$g900;
+    background: v.$cream-bg;
+  }
+}
+
+.navLabel {
+  @include m.mobile {
+    display: none;
+  }
+}
+
+.empty {
+  padding: v.$space-12;
+  text-align: center;
+  color: v.$g600;
+}

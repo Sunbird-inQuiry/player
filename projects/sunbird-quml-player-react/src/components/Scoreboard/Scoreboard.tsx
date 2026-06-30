@@ -50,9 +50,11 @@ export function Scoreboard({
         Score: <strong>{totalScore}</strong>/{maxScore}
       </p>
 
-      <button type="button" className={styles.submit} onClick={onSubmit}>
-        Submit
-      </button>
+      {onSubmit && (
+        <button type="button" className={styles.submit} onClick={onSubmit}>
+          Submit
+        </button>
+      )}
     </section>
   );
 }

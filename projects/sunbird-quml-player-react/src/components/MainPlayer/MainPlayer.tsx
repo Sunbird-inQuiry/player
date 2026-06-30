@@ -1,15 +1,17 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useQuml } from '../../context/useQuml';
 import { SectionPlayer } from '../SectionPlayer/SectionPlayer';
-import { Scoreboard } from '../Scoreboard/Scoreboard';
 import { StartPage } from '../StartPage/StartPage';
 import { SectionIntro } from '../SectionIntro/SectionIntro';
 import { Sidebar } from '../Sidebar/Sidebar';
 import { MobileSectionsDrawer } from '../MobileSectionsDrawer/MobileSectionsDrawer';
 import { PlayerHeader } from '../PlayerHeader/PlayerHeader';
+import { SubmitModal } from '../SubmitModal/SubmitModal';
+import { ResultsScreen } from '../ResultsScreen/ResultsScreen';
+import { ReviewScreen } from '../ReviewScreen/ReviewScreen';
 import { t } from '../../i18n/translations';
 import { transformSection, transformQuestion } from '../../services/transformation-service';
 import { calculateScore } from '../../registry/scoring-registry';
@@ -26,6 +28,10 @@ import styles from './MainPlayer.module.scss';
  * are children here; they receive Context-derived data as props and emit jump
  * intent that maps to setCurrentSection / setCurrentQuestion. Hosts the single
  * application-level DndProvider.
+ *
+ * Phase 7 extends the flow with `results`/`review` stages and a transient
+ * `submitDialog`; Results/Review READ Context + the scoring-registry and never
+ * own runtime answers.
  */
 interface MainPlayerProps {
   playerConfig: PlayerConfig;
@@ -34,14 +40,26 @@ interface MainPlayerProps {
   onTelemetryEvent?: (event: unknown) => void;
 }
 
-type Stage = 'overview' | 'sectionIntro' | 'assessment' | 'submit';
+type Stage = 'overview' | 'sectionIntro' | 'assessment' | 'results' | 'review';
 
 export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
-  const { state, setPlayerConfig, setSections, setCurrentSection, setCurrentQuestion } = useQuml();
+  const {
+    state,
+    setPlayerConfig,
+    setSections,
+    setCurrentSection,
+    setCurrentQuestion,
+    resetState,
+    setAttempt,
+  } = useQuml();
   const language = state.language;
 
   const [stage, setStage] = useState<Stage>('overview');
   const [drawerOpen, setDrawerOpen] = useState(false);
+  // Transient submit-confirmation dialog (spec §7.0); overlays the assessment shell.
+  const [submitDialog, setSubmitDialog] = useState(false);
+  // Where Review opens to (set when entering review from results).
+  const [reviewStartIndex, setReviewStartIndex] = useState(0);
   // Assessment-level countdown (owned by the shell, not Context). Null = no limit.
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
 
@@ -50,7 +68,9 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     (playerConfig?.config as { showSectionIntro?: boolean } | undefined)?.showSectionIntro !== false;
 
   // Initialize config + normalized sections from embedded data (no network in Phase 5).
-  useEffect(() => {
+  // Extracted so Retake (spec §7.5) can re-initialize after resetState() — which
+  // returns initialState and therefore clears playerConfig/sections.
+  const initializeFromConfig = useCallback(() => {
     if (!playerConfig) return;
     setPlayerConfig(playerConfig);
 
@@ -67,8 +87,11 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
       .filter((s): s is Section => Boolean(s));
 
     setSections(sections);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playerConfig]);
+  }, [playerConfig, setPlayerConfig, setSections]);
+
+  useEffect(() => {
+    initializeFromConfig();
+  }, [initializeFromConfig]);
 
   const summary = useMemo(() => {
     let correct = 0;
@@ -135,10 +158,19 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     return () => clearInterval(id);
   }, [stage]);
 
-  // Time up → hand off to the submit stage.
+  // Time up → auto-submit straight to results (no confirmation dialog).
   useEffect(() => {
-    if (timeRemaining === 0) setStage('submit');
+    if (timeRemaining === 0) {
+      setSubmitDialog(false);
+      setStage('results');
+    }
   }, [timeRemaining]);
+
+  // Flattened question list across all sections, for review + counts.
+  const allQuestions = useMemo(
+    () => state.sections.flatMap((s) => s.children),
+    [state.sections],
+  );
 
   // Per-section completion (every child answered) — drives the section step dots.
   const completed = useMemo(
@@ -174,7 +206,34 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     setStage(sectionIntrosEnabled ? 'sectionIntro' : 'assessment');
   };
 
-  const handleSubmitAssessment = () => setStage('submit');
+  // Submit (header) → open the confirmation dialog (spec §7.1).
+  const handleSubmitAssessment = () => setSubmitDialog(true);
+
+  const handleConfirmSubmit = () => {
+    setSubmitDialog(false);
+    setStage('results');
+    onPlayerEvent?.({ type: 'quizEnd', summary });
+  };
+
+  const handleCancelSubmit = () => setSubmitDialog(false);
+
+  const handleReviewAll = () => {
+    setReviewStartIndex(0);
+    setStage('review');
+  };
+
+  // Retake (spec §7.5): clear answers via resetState(), re-initialize from the
+  // config prop (resetState wipes config/sections), bump the attempt, return to
+  // Overview, and reset the shell timer.
+  const handleRetake = () => {
+    const nextAttempt = state.attemptNumber + 1;
+    resetState();
+    initializeFromConfig();
+    setAttempt(nextAttempt);
+    setTimeRemaining(null);
+    setSubmitDialog(false);
+    setStage('overview');
+  };
 
   const handleSectionEnd = () => {
     const nextIndex = state.currentSectionIndex + 1;
@@ -184,8 +243,8 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
       setStage(sectionIntrosEnabled ? 'sectionIntro' : 'assessment');
       onPlayerEvent?.({ type: 'sectionEnd', sectionIndex: state.currentSectionIndex });
     } else {
-      setStage('submit');
-      onPlayerEvent?.({ type: 'quizEnd', summary });
+      // End of the last section → confirm before submitting.
+      setSubmitDialog(true);
     }
   };
 
@@ -226,22 +285,24 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
         language={language}
       />
     );
-  } else if (stage === 'submit') {
-    // Phase 7 takes over the submit → results → review experience. Until then the
-    // Scoreboard summary stands in as the end-of-assessment view.
+  } else if (stage === 'results') {
     content = (
-      <div className={styles.endPage}>
-        <h1 className={styles.title}>{t(language, 'QUIZ_COMPLETE')}</h1>
-        <p className={styles.subtitle}>{t(language, 'THANK_YOU')}</p>
-        <Scoreboard
-          correct={summary.correct}
-          incorrect={summary.incorrect}
-          partial={summary.partial}
-          skipped={summary.skipped}
-          totalScore={summary.totalScore}
-          maxScore={summary.maxScore}
-        />
-      </div>
+      <ResultsScreen
+        summary={summary}
+        onReviewAll={handleReviewAll}
+        onRetake={handleRetake}
+        language={language}
+      />
+    );
+  } else if (stage === 'review') {
+    content = (
+      <ReviewScreen
+        questions={allQuestions}
+        answers={state.answers}
+        startIndex={reviewStartIndex}
+        onExit={() => setStage('results')}
+        language={language}
+      />
     );
   } else {
     // Persistent shell (spec §6.6/§6.12): header + sidebar wrap BOTH the section
@@ -303,6 +364,16 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
             language={language}
           />
         </div>
+
+        {submitDialog && (
+          <SubmitModal
+            answeredCount={overview.totalQuestions - summary.skipped}
+            unansweredCount={summary.skipped}
+            onConfirm={handleConfirmSubmit}
+            onCancel={handleCancelSubmit}
+            language={language}
+          />
+        )}
       </>
     );
   }

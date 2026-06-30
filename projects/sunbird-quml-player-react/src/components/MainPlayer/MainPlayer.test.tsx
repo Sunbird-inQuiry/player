@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { QumlProvider } from '../../context/QumlContext';
 import { MainPlayer } from './MainPlayer';
 import type { PlayerConfig } from '../../types';
@@ -66,13 +66,27 @@ describe('MainPlayer', () => {
     expect(screen.getByRole('status')).toHaveTextContent(/correct answer/i);
   });
 
-  it('shows the scoreboard summary after submitting', () => {
+  it('opens the submit dialog, then shows results on confirm', () => {
     renderPlayer();
     enterAssessment();
     fireEvent.click(screen.getAllByRole('radio')[0]); // answer correctly
-    // Header "Submit" ends the assessment (footer also has one on the last question).
+    // Header "Submit" opens the confirmation dialog (Phase 7).
     fireEvent.click(screen.getAllByRole('button', { name: /^submit$/i })[0]);
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toBeInTheDocument();
+    // Confirm inside the dialog → Results screen with the reused Scoreboard.
+    fireEvent.click(within(dialog).getByRole('button', { name: /^submit$/i }));
     expect(screen.getByRole('region', { name: /quiz summary/i })).toBeInTheDocument();
-    expect(screen.getByText(/\/1/)).toBeInTheDocument(); // totalScore / maxScore
+    expect(screen.getByRole('heading', { name: /your results/i })).toBeInTheDocument();
+  });
+
+  it('returns to overview on retake', () => {
+    renderPlayer();
+    enterAssessment();
+    fireEvent.click(screen.getAllByRole('button', { name: /^submit$/i })[0]);
+    const dialog = screen.getByRole('dialog');
+    fireEvent.click(within(dialog).getByRole('button', { name: /^submit$/i }));
+    fireEvent.click(screen.getByRole('button', { name: /retake/i }));
+    expect(screen.getByRole('button', { name: /start assessment/i })).toBeInTheDocument();
   });
 });

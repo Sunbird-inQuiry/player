@@ -99,4 +99,16 @@ export const translations: Record<string, string> = {
   START_SECTION: 'Start section',
   HELP: 'Help',
   MANDATORY_NOTE: 'All questions are mandatory. Choose the response you believe is correct — you can revisit any question before submitting.',
+
+  // Results & Review (Phase 7)
+  SUBMIT_TITLE: 'Submit your assessment?',
+  SUBMIT_BODY: 'You can review your answers after submitting.',
+  CONFIRM: 'Confirm',
+  CANCEL: 'Cancel',
+  YOUR_RESULTS: 'Your Results',
+  REVIEW_ALL: 'Review all answers',
+  RETAKE: 'Retake',
+  REVIEW: 'Review',
+  BACK_TO_RESULTS: 'Back to results',
+  RESULT_SUMMARY: 'You scored {score} out of {max}.',
 };

@@ -141,6 +141,11 @@ describe('qumlReducer', () => {
     expect(qumlReducer(initialState, { type: QumlActionTypes.SET_SHOW_FEEDBACK, payload: true }).showFeedback).toBe(true);
   });
 
+  it('SET_ATTEMPT updates the attempt number (Phase 7 retake)', () => {
+    const next = qumlReducer(initialState, { type: QumlActionTypes.SET_ATTEMPT, payload: 2 });
+    expect(next.attemptNumber).toBe(2);
+  });
+
   it('RESET_STATE returns the initial state', () => {
     const seeded = { ...initialState, language: 'fr', answers: { q1: { value: 0 } } };
     expect(qumlReducer(seeded, { type: QumlActionTypes.RESET_STATE })).toEqual(initialState);
@@ -225,5 +230,11 @@ describe('QumlProvider', () => {
     expect(result.current.state.language).toBe('ar');
     act(() => result.current.resetState());
     expect(result.current.state).toEqual(initialState);
+  });
+
+  it('sets the attempt number via setAttempt', () => {
+    const { result } = renderHook(() => useQuml(), { wrapper: wrapper(mockPlayerConfig) });
+    act(() => result.current.setAttempt(3));
+    expect(result.current.state.attemptNumber).toBe(3);
   });
 });

@@ -15,6 +15,8 @@ interface QuestionRendererProps {
   tryAgain?: boolean;
   baseUrl?: string;
   shuffleOptions?: boolean;
+  /** Review/replay: per-question score for display (forwarded to the component). */
+  score?: number | null;
   onOptionSelected?: (response: UserResponse) => void;
   onComponentLoaded?: () => void;
   onShowAnswerClicked?: () => void;
@@ -27,6 +29,7 @@ export function QuestionRenderer({
   tryAgain = false,
   baseUrl = '',
   shuffleOptions = true,
+  score = null,
   onOptionSelected,
   onComponentLoaded,
   onShowAnswerClicked,
@@ -61,6 +64,7 @@ export function QuestionRenderer({
         baseUrl={resolvedBaseUrl}
         shuffleOptions={shuffleOptions}
         savedResponse={savedResponse}
+        score={score}
         onOptionSelected={onOptionSelected}
         onComponentLoaded={onComponentLoaded}
         onShowAnswerClicked={onShowAnswerClicked}
