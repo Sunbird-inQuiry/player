@@ -1,0 +1,358 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.overview {
+  display: flex;
+  gap: v.$space-10;
+  min-height: 100%;
+  padding: v.$space-10 v.$space-12;
+  background: v.$cream-bg;
+  font-family: v.$ff-base;
+
+  @include m.mobile {
+    flex-direction: column;
+    gap: v.$space-6;
+    padding: v.$space-5 v.$space-4;
+  }
+}
+
+// ── Left section list ────────────────────────────────────────────────────────
+.sidebar {
+  flex-shrink: 0;
+  width: 280px;
+
+  @include m.mobile {
+    width: 100%;
+  }
+}
+
+.sidebarLabel {
+  margin: 0 0 v.$space-4 v.$space-1;
+  font-size: v.$text-xs;
+  font-weight: v.$fw-bold;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: v.$gray-400;
+}
+
+.sidebarList {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-4;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sidebarCard {
+  display: flex;
+  align-items: center;
+  gap: v.$space-4;
+  padding: v.$space-5;
+  background: v.$white;
+  border-radius: v.$r-md;
+  box-shadow: v.$shadow-sm;
+}
+
+.sidebarText {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-1;
+  min-width: 0;
+}
+
+.sidebarName {
+  font-size: v.$text-base;
+  font-weight: v.$fw-bold;
+  color: v.$g900;
+}
+
+.sidebarCount {
+  font-size: v.$text-sm;
+  color: v.$gray-500;
+}
+
+// ── Letter badge ─────────────────────────────────────────────────────────────
+.badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: v.$r-pill;
+  color: v.$white;
+  font-size: v.$text-base;
+  font-weight: v.$fw-bold;
+}
+
+// ── Main column ──────────────────────────────────────────────────────────────
+.main {
+  flex: 1;
+  min-width: 0;
+  max-width: 1180px;
+}
+
+.savedPill {
+  display: inline-flex;
+  align-items: center;
+  gap: v.$space-2;
+  padding: v.$space-2 v.$space-4;
+  margin-bottom: v.$space-8;
+  background: v.$success-bg;
+  color: v.$success;
+  border-radius: v.$r-pill;
+  font-size: v.$text-sm;
+  font-weight: v.$fw-semibold;
+}
+
+.heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: v.$space-6;
+  margin-bottom: v.$space-10;
+}
+
+.headingText {
+  min-width: 0;
+}
+
+.title {
+  margin: 0 0 v.$space-4;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: v.$fw-bold;
+  line-height: v.$lh-tight;
+  color: v.$g900;
+}
+
+.description {
+  margin: 0;
+  max-width: 42rem;
+  font-size: v.$text-md;
+  line-height: v.$lh-normal;
+  color: v.$gray-600;
+}
+
+// Decorative stacked cards (top-right of the title).
+.decoCards {
+  position: relative;
+  flex-shrink: 0;
+  width: 5rem;
+  height: 4.5rem;
+
+  @include m.mobile {
+    display: none;
+  }
+}
+
+.decoCard {
+  position: absolute;
+  width: 3.25rem;
+  height: 3.75rem;
+  border-radius: v.$r-sm;
+
+  &:nth-child(1) {
+    top: 0.5rem;
+    left: 0;
+    background: v.$wave;
+    transform: rotate(-8deg);
+  }
+  &:nth-child(2) {
+    top: 0.25rem;
+    left: 1rem;
+    background: v.$ginger;
+    transform: rotate(4deg);
+  }
+  &:nth-child(3) {
+    top: 0;
+    left: 1.9rem;
+    background: v.$brick;
+    transform: rotate(12deg);
+  }
+}
+
+// ── Stats card ───────────────────────────────────────────────────────────────
+.statsCard {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin: 0 0 v.$space-12;
+  padding: v.$space-6 v.$space-4;
+  background: v.$white;
+  border-radius: v.$r-md;
+  box-shadow: v.$shadow-sm;
+
+  @include m.mobile {
+    grid-template-columns: repeat(2, 1fr);
+    gap: v.$space-5;
+  }
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: v.$space-4;
+  padding: 0 v.$space-6;
+
+  & + & {
+    border-inline-start: 1px solid v.$gray-200;
+  }
+
+  @include m.mobile {
+    & + & {
+      border-inline-start: none;
+    }
+  }
+}
+
+.statIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: v.$r-sm;
+  background: v.$cream-bg;
+  color: v.$brick;
+}
+
+.statText {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-1;
+}
+
+.statLabel {
+  font-size: v.$text-xs;
+  font-weight: v.$fw-semibold;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: v.$gray-400;
+}
+
+.statValue {
+  margin: 0;
+  font-size: v.$text-xl;
+  font-weight: v.$fw-bold;
+  color: v.$g900;
+  font-variant-numeric: tabular-nums;
+}
+
+// ── Sections grid ────────────────────────────────────────────────────────────
+.sectionsHeading {
+  margin: 0 0 v.$space-2;
+  font-size: v.$text-xl;
+  font-weight: v.$fw-bold;
+  color: v.$g900;
+}
+
+.sectionsNote {
+  margin: 0 0 v.$space-6;
+  font-size: v.$text-base;
+  color: v.$gray-500;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: v.$space-5;
+  margin-bottom: v.$space-10;
+
+  @include m.mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sectionCard {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-2;
+  width: 100%;
+  padding: v.$space-6;
+  background: v.$white;
+  border: none;
+  border-radius: v.$r-md;
+  box-shadow: v.$shadow-sm;
+  text-align: start;
+  font-family: v.$ff-base;
+  transition: box-shadow v.$dur-fast v.$ease-out, transform v.$dur-fast v.$ease-out;
+}
+
+button.sectionCard {
+  cursor: pointer;
+  @include m.focus-ring;
+
+  &:hover {
+    box-shadow: v.$shadow-md;
+    transform: translateY(-2px);
+  }
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  gap: v.$space-3;
+}
+
+.cardName {
+  flex: 1;
+  min-width: 0;
+  font-size: v.$text-base;
+  font-weight: v.$fw-bold;
+  color: v.$g900;
+}
+
+.cardChevron {
+  flex-shrink: 0;
+  color: v.$gray-400;
+}
+
+.cardCount {
+  font-size: v.$text-sm;
+  color: v.$gray-600;
+}
+
+.cardBlurb {
+  font-size: v.$text-sm;
+  color: v.$gray-500;
+}
+
+// ── CTA + footer ─────────────────────────────────────────────────────────────
+.startBtn {
+  @include m.focus-ring($color: v.$ink);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: v.$space-2;
+  width: 100%;
+  padding: v.$space-5;
+  border: none;
+  border-radius: v.$r-md;
+  background: #2f5d4a;
+  color: v.$white;
+  font-family: v.$ff-base;
+  font-size: v.$text-md;
+  font-weight: v.$fw-semibold;
+  cursor: pointer;
+  transition: background v.$dur-fast v.$ease-out;
+
+  &:hover {
+    background: #264c3c;
+  }
+}
+
+.footerNote {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: v.$space-2;
+  margin: v.$space-5 0 0;
+  font-size: v.$text-sm;
+  color: v.$gray-500;
+}
+
+.footerIcon {
+  color: v.$brick;
+}

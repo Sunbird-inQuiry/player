@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
+import { QuestionBody } from '../../QuestionBody/QuestionBody';
 import { mtfColumns, resolveLabel } from '../question-utils';
 import { fisherYatesShuffle } from '../../../utils/shuffle';
 import type { Option } from '../../../types';
@@ -37,14 +38,16 @@ function RightChip({ label, value, disabled }: RightChipProps) {
 
 interface LeftRowProps {
   left: Option;
-  rightOptions: Option[];
   language: string;
-  value: string;
+  baseUrl: string;
+  /** Label of the currently matched right option, or '' when unmatched. */
+  assignedLabel: string;
   disabled: boolean;
   onAssign: (leftValue: string, rightValue: string) => void;
+  onClear: (leftValue: string) => void;
 }
 
-function LeftRow({ left, rightOptions, language, value, disabled, onAssign }: LeftRowProps) {
+function LeftRow({ left, language, baseUrl, assignedLabel, disabled, onAssign, onClear }: LeftRowProps) {
   const leftValue = String(left.value);
   const ref = useRef<HTMLDivElement>(null);
   const [{ isOver }, drop] = useDrop<DragItem, void, { isOver: boolean }>({
@@ -54,25 +57,27 @@ function LeftRow({ left, rightOptions, language, value, disabled, onAssign }: Le
   });
   drop(ref);
 
-  const leftLabel = resolveLabel(left.label, language);
+  const leftLabel = resolveLabel(left.label, language, baseUrl);
+  const isFilled = assignedLabel !== '';
 
   return (
     <div ref={ref} className={`${styles.leftRow} ${isOver ? styles.over : ''}`.trim()}>
       <span className={styles.term} dangerouslySetInnerHTML={{ __html: leftLabel }} />
-      <select
-        className={styles.select}
-        aria-label={`Match for ${leftLabel}`}
-        value={value}
-        disabled={disabled}
-        onChange={(e) => onAssign(leftValue, e.target.value)}
+      <button
+        type="button"
+        className={`${styles.slot} ${isFilled ? styles.slotFilled : ''}`.trim()}
+        aria-label={
+          isFilled ? `${leftLabel}: ${assignedLabel}. Clear match` : `Drop a match for ${leftLabel}`
+        }
+        disabled={disabled || !isFilled}
+        onClick={() => onClear(leftValue)}
       >
-        <option value="">—</option>
-        {rightOptions.map((r) => (
-          <option key={String(r.value)} value={String(r.value)}>
-            {resolveLabel(r.label, language)}
-          </option>
-        ))}
-      </select>
+        {isFilled ? (
+          <span dangerouslySetInnerHTML={{ __html: assignedLabel }} />
+        ) : (
+          <span className={styles.placeholder}>—</span>
+        )}
+      </button>
     </div>
   );
 }
@@ -86,6 +91,7 @@ export function MtfQuestion({
   question,
   replayed = false,
   language = 'en',
+  baseUrl = '',
   shuffleOptions = true,
   savedResponse = null,
   onOptionSelected,
@@ -99,6 +105,13 @@ export function MtfQuestion({
     () => (shuffleOptions ? fisherYatesShuffle(right) : right),
     [right, shuffleOptions],
   );
+
+  // value → resolved label, for showing the assigned match in a left slot.
+  const rightLabelByValue = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const r of right) map[String(r.value)] = resolveLabel(r.label, language, baseUrl);
+    return map;
+  }, [right, language, baseUrl]);
 
   const [matches, setMatches] = useState<Record<string, string>>(() => savedResponse?.matches ?? {});
 
@@ -122,21 +135,28 @@ export function MtfQuestion({
     onOptionSelected?.({ matches: next, timestamp: Date.now() });
   };
 
+  const clear = (leftValue: string) => assign(leftValue, '');
+
   return (
     <div className={styles.mtf}>
+      <QuestionBody question={question} language={language} baseUrl={baseUrl} />
       <div className={styles.columns}>
         <div className={styles.leftCol}>
-          {left.map((l) => (
-            <LeftRow
-              key={String(l.value)}
-              left={l}
-              rightOptions={right}
-              language={language}
-              value={matches[String(l.value)] ?? ''}
-              disabled={replayed}
-              onAssign={assign}
-            />
-          ))}
+          {left.map((l) => {
+            const matchedValue = matches[String(l.value)] ?? '';
+            return (
+              <LeftRow
+                key={String(l.value)}
+                left={l}
+                language={language}
+                baseUrl={baseUrl}
+                assignedLabel={matchedValue ? rightLabelByValue[matchedValue] ?? '' : ''}
+                disabled={replayed}
+                onAssign={assign}
+                onClear={clear}
+              />
+            );
+          })}
         </div>
         {!replayed && (
           <div className={styles.rightCol} aria-label="Match options">
@@ -144,7 +164,7 @@ export function MtfQuestion({
               <RightChip
                 key={String(r.value)}
                 value={String(r.value)}
-                label={resolveLabel(r.label, language)}
+                label={resolveLabel(r.label, language, baseUrl)}
                 disabled={replayed}
               />
             ))}

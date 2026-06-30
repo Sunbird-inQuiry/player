@@ -1,0 +1,192 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: v.$space-4;
+  height: v.$header-h;
+  padding: 0 v.$space-6;
+  background: v.$white;
+  border-bottom: 1px solid v.$gray-200;
+
+  @include m.mobile {
+    padding: 0 v.$space-4;
+  }
+}
+
+.left,
+.right {
+  display: flex;
+  align-items: center;
+  gap: v.$space-4;
+  min-width: 0;
+}
+
+.menuBtn {
+  @include m.focus-ring;
+
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: v.$space-1;
+  border: none;
+  border-radius: v.$r-sm;
+  background: transparent;
+  color: v.$g600;
+  cursor: pointer;
+
+  @include m.mobile {
+    display: inline-flex;
+  }
+}
+
+// ── Brand ────────────────────────────────────────────────────────────────────
+.brand {
+  @include m.focus-ring;
+
+  display: inline-flex;
+  align-items: center;
+  gap: v.$space-3;
+  padding: v.$space-1;
+  border: none;
+  border-radius: v.$r-sm;
+  background: transparent;
+  cursor: pointer;
+
+  &:hover .brandName {
+    color: v.$brick;
+  }
+}
+
+.brandBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: v.$r-pill;
+  background: v.$brick;
+  color: v.$white;
+  font-size: v.$text-sm;
+  font-weight: v.$fw-bold;
+}
+
+.brandName {
+  font-size: v.$text-md;
+  font-weight: v.$fw-bold;
+  color: v.$g900;
+  white-space: nowrap;
+}
+
+// ── Section steps ────────────────────────────────────────────────────────────
+.steps {
+  display: flex;
+  align-items: center;
+  gap: v.$space-2;
+  margin: 0 0 0 v.$space-3;
+  padding: 0 0 0 v.$space-4;
+  border-inline-start: 1px solid v.$gray-200;
+  list-style: none;
+
+  @include m.mobile {
+    display: none;
+  }
+}
+
+.step {
+  display: flex;
+  align-items: center;
+
+  // Connector line between steps.
+  &:not(:first-child)::before {
+    content: '';
+    width: v.$space-4;
+    height: 1.5px;
+    margin-inline-end: v.$space-2;
+    background: v.$gray-300;
+  }
+}
+
+.stepDot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: v.$r-pill;
+  background: v.$g100;
+  color: v.$gray-400;
+  font-size: v.$text-xs;
+  font-weight: v.$fw-bold;
+}
+
+.active .stepDot {
+  background: v.$brick;
+  color: v.$white;
+}
+
+.completed .stepDot {
+  background: v.$success-bg;
+  color: v.$success;
+}
+
+// ── Right cluster ────────────────────────────────────────────────────────────
+.timer {
+  display: inline-flex;
+  align-items: center;
+  gap: v.$space-2;
+  padding: v.$space-2 v.$space-3;
+  border-radius: v.$r-pill;
+  background: v.$g100;
+  color: v.$g700;
+  font-size: v.$text-sm;
+  font-weight: v.$fw-semibold;
+  font-variant-numeric: tabular-nums;
+}
+
+.timerLow {
+  background: v.$danger-bg;
+  color: v.$danger;
+}
+
+.help {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: v.$r-pill;
+  border: 1.5px solid v.$gray-300;
+  color: v.$gray-500;
+  font-size: v.$text-sm;
+  font-weight: v.$fw-bold;
+
+  @include m.mobile {
+    display: none;
+  }
+}
+
+.counter {
+  font-size: v.$text-sm;
+  font-weight: v.$fw-semibold;
+  color: v.$g700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.submitBtn {
+  @include m.button-base;
+  @include m.focus-ring($color: v.$g700);
+
+  background: v.$dark;
+  color: v.$white;
+
+  &:hover:not(:disabled) {
+    background: v.$g800;
+  }
+}

@@ -1,0 +1,97 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.viewport {
+  position: fixed;
+  bottom: v.$space-8;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1100;
+  display: flex;
+  justify-content: center;
+  width: max-content;
+  max-width: min(92vw, 36rem);
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: v.$space-4;
+  width: 100%;
+  padding: v.$space-4 v.$space-5;
+  border-radius: v.$r-md;
+  box-shadow: v.$shadow-lg;
+  pointer-events: auto;
+  animation: toast-in v.$dur-base v.$ease-out;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-1;
+}
+
+.title {
+  font-family: v.$ff-base;
+  font-size: v.$text-sm;
+  font-weight: v.$fw-bold;
+}
+
+.message {
+  font-family: v.$ff-base;
+  font-size: v.$text-sm;
+}
+
+.closeBtn {
+  @include m.focus-ring;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-inline-start: auto;
+  padding: v.$space-1;
+  border: none;
+  border-radius: v.$r-sm;
+  background: transparent;
+  color: currentColor;
+  opacity: 0.7;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+// ── Variants ─────────────────────────────────────────────────────────────────
+.correct {
+  background: v.$success-bg;
+  color: v.$success;
+}
+
+.incorrect {
+  background: v.$danger-bg;
+  color: v.$danger;
+}
+
+.partial {
+  background: v.$warning-bg;
+  color: v.$warning;
+}
+
+.info {
+  background: v.$info-bg;
+  color: v.$ink;
+}

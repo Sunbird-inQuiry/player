@@ -37,24 +37,41 @@ const renderPlayer = () =>
     </QumlProvider>,
   );
 
+/** Advance the Phase 6 flow: overview → sectionIntro → assessment. */
+const enterAssessment = () => {
+  fireEvent.click(screen.getByRole('button', { name: /start assessment/i }));
+  fireEvent.click(screen.getByRole('button', { name: /start section/i }));
+};
+
 describe('MainPlayer', () => {
-  it('initializes from playerConfig and renders the first section question', () => {
+  it('shows the Assessment Overview first with a Start CTA', () => {
     renderPlayer();
     expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /start assessment/i })).toBeInTheDocument();
+    // Question chrome is not rendered until the assessment stage.
+    expect(screen.queryByText('Apple')).not.toBeInTheDocument();
+  });
+
+  it('renders the section intro then the first question after Start/Begin', () => {
+    renderPlayer();
+    enterAssessment();
     expect(screen.getByText('Apple')).toBeInTheDocument();
     expect(screen.getByText(/Question 1 of 1/i)).toBeInTheDocument();
   });
 
-  it('shows feedback when configured and an answer is selected', () => {
+  it('shows a feedback toast when configured and an answer is selected', () => {
     renderPlayer();
+    enterAssessment();
     fireEvent.click(screen.getAllByRole('radio')[0]); // correct option (value 0)
-    expect(screen.getByRole('alert')).toHaveTextContent(/correct answer/i);
+    expect(screen.getByRole('status')).toHaveTextContent(/correct answer/i);
   });
 
-  it('shows the scoreboard summary after submitting the final section', () => {
+  it('shows the scoreboard summary after submitting', () => {
     renderPlayer();
+    enterAssessment();
     fireEvent.click(screen.getAllByRole('radio')[0]); // answer correctly
-    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    // Header "Submit" ends the assessment (footer also has one on the last question).
+    fireEvent.click(screen.getAllByRole('button', { name: /^submit$/i })[0]);
     expect(screen.getByRole('region', { name: /quiz summary/i })).toBeInTheDocument();
     expect(screen.getByText(/\/1/)).toBeInTheDocument(); // totalScore / maxScore
   });

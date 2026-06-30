@@ -1,6 +1,6 @@
 import { useQuml } from '../../context/useQuml';
 import { t } from '../../i18n/translations';
-import { PreviousIcon, NextIcon, TimerIcon } from '../icons';
+import { PreviousIcon, NextIcon, TimerIcon, MenuIcon } from '../icons';
 import styles from './Header.module.scss';
 
 /**
@@ -20,6 +20,8 @@ interface HeaderProps {
   onNext?: () => void;
   isFirstQuestion?: boolean;
   isLastQuestion?: boolean;
+  /** When provided, renders a mobile-only menu button (toggles the sections drawer, spec §6.6). */
+  onMenuClick?: () => void;
 }
 
 /** Local mm:ss formatter (per spec §3.2 — distinct from utils/time HH:MM:SS). */
@@ -37,6 +39,7 @@ export function Header({
   onNext,
   isFirstQuestion = false,
   isLastQuestion = false,
+  onMenuClick,
 }: HeaderProps) {
   const { state } = useQuml();
   const language = state.language;
@@ -47,6 +50,16 @@ export function Header({
   return (
     <header className={styles.header}>
       <div className={styles.left}>
+        {onMenuClick && (
+          <button
+            type="button"
+            className={styles.menuBtn}
+            onClick={onMenuClick}
+            aria-label={t(language, 'OPEN_MENU')}
+          >
+            <MenuIcon size={20} />
+          </button>
+        )}
         <span className={styles.counter}>
           {t(language, 'QUESTION')} {questionNumber} {t(language, 'OF')} {totalQuestions}
         </span>

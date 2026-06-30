@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
+import { resolveMediaHtml } from '../../utils/media';
+import type { MediaItem } from '../../utils/media';
 import type { Question } from '../../types';
 import styles from './QuestionBody.module.scss';
 
@@ -17,13 +19,13 @@ import styles from './QuestionBody.module.scss';
  * this component to render its stem.
  */
 interface QuestionBodyProps {
-  question: Pick<Question, 'body'>;
+  question: Pick<Question, 'body' | 'media'>;
   language?: string;
-  /** Reserved for resolving relative image paths (used by question types in Phase 4). */
+  /** Content base URL for resolving relative image/asset paths. */
   baseUrl?: string;
 }
 
-export function QuestionBody({ question, language = 'en' }: QuestionBodyProps) {
+export function QuestionBody({ question, language = 'en', baseUrl = '' }: QuestionBodyProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -31,8 +33,9 @@ export function QuestionBody({ question, language = 'en' }: QuestionBodyProps) {
     if (!el || !question?.body) return;
 
     try {
-      // Render the raw HTML body (images, tables, inline markup).
-      el.innerHTML = question.body;
+      // Render the raw HTML body with images resolved (figure placeholders from
+      // media, asset-variable + relative <img> src via baseUrl) then KaTeX.
+      el.innerHTML = resolveMediaHtml(question.body, question.media as MediaItem[], baseUrl);
 
       // Find and render KaTeX expressions.
       const mathElements = el.querySelectorAll('.math');
@@ -48,7 +51,7 @@ export function QuestionBody({ question, language = 'en' }: QuestionBodyProps) {
     } catch (err) {
       console.error('[QuestionBody] Error rendering body:', err);
     }
-  }, [question?.body]);
+  }, [question?.body, question?.media, baseUrl]);
 
   const isRtl = language === 'ar';
 

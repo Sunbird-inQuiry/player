@@ -1,0 +1,63 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  width: min(85vw, v.$sidebar-w);
+  height: 100%;
+  background: v.$ivory;
+  box-shadow: v.$shadow-lg;
+  animation: drawer-in v.$dur-base v.$ease-out;
+}
+
+@keyframes drawer-in {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: v.$space-4 v.$space-5;
+  border-bottom: 1px solid v.$gray-200;
+}
+
+.panelTitle {
+  font-family: v.$ff-base;
+  font-size: v.$text-md;
+  font-weight: v.$fw-semibold;
+  color: v.$dark;
+}
+
+.closeBtn {
+  @include m.focus-ring;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: v.$space-1;
+  border: none;
+  border-radius: v.$r-sm;
+  background: transparent;
+  color: v.$g600;
+  cursor: pointer;
+
+  &:hover {
+    background: v.$g100;
+    color: v.$g900;
+  }
+}

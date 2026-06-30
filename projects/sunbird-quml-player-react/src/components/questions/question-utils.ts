@@ -1,5 +1,6 @@
 import type { Question, Option } from '../../types';
 import { readI18n } from '../../i18n/translations';
+import { resolveMediaHtml } from '../../utils/media';
 
 /** Options of the first responseN interaction (MCQ / SEQ / REO). */
 export function firstInteractionOptions(question: Question): Option[] {
@@ -32,7 +33,10 @@ export function responseKeys(question: Question): string[] {
   return Object.keys(question.responseDeclaration || {});
 }
 
-/** Resolve an option/answer label (string or I18nValue) to a localized string. */
-export function resolveLabel(label: Option['label'], language: string): string {
-  return readI18n(label, language);
+/**
+ * Resolve an option/answer label (string or I18nValue) to localized HTML, with
+ * image references resolved (relative `<img src>` / asset variables → baseUrl).
+ */
+export function resolveLabel(label: Option['label'], language: string, baseUrl = ''): string {
+  return resolveMediaHtml(readI18n(label, language), [], baseUrl);
 }

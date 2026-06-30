@@ -34,6 +34,10 @@ export function QuestionRenderer({
 }: QuestionRendererProps) {
   const { state } = useQuml();
   const language = state.language;
+  // Content base URL for resolving relative image/asset paths: explicit prop wins,
+  // otherwise fall back to the player config (set by the embedding app / API).
+  const resolvedBaseUrl =
+    baseUrl || (state.config?.baseUrl as string | undefined) || (state.config?.host as string | undefined) || '';
 
   if (!question) {
     return <div className={styles.error}>No question provided</div>;
@@ -54,7 +58,7 @@ export function QuestionRenderer({
         replayed={replayed}
         tryAgain={tryAgain}
         language={language}
-        baseUrl={baseUrl}
+        baseUrl={resolvedBaseUrl}
         shuffleOptions={shuffleOptions}
         savedResponse={savedResponse}
         onOptionSelected={onOptionSelected}

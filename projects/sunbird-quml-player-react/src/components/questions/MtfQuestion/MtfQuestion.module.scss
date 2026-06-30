@@ -59,23 +59,40 @@
   }
 }
 
-.select {
+// Drop slot showing the matched right option (replaces the old <select>).
+.slot {
   @include m.focus-ring;
 
-  min-width: 120px;
+  display: inline-flex;
+  align-items: center;
+  min-width: 140px;
+  min-height: 2.5rem;
   padding: v.$space-2 v.$space-3;
-  border: 1.5px solid v.$gray-200;
+  border: 1.5px dashed v.$gray-300;
   border-radius: v.$r-sm;
-  background: v.$white;
+  background: v.$g100;
   font-family: v.$ff-base;
   font-size: v.$text-sm;
   color: v.$g700;
-  cursor: pointer;
+  cursor: default;
 
-  &:disabled {
-    cursor: default;
-    opacity: 0.7;
+  :global(p) {
+    margin: 0;
   }
+}
+
+// Filled slot — solid styling + clickable to clear the match.
+.slotFilled {
+  border-style: solid;
+  border-color: v.$brick;
+  background: v.$brick-lt;
+  color: v.$brick-shade;
+  font-weight: v.$fw-medium;
+  cursor: pointer;
+}
+
+.placeholder {
+  color: v.$gray-400;
 }
 
 .rightChip {

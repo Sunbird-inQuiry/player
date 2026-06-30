@@ -14,6 +14,7 @@ export function McqQuestion({
   question,
   replayed = false,
   language = 'en',
+  baseUrl = '',
   savedResponse = null,
   score = null,
   onOptionSelected,
@@ -55,7 +56,7 @@ export function McqQuestion({
 
   return (
     <div className={styles.mcq}>
-      <QuestionBody question={question} language={language} />
+      <QuestionBody question={question} language={language} baseUrl={baseUrl} />
 
       <div
         className={styles.options}
@@ -85,7 +86,7 @@ export function McqQuestion({
               </span>
               <span
                 className={styles.label}
-                dangerouslySetInnerHTML={{ __html: resolveLabel(opt.label, language) }}
+                dangerouslySetInnerHTML={{ __html: resolveLabel(opt.label, language, baseUrl) }}
               />
             </button>
           );

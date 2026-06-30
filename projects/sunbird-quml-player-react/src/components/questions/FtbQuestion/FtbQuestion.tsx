@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { responseKeys } from '../question-utils';
+import { resolveMediaHtml } from '../../../utils/media';
+import type { MediaItem } from '../../../utils/media';
 import type { QuestionComponentProps } from '../types';
 import styles from './FtbQuestion.module.scss';
 
@@ -13,12 +15,14 @@ export function FtbQuestion({
   question,
   replayed = false,
   language = 'en',
+  baseUrl = '',
   savedResponse = null,
   onOptionSelected,
   onComponentLoaded,
   onGoToNext,
 }: QuestionComponentProps) {
   const keys = responseKeys(question);
+  const media = question.media as MediaItem[] | undefined;
   const [values, setValues] = useState<Record<string, string>>(() => savedResponse?.responses ?? {});
   const loadedRef = useRef(false);
 
@@ -71,7 +75,10 @@ export function FtbQuestion({
         <p className={styles.template}>
           {parts.map((part, i) =>
             i % 2 === 0 ? (
-              <span key={`text-${i}`} dangerouslySetInnerHTML={{ __html: part }} />
+              <span
+                key={`text-${i}`}
+                dangerouslySetInnerHTML={{ __html: resolveMediaHtml(part, media, baseUrl) }}
+              />
             ) : (
               renderBlank(part)
             ),
@@ -79,7 +86,9 @@ export function FtbQuestion({
         </p>
       ) : (
         <>
-          <div dangerouslySetInnerHTML={{ __html: question.body || '' }} />
+          <div
+            dangerouslySetInnerHTML={{ __html: resolveMediaHtml(question.body || '', media, baseUrl) }}
+          />
           <div className={styles.fallbackBlanks}>{keys.map((key) => renderBlank(key))}</div>
         </>
       )}

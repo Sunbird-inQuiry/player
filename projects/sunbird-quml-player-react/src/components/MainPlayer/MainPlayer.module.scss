@@ -1,9 +1,49 @@
 @use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
 
-.mainPlayer {
+// app-shell (column) → app-body (row: sidebar + main), collapsing to a single
+// column with a drawer < 768px (spec §6.6 / §6.11).
+.appShell {
+  display: flex;
+  flex-direction: column;
   height: 100%;
   background: v.$cream-bg;
   font-family: v.$ff-base;
+}
+
+.appBody {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.sidebarSlot {
+  flex-shrink: 0;
+
+  @include m.mobile {
+    display: none;
+  }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.sectionStepsBar {
+  display: flex;
+  justify-content: center;
+  padding: v.$space-4 v.$space-6;
+  background: v.$ivory;
+  border-bottom: 1px solid v.$gray-200;
+
+  @include m.mobile {
+    padding: v.$space-3 v.$space-4;
+  }
 }
 
 .endPage {

@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { QuestionBody } from '../../QuestionBody/QuestionBody';
 import { readI18n, t } from '../../../i18n/translations';
+import { resolveMediaHtml } from '../../../utils/media';
+import type { MediaItem } from '../../../utils/media';
 import type { QuestionComponentProps } from '../types';
 import styles from './SaQuestion.module.scss';
 
@@ -10,7 +12,12 @@ import styles from './SaQuestion.module.scss';
  * scored answer and emits nothing. It shows the question body and (if present)
  * the model answer.
  */
-export function SaQuestion({ question, language = 'en', onComponentLoaded }: QuestionComponentProps) {
+export function SaQuestion({
+  question,
+  language = 'en',
+  baseUrl = '',
+  onComponentLoaded,
+}: QuestionComponentProps) {
   const loadedRef = useRef(false);
 
   useEffect(() => {
@@ -20,11 +27,13 @@ export function SaQuestion({ question, language = 'en', onComponentLoaded }: Que
     }
   }, [question.identifier]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const modelAnswer = question.answer ? readI18n(question.answer, language) : '';
+  const modelAnswer = question.answer
+    ? resolveMediaHtml(readI18n(question.answer, language), question.media as MediaItem[], baseUrl)
+    : '';
 
   return (
     <div className={styles.sa}>
-      <QuestionBody question={question} language={language} />
+      <QuestionBody question={question} language={language} baseUrl={baseUrl} />
 
       {modelAnswer && (
         <div className={styles.answer}>

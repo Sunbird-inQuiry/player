@@ -1,11 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuml } from '../../context/useQuml';
 import { useTelemetry } from '../../context/useTelemetry';
 import { QuestionRenderer } from '../QuestionRenderer/QuestionRenderer';
-import { Header } from '../Header/Header';
-import { Alert } from '../Alert/Alert';
+import { QuestionCard } from '../QuestionCard/QuestionCard';
+import { Hint } from '../Hint/Hint';
+import { Toast } from '../Toast/Toast';
+import { PreviousIcon, NextIcon } from '../icons';
 import { t } from '../../i18n/translations';
 import { calculateScore } from '../../registry/scoring-registry';
+import { canGoToNextQuestion, isQuestionSkippable } from '../../services/navigation-service';
 import type { Question, Section, UserResponse } from '../../types';
 import styles from './SectionPlayer.module.scss';
 
@@ -16,9 +19,10 @@ interface AlertState {
 }
 
 /**
- * SectionPlayer — orchestrates one section: question carousel, answer storage
- * (Context), scoring (registry), telemetry (hook), and feedback (Alert).
- * This is where ALL per-answer business logic lives; question components stay pure.
+ * SectionPlayer — orchestrates one section's question carousel: answer storage
+ * (Context), scoring (registry), telemetry (hook), feedback (Alert), and the
+ * question footer nav. The persistent shell header/timer live in MainPlayer; this
+ * is where ALL per-answer business logic lives. Question components stay pure.
  */
 interface SectionPlayerProps {
   section: Section | undefined;
@@ -34,31 +38,14 @@ export function SectionPlayer({ section, onSectionEnd }: SectionPlayerProps) {
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [currentAlert, setCurrentAlert] = useState<AlertState | null>(null);
-  const initialTime =
-    section?.timeLimits?.max && section.timeLimits.max > 0 ? section.timeLimits.max : null;
-  const [timeRemaining, setTimeRemaining] = useState<number | null>(initialTime);
 
-  // Timer — interval created once; uses a ref for the current value.
-  const timeRef = useRef<number | null>(initialTime);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
+  // Honor external jumps: the sidebar emits setCurrentQuestion (Context is the
+  // source of truth for the active index); sync the carousel to follow it.
+  const externalIndex = state.currentQuestionIndex;
   useEffect(() => {
-    if (initialTime == null) return;
-    timerRef.current = setInterval(() => {
-      const next = (timeRef.current ?? 0) - 1;
-      timeRef.current = next;
-      setTimeRemaining(next);
-      if (next <= 0 && timerRef.current) {
-        clearInterval(timerRef.current);
-        setCurrentAlert({ type: 'info', message: t(language, 'TIME_UP') });
-        onSectionEnd?.();
-      }
-    }, 1000);
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    setCurrentSlide(externalIndex);
+    setCurrentAlert(null);
+  }, [externalIndex]);
 
   /**
    * Central answer handler — the ONE place per-answer side effects happen:
@@ -97,8 +84,13 @@ export function SectionPlayer({ section, onSectionEnd }: SectionPlayerProps) {
     setCurrentQuestion(index);
     setCurrentAlert(null);
   };
+  // Navigation restriction (spec §6.9): when the section is not skippable, gate
+  // "Next" on the current question being answered (navigation-service is the
+  // single source of navigation rules — no rule logic lives in this component).
+  const requireAnswer = !isQuestionSkippable(section);
+  const canAdvance = canGoToNextQuestion(currentSlide, questions, state.answers, { requireAnswer });
   const handleNext = () => {
-    if (currentSlide < questions.length - 1) goTo(currentSlide + 1);
+    if (canAdvance) goTo(currentSlide + 1);
   };
   const handlePrevious = () => {
     if (currentSlide > 0) goTo(currentSlide - 1);
@@ -115,39 +107,66 @@ export function SectionPlayer({ section, onSectionEnd }: SectionPlayerProps) {
 
   return (
     <div className={styles.sectionPlayer}>
-      <Header
-        questionNumber={currentSlide + 1}
-        totalQuestions={questions.length}
-        timeRemaining={timeRemaining}
-        onPrevious={handlePrevious}
-        onNext={handleNext}
-        isFirstQuestion={isFirst}
-        isLastQuestion={isLast}
-      />
-
       <div className={styles.content}>
-        {currentAlert && (
-          <Alert
-            type={currentAlert.type}
-            message={currentAlert.message}
-            onClose={() => setCurrentAlert(null)}
+        <QuestionCard question={currentQuestion} meta={{ category: currentQuestion.primaryCategory }}>
+          <QuestionRenderer
+            key={currentQuestion.identifier}
+            question={currentQuestion}
+            onOptionSelected={handleQuestionAnswer}
+            onGoToNext={handleNext}
           />
-        )}
 
-        <QuestionRenderer
-          key={currentQuestion.identifier}
-          question={currentQuestion}
-          onOptionSelected={handleQuestionAnswer}
-          onGoToNext={handleNext}
-        />
+          <Hint
+            hints={currentQuestion.hints}
+            solutions={currentQuestion.solutions}
+            answer={currentQuestion.answer}
+            showHints={currentQuestion.showHints}
+            showSolutions={currentQuestion.showSolutions || state.showSolutions}
+            language={language}
+          />
+        </QuestionCard>
       </div>
 
-      {isLast && (
-        <div className={styles.footer}>
+      <div className={styles.footer}>
+        <button
+          type="button"
+          className={styles.navBtn}
+          onClick={handlePrevious}
+          disabled={isFirst}
+          aria-label={t(language, 'PREVIOUS')}
+        >
+          <PreviousIcon size={18} />
+          <span className={styles.navLabel}>{t(language, 'PREVIOUS')}</span>
+        </button>
+
+        <span className={styles.counter}>
+          {t(language, 'QUESTION')} {currentSlide + 1} {t(language, 'OF')} {questions.length}
+        </span>
+
+        {isLast ? (
           <button type="button" className={styles.submit} onClick={handleSubmit}>
             {t(language, 'SUBMIT')}
           </button>
-        </div>
+        ) : (
+          <button
+            type="button"
+            className={styles.navBtn}
+            onClick={handleNext}
+            disabled={!canAdvance}
+            aria-label={t(language, 'NEXT')}
+          >
+            <span className={styles.navLabel}>{t(language, 'NEXT')}</span>
+            <NextIcon size={18} />
+          </button>
+        )}
+      </div>
+
+      {currentAlert && (
+        <Toast
+          type={currentAlert.type}
+          message={currentAlert.message}
+          onClose={() => setCurrentAlert(null)}
+        />
       )}
     </div>
   );

@@ -1,0 +1,54 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.card {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: v.$space-8;
+  background: v.$ivory;
+  border-radius: v.$r-md;
+  box-shadow: v.$shadow-sm;
+
+  @include m.mobile {
+    padding: v.$space-5;
+  }
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: v.$space-2;
+  margin-bottom: v.$space-5;
+}
+
+.category,
+.difficulty {
+  display: inline-flex;
+  align-items: center;
+  padding: v.$space-1 v.$space-3;
+  border-radius: v.$r-pill;
+  font-family: v.$ff-base;
+  font-size: v.$text-xs;
+  font-weight: v.$fw-semibold;
+  text-transform: capitalize;
+}
+
+.category {
+  background: v.$brick-lt;
+  color: v.$brick-shade;
+}
+
+.difficulty {
+  background: v.$g100;
+  color: v.$g600;
+}
+
+.body {
+  font-family: v.$ff-question;
+}
+
+.footer {
+  margin-top: v.$space-6;
+  padding-top: v.$space-5;
+  border-top: 1px solid v.$gray-200;
+}

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
+import { QuestionBody } from '../../QuestionBody/QuestionBody';
 import { firstInteractionOptions, resolveLabel } from '../question-utils';
 import { fisherYatesShuffle } from '../../../utils/shuffle';
 import type { Option } from '../../../types';
@@ -85,6 +86,7 @@ export function SeqQuestion({
   question,
   replayed = false,
   language = 'en',
+  baseUrl = '',
   shuffleOptions = true,
   savedResponse = null,
   onOptionSelected,
@@ -128,18 +130,21 @@ export function SeqQuestion({
   };
 
   return (
-    <ol className={styles.seq} aria-label="Arrange in order">
-      {items.map((item, index) => (
-        <SeqRow
-          key={String(item.value)}
-          index={index}
-          total={items.length}
-          disabled={replayed}
-          label={resolveLabel(item.label, language)}
-          onMove={move}
-          onNudge={(i, delta) => move(i, i + delta)}
-        />
-      ))}
-    </ol>
+    <div className={styles.seqWrap}>
+      <QuestionBody question={question} language={language} baseUrl={baseUrl} />
+      <ol className={styles.seq} aria-label="Arrange in order">
+        {items.map((item, index) => (
+          <SeqRow
+            key={String(item.value)}
+            index={index}
+            total={items.length}
+            disabled={replayed}
+            label={resolveLabel(item.label, language, baseUrl)}
+            onMove={move}
+            onNudge={(i, delta) => move(i, i + delta)}
+          />
+        ))}
+      </ol>
+    </div>
   );
 }

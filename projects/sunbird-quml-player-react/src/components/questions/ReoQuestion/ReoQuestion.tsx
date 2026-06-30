@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
+import { QuestionBody } from '../../QuestionBody/QuestionBody';
 import { firstInteractionOptions, resolveLabel } from '../question-utils';
 import { fisherYatesShuffle } from '../../../utils/shuffle';
 import type { Option } from '../../../types';
@@ -48,6 +49,7 @@ export function ReoQuestion({
   question,
   replayed = false,
   language = 'en',
+  baseUrl = '',
   shuffleOptions = true,
   savedResponse = null,
   onOptionSelected,
@@ -109,6 +111,7 @@ export function ReoQuestion({
 
   return (
     <div className={styles.reo}>
+      <QuestionBody question={question} language={language} baseUrl={baseUrl} />
       <p className={styles.sectionLabel}>Your Answer</p>
       <div
         ref={answerRef}
@@ -126,10 +129,10 @@ export function ReoQuestion({
               type="button"
               className={styles.chip}
               disabled={replayed}
-              aria-label={`Remove ${resolveLabel(word.label, language)}`}
+              aria-label={`Remove ${resolveLabel(word.label, language, baseUrl)}`}
               onClick={() => removeWord(index)}
             >
-              <span dangerouslySetInnerHTML={{ __html: resolveLabel(word.label, language) }} />
+              <span dangerouslySetInnerHTML={{ __html: resolveLabel(word.label, language, baseUrl) }} />
               {!replayed && <span aria-hidden="true"> ×</span>}
             </button>
           ))
@@ -147,7 +150,7 @@ export function ReoQuestion({
                 <BankWord
                   key={`${opt.value}-${index}`}
                   option={opt}
-                  label={resolveLabel(opt.label, language)}
+                  label={resolveLabel(opt.label, language, baseUrl)}
                   disabled={replayed}
                   onAdd={addWord}
                 />

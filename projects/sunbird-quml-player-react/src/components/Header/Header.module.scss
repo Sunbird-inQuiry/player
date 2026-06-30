@@ -23,6 +23,31 @@
   gap: v.$space-3;
 }
 
+// Mobile-only navigation menu toggle (spec §6.6); hidden ≥ 768px where the
+// persistent sidebar is visible.
+.menuBtn {
+  @include m.focus-ring;
+
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: v.$space-1;
+  border: none;
+  border-radius: v.$r-sm;
+  background: transparent;
+  color: v.$g600;
+  cursor: pointer;
+
+  &:hover {
+    background: v.$g100;
+    color: v.$g900;
+  }
+
+  @include m.mobile {
+    display: inline-flex;
+  }
+}
+
 .counter {
   font-family: v.$ff-base;
   font-size: v.$text-sm;

@@ -33,31 +33,32 @@ const mtfQuestion = {
 const withDnd = (ui: ReactNode) => render(<DndProvider backend={HTML5Backend}>{ui}</DndProvider>);
 
 describe('MtfQuestion', () => {
-  it('renders left terms with a match select each', () => {
+  it('renders left terms with empty drop slots (no select)', () => {
     withDnd(<MtfQuestion question={mtfQuestion} shuffleOptions={false} />);
-    expect(screen.getByLabelText('Match for France')).toBeInTheDocument();
-    expect(screen.getByLabelText('Match for Japan')).toBeInTheDocument();
+    expect(screen.getByLabelText('Drop a match for France')).toBeInTheDocument();
+    expect(screen.getByLabelText('Drop a match for Japan')).toBeInTheDocument();
+    // Right options remain available as draggable cards.
+    expect(screen.getByText('Tokyo')).toBeInTheDocument();
   });
 
-  it('emits { matches } when a pairing is made via the select', () => {
+  it('restores saved matches into the slot and locks in replay mode', () => {
+    withDnd(<MtfQuestion question={mtfQuestion} replayed savedResponse={{ matches: { A: '1' } }} />);
+    const slot = screen.getByLabelText(/France: Paris\. Clear match/i);
+    expect(slot).toHaveTextContent('Paris');
+    expect(slot).toBeDisabled();
+  });
+
+  it('clears a match when the filled slot is clicked', () => {
     const onOptionSelected = vi.fn();
     withDnd(
-      <MtfQuestion question={mtfQuestion} shuffleOptions={false} onOptionSelected={onOptionSelected} />,
+      <MtfQuestion
+        question={mtfQuestion}
+        shuffleOptions={false}
+        savedResponse={{ matches: { A: '1' } }}
+        onOptionSelected={onOptionSelected}
+      />,
     );
-    fireEvent.change(screen.getByLabelText('Match for France'), { target: { value: '1' } });
-    expect(onOptionSelected).toHaveBeenLastCalledWith(expect.objectContaining({ matches: { A: '1' } }));
-    fireEvent.change(screen.getByLabelText('Match for Japan'), { target: { value: '2' } });
-    expect(onOptionSelected).toHaveBeenLastCalledWith(
-      expect.objectContaining({ matches: { A: '1', B: '2' } }),
-    );
-  });
-
-  it('restores saved matches and locks in replay mode', () => {
-    withDnd(
-      <MtfQuestion question={mtfQuestion} replayed savedResponse={{ matches: { A: '1' } }} />,
-    );
-    const select = screen.getByLabelText('Match for France') as HTMLSelectElement;
-    expect(select.value).toBe('1');
-    expect(select).toBeDisabled();
+    fireEvent.click(screen.getByLabelText(/France: Paris\. Clear match/i));
+    expect(onOptionSelected).toHaveBeenLastCalledWith(expect.objectContaining({ matches: {} }));
   });
 });
