@@ -35,10 +35,11 @@ export class HeaderComponent implements OnInit, OnChanges, AfterViewInit, OnDest
   @Input() showLegend: boolean;
   @Input() language: string = 'en';
 
-  /*
-  * RTL so prev/next mirror and the pair still reads "< >". Set explicitly on the
-  * nav container so it's correct regardless of the host document's dir.
-  */
+ /**
+   * Direction for the navigation arrows. For Arabic ('ar') the nav is rendered
+   * RTL so prev/next mirror and the pair still reads "< >". Set explicitly on the
+   * nav container so it's correct regardless of the host document's dir.
+   */
 
   get dir(): 'ltr' | 'rtl' { return this.language === 'ar' ? 'rtl' : 'ltr'; }
 
