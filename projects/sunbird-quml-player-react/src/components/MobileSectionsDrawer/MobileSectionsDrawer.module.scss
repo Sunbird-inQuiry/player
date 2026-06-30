@@ -1,38 +1,60 @@
 @use '../../styles/variables' as v;
 @use '../../styles/mixins' as m;
 
+// Mobile sections navigator — bottom sheet (matches the design's `sheetUp`).
 .overlay {
   position: fixed;
   inset: 0;
   z-index: 1000;
   display: flex;
+  align-items: flex-end; // dock the sheet to the bottom edge
   background: rgba(0, 0, 0, 0.4);
 }
 
 .panel {
   display: flex;
   flex-direction: column;
-  width: min(85vw, v.$sidebar-w);
-  height: 100%;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background: v.$ivory;
+  border-top-left-radius: v.$r-lg;
+  border-top-right-radius: v.$r-lg;
   box-shadow: v.$shadow-lg;
-  animation: drawer-in v.$dur-base v.$ease-out;
+  animation: sheet-up v.$dur-base v.$ease-out;
 }
 
-@keyframes drawer-in {
+// Grab handle affordance (typical of bottom sheets).
+.panel::before {
+  content: '';
+  align-self: center;
+  width: 2.25rem;
+  height: 0.25rem;
+  margin: v.$space-3 0 0;
+  border-radius: v.$r-pill;
+  background: v.$gray-300;
+  flex-shrink: 0;
+}
+
+@keyframes sheet-up {
   from {
-    transform: translateX(-100%);
+    transform: translateY(100%);
   }
   to {
-    transform: translateX(0);
+    transform: translateY(0);
   }
 }
 
 .panelHeader {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: v.$space-4 v.$space-5;
+  background: v.$ivory;
   border-bottom: 1px solid v.$gray-200;
 }
 

@@ -19,7 +19,8 @@
   display: flex;
   align-items: center;
   gap: v.$space-3;
-  padding: v.$space-3 v.$space-4;
+  padding: v.$space-3 v.$space-3 + 0.125rem; // 12px 14px — matches design .opt-btn
+  min-height: 2.75rem; // comfortable touch target
   background: v.$white;
   border: 1.5px solid v.$gray-200;
   border-radius: v.$r-xs;
@@ -50,8 +51,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   border: 1.5px solid v.$g300;
   flex-shrink: 0;
 }
@@ -69,14 +70,14 @@
 }
 
 .indicatorMark {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: inherit;
   background: v.$brick;
 }
 
 .alpha {
-  min-width: 18px;
+  min-width: 20px;
   font-weight: v.$fw-bold;
   font-size: v.$text-xs;
   color: v.$brick;

@@ -78,6 +78,13 @@
     opacity: 0.4;
     cursor: not-allowed;
   }
+
+  // Comfortable touch target on mobile (drag is hard on touch — these are the
+  // primary reordering control there).
+  @include m.mobile {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
 }
 
 .seqWrap {

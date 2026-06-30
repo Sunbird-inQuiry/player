@@ -8,6 +8,11 @@
   margin: 0;
   padding: 0;
   list-style: none;
+
+  // Larger touch targets where the palette appears on mobile (bottom sheet).
+  @include m.mobile {
+    grid-template-columns: repeat(auto-fill, minmax(2.75rem, 1fr));
+  }
 }
 
 .item {

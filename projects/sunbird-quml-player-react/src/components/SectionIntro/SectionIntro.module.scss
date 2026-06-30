@@ -67,7 +67,7 @@
 
 .bannerTitle {
   margin: 0;
-  font-size: v.$text-2xl;
+  font-size: clamp(1.375rem, 4.5vw, #{v.$text-2xl});
   font-weight: v.$fw-bold;
   color: v.$white;
 }

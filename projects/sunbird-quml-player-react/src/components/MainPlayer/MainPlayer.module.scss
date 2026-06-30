@@ -7,6 +7,9 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden; // hard guard: nothing scrolls the shell sideways
   background: v.$cream-bg;
   font-family: v.$ff-base;
 }
@@ -15,6 +18,7 @@
   display: flex;
   flex: 1;
   min-height: 0;
+  overflow: hidden; // sidebar + main scroll independently (design .app-body)
 }
 
 .sidebarSlot {
@@ -31,6 +35,7 @@
   flex: 1;
   min-width: 0;
   min-height: 0;
+  overflow-x: hidden;
   overflow-y: auto;
 }
 

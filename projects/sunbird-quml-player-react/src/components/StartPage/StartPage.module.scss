@@ -5,9 +5,17 @@
   display: flex;
   gap: v.$space-10;
   min-height: 100%;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
   padding: v.$space-10 v.$space-12;
   background: v.$cream-bg;
   font-family: v.$ff-base;
+
+  @include m.tablet {
+    gap: v.$space-6;
+    padding: v.$space-8 v.$space-6;
+  }
 
   @include m.mobile {
     flex-direction: column;
@@ -21,8 +29,11 @@
   flex-shrink: 0;
   width: 280px;
 
+  // On mobile the "Assessment sections" grid in the main column already lists
+  // every section (richer: badge + blurb + tappable), so this left rail would
+  // be a duplicate and pushes the Start CTA far down — hide it here.
   @include m.mobile {
-    width: 100%;
+    display: none;
   }
 }
 
@@ -90,7 +101,7 @@
 .main {
   flex: 1;
   min-width: 0;
-  max-width: 1180px;
+  max-width: min(1180px, 100%);
 }
 
 .savedPill {
@@ -175,16 +186,21 @@
 // ── Stats card ───────────────────────────────────────────────────────────────
 .statsCard {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   margin: 0 0 v.$space-12;
   padding: v.$space-6 v.$space-4;
   background: v.$white;
   border-radius: v.$r-md;
   box-shadow: v.$shadow-sm;
 
-  @include m.mobile {
-    grid-template-columns: repeat(2, 1fr);
+  @include m.tablet {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: v.$space-5;
+  }
+
+  @include m.mobile {
+    padding: v.$space-5 v.$space-3;
+    gap: v.$space-4;
   }
 }
 
@@ -192,16 +208,22 @@
   display: flex;
   align-items: center;
   gap: v.$space-4;
+  min-width: 0; // allow the cell to shrink below its content's intrinsic width
   padding: 0 v.$space-6;
 
   & + & {
     border-inline-start: 1px solid v.$gray-200;
   }
 
-  @include m.mobile {
+  @include m.tablet {
     & + & {
       border-inline-start: none;
     }
+  }
+
+  @include m.mobile {
+    gap: v.$space-3;
+    padding: 0 v.$space-2;
   }
 }
 
@@ -215,12 +237,18 @@
   border-radius: v.$r-sm;
   background: v.$cream-bg;
   color: v.$brick;
+
+  @include m.mobile {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
 }
 
 .statText {
   display: flex;
   flex-direction: column;
   gap: v.$space-1;
+  min-width: 0;
 }
 
 .statLabel {
@@ -229,6 +257,7 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: v.$gray-400;
+  overflow-wrap: anywhere;
 }
 
 .statValue {
@@ -255,12 +284,17 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: v.$space-5;
   margin-bottom: v.$space-10;
 
+  // 3-up desktop → 2-up tablet → 1-up mobile (mobile rule is more specific).
+  @include m.tablet {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   @include m.mobile {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

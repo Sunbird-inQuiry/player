@@ -1,4 +1,5 @@
 @use '../../../styles/variables' as v;
+@use '../../../styles/mixins' as m;
 
 .ftb {
   font-family: v.$ff-question;
@@ -33,6 +34,7 @@
 
 .blank {
   min-width: 110px;
+  max-width: 100%;
   border: none;
   border-bottom: 2.5px solid v.$gray-300;
   border-radius: v.$r-xxs v.$r-xxs 0 0;
@@ -52,6 +54,11 @@
 
   &:disabled {
     cursor: default;
+  }
+
+  // Narrower blanks on small screens so multiple blanks wrap naturally inline.
+  @include m.mobile {
+    min-width: 4.5rem;
   }
 }
 

@@ -49,6 +49,8 @@
 .chip {
   @include m.focus-ring;
 
+  display: inline-flex;
+  align-items: center;
   padding: v.$space-1 v.$space-3;
   background: v.$brick;
   color: v.$white;
@@ -62,6 +64,11 @@
   &:disabled {
     cursor: default;
   }
+
+  @include m.mobile {
+    min-height: 2.5rem;
+    padding: v.$space-2 v.$space-4;
+  }
 }
 
 .bank {
@@ -73,6 +80,8 @@
 .bankWord {
   @include m.focus-ring;
 
+  display: inline-flex;
+  align-items: center;
   padding: v.$space-2 v.$space-3;
   background: v.$white;
   color: v.$g700;
@@ -86,6 +95,10 @@
   &:hover:not(:disabled) {
     border-color: v.$brick;
     background: v.$cream-bg;
+  }
+
+  @include m.mobile {
+    min-height: 2.5rem;
   }
 }
 

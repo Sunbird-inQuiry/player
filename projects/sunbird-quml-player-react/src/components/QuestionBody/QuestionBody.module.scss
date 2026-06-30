@@ -6,6 +6,8 @@
   line-height: v.$lh-normal;
   color: v.$g700;
   word-wrap: break-word;
+  overflow-wrap: anywhere; // long URLs / unbroken strings never overflow
+  max-width: 100%;
 
   // Images in body
   img {
@@ -15,9 +17,13 @@
     border-radius: v.$r-sm;
   }
 
-  // Tables
+  // Tables — scroll horizontally inside their own box rather than the page.
   table {
+    display: block;
     width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     border-collapse: collapse;
     margin: v.$space-3 0;
 
@@ -27,6 +33,19 @@
       padding: v.$space-2;
       text-align: left;
     }
+  }
+
+  // KaTeX — wide display math scrolls inside its own box (no page overflow).
+  :global(.katex-display) {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: v.$space-1;
+  }
+
+  :global(.math-block) {
+    max-width: 100%;
+    overflow-x: auto;
   }
 
   // RTL language support

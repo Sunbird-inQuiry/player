@@ -72,6 +72,10 @@
   overflow-y: auto;
   padding: v.$space-8 v.$space-12;
 
+  @include m.tablet {
+    padding: v.$space-6 v.$space-6;
+  }
+
   @include m.mobile {
     padding: v.$space-5 v.$space-4;
   }
