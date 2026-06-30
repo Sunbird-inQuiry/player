@@ -8,20 +8,19 @@ import styles from './Hint.module.scss';
 /**
  * Hint + Solution reveal UI (spec §6.8).
  *
- * Pure UI over already-normalized question content: a "Show Hint" toggle for
- * `question.hints` and a "View Solution" toggle for `question.solutions` / the SA
- * `question.answer`. No scoring, no Context mutation. HTML/KaTeX content is
- * rendered through the shared QuestionBody.
+ * Pure UI over already-normalized question content:
+ * - "Show Hint" appears whenever the backend supplies `hints` (content-driven).
+ * - "View Solution" appears only once `canViewSolution` is true — i.e. after the
+ *   learner has interacted with the question (gated by the orchestrator).
+ * No scoring, no Context mutation. HTML/KaTeX is rendered via QuestionBody.
  */
 export interface HintProps {
   hints?: unknown[];
   solutions?: unknown[];
-  /** SA model answer. */
+  /** SA model answer (used as the solution body when no `solutions` are sent). */
   answer?: string | I18nValue;
-  /** Gate the hint toggle (defaults to enabled). */
-  showHints?: boolean;
-  /** Gate the solution toggle (defaults to enabled). */
-  showSolutions?: boolean;
+  /** Unlock the View Solution button — set once the learner has interacted. */
+  canViewSolution?: boolean;
   language?: string;
 }
 
@@ -40,8 +39,7 @@ export function Hint({
   hints = [],
   solutions = [],
   answer,
-  showHints = true,
-  showSolutions = true,
+  canViewSolution = false,
   language = 'en',
 }: HintProps) {
   const [showHint, setShowHint] = useState(false);
@@ -51,8 +49,11 @@ export function Hint({
   const solutionHtml = solutions.map(extractHtml).filter(Boolean);
   const answerText = readI18n(answer, language);
 
-  const hasHints = showHints && hintHtml.length > 0;
-  const hasSolution = showSolutions && (solutionHtml.length > 0 || Boolean(answerText));
+  // Hint button: shown whenever the backend sent hints.
+  const hasHints = hintHtml.length > 0;
+  // Solution button: shown only after the learner has interacted (canViewSolution)
+  // AND there is solution/answer content to reveal.
+  const hasSolution = canViewSolution && (solutionHtml.length > 0 || Boolean(answerText));
 
   if (!hasHints && !hasSolution) return null;
 

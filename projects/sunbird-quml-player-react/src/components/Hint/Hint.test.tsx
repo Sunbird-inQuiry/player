@@ -8,8 +8,8 @@ describe('Hint', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('toggles a hint open and closed', () => {
-    render(<Hint hints={[{ value: '<p>Think about Mars.</p>' }]} />);
+  it('shows the hint button whenever hints are supplied (content-driven)', () => {
+    render(<Hint hints={[{ hint: '<p>Think about Mars.</p>' }]} />);
     const toggle = screen.getByRole('button', { name: /show hint/i });
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
     fireEvent.click(toggle);
@@ -19,15 +19,21 @@ describe('Hint', () => {
     );
   });
 
-  it('reveals an SA model answer as the solution', () => {
-    render(<Hint answer="<p>The model answer.</p>" />);
+  it('hides the View Solution button until the learner has interacted', () => {
+    render(<Hint solutions={[{ value: '<p>Because iron oxide.</p>' }]} />);
+    // canViewSolution defaults to false → no solution button yet.
+    expect(screen.queryByRole('button', { name: /view solution/i })).not.toBeInTheDocument();
+  });
+
+  it('shows the View Solution button once unlocked, and reveals the solution', () => {
+    render(<Hint solutions={[{ value: '<p>Because iron oxide.</p>' }]} canViewSolution />);
     fireEvent.click(screen.getByRole('button', { name: /view solution/i }));
-    // Solution panel heading appears
     expect(screen.getByText(/^solution$/i)).toBeInTheDocument();
   });
 
-  it('respects the showSolutions gate', () => {
-    render(<Hint answer="hidden" showSolutions={false} />);
-    expect(screen.queryByRole('button', { name: /view solution/i })).not.toBeInTheDocument();
+  it('falls back to the SA answer as the solution body when unlocked', () => {
+    render(<Hint answer="<p>The model answer.</p>" canViewSolution />);
+    fireEvent.click(screen.getByRole('button', { name: /view solution/i }));
+    expect(screen.getByText(/^solution$/i)).toBeInTheDocument();
   });
 });

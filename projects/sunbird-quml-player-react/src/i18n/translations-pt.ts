@@ -118,4 +118,5 @@ export const translations: Record<string, string> = {
   REVIEW: 'Review',
   BACK_TO_RESULTS: 'Back to results',
   RESULT_SUMMARY: 'You scored {score} out of {max}.',
+  ANSWER: 'Answer',
 };

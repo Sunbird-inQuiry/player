@@ -104,6 +104,9 @@ export function SectionPlayer({ section, onSectionEnd }: SectionPlayerProps) {
   const currentQuestion = questions[currentSlide];
   const isFirst = currentSlide === 0;
   const isLast = currentSlide === questions.length - 1;
+  // "View Solution" unlocks once the learner has interacted with this question
+  // (an answer is stored for it in Context).
+  const hasInteracted = Boolean(state.answers[currentQuestion.identifier]);
 
   return (
     <div className={styles.sectionPlayer}>
@@ -119,9 +122,7 @@ export function SectionPlayer({ section, onSectionEnd }: SectionPlayerProps) {
           <Hint
             hints={currentQuestion.hints}
             solutions={currentQuestion.solutions}
-            answer={currentQuestion.answer}
-            showHints={currentQuestion.showHints}
-            showSolutions={currentQuestion.showSolutions || state.showSolutions}
+            canViewSolution={hasInteracted}
             language={language}
           />
         </QuestionCard>
