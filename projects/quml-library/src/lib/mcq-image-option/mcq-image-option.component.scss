@@ -83,14 +83,14 @@
   }
   
   /* Hide the browser's default radio button */
-  .option-mark-container input {
+  .container input {
     position: absolute;
     opacity: 0;
     cursor: pointer;
   }
   
   /* When the radio button is checked, add a blue background */
-  .option-mark-container input:checked~.checkmark, .quml-option--selected .checkmark {
+  .container input:checked~.checkmark, .quml-option--selected .checkmark {
     position: relative;
     background-color: var(--quml-option-selected-checkmark);
     border: 0.125rem solid var(--primary-color);
@@ -103,7 +103,7 @@
   }
   
   /* Style the indicator (dot/circle) */
-  .option-mark-container .checkmark:after, .quml-option--selected .option-mark-container .checkmark:after {
+  .container .checkmark:after, .quml-option--selected .container .checkmark:after {
     width: 0.75rem;
     height: 0.75rem;
     background: var(--primary-color);
@@ -115,7 +115,7 @@
     opacity: 0;
   }
   
-  .quml-option--selected .option-mark-container .checkmark:after { 
+  .quml-option--selected .container .checkmark:after { 
     opacity: 1;
   }
 
@@ -131,7 +131,7 @@
     border: 0.125rem solid var(--quml-checkmark);
   }
 
-  .option-mark-container input:checked~.radiomark, .quml-option--selected .radiomark {
+  .container input:checked~.radiomark, .quml-option--selected .radiomark {
     position: relative;
     background-color: var(--quml-option-selected-checkmark);
     border: 0.125rem solid var(--primary-color);
@@ -142,7 +142,7 @@
     opacity: 1;
   }
 
-  .option-mark-container .radiomark:after, .quml-option--selected .option-mark-container .radiomark:after {
+  .container .radiomark:after, .quml-option--selected .container .radiomark:after {
     width: 0.75rem;
     height: 0.75rem;
     border-radius: 50%;
@@ -155,7 +155,7 @@
     opacity: 0;
   }
 
-  .quml-option--selected .option-mark-container .checkmark:after, .quml-option--selected .option-mark-container .radiomark:after {
+  .quml-option--selected .container .checkmark:after, .quml-option--selected .container .radiomark:after {
     opacity: 1;
   }
 
