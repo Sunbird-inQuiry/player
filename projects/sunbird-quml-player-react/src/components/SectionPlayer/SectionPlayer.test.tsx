@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { QumlProvider } from '../../context/QumlContext';
 import { SectionPlayer } from './SectionPlayer';
@@ -44,15 +44,39 @@ describe('SectionPlayer', () => {
   });
 
   it('persists an answer across navigation (Context restore)', () => {
-    wrap(<SectionPlayer section={section} />);
-    // answer Q1
-    fireEvent.click(screen.getAllByRole('radio')[0]);
-    expect(screen.getAllByRole('radio')[0]).toHaveAttribute('aria-checked', 'true');
-    // go to Q2 and back
-    fireEvent.click(screen.getByRole('button', { name: /next/i }));
-    fireEvent.click(screen.getByRole('button', { name: /previous/i }));
-    // Q1's answer restored from Context
-    expect(screen.getAllByRole('radio')[0]).toHaveAttribute('aria-checked', 'true');
+    vi.useFakeTimers();
+    try {
+      wrap(<SectionPlayer section={section} />);
+      // answer Q1 correctly → Next shows feedback briefly, then auto-advances
+      fireEvent.click(screen.getAllByRole('radio')[0]);
+      expect(screen.getAllByRole('radio')[0]).toHaveAttribute('aria-checked', 'true');
+      fireEvent.click(screen.getByRole('button', { name: /next/i }));
+      act(() => vi.advanceTimersByTime(1000));
+      expect(screen.getByText(/Question 2 of 2/i)).toBeInTheDocument();
+      // Back to Q1 (immediate) — its answer is restored from Context.
+      fireEvent.click(screen.getByRole('button', { name: /previous/i }));
+      expect(screen.getAllByRole('radio')[0]).toHaveAttribute('aria-checked', 'true');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('shows feedback on the current question, then auto-advances (non-blocking)', () => {
+    vi.useFakeTimers();
+    try {
+      wrap(<SectionPlayer section={section} />);
+      fireEvent.click(screen.getAllByRole('radio')[1]); // answer Q1 incorrectly (correct = 0)
+      fireEvent.click(screen.getByRole('button', { name: /next/i }));
+      // Toast shows on the CURRENT question (still Q1) during the dwell.
+      expect(screen.getByRole('status')).toHaveTextContent(/wrong answer/i);
+      expect(screen.getByText(/Question 1 of 2/i)).toBeInTheDocument();
+      // After the dwell it clears and advances (does not block).
+      act(() => vi.advanceTimersByTime(1000));
+      expect(screen.getByText(/Question 2 of 2/i)).toBeInTheDocument();
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('calls onSectionEnd when Submit is clicked', () => {

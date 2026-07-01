@@ -353,6 +353,7 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     content = (
       <ReviewScreen
         questions={allQuestions}
+        sections={state.sections}
         answers={state.answers}
         startIndex={reviewStartIndex}
         onExit={() => setStage('results')}

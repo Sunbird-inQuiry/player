@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent, within, act } from '@testing-library/react';
 import { QumlProvider } from '../../context/QumlContext';
 import { MainPlayer } from './MainPlayer';
 import type { PlayerConfig } from '../../types';
@@ -59,11 +59,23 @@ describe('MainPlayer', () => {
     expect(screen.getByText(/Question 1 of 1/i)).toBeInTheDocument();
   });
 
-  it('shows a feedback toast when configured and an answer is selected', () => {
-    renderPlayer();
-    enterAssessment();
-    fireEvent.click(screen.getAllByRole('radio')[0]); // correct option (value 0)
-    expect(screen.getByRole('status')).toHaveTextContent(/correct answer/i);
+  it('does not flash feedback on selection; proceeds (non-blocking) on Submit', () => {
+    vi.useFakeTimers();
+    try {
+      renderPlayer();
+      enterAssessment();
+      // Selecting an option must NOT flash feedback mid-answer.
+      fireEvent.click(screen.getAllByRole('radio')[1]); // wrong option (value 1)
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+      // Section Submit shows feedback briefly, then proceeds even on a wrong
+      // answer (non-blocking) → the end-of-assessment confirm dialog opens.
+      const submits = screen.getAllByRole('button', { name: /^submit$/i });
+      fireEvent.click(submits[submits.length - 1]); // section-level submit
+      act(() => vi.advanceTimersByTime(1000));
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('opens the submit dialog, then shows results on confirm', () => {

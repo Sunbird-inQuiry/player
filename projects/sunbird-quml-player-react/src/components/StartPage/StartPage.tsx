@@ -14,10 +14,10 @@ import styles from './StartPage.module.scss';
 /**
  * StartPage — Assessment Overview / details screen (spec §6.1 + §6.2).
  *
- * Pure presentational: a persistent section list (left), the assessment identity,
- * a stats card, an "assessment sections" grid, and a Start CTA. All data is
- * derived by MainPlayer from Context and passed as props; this component owns no
- * runtime state and never mutates Context.
+ * Pure presentational: a centered column with the assessment identity, a stats
+ * card, an "assessment sections" grid, and a Start CTA. All data is derived by
+ * MainPlayer from Context and passed as props; this component owns no runtime
+ * state and never mutates Context.
  */
 
 /** Letter-badge palette for the first sections (later sections render without a badge). */
@@ -70,25 +70,6 @@ export function StartPage({
 
   return (
     <div className={styles.overview}>
-      <aside className={styles.sidebar} aria-label={t(language, 'SECTIONS')}>
-        <p className={styles.sidebarLabel}>{t(language, 'SECTIONS')}</p>
-        <ul className={styles.sidebarList}>
-          {sections.map((section, i) => (
-            <li key={section.identifier} className={styles.sidebarCard}>
-              {i < BADGE_COLORS.length && (
-                <span className={styles.badge} style={{ background: BADGE_COLORS[i] }} aria-hidden="true">
-                  {String.fromCharCode(65 + i)}
-                </span>
-              )}
-              <span className={styles.sidebarText}>
-                <span className={styles.sidebarName}>{section.name}</span>
-                <span className={styles.sidebarCount}>{questionLabel(section.children.length)}</span>
-              </span>
-            </li>
-          ))}
-        </ul>
-      </aside>
-
       <main className={styles.main}>
         <span className={styles.savedPill}>
           <CheckIcon size={16} />

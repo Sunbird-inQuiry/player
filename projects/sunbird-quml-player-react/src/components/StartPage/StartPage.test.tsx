@@ -36,7 +36,7 @@ describe('StartPage', () => {
     render(<StartPage {...baseProps} description="Intro text" timeLimit={900} attemptsLeft={3} />);
     expect(screen.getByRole('heading', { name: 'Sunbird Assessment' })).toBeInTheDocument();
     expect(screen.getByText('Intro text')).toBeInTheDocument();
-    // Sidebar + grid both list the section names.
+    // The "assessment sections" grid lists the section names.
     expect(screen.getAllByText('Knowledge Check').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('15:00')).toBeInTheDocument(); // minutes stat
     expect(screen.getByText(/progress is saved/i)).toBeInTheDocument();

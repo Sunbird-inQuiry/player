@@ -21,6 +21,9 @@ interface AlertState {
   message: string;
 }
 
+/** How long the Correct/Wrong toast dwells on the current question before auto-advancing. */
+const FEEDBACK_DWELL_MS = 1000;
+
 /**
  * SectionPlayer — orchestrates one section's question carousel: answer storage
  * (Context), scoring (registry), telemetry (hook), feedback (Alert), and the
@@ -54,18 +57,35 @@ export function SectionPlayer({ section, onSectionEnd, isLastSection = true }: S
   const externalIndex = state.currentQuestionIndex;
   useEffect(() => {
     setCurrentSlide(externalIndex);
-    setCurrentAlert(null);
   }, [externalIndex]);
 
+  // Feedback dwell: how long the Correct/Wrong toast stays on the current
+  // question before auto-advancing (see proceedWithFeedback).
+  const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clearFeedbackTimer = () => {
+    if (feedbackTimer.current) {
+      clearTimeout(feedbackTimer.current);
+      feedbackTimer.current = null;
+    }
+  };
+  useEffect(() => clearFeedbackTimer, []);
+
   /**
-   * Central answer handler — the ONE place per-answer side effects happen:
-   * 1) store in Context (single source of truth), 2) telemetry INTERACT,
-   * 3) score via the registry, 4) telemetry ASSESS, 5) optional feedback.
+   * Central answer handler — stores the answer + raises telemetry ONLY.
+   * Feedback is intentionally NOT shown here: for multi-step types (REO/SEQ/
+   * MTF/FTB) this fires on every partial move, so scoring an incomplete answer
+   * would flash "Wrong Answer" mid-edit. Feedback is validated on Next/Submit
+   * instead (Angular parity: alert is raised in validateSelectedOption on
+   * navigation, never in onOptionSelect).
    */
   const handleQuestionAnswer = (answer: UserResponse) => {
     const currentQuestion = questions[currentSlide];
     if (!currentQuestion) return;
 
+    // A new interaction dismisses any pending feedback + its auto-advance timer
+    // (e.g. the learner keeps editing after clicking Next).
+    clearFeedbackTimer();
+    setCurrentAlert(null);
     storeAnswer(currentQuestion.identifier, answer);
 
     const selected =
@@ -79,19 +99,40 @@ export function SectionPlayer({ section, onSectionEnd, isLastSection = true }: S
       score,
       currentQuestion.maxScore ?? 1,
     );
+  };
 
-    // Feedback toast: "Correct Answer" when fully correct, otherwise
-    // "Wrong Answer, Try Again". Suppressed only if feedback is explicitly off.
-    if (state.config?.showFeedback !== false) {
-      const isCorrect = score >= 1;
-      setCurrentAlert({
-        type: isCorrect ? 'correct' : 'incorrect',
-        message: t(language, isCorrect ? 'CORRECT_ANSWER' : 'INCORRECT_ANSWER'),
-      });
+  /**
+   * Validate the current answer when the learner tries to advance/submit, then
+   * run `proceed`. Feedback is non-blocking:
+   * - feedback OFF or unanswered → proceed silently.
+   * - otherwise → show "Correct Answer" / "Wrong Answer" and ALWAYS advance; the
+   *   toast rides onto the next question and auto-dismisses (no delay, no block).
+   */
+  const proceedWithFeedback = (proceed: () => void) => {
+    const currentQuestion = questions[currentSlide];
+    const answer = currentQuestion ? state.answers[currentQuestion.identifier] : undefined;
+    if (state.config?.showFeedback === false || !currentQuestion || !answer) {
+      proceed();
+      return;
     }
+
+    // Show the verdict on the CURRENT question, hold briefly so it's clearly tied
+    // to this question (never bleeds onto the next), then clear + advance. Both
+    // correct and wrong auto-advance (non-blocking).
+    const isCorrect = calculateScore(currentQuestion, answer) >= 1;
+    setCurrentAlert({
+      type: isCorrect ? 'correct' : 'incorrect',
+      message: t(language, isCorrect ? 'CORRECT_ANSWER' : 'INCORRECT_ANSWER'),
+    });
+    clearFeedbackTimer();
+    feedbackTimer.current = setTimeout(() => {
+      setCurrentAlert(null);
+      proceed();
+    }, FEEDBACK_DWELL_MS);
   };
 
   const goTo = (index: number) => {
+    clearFeedbackTimer();
     setCurrentSlide(index);
     setCurrentQuestion(index);
     setCurrentAlert(null);
@@ -102,12 +143,16 @@ export function SectionPlayer({ section, onSectionEnd, isLastSection = true }: S
   const requireAnswer = !isQuestionSkippable(section);
   const canAdvance = canGoToNextQuestion(currentSlide, questions, state.answers, { requireAnswer });
   const handleNext = () => {
-    if (canAdvance) goTo(currentSlide + 1);
+    proceedWithFeedback(() => {
+      if (canAdvance) goTo(currentSlide + 1);
+    });
   };
   const handlePrevious = () => {
     if (currentSlide > 0) goTo(currentSlide - 1);
   };
-  const handleSubmit = () => onSectionEnd?.();
+  const handleSubmit = () => {
+    proceedWithFeedback(() => onSectionEnd?.());
+  };
 
   if (questions.length === 0) {
     return <div className={styles.error}>{t(language, 'ERROR_LOADING')}</div>;

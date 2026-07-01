@@ -1,23 +1,28 @@
 import { useState } from 'react';
 import { QuestionRenderer } from '../QuestionRenderer/QuestionRenderer';
 import { QuestionCard } from '../QuestionCard/QuestionCard';
-import { QuestionPalette } from '../QuestionPalette/QuestionPalette';
+import { Sidebar } from '../Sidebar/Sidebar';
 import { PreviousIcon, NextIcon } from '../icons';
 import { t } from '../../i18n/translations';
 import { calculateScore } from '../../registry/scoring-registry';
-import type { Question, AnswersMap } from '../../types';
+import { useQuml } from '../../context/useQuml';
+import type { Question, Section, AnswersMap, UserResponse } from '../../types';
 import styles from './ReviewScreen.module.scss';
 
 /**
  * ReviewScreen — per-question review (spec §7.3/§7.4).
  *
- * Reuses `QuestionPalette` to pick a question and `QuestionRenderer` in
- * `replayed` mode to render it LOCKED with the saved answer. Correctness/score is
- * derived via the `scoring-registry` (no scoring logic duplicated). Navigation is
- * local; NO answers are mutated.
+ * Uses the same section `Sidebar` as the assessment shell (so review navigation
+ * matches the player) and `QuestionRenderer` to render each question with its
+ * saved answer restored. Matching the Angular player, review is INTERACTIVE:
+ * re-answering updates the stored answer in Context, so the verdict/score update
+ * live. Correctness is derived via the `scoring-registry` (no scoring logic
+ * duplicated). A section jump lands on that section's first question.
  */
 export interface ReviewScreenProps {
   questions: Question[];
+  /** Sections drive the sidebar; `questions` is their flattened children (same order). */
+  sections: Section[];
   answers: AnswersMap;
   startIndex?: number;
   onExit: () => void;
@@ -57,13 +62,29 @@ const VERDICT_CLASS: Record<Correctness, string> = {
 
 export function ReviewScreen({
   questions,
+  sections,
   answers,
   startIndex = 0,
   onExit,
   language = 'en',
 }: ReviewScreenProps) {
+  const { storeAnswer } = useQuml();
   const clampedStart = Math.min(Math.max(startIndex, 0), Math.max(questions.length - 1, 0));
   const [index, setIndex] = useState(clampedStart);
+
+  // Flat question index ↔ section: `questions` is `sections.flatMap(children)`,
+  // so a running offset gives each section's first-question index.
+  const sectionStarts: number[] = [];
+  let offset = 0;
+  for (const section of sections) {
+    sectionStarts.push(offset);
+    offset += section.children.length;
+  }
+  const currentSectionIndex = Math.max(
+    0,
+    sectionStarts.filter((start) => start <= index).length - 1,
+  );
+  const jumpToSection = (sectionIndex: number) => setIndex(sectionStarts[sectionIndex] ?? 0);
 
   if (questions.length === 0) {
     return (
@@ -74,8 +95,7 @@ export function ReviewScreen({
   }
 
   const question = questions[index];
-  const { kind, raw } = correctnessOf(question, answers);
-  const displayScore = Math.round(raw * (question.maxScore ?? 1));
+  const { kind } = correctnessOf(question, answers);
   const isFirst = index === 0;
   const isLast = index === questions.length - 1;
 
@@ -90,30 +110,17 @@ export function ReviewScreen({
 
       <div className={styles.body}>
         <aside className={styles.paletteCol}>
-          <QuestionPalette
-            questions={questions}
-            currentIndex={index}
+          <Sidebar
+            sections={sections}
+            currentSectionIndex={currentSectionIndex}
             answers={answers}
-            onJump={setIndex}
+            onSectionJump={jumpToSection}
             language={language}
           />
         </aside>
 
         <div className={styles.main}>
-          <div className={`${styles.verdict} ${VERDICT_CLASS[kind]}`}>
-            {t(language, LABEL_KEY[kind])}
-          </div>
-
-          <QuestionCard question={question} meta={{ category: question.primaryCategory }}>
-            <QuestionRenderer
-              key={question.identifier}
-              question={question}
-              replayed
-              score={displayScore}
-            />
-          </QuestionCard>
-
-          <div className={styles.footer}>
+          <div className={styles.navBar}>
             <button
               type="button"
               className={styles.navBtn}
@@ -140,6 +147,18 @@ export function ReviewScreen({
               <NextIcon size={18} />
             </button>
           </div>
+
+          <div className={`${styles.verdict} ${VERDICT_CLASS[kind]}`}>
+            {t(language, LABEL_KEY[kind])}
+          </div>
+
+          <QuestionCard question={question} meta={{ category: question.primaryCategory }}>
+            <QuestionRenderer
+              key={question.identifier}
+              question={question}
+              onOptionSelected={(response: UserResponse) => storeAnswer(question.identifier, response)}
+            />
+          </QuestionCard>
         </div>
       </div>
     </section>

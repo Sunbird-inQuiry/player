@@ -52,9 +52,9 @@
 }
 
 .paletteCol {
+  // Width + padding come from the Sidebar component itself (same as the
+  // assessment shell); this column just frames it and enables scroll.
   flex-shrink: 0;
-  width: v.$sidebar-w;
-  padding: v.$space-6 v.$space-5;
   overflow-y: auto;
   border-inline-end: 1px solid v.$gray-200;
   background: v.$ivory;
@@ -115,12 +115,12 @@
   color: v.$ink;
 }
 
-.footer {
+.navBar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: v.$space-4;
-  margin-top: v.$space-6;
+  margin-bottom: v.$space-6;
 }
 
 .counter {
