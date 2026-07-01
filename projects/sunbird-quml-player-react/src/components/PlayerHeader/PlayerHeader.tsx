@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { t } from '../../i18n/translations';
 import { TimerIcon, MenuIcon } from '../icons';
 import type { Section } from '../../types';
@@ -47,6 +48,7 @@ export function PlayerHeader({
 }: PlayerHeaderProps) {
   const showTimer = timeRemaining != null;
   const isTimeLow = showTimer && timeRemaining <= 60;
+  const [showLegend, setShowLegend] = useState(false);
 
   return (
     <header className={styles.header}>
@@ -108,9 +110,38 @@ export function PlayerHeader({
           </div>
         )}
 
-        <span className={styles.help} aria-hidden="true">
-          ?
-        </span>
+        <div className={styles.helpWrap}>
+          <button
+            type="button"
+            className={styles.help}
+            onClick={() => setShowLegend((s) => !s)}
+            aria-label={t(language, 'HELP_LEGEND_TITLE')}
+            aria-expanded={showLegend}
+          >
+            ?
+          </button>
+
+          {showLegend && (
+            <>
+              <div className={styles.legendBackdrop} onClick={() => setShowLegend(false)} />
+              <div className={styles.legend} role="dialog" aria-label={t(language, 'HELP_LEGEND_TITLE')}>
+                <p className={styles.legendTitle}>{t(language, 'HELP_LEGEND_TITLE')}</p>
+                <div className={styles.legendItem}>
+                  <span className={`${styles.legendDot} ${styles.active}`} aria-hidden="true">A</span>
+                  <span>{t(language, 'SECTION_CURRENT')}</span>
+                </div>
+                <div className={styles.legendItem}>
+                  <span className={`${styles.legendDot} ${styles.completed}`} aria-hidden="true">A</span>
+                  <span>{t(language, 'SECTION_DONE')}</span>
+                </div>
+                <div className={styles.legendItem}>
+                  <span className={`${styles.legendDot} ${styles.upcoming}`} aria-hidden="true">B</span>
+                  <span>{t(language, 'SECTION_UPCOMING')}</span>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
 
         <span className={styles.counter}>
           {questionNumber}/{totalQuestions}

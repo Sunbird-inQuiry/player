@@ -22,7 +22,7 @@ export const translations: Record<string, string> = {
 
   // Feedback
   CORRECT_ANSWER: 'Correct Answer',
-  INCORRECT_ANSWER: 'Incorrect Answer',
+  INCORRECT_ANSWER: 'Wrong Answer, Try Again',
   PARTIAL_SCORE: 'Partial Score',
   YOUR_ANSWER: 'Your Answer',
   EXPECTED_ANSWER: 'Expected Answer',
@@ -112,4 +112,10 @@ export const translations: Record<string, string> = {
   BACK_TO_RESULTS: 'Back to results',
   RESULT_SUMMARY: 'You scored {score} out of {max}.',
   ANSWER: 'Answer',
+
+  // Header section-marker legend (help popover)
+  HELP_LEGEND_TITLE: 'Section markers',
+  SECTION_CURRENT: 'Current section',
+  SECTION_DONE: 'Completed section',
+  SECTION_UPCOMING: 'Upcoming section',
 };

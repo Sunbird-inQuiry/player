@@ -44,7 +44,10 @@ export function SectionIntro({ section, sectionIndex, onBegin, language = 'en' }
         <div className={styles.body}>
           <div className={styles.instructions}>
             <h2 className={styles.instructionsHeading}>{t(language, 'INSTRUCTIONS')}</h2>
-            <p className={styles.instructionsBody}>{instructions}</p>
+            <div
+              className={styles.instructionsBody}
+              dangerouslySetInnerHTML={{ __html: instructions }}
+            />
           </div>
 
           <button type="button" className={styles.startBtn} onClick={onBegin}>

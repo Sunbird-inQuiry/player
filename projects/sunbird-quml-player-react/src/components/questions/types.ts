@@ -1,4 +1,5 @@
 import type { Question, UserResponse } from '../../types';
+import type { MediaResolveContext } from '../../utils/media';
 
 /**
  * Shared props for every question-type renderer (the IQuestionPlayer contract).
@@ -13,6 +14,8 @@ export interface QuestionComponentProps {
   shuffleOptions?: boolean;
   savedResponse?: UserResponse | null;
   baseUrl?: string;
+  /** Media + offline resolution inputs, built by QuestionRenderer. */
+  mediaCtx?: MediaResolveContext;
   score?: number | null;
   onOptionSelected?: (response: UserResponse) => void;
   onComponentLoaded?: () => void;

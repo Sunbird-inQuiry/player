@@ -39,14 +39,12 @@ export function transformQuestion(question: any): Question | null {
     outcomeDeclaration: { maxScore: { defaultValue: extractMaxScore(question) } },
     maxScore: extractMaxScore(question),
     media: question.media || [],
-    solutions: question.solutions || [], // QuML array form (not an object map)
-    hints: question.hints || [],
+    solutions: normalizeContentEntries(question.solutions), // array form (may arrive as object map)
+    hints: normalizeContentEntries(question.hints), // array form (may arrive as object map)
     templateId: question.templateId || '',
     language: question.language || [],
     status: question.status || 'Draft',
     showFeedback: question.showFeedback === 'Yes' || question.showFeedback === true,
-    showSolutions: question.showSolutions === 'Yes' || question.showSolutions === true,
-    showHints: question.showHints === 'Yes' || question.showHints === true,
     shuffleOptions: question.shuffleOptions === true,
   };
 
@@ -110,6 +108,25 @@ function normalizeMapping(mapping: any): ResponseMapping[] | undefined {
   });
 }
 
+/**
+ * Normalize `solutions`/`hints` to the array form the Hint component consumes.
+ *
+ * The backend delivers these two ways:
+ *   - array (offline / embedded):  [{ value: '<html>' }]           → passed through
+ *   - object map (/question/v5 list): { id: { en, ar, ... } }      → [{ value: I18nValue }]
+ *
+ * Each entry's `value` may be a plain HTML string or an I18nValue; the Hint
+ * component localizes it at render time (consistent with option labels).
+ */
+function normalizeContentEntries(entries: any): Array<{ value: string | I18nValue }> {
+  if (!entries) return [];
+  if (Array.isArray(entries)) return entries;
+  if (typeof entries === 'object') {
+    return Object.values(entries).map((value) => ({ value: value as string | I18nValue }));
+  }
+  return [];
+}
+
 /** Extract max score from a raw question (defaults to 1). */
 function extractMaxScore(question: any): number {
   if (question.maxScore) {
@@ -136,6 +153,10 @@ export function transformSection(section: any): Section | null {
     shuffle: section.shuffle === true,
     timeLimits: transformTimeLimit(section.timeLimits),
     showTimer: section.showTimer !== false,
+    // Section-level hint/solution gates (Angular: sectionConfig.metadata.showHints /
+    // showSolutions). Accept boolean or the "Yes"/"No" string form the API uses.
+    showHints: section.showHints === 'Yes' || section.showHints === true,
+    showSolutions: section.showSolutions === 'Yes' || section.showSolutions === true,
   };
 }
 

@@ -3,15 +3,19 @@ import { t, readI18n } from '../../i18n/translations';
 import { QuestionBody } from '../QuestionBody/QuestionBody';
 import { HintIcon } from '../icons';
 import type { I18nValue } from '../../types';
+import type { MediaResolveContext } from '../../utils/media';
 import styles from './Hint.module.scss';
 
 /**
  * Hint + Solution reveal UI (spec §6.8).
  *
- * Pure UI over already-normalized question content:
- * - "Show Hint" appears whenever the backend supplies `hints` (content-driven).
- * - "View Solution" appears only once `canViewSolution` is true — i.e. after the
- *   learner has interacted with the question (gated by the orchestrator).
+ * Pure UI over already-normalized question content. Visibility mirrors Angular:
+ * - "Show Hint" appears when the SECTION enables hints (`showHints`) AND the
+ *   backend supplies `hints`.
+ * - "View Solution" appears when the SECTION enables solutions (`showSolutions`),
+ *   `canViewSolution` is true (learner has interacted), AND there is content.
+ * Both section gates default to `true` so standalone/unit usage stays purely
+ * content-driven; SectionPlayer feeds the real section flags.
  * No scoring, no Context mutation. HTML/KaTeX is rendered via QuestionBody.
  */
 export interface HintProps {
@@ -21,16 +25,29 @@ export interface HintProps {
   answer?: string | I18nValue;
   /** Unlock the View Solution button — set once the learner has interacted. */
   canViewSolution?: boolean;
+  /** Section-level gate (Angular: sectionConfig.metadata.showHints). */
+  showHints?: boolean;
+  /** Section-level gate (Angular: sectionConfig.metadata.showSolutions). */
+  showSolutions?: boolean;
   language?: string;
+  /** Media + offline resolution inputs so solution/hint assets resolve like the stem. */
+  mediaCtx?: MediaResolveContext;
 }
 
-/** Extract renderable HTML from a QuML hint/solution array entry. */
-function extractHtml(entry: unknown): string {
+/**
+ * Extract renderable HTML from a QuML hint/solution array entry.
+ * The candidate may be a plain string or an I18nValue map (API form) — localize
+ * via readI18n so both offline and fetched content render.
+ */
+function extractHtml(entry: unknown, language: string): string {
   if (typeof entry === 'string') return entry;
   if (entry && typeof entry === 'object') {
     const obj = entry as Record<string, unknown>;
     const candidate = obj.value ?? obj.body ?? obj.solution ?? obj.hint;
     if (typeof candidate === 'string') return candidate;
+    if (candidate && typeof candidate === 'object') {
+      return readI18n(candidate as I18nValue, language);
+    }
   }
   return '';
 }
@@ -40,20 +57,24 @@ export function Hint({
   solutions = [],
   answer,
   canViewSolution = false,
+  showHints: showHintsEnabled = true,
+  showSolutions: showSolutionsEnabled = true,
   language = 'en',
+  mediaCtx,
 }: HintProps) {
   const [showHint, setShowHint] = useState(false);
   const [showSolution, setShowSolution] = useState(false);
 
-  const hintHtml = hints.map(extractHtml).filter(Boolean);
-  const solutionHtml = solutions.map(extractHtml).filter(Boolean);
+  const hintHtml = hints.map((h) => extractHtml(h, language)).filter(Boolean);
+  const solutionHtml = solutions.map((s) => extractHtml(s, language)).filter(Boolean);
   const answerText = readI18n(answer, language);
 
-  // Hint button: shown whenever the backend sent hints.
-  const hasHints = hintHtml.length > 0;
-  // Solution button: shown only after the learner has interacted (canViewSolution)
-  // AND there is solution/answer content to reveal.
-  const hasSolution = canViewSolution && (solutionHtml.length > 0 || Boolean(answerText));
+  // Hint button: section enables hints AND the backend sent hints.
+  const hasHints = showHintsEnabled && hintHtml.length > 0;
+  // Solution button: section enables solutions, the learner has interacted
+  // (canViewSolution), AND there is solution/answer content to reveal.
+  const hasSolution =
+    showSolutionsEnabled && canViewSolution && (solutionHtml.length > 0 || Boolean(answerText));
 
   if (!hasHints && !hasSolution) return null;
 
@@ -87,7 +108,7 @@ export function Hint({
         <div className={`${styles.panel} ${styles.hintPanel}`}>
           <h3 className={styles.panelHeading}>{t(language, 'HINT')}</h3>
           {hintHtml.map((html, i) => (
-            <QuestionBody key={i} question={{ body: html }} language={language} />
+            <QuestionBody key={i} question={{ body: html }} language={language} mediaCtx={mediaCtx} />
           ))}
         </div>
       )}
@@ -96,10 +117,10 @@ export function Hint({
         <div className={`${styles.panel} ${styles.solutionPanel}`}>
           <h3 className={styles.panelHeading}>{t(language, 'SOLUTION')}</h3>
           {solutionHtml.map((html, i) => (
-            <QuestionBody key={i} question={{ body: html }} language={language} />
+            <QuestionBody key={i} question={{ body: html }} language={language} mediaCtx={mediaCtx} />
           ))}
           {solutionHtml.length === 0 && answerText && (
-            <QuestionBody question={{ body: answerText }} language={language} />
+            <QuestionBody question={{ body: answerText }} language={language} mediaCtx={mediaCtx} />
           )}
         </div>
       )}

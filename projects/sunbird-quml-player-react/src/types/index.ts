@@ -61,7 +61,7 @@ export interface Question {
   identifier: string; // GLOBALLY UNIQUE — used as the answers map key
   code?: string;
   name?: string;
-  body: string; // HTML, may contain KaTeX; FTB has [[responseN]] blank tokens
+  body: string | I18nValue; // HTML (may be localized); FTB has [[responseN]] blank tokens
   primaryCategory: string; // maps to registry (lowercased after transform)
   qType?: string;
   mimeType?: string;
@@ -78,8 +78,6 @@ export interface Question {
   language?: string[];
   status?: string;
   showFeedback?: boolean;
-  showSolutions?: boolean;
-  showHints?: boolean;
   shuffleOptions?: boolean;
   savedResponse?: UserResponse;
 }
@@ -95,6 +93,10 @@ export interface Section {
   allowSkip: boolean;
   shuffle: boolean;
   showTimer?: boolean;
+  // Section-level visibility gates (Angular reads these from sectionConfig.metadata,
+  // NOT from individual questions). Combined with content presence + interaction rules.
+  showHints?: boolean;
+  showSolutions?: boolean;
 }
 
 export interface Assessment {
@@ -125,6 +127,7 @@ export interface UserResponse {
   responses?: Record<string, string>; // FTB
   matches?: Record<string, string>; // MTF
   order?: Array<number | string>; // SEQ / REO
+  shown?: boolean; // SA — learner revealed the model answer (self-marked correct)
   timestamp?: number;
   score?: number;
   maxScore?: number;
@@ -152,6 +155,16 @@ export interface PlayerConfig {
     [key: string]: unknown;
   };
   data?: unknown; // raw assessment/questionset payload
+  /**
+   * Offline packaged-content inputs. Mirrors Angular `playerConfig.metadata`
+   * (see main-player.component.ts:243) — the host sets these when content is
+   * available on-device so assets resolve from `basePath` instead of the network.
+   */
+  metadata?: {
+    isAvailableLocally?: boolean;
+    basePath?: string;
+    [key: string]: unknown;
+  };
   [key: string]: unknown;
 }
 

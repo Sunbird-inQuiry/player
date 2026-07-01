@@ -121,6 +121,15 @@ export function calculateMTFScore(question: Question, response: UserResponse | n
 }
 
 /**
+ * Score for SA (Subjective). Subjective answers are self-assessed: revealing the
+ * model answer ("Show Answer") self-marks the question correct (full score),
+ * mirroring the Angular player's showAnswerClicked behavior. Otherwise 0.
+ */
+export function calculateSubjectiveScore(_question: Question, response: UserResponse | null): number {
+  return response?.shown ? 1 : 0;
+}
+
+/**
  * Calculate score for SEQ/REO (Sequence/Reorder). 0 or 1 for exact order match.
  */
 export function calculateOrderedScore(question: Question, response: UserResponse | null): number {

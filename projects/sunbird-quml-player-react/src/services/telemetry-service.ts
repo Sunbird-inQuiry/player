@@ -16,6 +16,26 @@ interface TelemetryEvent {
 let telemetrySDK: any = null;
 let eventQueue: TelemetryEvent[] = [];
 
+/**
+ * Telemetry bridge (Phase 8): listeners are notified of every raised event so a
+ * host (e.g. the web component) can forward them to `onTelemetryEvent`. Additive
+ * — the queue/SDK behaviour is unchanged.
+ */
+type TelemetryListener = (event: TelemetryEvent) => void;
+const listeners = new Set<TelemetryListener>();
+
+/** Subscribe to raised telemetry events. Returns an unsubscribe function. */
+export function subscribeTelemetry(listener: TelemetryListener): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+function emit(event: TelemetryEvent): void {
+  listeners.forEach((listener) => listener(event));
+}
+
 /** Initialize the telemetry SDK if one is available globally. */
 export function initializeTelemetry(context: TelemetryContext): void {
   const sdk = typeof window !== 'undefined' ? (window as any).EkTelemetry : undefined;
@@ -37,6 +57,7 @@ export function raiseInteractEvent(data: unknown): void {
     eventQueue.push(event);
     console.log('[TelemetryService] INTERACT event queued:', event);
   }
+  emit(event);
 }
 
 /** Raise an ASSESS event (answer submission). */
@@ -49,6 +70,7 @@ export function raiseAssessEvent(data: unknown): void {
     eventQueue.push(event);
     console.log('[TelemetryService] ASSESS event queued:', event);
   }
+  emit(event);
 }
 
 /** Raise an IMPRESSION event (page view). */
@@ -61,6 +83,7 @@ export function raiseImpressionEvent(data: unknown): void {
     eventQueue.push(event);
     console.log('[TelemetryService] IMPRESSION event queued:', event);
   }
+  emit(event);
 }
 
 /** Get queued events (useful for testing or delayed SDK init). */

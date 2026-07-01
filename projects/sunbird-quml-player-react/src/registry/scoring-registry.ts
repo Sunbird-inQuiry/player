@@ -3,6 +3,7 @@ import {
   calculateFTBScore,
   calculateMTFScore,
   calculateOrderedScore,
+  calculateSubjectiveScore,
 } from '../utils/score';
 import type { Question, UserResponse } from '../types';
 
@@ -15,7 +16,7 @@ export type ScoreFn = (question: Question, response: UserResponse | null) => num
 
 export const scoringRegistry = new Map<string, ScoreFn>([
   ['multiple choice question', calculateMCQScore],
-  ['subjective question', () => 0], // SA has no automatic scoring
+  ['subjective question', calculateSubjectiveScore], // full score once the answer is revealed
   ['fill in the blank question', calculateFTBScore],
   ['ftb question', calculateFTBScore],
   ['match the following question', calculateMTFScore],

@@ -2,7 +2,8 @@ import { useEffect, useRef } from 'react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { resolveMediaHtml } from '../../utils/media';
-import type { MediaItem } from '../../utils/media';
+import type { MediaItem, MediaResolveContext } from '../../utils/media';
+import { readI18n } from '../../i18n/translations';
 import type { Question } from '../../types';
 import styles from './QuestionBody.module.scss';
 
@@ -21,11 +22,14 @@ import styles from './QuestionBody.module.scss';
 interface QuestionBodyProps {
   question: Pick<Question, 'body' | 'media'>;
   language?: string;
-  /** Content base URL for resolving relative image/asset paths. */
-  baseUrl?: string;
+  /**
+   * Media + offline resolution inputs. When supplied (e.g. by Hint for solution
+   * content), its `media` takes precedence over `question.media`.
+   */
+  mediaCtx?: MediaResolveContext;
 }
 
-export function QuestionBody({ question, language = 'en', baseUrl = '' }: QuestionBodyProps) {
+export function QuestionBody({ question, language = 'en', mediaCtx }: QuestionBodyProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -33,9 +37,16 @@ export function QuestionBody({ question, language = 'en', baseUrl = '' }: Questi
     if (!el || !question?.body) return;
 
     try {
-      // Render the raw HTML body with images resolved (figure placeholders from
-      // media, asset-variable + relative <img> src via baseUrl) then KaTeX.
-      el.innerHTML = resolveMediaHtml(question.body, question.media as MediaItem[], baseUrl);
+      // Body may be a plain HTML string (embedded) or an I18nValue map (API);
+      // localize first, then resolve images and KaTeX.
+      const bodyHtml = readI18n(question.body, language);
+      // Resolve media (asset-variable images, figure placeholders, video/audio)
+      // via the Angular-parity resolver, then render KaTeX.
+      const ctx: MediaResolveContext = {
+        ...mediaCtx,
+        media: mediaCtx?.media ?? (question.media as MediaItem[] | undefined),
+      };
+      el.innerHTML = resolveMediaHtml(bodyHtml, ctx);
 
       // Find and render KaTeX expressions.
       const mathElements = el.querySelectorAll('.math');
@@ -51,7 +62,7 @@ export function QuestionBody({ question, language = 'en', baseUrl = '' }: Questi
     } catch (err) {
       console.error('[QuestionBody] Error rendering body:', err);
     }
-  }, [question?.body, question?.media, baseUrl]);
+  }, [question?.body, question?.media, mediaCtx, language]);
 
   const isRtl = language === 'ar';
 

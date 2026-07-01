@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { QuestionBody } from '../../QuestionBody/QuestionBody';
 import { readI18n, t } from '../../../i18n/translations';
 import { resolveMediaHtml } from '../../../utils/media';
-import type { MediaItem } from '../../../utils/media';
+import type { MediaItem, MediaResolveContext } from '../../../utils/media';
 import type { QuestionComponentProps } from '../types';
 import styles from './SaQuestion.module.scss';
 
@@ -16,11 +16,20 @@ import styles from './SaQuestion.module.scss';
 export function SaQuestion({
   question,
   language = 'en',
-  baseUrl = '',
+  mediaCtx,
+  savedResponse = null,
+  onOptionSelected,
   onComponentLoaded,
 }: QuestionComponentProps) {
   const loadedRef = useRef(false);
-  const [revealed, setRevealed] = useState(false);
+  const [revealed, setRevealed] = useState(Boolean(savedResponse?.shown));
+
+  // Revealing the model answer self-marks the SA question correct (full score),
+  // mirroring the Angular player. Emits so SectionPlayer stores/scores it.
+  const handleReveal = () => {
+    setRevealed(true);
+    onOptionSelected?.({ shown: true, timestamp: Date.now() });
+  };
 
   useEffect(() => {
     if (!loadedRef.current) {
@@ -29,14 +38,18 @@ export function SaQuestion({
     }
   }, [question.identifier]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const ctx: MediaResolveContext = {
+    ...mediaCtx,
+    media: mediaCtx?.media ?? (question.media as MediaItem[] | undefined),
+  };
   const modelAnswer = question.answer
-    ? resolveMediaHtml(readI18n(question.answer, language), question.media as MediaItem[], baseUrl)
+    ? resolveMediaHtml(readI18n(question.answer, language), ctx)
     : '';
 
   return (
     <div className={styles.sa}>
       {revealed && <p className={styles.label}>{t(language, 'QUESTION')}</p>}
-      <QuestionBody question={question} language={language} baseUrl={baseUrl} />
+      <QuestionBody question={question} language={language} mediaCtx={ctx} />
 
       {modelAnswer && (
         <>
@@ -45,7 +58,7 @@ export function SaQuestion({
               <button
                 type="button"
                 className={styles.revealBtn}
-                onClick={() => setRevealed(true)}
+                onClick={handleReveal}
                 aria-expanded={false}
               >
                 {t(language, 'SHOW_ANSWER')}

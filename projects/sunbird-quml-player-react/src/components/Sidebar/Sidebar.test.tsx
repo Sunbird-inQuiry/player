@@ -42,9 +42,10 @@ describe('Sidebar', () => {
     expect(screen.getByRole('navigation')).toBeInTheDocument();
     expect(screen.getByText('Section One')).toBeInTheDocument();
     expect(screen.getByText('Recognise the right answer')).toBeInTheDocument();
-    // Section One: 1 answered of 2.
+    // Section One: 1 answered of 2 → 1 remaining. Section Two: 0 of 1 → 1 remaining.
     expect(screen.getByText('✓ 1')).toBeInTheDocument();
-    expect(screen.getByText('○ 2')).toBeInTheDocument();
+    expect(screen.getByText('✓ 0')).toBeInTheDocument();
+    expect(screen.getAllByText('○ 1')).toHaveLength(2);
     // Active section exposed to AT.
     expect(screen.getByRole('button', { name: /Section One/i })).toHaveAttribute('aria-current', 'true');
   });

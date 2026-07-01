@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { responseKeys } from '../question-utils';
 import { resolveMediaHtml } from '../../../utils/media';
-import type { MediaItem } from '../../../utils/media';
+import { readI18n } from '../../../i18n/translations';
+import type { MediaItem, MediaResolveContext } from '../../../utils/media';
 import type { QuestionComponentProps } from '../types';
 import styles from './FtbQuestion.module.scss';
 
@@ -15,14 +16,17 @@ export function FtbQuestion({
   question,
   replayed = false,
   language = 'en',
-  baseUrl = '',
+  mediaCtx,
   savedResponse = null,
   onOptionSelected,
   onComponentLoaded,
   onGoToNext,
 }: QuestionComponentProps) {
   const keys = responseKeys(question);
-  const media = question.media as MediaItem[] | undefined;
+  const ctx: MediaResolveContext = {
+    ...mediaCtx,
+    media: mediaCtx?.media ?? (question.media as MediaItem[] | undefined),
+  };
   const [values, setValues] = useState<Record<string, string>>(() => savedResponse?.responses ?? {});
   const loadedRef = useRef(false);
 
@@ -33,7 +37,9 @@ export function FtbQuestion({
     }
   }, [question.identifier]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const parts = (question.body || '').split(/\[\[(response\d+)\]\]/g);
+  // Body may be a plain string (embedded) or an I18nValue map (API) — localize first.
+  const bodyHtml = readI18n(question.body, language);
+  const parts = bodyHtml.split(/\[\[(response\d+)\]\]/g);
   const lastKey = keys[keys.length - 1];
 
   const handleChange = (key: string, value: string) => {
@@ -77,7 +83,7 @@ export function FtbQuestion({
             i % 2 === 0 ? (
               <span
                 key={`text-${i}`}
-                dangerouslySetInnerHTML={{ __html: resolveMediaHtml(part, media, baseUrl) }}
+                dangerouslySetInnerHTML={{ __html: resolveMediaHtml(part, ctx) }}
               />
             ) : (
               renderBlank(part)
@@ -87,7 +93,7 @@ export function FtbQuestion({
       ) : (
         <>
           <div
-            dangerouslySetInnerHTML={{ __html: resolveMediaHtml(question.body || '', media, baseUrl) }}
+            dangerouslySetInnerHTML={{ __html: resolveMediaHtml(bodyHtml, ctx) }}
           />
           <div className={styles.fallbackBlanks}>{keys.map((key) => renderBlank(key))}</div>
         </>

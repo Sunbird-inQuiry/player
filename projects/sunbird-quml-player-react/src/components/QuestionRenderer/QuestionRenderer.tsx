@@ -1,5 +1,6 @@
 import { getQuestionComponent } from '../../registry/question-type-registry';
 import { useQuml } from '../../context/useQuml';
+import type { MediaItem, MediaResolveContext } from '../../utils/media';
 import type { Question, UserResponse } from '../../types';
 import styles from './QuestionRenderer.module.scss';
 
@@ -13,7 +14,6 @@ interface QuestionRendererProps {
   question: Question | null;
   replayed?: boolean;
   tryAgain?: boolean;
-  baseUrl?: string;
   shuffleOptions?: boolean;
   /** Review/replay: per-question score for display (forwarded to the component). */
   score?: number | null;
@@ -27,7 +27,6 @@ export function QuestionRenderer({
   question,
   replayed = false,
   tryAgain = false,
-  baseUrl = '',
   shuffleOptions = true,
   score = null,
   onOptionSelected,
@@ -37,14 +36,26 @@ export function QuestionRenderer({
 }: QuestionRendererProps) {
   const { state } = useQuml();
   const language = state.language;
-  // Content base URL for resolving relative image/asset paths: explicit prop wins,
-  // otherwise fall back to the player config (set by the embedding app / API).
-  const resolvedBaseUrl =
-    baseUrl || (state.config?.baseUrl as string | undefined) || (state.config?.host as string | undefined) || '';
 
   if (!question) {
     return <div className={styles.error}>No question provided</div>;
   }
+
+  // Build the media-resolution context (Angular parity). Online image host comes
+  // from media[].baseUrl; basePath/isAvailableLocally drive the offline packaged
+  // flow (mirrors main-player.component.ts:243). Section id is looked up from the
+  // question's parent so both live play and review resolve correctly.
+  const offline = state.playerConfig?.metadata;
+  const sectionId = state.sections.find((s) =>
+    s.children.some((q) => q.identifier === question.identifier),
+  )?.identifier;
+  const mediaCtx: MediaResolveContext = {
+    media: question.media as MediaItem[] | undefined,
+    basePath: offline?.basePath,
+    isAvailableLocally: offline?.isAvailableLocally,
+    sectionId,
+    questionId: question.identifier,
+  };
 
   // Cross-section restore: answers are keyed by globally-unique identifier.
   const savedResponse = state.answers[question.identifier] || null;
@@ -61,7 +72,7 @@ export function QuestionRenderer({
         replayed={replayed}
         tryAgain={tryAgain}
         language={language}
-        baseUrl={resolvedBaseUrl}
+        mediaCtx={mediaCtx}
         shuffleOptions={shuffleOptions}
         savedResponse={savedResponse}
         score={score}

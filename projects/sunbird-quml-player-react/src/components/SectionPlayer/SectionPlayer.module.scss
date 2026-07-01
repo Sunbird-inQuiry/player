@@ -7,13 +7,22 @@
   min-height: 100%;
 }
 
+// Shared centered column so the nav bar and question card line up 1:1.
 .content {
   flex: 1;
-  padding: v.$space-8 v.$space-12;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1088px;
+  margin-inline: auto;
+  padding: v.$space-6 v.$space-6 v.$space-8;
   overflow-y: auto;
 
-  @include m.tablet {
-    padding: v.$space-6 v.$space-6;
+  // The question card fills the column width and height, using the space instead
+  // of leaving a large empty area below.
+  > * {
+    width: 100%;
+    flex: 1;
   }
 
   @include m.mobile {
@@ -21,21 +30,20 @@
   }
 }
 
-.footer {
+// Question navigation, now at the TOP of the player (was a bottom footer).
+// Same max-width + gutters as .content so its edges align with the card.
+.navBar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: v.$space-4;
-  padding: v.$space-5 v.$space-12;
-  border-top: 1px solid v.$gray-200;
-  background: v.$ivory;
-
-  @include m.tablet {
-    padding: v.$space-5 v.$space-6;
-  }
+  width: 100%;
+  max-width: 1088px;
+  margin-inline: auto;
+  padding: v.$space-4 v.$space-6;
 
   @include m.mobile {
-    padding: v.$space-4;
+    padding: v.$space-3 v.$space-4;
   }
 }
 
@@ -52,14 +60,22 @@
   @include m.button-base;
   @include m.focus-ring;
 
-  background: transparent;
-  color: v.$g600;
+  background: v.$white;
+  color: v.$g700;
   border: 1.5px solid v.$gray-200;
+  box-shadow: v.$shadow-sm;
+  transition: box-shadow v.$dur-fast v.$ease-out, transform v.$dur-fast v.$ease-out,
+    border-color v.$dur-fast v.$ease-out;
 
   &:hover:not(:disabled) {
     border-color: v.$g400;
     color: v.$g900;
-    background: v.$cream-bg;
+    box-shadow: v.$shadow-md;
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    box-shadow: none;
   }
 
   // Icon-only on mobile (label hidden) — keep a comfortable touch target.

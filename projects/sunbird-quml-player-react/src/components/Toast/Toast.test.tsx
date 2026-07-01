@@ -17,7 +17,7 @@ describe('Toast', () => {
   it('renders the type label and message as a status region', () => {
     wrap(<Toast type="incorrect" message="Try again" duration={0} />);
     const toast = screen.getByRole('status');
-    expect(toast).toHaveTextContent(/incorrect answer/i);
+    expect(toast).toHaveTextContent(/wrong answer, try again/i);
     expect(toast).toHaveTextContent('Try again');
   });
 

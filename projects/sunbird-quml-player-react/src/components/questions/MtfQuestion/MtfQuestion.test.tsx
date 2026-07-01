@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import type { ReactNode } from 'react';
@@ -33,32 +33,25 @@ const mtfQuestion = {
 const withDnd = (ui: ReactNode) => render(<DndProvider backend={HTML5Backend}>{ui}</DndProvider>);
 
 describe('MtfQuestion', () => {
-  it('renders left terms with empty drop slots (no select)', () => {
+  it('renders each left prompt with its right answer image (no drop-here slots)', () => {
     withDnd(<MtfQuestion question={mtfQuestion} shuffleOptions={false} />);
-    expect(screen.getByLabelText('Drop a match for France')).toBeInTheDocument();
-    expect(screen.getByLabelText('Drop a match for Japan')).toBeInTheDocument();
-    // Right options remain available as draggable cards.
+    // Left prompts.
+    expect(screen.getByText('France')).toBeInTheDocument();
+    expect(screen.getByText('Japan')).toBeInTheDocument();
+    // Right images render as draggable cells; no "Drop here" placeholders.
+    expect(screen.getByText('Paris')).toBeInTheDocument();
     expect(screen.getByText('Tokyo')).toBeInTheDocument();
+    expect(screen.queryByText(/drop here/i)).not.toBeInTheDocument();
   });
 
-  it('restores saved matches into the slot and locks in replay mode', () => {
-    withDnd(<MtfQuestion question={mtfQuestion} replayed savedResponse={{ matches: { A: '1' } }} />);
-    const slot = screen.getByLabelText(/France: Paris\. Clear match/i);
-    expect(slot).toHaveTextContent('Paris');
-    expect(slot).toBeDisabled();
-  });
-
-  it('clears a match when the filled slot is clicked', () => {
-    const onOptionSelected = vi.fn();
+  it('restores a saved arrangement into the right cells', () => {
+    // Saved: A→2 (Tokyo), B→1 (Paris) — i.e. swapped from the natural order.
     withDnd(
-      <MtfQuestion
-        question={mtfQuestion}
-        shuffleOptions={false}
-        savedResponse={{ matches: { A: '1' } }}
-        onOptionSelected={onOptionSelected}
-      />,
+      <MtfQuestion question={mtfQuestion} replayed savedResponse={{ matches: { A: '2', B: '1' } }} />,
     );
-    fireEvent.click(screen.getByLabelText(/France: Paris\. Clear match/i));
-    expect(onOptionSelected).toHaveBeenLastCalledWith(expect.objectContaining({ matches: {} }));
+    const cells = screen.getAllByText(/Paris|Tokyo/);
+    // Row order follows left (France, Japan) → Tokyo first, then Paris.
+    expect(cells[0]).toHaveTextContent('Tokyo');
+    expect(cells[1]).toHaveTextContent('Paris');
   });
 });

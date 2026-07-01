@@ -2,9 +2,9 @@
 @use '../../styles/mixins' as m;
 
 .card {
-  max-width: 760px;
+  width: 100%;
   margin: 0 auto;
-  padding: v.$space-8;
+  padding: v.$space-8 v.$space-10;
   background: v.$ivory;
   border-radius: v.$r-md;
   box-shadow: v.$shadow-sm;

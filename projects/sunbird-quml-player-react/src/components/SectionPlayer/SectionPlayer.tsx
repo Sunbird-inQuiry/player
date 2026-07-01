@@ -1,14 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuml } from '../../context/useQuml';
 import { useTelemetry } from '../../context/useTelemetry';
 import { QuestionRenderer } from '../QuestionRenderer/QuestionRenderer';
 import { QuestionCard } from '../QuestionCard/QuestionCard';
 import { Hint } from '../Hint/Hint';
 import { Toast } from '../Toast/Toast';
+import { ImageViewer } from '../ImageViewer/ImageViewer';
+import { useImageZoom } from '../ImageViewer/useImageZoom';
 import { PreviousIcon, NextIcon } from '../icons';
 import { t } from '../../i18n/translations';
 import { calculateScore } from '../../registry/scoring-registry';
 import { canGoToNextQuestion, isQuestionSkippable } from '../../services/navigation-service';
+import type { MediaItem, MediaResolveContext } from '../../utils/media';
 import type { Question, Section, UserResponse } from '../../types';
 import styles from './SectionPlayer.module.scss';
 
@@ -27,9 +30,11 @@ interface AlertState {
 interface SectionPlayerProps {
   section: Section | undefined;
   onSectionEnd?: () => void;
+  /** True only for the final section — its last question shows Submit, not Next. */
+  isLastSection?: boolean;
 }
 
-export function SectionPlayer({ section, onSectionEnd }: SectionPlayerProps) {
+export function SectionPlayer({ section, onSectionEnd, isLastSection = true }: SectionPlayerProps) {
   const { state, storeAnswer, setCurrentQuestion } = useQuml();
   const { logOptionSelected, logAnswerSubmitted } = useTelemetry();
   const language = state.language;
@@ -38,6 +43,11 @@ export function SectionPlayer({ section, onSectionEnd }: SectionPlayerProps) {
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [currentAlert, setCurrentAlert] = useState<AlertState | null>(null);
+
+  // Image zoom / click-to-enlarge over the whole question area (stem + options +
+  // revealed solution), mirroring Angular's document-wide setImageZoom pass.
+  const contentRef = useRef<HTMLDivElement>(null);
+  const zoom = useImageZoom(contentRef, [currentSlide, language]);
 
   // Honor external jumps: the sidebar emits setCurrentQuestion (Context is the
   // source of truth for the active index); sync the carousel to follow it.
@@ -70,8 +80,10 @@ export function SectionPlayer({ section, onSectionEnd }: SectionPlayerProps) {
       currentQuestion.maxScore ?? 1,
     );
 
-    if (state.config?.showFeedback) {
-      const isCorrect = score === 1;
+    // Feedback toast: "Correct Answer" when fully correct, otherwise
+    // "Wrong Answer, Try Again". Suppressed only if feedback is explicitly off.
+    if (state.config?.showFeedback !== false) {
+      const isCorrect = score >= 1;
       setCurrentAlert({
         type: isCorrect ? 'correct' : 'incorrect',
         message: t(language, isCorrect ? 'CORRECT_ANSWER' : 'INCORRECT_ANSWER'),
@@ -108,27 +120,19 @@ export function SectionPlayer({ section, onSectionEnd }: SectionPlayerProps) {
   // (an answer is stored for it in Context).
   const hasInteracted = Boolean(state.answers[currentQuestion.identifier]);
 
+  // Media-resolution context for solution/hint assets (mirrors QuestionRenderer).
+  const offline = state.playerConfig?.metadata;
+  const mediaCtx: MediaResolveContext = {
+    media: currentQuestion.media as MediaItem[] | undefined,
+    basePath: offline?.basePath,
+    isAvailableLocally: offline?.isAvailableLocally,
+    sectionId: section?.identifier,
+    questionId: currentQuestion.identifier,
+  };
+
   return (
     <div className={styles.sectionPlayer}>
-      <div className={styles.content}>
-        <QuestionCard question={currentQuestion} meta={{ category: currentQuestion.primaryCategory }}>
-          <QuestionRenderer
-            key={currentQuestion.identifier}
-            question={currentQuestion}
-            onOptionSelected={handleQuestionAnswer}
-            onGoToNext={handleNext}
-          />
-
-          <Hint
-            hints={currentQuestion.hints}
-            solutions={currentQuestion.solutions}
-            canViewSolution={hasInteracted}
-            language={language}
-          />
-        </QuestionCard>
-      </div>
-
-      <div className={styles.footer}>
+      <div className={styles.navBar}>
         <button
           type="button"
           className={styles.navBtn}
@@ -144,16 +148,21 @@ export function SectionPlayer({ section, onSectionEnd }: SectionPlayerProps) {
           {t(language, 'QUESTION')} {currentSlide + 1} {t(language, 'OF')} {questions.length}
         </span>
 
-        {isLast ? (
+        {isLast && isLastSection ? (
+          // Final question of the final section → Submit.
           <button type="button" className={styles.submit} onClick={handleSubmit}>
             {t(language, 'SUBMIT')}
           </button>
         ) : (
+          // Otherwise Next: advances within the section, or to the next section
+          // when on a section's last question.
           <button
             type="button"
             className={styles.navBtn}
-            onClick={handleNext}
-            disabled={!canAdvance}
+            onClick={isLast ? handleSubmit : handleNext}
+            // Last question: enabled once answered (or section is skippable) so the
+            // learner can move to the next section. Otherwise gate on canAdvance.
+            disabled={isLast ? requireAnswer && !hasInteracted : !canAdvance}
             aria-label={t(language, 'NEXT')}
           >
             <span className={styles.navLabel}>{t(language, 'NEXT')}</span>
@@ -161,6 +170,34 @@ export function SectionPlayer({ section, onSectionEnd }: SectionPlayerProps) {
           </button>
         )}
       </div>
+
+      <div className={styles.content} ref={contentRef}>
+        <QuestionCard question={currentQuestion} meta={{ category: currentQuestion.primaryCategory }}>
+          <QuestionRenderer
+            key={currentQuestion.identifier}
+            question={currentQuestion}
+            onOptionSelected={handleQuestionAnswer}
+            onGoToNext={handleNext}
+          />
+
+          <Hint
+            hints={currentQuestion.hints}
+            solutions={currentQuestion.solutions}
+            canViewSolution={hasInteracted}
+            showHints={section?.showHints}
+            showSolutions={section?.showSolutions}
+            language={language}
+            mediaCtx={mediaCtx}
+          />
+        </QuestionCard>
+      </div>
+
+      <ImageViewer
+        state={zoom.state}
+        onClose={zoom.close}
+        onZoomIn={zoom.zoomIn}
+        onZoomOut={zoom.zoomOut}
+      />
 
       {currentAlert && (
         <Toast

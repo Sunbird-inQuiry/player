@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Web component build output (root only — NOT src/web-component/)
+/web-component/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

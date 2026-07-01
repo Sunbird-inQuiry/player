@@ -5,6 +5,7 @@ import { firstInteractionOptions, resolveLabel } from '../question-utils';
 import { fisherYatesShuffle } from '../../../utils/shuffle';
 import type { Option } from '../../../types';
 import type { QuestionComponentProps } from '../types';
+import type { MediaItem, MediaResolveContext } from '../../../utils/media';
 import styles from './ReoQuestion.module.scss';
 
 const ITEM_TYPE = 'reo-word';
@@ -49,12 +50,16 @@ export function ReoQuestion({
   question,
   replayed = false,
   language = 'en',
-  baseUrl = '',
+  mediaCtx,
   shuffleOptions = true,
   savedResponse = null,
   onOptionSelected,
   onComponentLoaded,
 }: QuestionComponentProps) {
+  const ctx: MediaResolveContext = {
+    ...mediaCtx,
+    media: mediaCtx?.media ?? (question.media as MediaItem[] | undefined),
+  };
   const options = useMemo(
     () => firstInteractionOptions(question),
     [question.identifier], // eslint-disable-line react-hooks/exhaustive-deps
@@ -111,7 +116,7 @@ export function ReoQuestion({
 
   return (
     <div className={styles.reo}>
-      <QuestionBody question={question} language={language} baseUrl={baseUrl} />
+      <QuestionBody question={question} language={language} mediaCtx={ctx} />
       <p className={styles.sectionLabel}>Your Answer</p>
       <div
         ref={answerRef}
@@ -129,10 +134,10 @@ export function ReoQuestion({
               type="button"
               className={styles.chip}
               disabled={replayed}
-              aria-label={`Remove ${resolveLabel(word.label, language, baseUrl)}`}
+              aria-label={`Remove ${resolveLabel(word.label, language, ctx)}`}
               onClick={() => removeWord(index)}
             >
-              <span dangerouslySetInnerHTML={{ __html: resolveLabel(word.label, language, baseUrl) }} />
+              <span dangerouslySetInnerHTML={{ __html: resolveLabel(word.label, language, ctx) }} />
               {!replayed && <span aria-hidden="true"> ×</span>}
             </button>
           ))
@@ -150,7 +155,7 @@ export function ReoQuestion({
                 <BankWord
                   key={`${opt.value}-${index}`}
                   option={opt}
-                  label={resolveLabel(opt.label, language, baseUrl)}
+                  label={resolveLabel(opt.label, language, ctx)}
                   disabled={replayed}
                   onAdd={addWord}
                 />

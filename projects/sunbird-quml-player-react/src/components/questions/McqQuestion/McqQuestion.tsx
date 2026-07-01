@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { QuestionBody } from '../../QuestionBody/QuestionBody';
 import { firstCardinality, firstInteractionOptions, resolveLabel } from '../question-utils';
 import type { QuestionComponentProps } from '../types';
+import type { MediaItem, MediaResolveContext } from '../../../utils/media';
 import styles from './McqQuestion.module.scss';
 
 /**
@@ -14,7 +15,7 @@ export function McqQuestion({
   question,
   replayed = false,
   language = 'en',
-  baseUrl = '',
+  mediaCtx,
   savedResponse = null,
   score = null,
   onOptionSelected,
@@ -22,6 +23,10 @@ export function McqQuestion({
 }: QuestionComponentProps) {
   const options = firstInteractionOptions(question);
   const isMultiple = firstCardinality(question) === 'multiple';
+  const ctx: MediaResolveContext = {
+    ...mediaCtx,
+    media: mediaCtx?.media ?? (question.media as MediaItem[] | undefined),
+  };
 
   const [selected, setSelected] = useState<Array<number | string>>([]);
   const loadedRef = useRef(false);
@@ -56,7 +61,7 @@ export function McqQuestion({
 
   return (
     <div className={styles.mcq}>
-      <QuestionBody question={question} language={language} baseUrl={baseUrl} />
+      <QuestionBody question={question} language={language} mediaCtx={ctx} />
 
       <div
         className={styles.options}
@@ -86,7 +91,7 @@ export function McqQuestion({
               </span>
               <span
                 className={styles.label}
-                dangerouslySetInnerHTML={{ __html: resolveLabel(opt.label, language, baseUrl) }}
+                dangerouslySetInnerHTML={{ __html: resolveLabel(opt.label, language, ctx) }}
               />
             </button>
           );

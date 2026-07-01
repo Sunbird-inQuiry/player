@@ -24,6 +24,28 @@ import type {
   UserResponse,
 } from '../types';
 
+/**
+ * Resolve the active UI language once at initialization.
+ * Precedence (superset of Angular main-player.component.ts:236, which used
+ * localStorage['app-language'] || 'en'):
+ *   1. playerConfig.config.language (if provided)
+ *   2. localStorage['app-language']
+ *   3. 'en'
+ * Read here only — Context stays the single source of truth thereafter.
+ */
+export function resolveInitialLanguage(config?: PlayerConfig['config'] | null): string {
+  if (config?.language) return config.language;
+  try {
+    if (typeof localStorage !== 'undefined') {
+      const stored = localStorage.getItem('app-language');
+      if (stored) return stored;
+    }
+  } catch {
+    // localStorage may be unavailable (SSR / privacy mode) — fall through.
+  }
+  return Languages.EN;
+}
+
 // Initial state shape
 export const initialState: AssessmentState = {
   // Config
@@ -94,7 +116,7 @@ export function qumlReducer(state: AssessmentState, action: QumlAction): Assessm
         playerConfig: action.payload,
         context: action.payload.context,
         config: action.payload.config,
-        language: action.payload.config?.language || Languages.EN,
+        language: resolveInitialLanguage(action.payload.config),
       };
 
     case QumlActionTypes.SET_SECTIONS:
@@ -211,7 +233,7 @@ interface QumlProviderProps {
 export function QumlProvider({ children, playerConfig }: QumlProviderProps) {
   const [state, dispatch] = useReducer(qumlReducer, {
     ...initialState,
-    language: playerConfig?.config?.language || Languages.EN,
+    language: resolveInitialLanguage(playerConfig?.config),
   });
 
   // Action creators (memoized)

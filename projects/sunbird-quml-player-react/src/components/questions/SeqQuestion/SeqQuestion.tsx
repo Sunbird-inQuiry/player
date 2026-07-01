@@ -5,6 +5,7 @@ import { firstInteractionOptions, resolveLabel } from '../question-utils';
 import { fisherYatesShuffle } from '../../../utils/shuffle';
 import type { Option } from '../../../types';
 import type { QuestionComponentProps } from '../types';
+import type { MediaItem, MediaResolveContext } from '../../../utils/media';
 import styles from './SeqQuestion.module.scss';
 
 const ITEM_TYPE = 'seq-item';
@@ -86,12 +87,16 @@ export function SeqQuestion({
   question,
   replayed = false,
   language = 'en',
-  baseUrl = '',
+  mediaCtx,
   shuffleOptions = true,
   savedResponse = null,
   onOptionSelected,
   onComponentLoaded,
 }: QuestionComponentProps) {
+  const ctx: MediaResolveContext = {
+    ...mediaCtx,
+    media: mediaCtx?.media ?? (question.media as MediaItem[] | undefined),
+  };
   const options = useMemo(
     () => firstInteractionOptions(question),
     [question.identifier], // eslint-disable-line react-hooks/exhaustive-deps
@@ -131,7 +136,7 @@ export function SeqQuestion({
 
   return (
     <div className={styles.seqWrap}>
-      <QuestionBody question={question} language={language} baseUrl={baseUrl} />
+      <QuestionBody question={question} language={language} mediaCtx={ctx} />
       <ol className={styles.seq} aria-label="Arrange in order">
         {items.map((item, index) => (
           <SeqRow
@@ -139,7 +144,7 @@ export function SeqQuestion({
             index={index}
             total={items.length}
             disabled={replayed}
-            label={resolveLabel(item.label, language, baseUrl)}
+            label={resolveLabel(item.label, language, ctx)}
             onMove={move}
             onNudge={(i, delta) => move(i, i + delta)}
           />

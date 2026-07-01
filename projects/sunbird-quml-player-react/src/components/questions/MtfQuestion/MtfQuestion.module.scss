@@ -7,111 +7,93 @@
   gap: v.$space-4;
 }
 
-.columns {
+// Brown board wrapping all match rows (matches the app's brick theme).
+.board {
   display: flex;
-  gap: v.$space-6;
+  flex-direction: column;
+  gap: v.$space-4;
+  padding: v.$space-5;
+  background: v.$brick;
+  border-radius: v.$r-lg;
+}
+
+$mtf-row-height: 6.5rem;
+
+// One row: [left prompt card] → [arrow] → [draggable right image].
+.row {
+  display: flex;
+  align-items: stretch;
+  gap: v.$space-4;
 
   @include m.mobile {
-    flex-direction: column;
-    gap: v.$space-4;
+    gap: v.$space-2;
   }
 }
 
-.leftCol {
+.leftCard,
+.rightCell {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: v.$space-3;
-}
-
-.rightCol {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: v.$space-2;
-  align-content: flex-start;
-}
-
-.leftRow {
   display: flex;
   align-items: center;
-  gap: v.$space-3;
-  padding: v.$space-3 v.$space-4;
+  justify-content: center;
+  height: $mtf-row-height;
+  padding: v.$space-3;
   background: v.$white;
-  border: 1.5px solid v.$gray-200;
   border-radius: v.$r-md;
-  transition: border-color v.$dur-fast v.$ease-out, background v.$dur-fast v.$ease-out;
+  box-sizing: border-box;
+  text-align: center;
 }
 
-.over {
-  border-color: v.$wave;
-  background: v.$info-bg;
-}
-
-.term {
-  flex: 1;
-  font-family: v.$ff-base;
-  font-size: v.$text-sm;
-  color: v.$g700;
-
-  :global(p) {
-    margin: 0;
-  }
-}
-
-// Drop slot showing the matched right option (replaces the old <select>).
-.slot {
-  @include m.focus-ring;
-
-  display: inline-flex;
-  align-items: center;
-  min-width: 140px;
-  min-height: 2.5rem;
-  padding: v.$space-2 v.$space-3;
-  border: 1.5px dashed v.$gray-300;
-  border-radius: v.$r-sm;
-  background: v.$g100;
-  font-family: v.$ff-base;
-  font-size: v.$text-sm;
-  color: v.$g700;
-  cursor: default;
-
-  :global(p) {
-    margin: 0;
-  }
-}
-
-// Filled slot — solid styling + clickable to clear the match.
-.slotFilled {
-  border-style: solid;
-  border-color: v.$brick;
-  background: v.$brick-lt;
-  color: v.$brick-shade;
-  font-weight: v.$fw-medium;
-  cursor: pointer;
-}
-
-.placeholder {
-  color: v.$gray-400;
-}
-
-.rightChip {
-  padding: v.$space-3 v.$space-4;
-  background: v.$white;
+.rightCell {
   border: 1.5px solid v.$gray-200;
-  border-radius: v.$r-md;
-  font-family: v.$ff-base;
-  font-size: v.$text-sm;
-  color: v.$g700;
   cursor: grab;
   box-shadow: v.$shadow-card;
+}
 
-  :global(p) {
-    margin: 0;
-  }
+.arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  font-size: 1.75rem;
+  color: v.$white;
+  opacity: 0.9;
 }
 
 .dragging {
   opacity: 0.45;
   border-color: v.$brick;
+}
+
+.over {
+  border: 2px dashed v.$brick;
+  background: v.$brick-lt;
+}
+
+.term {
+  font-family: v.$ff-base;
+  font-size: v.$text-sm;
+  color: v.$g700;
+
+  :global(p) {
+    margin: 0;
+  }
+}
+
+// Uniform option-image sizing across prompt cards and draggable right cells.
+.leftCard,
+.rightCell {
+  :global(figure.image) {
+    margin: 0;
+    display: inline-block;
+    position: relative;
+  }
+
+  :global(img) {
+    display: block;
+    height: 4.5rem;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+  }
 }

@@ -1,6 +1,7 @@
 import type { Question, Option } from '../../types';
 import { readI18n } from '../../i18n/translations';
 import { resolveMediaHtml } from '../../utils/media';
+import type { MediaResolveContext } from '../../utils/media';
 
 /** Options of the first responseN interaction (MCQ / SEQ / REO). */
 export function firstInteractionOptions(question: Question): Option[] {
@@ -34,9 +35,15 @@ export function responseKeys(question: Question): string[] {
 }
 
 /**
- * Resolve an option/answer label (string or I18nValue) to localized HTML, with
- * image references resolved (relative `<img src>` / asset variables → baseUrl).
+ * Resolve an option/answer label (string or I18nValue) to localized HTML with its
+ * media references resolved. The question's `media` MUST be supplied via `ctx` so
+ * `data-asset-variable` images in option labels resolve exactly like Angular
+ * (setImageZoom resolves ALL asset-variable images, including option labels).
  */
-export function resolveLabel(label: Option['label'], language: string, baseUrl = ''): string {
-  return resolveMediaHtml(readI18n(label, language), [], baseUrl);
+export function resolveLabel(
+  label: Option['label'],
+  language: string,
+  ctx: MediaResolveContext = {},
+): string {
+  return resolveMediaHtml(readI18n(label, language), ctx);
 }

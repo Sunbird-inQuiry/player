@@ -5,115 +5,91 @@ import { mtfColumns, resolveLabel } from '../question-utils';
 import { fisherYatesShuffle } from '../../../utils/shuffle';
 import type { Option } from '../../../types';
 import type { QuestionComponentProps } from '../types';
+import type { MediaItem, MediaResolveContext } from '../../../utils/media';
 import styles from './MtfQuestion.module.scss';
 
 const ITEM_TYPE = 'mtf-right';
 interface DragItem {
-  value: string;
+  index: number;
 }
 
-interface RightChipProps {
-  label: string;
-  value: string;
+interface RightCellProps {
+  option: Option;
+  index: number;
+  language: string;
+  mediaCtx: MediaResolveContext;
   disabled: boolean;
+  /** Swap the right images at positions `from` and `to`. */
+  onSwap: (from: number, to: number) => void;
 }
 
-function RightChip({ label, value, disabled }: RightChipProps) {
+/**
+ * A right-column image that is both a drag source and a drop target, so the
+ * learner rearranges the right images (by swapping) until the correct one sits
+ * next to each left prompt.
+ */
+function RightCell({ option, index, language, mediaCtx, disabled, onSwap }: RightCellProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [{ isDragging }, drag] = useDrag<DragItem, void, { isDragging: boolean }>({
     type: ITEM_TYPE,
-    item: { value },
+    item: { index },
     canDrag: !disabled,
     collect: (monitor) => ({ isDragging: monitor.isDragging() }),
   });
-  drag(ref);
+  const [{ isOver }, drop] = useDrop<DragItem, void, { isOver: boolean }>({
+    accept: ITEM_TYPE,
+    collect: (monitor) => ({ isOver: monitor.isOver() }),
+    drop: (item) => onSwap(item.index, index),
+  });
+  drag(drop(ref));
+
+  const label = resolveLabel(option.label, language, mediaCtx);
   return (
     <div
       ref={ref}
-      className={`${styles.rightChip} ${isDragging ? styles.dragging : ''}`.trim()}
+      className={`${styles.rightCell} ${isDragging ? styles.dragging : ''} ${isOver ? styles.over : ''}`.trim()}
       dangerouslySetInnerHTML={{ __html: label }}
     />
   );
 }
 
-interface LeftRowProps {
-  left: Option;
-  language: string;
-  baseUrl: string;
-  /** Label of the currently matched right option, or '' when unmatched. */
-  assignedLabel: string;
-  disabled: boolean;
-  onAssign: (leftValue: string, rightValue: string) => void;
-  onClear: (leftValue: string) => void;
-}
-
-function LeftRow({ left, language, baseUrl, assignedLabel, disabled, onAssign, onClear }: LeftRowProps) {
-  const leftValue = String(left.value);
-  const ref = useRef<HTMLDivElement>(null);
-  const [{ isOver }, drop] = useDrop<DragItem, void, { isOver: boolean }>({
-    accept: ITEM_TYPE,
-    collect: (monitor) => ({ isOver: monitor.isOver() }),
-    drop: (item) => onAssign(leftValue, item.value),
-  });
-  drop(ref);
-
-  const leftLabel = resolveLabel(left.label, language, baseUrl);
-  const isFilled = assignedLabel !== '';
-
-  return (
-    <div ref={ref} className={`${styles.leftRow} ${isOver ? styles.over : ''}`.trim()}>
-      <span className={styles.term} dangerouslySetInnerHTML={{ __html: leftLabel }} />
-      <button
-        type="button"
-        className={`${styles.slot} ${isFilled ? styles.slotFilled : ''}`.trim()}
-        aria-label={
-          isFilled ? `${leftLabel}: ${assignedLabel}. Clear match` : `Drop a match for ${leftLabel}`
-        }
-        disabled={disabled || !isFilled}
-        onClick={() => onClear(leftValue)}
-      >
-        {isFilled ? (
-          <span dangerouslySetInnerHTML={{ __html: assignedLabel }} />
-        ) : (
-          <span className={styles.placeholder}>—</span>
-        )}
-      </button>
-    </div>
-  );
-}
-
 /**
- * MTF (Match The Following) — pure renderer. Drag a right item onto a left row
- * (react-dnd) or use the per-row select (keyboard accessible). Emits
- * { matches: { leftValue: rightValue } }. Assumes a DndProvider ancestor.
+ * MTF (Match The Following) — pure renderer. Each left prompt sits on a row with
+ * its answer image on the right; the right images start shuffled and the learner
+ * drags/swaps them so the correct image lands next to each prompt. Emits
+ * { matches: { leftValue: rightValue } } (rightValue = whatever sits in that
+ * row's right cell). Assumes a DndProvider ancestor.
  */
 export function MtfQuestion({
   question,
   replayed = false,
   language = 'en',
-  baseUrl = '',
+  mediaCtx,
   shuffleOptions = true,
   savedResponse = null,
   onOptionSelected,
   onComponentLoaded,
 }: QuestionComponentProps) {
+  const ctx: MediaResolveContext = {
+    ...mediaCtx,
+    media: mediaCtx?.media ?? (question.media as MediaItem[] | undefined),
+  };
   const { left, right } = useMemo(
     () => mtfColumns(question),
     [question.identifier], // eslint-disable-line react-hooks/exhaustive-deps
   );
-  const rightOptions = useMemo(
-    () => (shuffleOptions ? fisherYatesShuffle(right) : right),
-    [right, shuffleOptions],
-  );
 
-  // value → resolved label, for showing the assigned match in a left slot.
-  const rightLabelByValue = useMemo(() => {
-    const map: Record<string, string> = {};
-    for (const r of right) map[String(r.value)] = resolveLabel(r.label, language, baseUrl);
-    return map;
-  }, [right, language, baseUrl]);
-
-  const [matches, setMatches] = useState<Record<string, string>>(() => savedResponse?.matches ?? {});
+  // Current right-image order (one per row). Restored from a saved arrangement,
+  // else shuffled so the initial layout is not already correct.
+  const [order, setOrder] = useState<Option[]>(() => {
+    const saved = savedResponse?.matches;
+    if (saved) {
+      const byValue = new Map(right.map((r) => [String(r.value), r]));
+      const restored = left.map((l) => byValue.get(String(saved[String(l.value)])));
+      if (restored.every(Boolean)) return restored as Option[];
+    }
+    return shuffleOptions ? fisherYatesShuffle(right) : [...right];
+  });
 
   const loadedRef = useRef(false);
   useEffect(() => {
@@ -123,53 +99,53 @@ export function MtfQuestion({
     }
   }, [question.identifier]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const assign = (leftValue: string, rightValue: string) => {
-    if (replayed) return;
-    const next = { ...matches };
-    if (rightValue === '') {
-      delete next[leftValue];
-    } else {
-      next[leftValue] = rightValue;
-    }
-    setMatches(next);
-    onOptionSelected?.({ matches: next, timestamp: Date.now() });
+  // matches[leftValue] = value of the right image currently in that row.
+  const emit = (nextOrder: Option[]) => {
+    const matches: Record<string, string> = {};
+    left.forEach((l, i) => {
+      if (nextOrder[i]) matches[String(l.value)] = String(nextOrder[i].value);
+    });
+    onOptionSelected?.({ matches, timestamp: Date.now() });
   };
 
-  const clear = (leftValue: string) => assign(leftValue, '');
+  const swap = (from: number, to: number) => {
+    if (replayed || from === to) return;
+    const next = [...order];
+    [next[from], next[to]] = [next[to], next[from]];
+    setOrder(next);
+    emit(next);
+  };
 
   return (
     <div className={styles.mtf}>
-      <QuestionBody question={question} language={language} baseUrl={baseUrl} />
-      <div className={styles.columns}>
-        <div className={styles.leftCol}>
-          {left.map((l) => {
-            const matchedValue = matches[String(l.value)] ?? '';
-            return (
-              <LeftRow
-                key={String(l.value)}
-                left={l}
+      <QuestionBody question={question} language={language} mediaCtx={ctx} />
+
+      {/* Brown board: each row is a left prompt with its answer image on the
+          right; the right images are draggable and swap on drop. */}
+      <div className={styles.board}>
+        {left.map((l, i) => (
+          <div className={styles.row} key={String(l.value)}>
+            <div className={styles.leftCard}>
+              <span
+                className={styles.term}
+                dangerouslySetInnerHTML={{ __html: resolveLabel(l.label, language, ctx) }}
+              />
+            </div>
+            <span className={styles.arrow} aria-hidden="true">
+              →
+            </span>
+            {order[i] && (
+              <RightCell
+                option={order[i]}
+                index={i}
                 language={language}
-                baseUrl={baseUrl}
-                assignedLabel={matchedValue ? rightLabelByValue[matchedValue] ?? '' : ''}
+                mediaCtx={ctx}
                 disabled={replayed}
-                onAssign={assign}
-                onClear={clear}
+                onSwap={swap}
               />
-            );
-          })}
-        </div>
-        {!replayed && (
-          <div className={styles.rightCol} aria-label="Match options">
-            {rightOptions.map((r) => (
-              <RightChip
-                key={String(r.value)}
-                value={String(r.value)}
-                label={resolveLabel(r.label, language, baseUrl)}
-                disabled={replayed}
-              />
-            ))}
+            )}
           </div>
-        )}
+        ))}
       </div>
     </div>
   );

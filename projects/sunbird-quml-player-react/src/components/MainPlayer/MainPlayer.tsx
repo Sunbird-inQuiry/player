@@ -14,6 +14,8 @@ import { ResultsScreen } from '../ResultsScreen/ResultsScreen';
 import { ReviewScreen } from '../ReviewScreen/ReviewScreen';
 import { t } from '../../i18n/translations';
 import { transformSection, transformQuestion } from '../../services/transformation-service';
+import { loadQuestionSet } from '../../services/data-service';
+import { QumlApiError } from '../../types/api';
 import { calculateScore } from '../../registry/scoring-registry';
 import type { Question, Section, PlayerConfig } from '../../types';
 import styles from './MainPlayer.module.scss';
@@ -49,10 +51,17 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     setSections,
     setCurrentSection,
     setCurrentQuestion,
+    setLoading,
+    setError,
+    clearError,
     resetState,
     setAttempt,
   } = useQuml();
   const language = state.language;
+
+  // Assessment-level metadata source for the overview. Embedded: playerConfig.data.
+  // Fetched: the raw questionset root returned by the data service.
+  const [metadata, setMetadata] = useState<Record<string, unknown>>({});
 
   const [stage, setStage] = useState<Stage>('overview');
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -67,27 +76,61 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
   const sectionIntrosEnabled =
     (playerConfig?.config as { showSectionIntro?: boolean } | undefined)?.showSectionIntro !== false;
 
-  // Initialize config + normalized sections from embedded data (no network in Phase 5).
+  // Initialize config + normalized sections.
+  //
+  // Two data sources, decided by shape (never both):
+  //   - EMBEDDED: playerConfig.data.sections is present → normalize inline (sync).
+  //   - FETCHED:  no embedded sections but an identifier → the data service
+  //     fetches the hierarchy + questions and returns normalized sections.
+  //
   // Extracted so Retake (spec §7.5) can re-initialize after resetState() — which
   // returns initialState and therefore clears playerConfig/sections.
-  const initializeFromConfig = useCallback(() => {
+  const initializeFromConfig = useCallback(async () => {
     if (!playerConfig) return;
     setPlayerConfig(playerConfig);
 
-    const rawSections = (playerConfig.data as { sections?: unknown[] } | undefined)?.sections ?? [];
-    const sections = rawSections
-      .map((raw) => {
-        const normalized = transformSection(raw);
-        if (!normalized) return null;
-        const children = (((raw as { children?: unknown[] }).children ?? []) as unknown[])
-          .map((q) => transformQuestion(q))
-          .filter((q): q is Question => Boolean(q));
-        return { ...normalized, children };
-      })
-      .filter((s): s is Section => Boolean(s));
+    const data = (playerConfig.data as Record<string, unknown> | undefined) ?? {};
+    const rawSections = (data.sections as unknown[] | undefined) ?? [];
 
-    setSections(sections);
-  }, [playerConfig, setPlayerConfig, setSections]);
+    // EMBEDDED path (unchanged behavior).
+    if (rawSections.length > 0) {
+      const sections = rawSections
+        .map((raw) => {
+          const normalized = transformSection(raw);
+          if (!normalized) return null;
+          const children = (((raw as { children?: unknown[] }).children ?? []) as unknown[])
+            .map((q) => transformQuestion(q))
+            .filter((q): q is Question => Boolean(q));
+          return { ...normalized, children };
+        })
+        .filter((s): s is Section => Boolean(s));
+      setMetadata(data);
+      setSections(sections);
+      return;
+    }
+
+    // FETCHED path — delegate ALL network + normalization to the data service.
+    const identifier = data.identifier as string | undefined;
+    if (!identifier) return;
+    // API base URL only — the content/asset base (config.baseUrl) is separate and
+    // used for image resolution, so it must NOT leak into API requests.
+    const baseUrl = (playerConfig.context?.host as string | undefined) ?? '';
+
+    setLoading(true);
+    try {
+      const { metadata: qsMetadata, sections } = await loadQuestionSet(identifier, {
+        baseUrl,
+        language: playerConfig.config?.language,
+      });
+      setMetadata(qsMetadata as Record<string, unknown>);
+      setSections(sections);
+      setLoading(false);
+    } catch (err) {
+      const message =
+        err instanceof QumlApiError ? err.message : 'Failed to load the assessment.';
+      setError(message);
+    }
+  }, [playerConfig, setPlayerConfig, setSections, setLoading, setError]);
 
   useEffect(() => {
     initializeFromConfig();
@@ -121,7 +164,7 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
 
   // Overview / details data, derived from Context + raw config (spec §6.1–§6.2).
   const overview = useMemo(() => {
-    const data = (playerConfig?.data as Record<string, unknown> | undefined) ?? {};
+    const data = metadata;
     const totalQuestions = state.sections.reduce((n, s) => n + s.children.length, 0);
     const maxScore = state.sections.reduce(
       (n, s) => n + s.children.reduce((m, q) => m + (q.maxScore ?? 1), 0),
@@ -140,7 +183,7 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
       maxScore,
       attemptsLeft: Math.max(0, (cfg.maxAttempts ?? 3) - (state.attemptNumber - 1)),
     };
-  }, [playerConfig, state.sections, state.attemptNumber, language]);
+  }, [metadata, playerConfig, state.sections, state.attemptNumber, language]);
 
   // Shell countdown: tick while inside the section-intro / assessment stages.
   useEffect(() => {
@@ -254,11 +297,23 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     setStage('assessment');
   };
 
-  if (!state.playerConfig) {
+  if (!state.playerConfig || state.loading) {
     return <div className={styles.status}>{t(language, 'LOADING')}</div>;
   }
   if (state.error) {
-    return <div className={styles.error}>{state.error}</div>;
+    // Retry: clear the error and re-run the fetch/normalize pipeline.
+    const handleRetry = () => {
+      clearError();
+      initializeFromConfig();
+    };
+    return (
+      <div className={styles.error}>
+        <p>{state.error}</p>
+        <button type="button" onClick={handleRetry}>
+          {t(language, 'RETRY')}
+        </button>
+      </div>
+    );
   }
 
   const currentSection = state.sections[state.currentSectionIndex];
@@ -322,6 +377,7 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
           key={state.currentSectionIndex}
           section={currentSection}
           onSectionEnd={handleSectionEnd}
+          isLastSection={state.currentSectionIndex === state.sections.length - 1}
         />
       );
 

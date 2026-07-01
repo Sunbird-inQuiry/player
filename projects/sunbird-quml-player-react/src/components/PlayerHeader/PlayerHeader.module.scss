@@ -201,6 +201,15 @@
   color: v.$danger;
 }
 
+.helpWrap {
+  position: relative;
+  display: flex;
+
+  @include m.mobile {
+    display: none;
+  }
+}
+
 .help {
   display: flex;
   align-items: center;
@@ -209,12 +218,79 @@
   height: 1.75rem;
   border-radius: v.$r-pill;
   border: 1.5px solid v.$gray-300;
+  background: transparent;
   color: v.$gray-500;
   font-size: v.$text-sm;
   font-weight: v.$fw-bold;
+  cursor: pointer;
 
-  @include m.mobile {
-    display: none;
+  &:hover,
+  &[aria-expanded='true'] {
+    border-color: v.$brick;
+    color: v.$brick;
+  }
+}
+
+.legendBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.legend {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 41;
+  min-width: 13.5rem;
+  padding: v.$space-4;
+  background: v.$white;
+  border: 1px solid v.$gray-200;
+  border-radius: v.$r-md;
+  box-shadow: v.$shadow-lg;
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-3;
+}
+
+.legendTitle {
+  margin: 0;
+  font-size: v.$text-xs;
+  font-weight: v.$fw-bold;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: v.$g500;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: v.$space-3;
+  font-size: v.$text-sm;
+  color: v.$g700;
+}
+
+.legendDot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: v.$r-pill;
+  background: v.$g100;
+  color: v.$gray-400;
+  font-size: v.$text-xs;
+  font-weight: v.$fw-bold;
+
+  &.active {
+    background: v.$brick;
+    color: v.$white;
+  }
+
+  &.completed {
+    background: v.$success-bg;
+    color: v.$success;
   }
 }
 
