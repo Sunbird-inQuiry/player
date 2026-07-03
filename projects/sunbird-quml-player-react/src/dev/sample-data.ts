@@ -238,7 +238,7 @@ export const sampleConfig: PlayerConfig = {
             body: '<p>The Great Wall of China is visible from space with the naked eye.</p>',
             primaryCategory: 'Boolean Question',
             qType: 'BOOL',
-            templateId: 'mcq-boolean',
+            templateId: 'boolean',
             interactions: {
               response1: {
                 type: 'choice',
@@ -267,7 +267,7 @@ export const sampleConfig: PlayerConfig = {
             body: '<p>Water boils at 100 °C at standard atmospheric pressure (1 atm).</p>',
             primaryCategory: 'Boolean Question',
             qType: 'BOOL',
-            templateId: 'mcq-boolean',
+            templateId: 'boolean',
             interactions: {
               response1: {
                 type: 'choice',
@@ -291,7 +291,7 @@ export const sampleConfig: PlayerConfig = {
             body: '<p>Light travels faster than sound.</p>',
             primaryCategory: 'Boolean Question',
             qType: 'BOOL',
-            templateId: 'mcq-boolean',
+            templateId: 'boolean',
             interactions: {
               response1: {
                 type: 'choice',
