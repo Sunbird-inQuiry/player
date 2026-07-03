@@ -16,7 +16,8 @@ export type ScoreFn = (question: Question, response: UserResponse | null) => num
 
 export const scoringRegistry = new Map<string, ScoreFn>([
   ['multiple choice question', calculateMCQScore],
-  ['subjective question', calculateSubjectiveScore], // full score once the answer is revealed
+  ['boolean question', calculateMCQScore],
+  ['subjective question', calculateSubjectiveScore],
   ['fill in the blank question', calculateFTBScore],
   ['ftb question', calculateFTBScore],
   ['match the following question', calculateMTFScore],

@@ -7,6 +7,7 @@
 
 import type { ComponentType } from 'react';
 import { McqQuestion } from '../components/questions/McqQuestion/McqQuestion';
+import { BooleanQuestion } from '../components/questions/BooleanQuestion/BooleanQuestion';
 import { SaQuestion } from '../components/questions/SaQuestion/SaQuestion';
 import { FtbQuestion } from '../components/questions/FtbQuestion/FtbQuestion';
 import { MtfQuestion } from '../components/questions/MtfQuestion/MtfQuestion';
@@ -22,6 +23,7 @@ export type QuestionComponent = ComponentType<any>;
 
 export const questionTypeRegistry = new Map<string, QuestionComponent>([
   ['multiple choice question', McqQuestion],
+  ['boolean question', BooleanQuestion],
   ['subjective question', SaQuestion],
   ['fill in the blank question', FtbQuestion],
   ['ftb question', FtbQuestion],

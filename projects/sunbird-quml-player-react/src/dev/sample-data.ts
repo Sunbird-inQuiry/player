@@ -5,8 +5,8 @@ import type { PlayerConfig } from '../types';
  * (App.tsx) so `npm run dev` renders the real player. NOT part of the
  * library/web-component build. Replace with real data via playerConfig.data.
  *
- * Shaped to mirror the Assessment Overview design: 6 sections / 9 questions,
- * 15-minute limit, covering all six question types.
+ * Shaped to mirror the Assessment Overview design: 7 sections / 12 questions,
+ * 15-minute limit, covering all question types including Boolean (True/False).
  */
 export const sampleConfig: PlayerConfig = {
   context: { uid: 'dev-user', sid: 'dev-session', channel: 'dev' },
@@ -223,6 +223,102 @@ export const sampleConfig: PlayerConfig = {
             body: '<p>What was the most challenging idea in this assessment, and how did you work through it?</p>',
             primaryCategory: 'Subjective Question',
             answer: '<p>Open reflection — describe the concept and the strategy you used to understand it.</p>',
+          },
+        ],
+      },
+      {
+        identifier: 'do_section_g',
+        name: 'True or False',
+        description: 'Decide whether each statement is true or false',
+        timeLimits: { questionSet: { max: 0, min: 0 } },
+        allowSkip: 'Yes',
+        children: [
+          {
+            identifier: 'do_bool_001',
+            body: '<p>The Great Wall of China is visible from space with the naked eye.</p>',
+            primaryCategory: 'Boolean Question',
+            qType: 'BOOL',
+            templateId: 'mcq-boolean',
+            interactions: {
+              response1: {
+                type: 'choice',
+                options: [
+                  { value: 0, label: 'True' },
+                  { value: 1, label: 'False' },
+                ],
+              },
+            },
+            responseDeclaration: {
+              response1: {
+                cardinality: 'single',
+                type: 'integer',
+                correctResponse: { value: 1 },
+                mapping: [{ value: 1, score: 1 }],
+              },
+            },
+            solutions: [
+              {
+                value: '<p><strong>False.</strong> The Great Wall is only about 15–30 feet wide — far too narrow to resolve from the International Space Station without aid.</p>',
+              },
+            ],
+          },
+          {
+            identifier: 'do_bool_002',
+            body: '<p>Water boils at 100 °C at standard atmospheric pressure (1 atm).</p>',
+            primaryCategory: 'Boolean Question',
+            qType: 'BOOL',
+            templateId: 'mcq-boolean',
+            interactions: {
+              response1: {
+                type: 'choice',
+                options: [
+                  { value: 0, label: 'True' },
+                  { value: 1, label: 'False' },
+                ],
+              },
+            },
+            responseDeclaration: {
+              response1: {
+                cardinality: 'single',
+                type: 'integer',
+                correctResponse: { value: 0 },
+                mapping: [{ value: 0, score: 1 }],
+              },
+            },
+          },
+          {
+            identifier: 'do_bool_003',
+            body: '<p>Light travels faster than sound.</p>',
+            primaryCategory: 'Boolean Question',
+            qType: 'BOOL',
+            templateId: 'mcq-boolean',
+            interactions: {
+              response1: {
+                type: 'choice',
+                options: [
+                  { value: 0, label: 'True' },
+                  { value: 1, label: 'False' },
+                ],
+              },
+            },
+            responseDeclaration: {
+              response1: {
+                cardinality: 'single',
+                type: 'integer',
+                correctResponse: { value: 0 },
+                mapping: [{ value: 0, score: 1 }],
+              },
+            },
+            hints: [
+              {
+                hint: '<p>Think about how quickly lightning and thunder reach you during a storm.</p>',
+              },
+            ],
+            solutions: [
+              {
+                value: '<p><strong>True.</strong> Light travels at ~3 × 10⁸ m/s in a vacuum; sound travels at ~343 m/s in air — roughly a million times slower.</p>',
+              },
+            ],
           },
         ],
       },
