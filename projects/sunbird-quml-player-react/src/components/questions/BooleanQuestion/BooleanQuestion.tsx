@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import type * as React from 'react';
 import { QuestionBody } from '../../QuestionBody/QuestionBody';
 import { firstInteractionOptions, resolveLabel } from '../question-utils';
 import type { QuestionComponentProps } from '../types';
@@ -10,7 +11,7 @@ import styles from './BooleanQuestion.module.scss';
  *
  * primaryCategory : 'boolean question'
  * qType           : 'BOOL'
- * templateId      : 'mcq-boolean'
+ * templateId      : 'boolean'
  *
  * Always has exactly 2 options (True / False) and is always single-cardinality.
  * Emits { value, timestamp } via onOptionSelected — same shape as MCQ single.
@@ -42,7 +43,7 @@ export function BooleanQuestion({
       loadedRef.current = true;
       onComponentLoaded?.();
     }
-  }, [question.identifier]);
+  }, [question.identifier]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (replayed) {
