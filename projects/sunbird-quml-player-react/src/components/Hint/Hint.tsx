@@ -9,12 +9,13 @@ import styles from './Hint.module.scss';
 /**
  * Hint + Solution reveal UI (spec §6.8).
  *
- * Pure UI over already-normalized question content. Visibility is PRESENCE-based —
- * an intentional deviation from Angular's section-flag gating (decided 2026-07-06,
- * superseding the earlier flag-gated behavior):
- * - "Show Hint" appears whenever the backend supplies hint content.
- * - "View Solution" appears whenever solution/answer content exists AND
- *   `canViewSolution` is true (learner has interacted).
+ * Pure UI over already-normalized question content. Visibility is gated by the
+ * section's showHints/showSolutions flags AND content presence (Angular parity —
+ * section-player.component.ts:241,244; alert...html:126-127):
+ * - "Show Hint" appears when `showHints` is true AND the backend supplied hints.
+ * - "View Solution" appears when `showSolutions` is true AND solution/answer
+ *   content exists AND `canViewSolution` is true (learner has interacted).
+ * Absent flags are falsy, so the buttons stay hidden unless the creator opts in.
  * No scoring, no Context mutation. HTML/KaTeX is rendered via QuestionBody.
  */
 export interface HintProps {
@@ -24,6 +25,10 @@ export interface HintProps {
   answer?: string | I18nValue;
   /** Unlock the View Solution button — set once the learner has interacted. */
   canViewSolution?: boolean;
+  /** Section flag: creator opted in to showing hints. Absent → hidden. */
+  showHints?: boolean;
+  /** Section flag: creator opted in to showing solutions. Absent → hidden. */
+  showSolutions?: boolean;
   language?: string;
   /** Media + offline resolution inputs so solution/hint assets resolve like the stem. */
   mediaCtx?: MediaResolveContext;
@@ -52,6 +57,8 @@ export function Hint({
   solutions = [],
   answer,
   canViewSolution = false,
+  showHints: showHintsFlag = false,
+  showSolutions: showSolutionsFlag = false,
   language = 'en',
   mediaCtx,
 }: HintProps) {
@@ -62,11 +69,12 @@ export function Hint({
   const solutionHtml = solutions.map((s) => extractHtml(s, language)).filter(Boolean);
   const answerText = readI18n(answer, language);
 
-  // Hint button: presence-based — shows whenever the backend sent hint content.
-  const hasHints = hintHtml.length > 0;
-  // Solution button: the learner has interacted (canViewSolution) AND there is
-  // solution/answer content to reveal.
-  const hasSolution = canViewSolution && (solutionHtml.length > 0 || Boolean(answerText));
+  // Hint button: section opted in (showHints) AND the backend sent hint content.
+  const hasHints = showHintsFlag && hintHtml.length > 0;
+  // Solution button: section opted in (showSolutions) AND the learner has
+  // interacted (canViewSolution) AND there is solution/answer content to reveal.
+  const hasSolution =
+    showSolutionsFlag && canViewSolution && (solutionHtml.length > 0 || Boolean(answerText));
 
   if (!hasHints && !hasSolution) return null;
 

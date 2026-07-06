@@ -12,13 +12,13 @@ import { PlayerHeader } from '../PlayerHeader/PlayerHeader';
 import { SubmitModal } from '../SubmitModal/SubmitModal';
 import { ResultsScreen } from '../ResultsScreen/ResultsScreen';
 import { ReviewScreen } from '../ReviewScreen/ReviewScreen';
-import { t } from '../../i18n/translations';
+import { t, readI18n } from '../../i18n/translations';
 import { transformSection, transformQuestion } from '../../services/transformation-service';
 import { loadQuestionSet } from '../../services/data-service';
 import { QumlApiError } from '../../types/api';
 import { calculateScore } from '../../registry/scoring-registry';
 import { isAnswered } from '../../utils/answered';
-import type { Question, Section, PlayerConfig } from '../../types';
+import type { Question, Section, PlayerConfig, I18nValue } from '../../types';
 import styles from './MainPlayer.module.scss';
 
 /**
@@ -175,8 +175,8 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
       ?.questionSet;
     const cfg = (playerConfig?.config as { maxAttempts?: number } | undefined) ?? {};
     return {
-      title: (data.name as string) || t(language, 'ASSESSMENT_OVERVIEW'),
-      description: data.description as string | undefined,
+      title: readI18n(data.name as I18nValue | undefined, language) || t(language, 'ASSESSMENT_OVERVIEW'),
+      description: readI18n(data.description as I18nValue | undefined, language) || undefined,
       instructions: data.instructions as string | undefined,
       totalQuestions,
       totalSections: state.sections.length,

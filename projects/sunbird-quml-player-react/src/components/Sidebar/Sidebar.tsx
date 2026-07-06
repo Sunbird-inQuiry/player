@@ -42,6 +42,7 @@ export function Sidebar({
           const total = section.children.length;
           const answered = answeredCount(section, answers);
           const blurb = readI18n(section.description, language);
+          const name = readI18n(section.name, language);
           const letter = String.fromCharCode(65 + index);
           return (
             <li key={section.identifier}>
@@ -58,7 +59,7 @@ export function Sidebar({
                   {letter}
                 </span>
                 <span className={styles.text}>
-                  <span className={styles.name}>{section.name}</span>
+                  <span className={styles.name}>{name}</span>
                   {blurb && <span className={styles.blurb}>{blurb}</span>}
                   <span className={styles.status}>
                     <span className={styles.answered}>✓ {answered}</span>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { t } from '../../i18n/translations';
+import { t, readI18n } from '../../i18n/translations';
 import { TimerIcon, MenuIcon } from '../icons';
 import type { Section } from '../../types';
 import styles from './PlayerHeader.module.scss';
@@ -97,7 +97,7 @@ export function PlayerHeader({
                 key={section.identifier}
                 className={`${styles.step} ${styles[status]}`}
                 aria-current={status === 'active' ? 'step' : undefined}
-                title={section.name}
+                title={readI18n(section.name, language)}
               >
                 <span className={styles.stepDot}>{String.fromCharCode(65 + index)}</span>
               </li>

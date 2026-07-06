@@ -68,7 +68,6 @@ export const initialState: AssessmentState = {
   // UI
   language: Languages.EN,
   showFeedback: false,
-  showSolutions: false,
   attemptNumber: 1,
 };
 

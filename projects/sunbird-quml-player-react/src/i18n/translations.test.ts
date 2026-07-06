@@ -52,6 +52,14 @@ describe('translations - readI18n()', () => {
   it('returns the original string when JSON is invalid', () => {
     expect(readI18n('{not json', 'en')).toBe('{not json');
   });
+
+  it('falls back to the first available key when neither lang nor en exist', () => {
+    expect(readI18n({ hi: 'Namaste' } as Record<string, string>, 'fr')).toBe('Namaste');
+  });
+
+  it('collapses a non-string language value to empty (no [object Object])', () => {
+    expect(readI18n({ en: { nested: 'x' } } as unknown as Record<string, string>, 'en')).toBe('');
+  });
 });
 
 describe('translations - keys + hasTranslation()', () => {

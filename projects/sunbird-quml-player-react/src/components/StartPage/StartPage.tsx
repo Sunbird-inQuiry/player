@@ -108,6 +108,7 @@ export function StartPage({
         <div className={styles.grid}>
           {sections.map((section, i) => {
             const blurb = readI18n(section.description, language);
+            const name = readI18n(section.name, language);
             const Tag = onSectionSelect ? 'button' : 'div';
             return (
               <Tag
@@ -127,7 +128,7 @@ export function StartPage({
                       {String.fromCharCode(65 + i)}
                     </span>
                   )}
-                  <span className={styles.cardName}>{section.name}</span>
+                  <span className={styles.cardName}>{name}</span>
                   <ChevronRightIcon size={18} className={styles.cardChevron} />
                 </div>
                 <span className={styles.cardCount}>{questionLabel(section.children.length)}</span>

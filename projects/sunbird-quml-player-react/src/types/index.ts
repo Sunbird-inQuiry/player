@@ -92,8 +92,8 @@ export interface Question {
 
 export interface Section {
   identifier: string;
-  name: string;
-  description?: string;
+  name: string | I18nValue;
+  description?: string | I18nValue;
   instructions?: I18nValue;
   children: Question[];
   maxScore?: number;
@@ -101,12 +101,21 @@ export interface Section {
   allowSkip: boolean;
   shuffle: boolean;
   showTimer?: boolean;
+  /**
+   * Gate the "View Solution" / "Show Hint" buttons (Angular parity —
+   * section-player.component.ts:241,244). Absent/undefined → falsy → button
+   * hidden, matching Angular's `processBooleanProps` (only converts when present).
+   * `transformSection` always sets these; optional here so partial test fixtures
+   * and other Section literals need not specify them.
+   */
+  showSolutions?: boolean;
+  showHints?: boolean;
 }
 
 export interface Assessment {
   identifier: string;
-  name: string;
-  description?: string;
+  name: string | I18nValue;
+  description?: string | I18nValue;
   sections: Section[];
   maxScore?: number;
   passingScore?: number;
@@ -182,7 +191,6 @@ export interface AssessmentState {
   answers: AnswersMap;
   language: string;
   showFeedback: boolean;
-  showSolutions: boolean;
   attemptNumber: number;
   loading: boolean;
   error: string | null;

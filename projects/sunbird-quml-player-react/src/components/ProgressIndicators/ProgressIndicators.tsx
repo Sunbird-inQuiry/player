@@ -1,4 +1,4 @@
-import { t } from '../../i18n/translations';
+import { t, readI18n } from '../../i18n/translations';
 import type { Section } from '../../types';
 import styles from './ProgressIndicators.module.scss';
 
@@ -66,7 +66,7 @@ export function SectionSteps({
             key={section.identifier}
             className={`${styles.step} ${styles[state]}`}
             aria-current={state === 'active' ? 'step' : undefined}
-            title={section.name}
+            title={readI18n(section.name, language)}
           >
             <span className={styles.dot} aria-hidden="true">
               {index + 1}

@@ -52,7 +52,7 @@ export function readI18n(field: string | I18nValue | null | undefined, language 
 
   // Object: { en: "...", ar: "..." }
   if (typeof field === 'object' && !Array.isArray(field)) {
-    return field[language] || field.en || '';
+    return pickLanguage(field, language);
   }
 
   // String (might be JSON)
@@ -60,8 +60,8 @@ export function readI18n(field: string | I18nValue | null | undefined, language 
     if (field.startsWith('{')) {
       try {
         const parsed = JSON.parse(field);
-        if (typeof parsed === 'object') {
-          return parsed[language] || parsed.en || field;
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          return pickLanguage(parsed, language) || field;
         }
       } catch {
         return field;
@@ -71,6 +71,20 @@ export function readI18n(field: string | I18nValue | null | undefined, language 
   }
 
   return '';
+}
+
+/**
+ * Pick a language value from an i18n map with fallback: target language →
+ * en → first available key. Always returns a string; non-string values
+ * (e.g. an object from malformed content) collapse to '' to avoid rendering
+ * '[object Object]'.
+ */
+function pickLanguage(map: Record<string, unknown>, language: string): string {
+  const first = Object.keys(map)[0];
+  const val = map[language] !== undefined ? map[language]
+            : map.en !== undefined ? map.en
+            : first !== undefined ? map[first] : '';
+  return typeof val === 'string' ? val : '';
 }
 
 /**

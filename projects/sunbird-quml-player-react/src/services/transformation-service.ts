@@ -163,7 +163,24 @@ export function transformSection(section: any): Section | null {
     shuffle: section.shuffle === true,
     timeLimits: transformTimeLimit(section.timeLimits),
     showTimer: section.showTimer !== false,
+    // Angular parity (processBooleanProps + section-player.component.ts:241,244):
+    // boolean as-is, 'Yes' → true, anything else (incl. absent) → false.
+    // Read top-level first, then `metadata` — Angular sources these from
+    // `sectionConfig.metadata` (:241,244), so tolerate either shape.
+    showSolutions: sectionBooleanFlag(section, 'showSolutions'),
+    showHints: sectionBooleanFlag(section, 'showHints'),
   };
+}
+
+/**
+ * Resolve a section boolean flag with Angular-compatible coercion, checking the
+ * top-level node first and falling back to `section.metadata` (Angular reads
+ * these from `sectionConfig.metadata`). Absent → false. Explicit false/'No' at
+ * the top level wins over metadata (only null/undefined falls through).
+ */
+function sectionBooleanFlag(section: any, key: string): boolean {
+  const raw = section[key] ?? section.metadata?.[key];
+  return raw === true || raw === 'Yes';
 }
 
 /**
@@ -182,41 +199,6 @@ function transformTimeLimit(timeLimits: any): TimeLimits {
     max: Number(timeLimits.questionSet.max) || 0,
     min: Number(timeLimits.questionSet.min) || 0,
   };
-}
-
-/**
- * Normalize an i18n field to a localized string.
- * Handles an I18nValue object ({ en, ar, ... }) or a JSON string.
- * @param language - Target language ('en', 'ar', 'fr', 'pt')
- */
-export function readI18nField(
-  field: string | I18nValue | null | undefined,
-  language = 'en',
-): string {
-  if (!field) return '';
-
-  // Handle I18nValue object: { en: "...", ar: "..." }
-  if (typeof field === 'object' && !Array.isArray(field)) {
-    return field[language] || field.en || '';
-  }
-
-  // Handle JSON string
-  if (typeof field === 'string') {
-    if (field.startsWith('{')) {
-      try {
-        const parsed = JSON.parse(field);
-        if (typeof parsed === 'object') {
-          return parsed[language] || parsed.en || field;
-        }
-      } catch {
-        // Not JSON, return as-is
-        return field;
-      }
-    }
-    return field;
-  }
-
-  return '';
 }
 
 /** Attach a previously saved response to a question (for answer restoration). */

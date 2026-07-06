@@ -239,6 +239,8 @@ export function SectionPlayer({ section, onSectionEnd, isLastSection = true }: S
             hints={currentQuestion.hints}
             solutions={currentQuestion.solutions}
             canViewSolution={hasInteracted}
+            showHints={section?.showHints}
+            showSolutions={section?.showSolutions}
             language={language}
             mediaCtx={mediaCtx}
           />

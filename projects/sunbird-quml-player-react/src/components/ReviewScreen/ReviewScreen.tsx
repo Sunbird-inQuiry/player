@@ -180,8 +180,11 @@ export function ReviewScreen({
               hints={question.hints}
               solutions={question.solutions}
               // In review the assessment is complete, so solutions are always
-              // unlocked — visibility is presence-based (content exists).
+              // unlocked (canViewSolution) — but still gated by the section's
+              // showHints/showSolutions flags, consistent with the live section.
               canViewSolution
+              showHints={currentSection?.showHints}
+              showSolutions={currentSection?.showSolutions}
               language={language}
               mediaCtx={mediaCtx}
             />
