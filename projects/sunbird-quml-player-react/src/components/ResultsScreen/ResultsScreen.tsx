@@ -18,48 +18,33 @@ export interface ResultsScreenProps {
     totalScore: number;
     maxScore: number;
   };
+  /** Total seconds spent answering (shell timer); null/omitted hides the line. */
+  timeTaken?: number | null;
   onReviewAll: () => void;
   onRetake: () => void;
   language?: string;
 }
 
-export function ResultsScreen({ summary, onReviewAll, onRetake, language = 'en' }: ResultsScreenProps) {
-  const { totalScore, maxScore } = summary;
-  const pct = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0;
+/** Format seconds as m:ss (matches the header timer display). */
+function formatMmSs(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${String(secs).padStart(2, '0')}`;
+}
 
-  // SVG ring geometry.
-  const radius = 54;
-  const circumference = 2 * Math.PI * radius;
-  const dash = (pct / 100) * circumference;
+export function ResultsScreen({
+  summary,
+  timeTaken = null,
+  onReviewAll,
+  onRetake,
+  language = 'en',
+}: ResultsScreenProps) {
+  const { totalScore } = summary;
 
   return (
     <section className={styles.results} aria-label={t(language, 'YOUR_RESULTS')}>
       <div className={styles.card}>
         <h1 className={styles.title}>{t(language, 'YOUR_RESULTS')}</h1>
-
-        <div
-          className={styles.ring}
-          role="img"
-          aria-label={t(language, 'RESULT_SUMMARY', { score: totalScore, max: maxScore })}
-        >
-          <svg viewBox="0 0 120 120" className={styles.ringSvg}>
-            <circle className={styles.ringTrack} cx="60" cy="60" r={radius} />
-            <circle
-              className={styles.ringFill}
-              cx="60"
-              cy="60"
-              r={radius}
-              strokeDasharray={`${dash} ${circumference}`}
-              transform="rotate(-90 60 60)"
-            />
-          </svg>
-          <div className={styles.ringCenter}>
-            <span className={styles.pct}>{pct}%</span>
-            <span className={styles.scoreText}>
-              {totalScore}/{maxScore}
-            </span>
-          </div>
-        </div>
 
         <Scoreboard
           correct={summary.correct}
@@ -67,8 +52,13 @@ export function ResultsScreen({ summary, onReviewAll, onRetake, language = 'en' 
           partial={summary.partial}
           skipped={summary.skipped}
           totalScore={totalScore}
-          maxScore={maxScore}
         />
+
+        {timeTaken != null && (
+          <p className={styles.timeTaken}>
+            {t(language, 'TIME_TAKEN')}: <strong>{formatMmSs(timeTaken)}</strong>
+          </p>
+        )}
 
         <div className={styles.actions}>
           <button type="button" className={styles.reviewBtn} onClick={onReviewAll}>

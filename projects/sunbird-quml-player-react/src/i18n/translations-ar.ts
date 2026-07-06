@@ -32,6 +32,7 @@ export const translations: Record<string, string> = {
 
   // Timer
   TIME_REMAINING: 'الوقت المتبقّي',
+  TIME_TAKEN: 'الوقت المستغرق',
   TIME_UP: 'انتهى الوقت!',
   SECONDS: 'ثوانٍ',
   MINUTES: 'دقائق',

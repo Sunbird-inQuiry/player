@@ -31,49 +31,8 @@
   color: v.$g900;
 }
 
-.ring {
-  position: relative;
-  width: 9rem;
-  height: 9rem;
-  margin: 0 auto v.$space-8;
-}
-
-.ringSvg {
-  width: 100%;
-  height: 100%;
-}
-
-.ringTrack {
-  fill: none;
-  stroke: v.$gray-200;
-  stroke-width: 10;
-}
-
-.ringFill {
-  fill: none;
-  stroke: v.$brick;
-  stroke-width: 10;
-  stroke-linecap: round;
-  transition: stroke-dasharray v.$dur-slow v.$ease-out;
-}
-
-.ringCenter {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.pct {
-  font-size: v.$text-2xl;
-  font-weight: v.$fw-bold;
-  color: v.$brick;
-  font-variant-numeric: tabular-nums;
-}
-
-.scoreText {
+.timeTaken {
+  margin: v.$space-4 0 0;
   font-size: v.$text-sm;
   color: v.$gray-500;
   font-variant-numeric: tabular-nums;

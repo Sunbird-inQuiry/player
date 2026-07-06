@@ -5,12 +5,21 @@ import { ResultsScreen } from './ResultsScreen';
 const summary = { correct: 6, incorrect: 2, partial: 1, skipped: 0, totalScore: 7, maxScore: 10 };
 
 describe('ResultsScreen', () => {
-  it('shows the percentage ring and reuses the Scoreboard stat card', () => {
+  it('shows the earned score (no percentage, no denominator) via the Scoreboard', () => {
     render(<ResultsScreen summary={summary} onReviewAll={vi.fn()} onRetake={vi.fn()} />);
-    expect(screen.getByText('70%')).toBeInTheDocument(); // 7/10
     expect(screen.getByRole('region', { name: /quiz summary/i })).toBeInTheDocument();
+    expect(screen.getByText('7')).toBeInTheDocument(); // earned score
+    expect(screen.queryByText(/%/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/\/10/)).not.toBeInTheDocument();
     // Reused Scoreboard must NOT render its own Submit button here.
     expect(screen.queryByRole('button', { name: /^submit$/i })).not.toBeInTheDocument();
+  });
+
+  it('shows the time taken when provided', () => {
+    render(
+      <ResultsScreen summary={summary} timeTaken={204} onReviewAll={vi.fn()} onRetake={vi.fn()} />,
+    );
+    expect(screen.getByText('3:24')).toBeInTheDocument();
   });
 
   it('fires Review-all and Retake', () => {
@@ -21,16 +30,5 @@ describe('ResultsScreen', () => {
     fireEvent.click(screen.getByRole('button', { name: /retake/i }));
     expect(onReviewAll).toHaveBeenCalledTimes(1);
     expect(onRetake).toHaveBeenCalledTimes(1);
-  });
-
-  it('handles a zero max score without dividing by zero', () => {
-    render(
-      <ResultsScreen
-        summary={{ ...summary, totalScore: 0, maxScore: 0 }}
-        onReviewAll={vi.fn()}
-        onRetake={vi.fn()}
-      />,
-    );
-    expect(screen.getByText('0%')).toBeInTheDocument();
   });
 });

@@ -102,7 +102,24 @@ describe('MainPlayer', () => {
     expect(screen.getByRole('button', { name: /start assessment/i })).toBeInTheDocument();
   });
 
-  it('pauses the countdown during section intro and runs it only in the assessment', () => {
+  it('count-up timer runs from Start (including section intros) when there is no limit', () => {
+    vi.useFakeTimers();
+    try {
+      renderPlayer(); // cfg has timeLimits max 0 → count-up mode
+      fireEvent.click(screen.getByRole('button', { name: /start assessment/i }));
+      // The clock runs through the section intro (switching sections doesn't pause it).
+      act(() => vi.advanceTimersByTime(3000));
+      expect(screen.getByRole('timer')).toHaveTextContent('0:03');
+      // …and keeps ticking inside the assessment.
+      fireEvent.click(screen.getByRole('button', { name: /start section/i }));
+      act(() => vi.advanceTimersByTime(2000));
+      expect(screen.getByRole('timer')).toHaveTextContent('0:05');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('countdown runs from Start (including section intros)', () => {
     vi.useFakeTimers();
     try {
       // 5:00 assessment limit (read from data.timeLimits.questionSet.max).
@@ -116,15 +133,12 @@ describe('MainPlayer', () => {
         </QumlProvider>,
       );
       fireEvent.click(screen.getByRole('button', { name: /start assessment/i }));
-      // In the section intro the clock is paused — time does not advance.
-      expect(screen.getByText('5:00')).toBeInTheDocument();
+      // The countdown ticks during the section intro too.
       act(() => vi.advanceTimersByTime(3000));
-      expect(screen.getByText('5:00')).toBeInTheDocument();
-      // Entering the assessment starts the countdown.
+      expect(screen.getByText('4:57')).toBeInTheDocument();
       fireEvent.click(screen.getByRole('button', { name: /start section/i }));
       act(() => vi.advanceTimersByTime(2000));
-      expect(screen.queryByText('5:00')).not.toBeInTheDocument();
-      expect(screen.getByText('4:58')).toBeInTheDocument();
+      expect(screen.getByText('4:55')).toBeInTheDocument();
     } finally {
       vi.useRealTimers();
     }

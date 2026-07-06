@@ -12,15 +12,14 @@ describe('Scoreboard', () => {
     expect(screen.getByText('3')).toBeInTheDocument();
   });
 
-  it('renders score / maxScore', () => {
-    render(<Scoreboard totalScore={8} maxScore={11} />);
+  it('renders the earned score without a denominator', () => {
+    render(<Scoreboard totalScore={8} />);
     expect(screen.getByText('8')).toBeInTheDocument();
-    expect(screen.getByText(/\/11/)).toBeInTheDocument();
+    expect(screen.queryByText(/\//)).not.toBeInTheDocument();
   });
 
   it('uses defaults when props are omitted', () => {
     render(<Scoreboard />);
-    expect(screen.getByText(/\/100/)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /quiz summary/i })).toBeInTheDocument();
   });
 

@@ -13,7 +13,6 @@ interface ScoreboardProps {
   partial?: number;
   skipped?: number;
   totalScore?: number;
-  maxScore?: number;
   onSubmit?: () => void;
 }
 
@@ -23,7 +22,6 @@ export function Scoreboard({
   partial = 0,
   skipped = 0,
   totalScore = 0,
-  maxScore = 100,
   onSubmit,
 }: ScoreboardProps) {
   const stats: Array<{ key: string; label: string; value: number; variant: string }> = [
@@ -47,7 +45,7 @@ export function Scoreboard({
       </dl>
 
       <p className={styles.score}>
-        Score: <strong>{totalScore}</strong>/{maxScore}
+        Score: <strong>{totalScore}</strong>
       </p>
 
       {onSubmit && (

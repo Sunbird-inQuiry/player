@@ -186,15 +186,17 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     };
   }, [metadata, playerConfig, state.sections, state.attemptNumber, language]);
 
-  // Shell countdown. Matches Angular: the clock only runs while the learner is
-  // actively taking the assessment. It PAUSES on Start/Overview, Section Intro,
-  // Results and Review (the effect early-returns for those stages, freezing
-  // `timeRemaining`). Remaining time is derived from a fixed deadline timestamp
-  // rather than by decrementing per tick, so re-creating the interval at each
+  // Stages where the exam clock runs: once started, it keeps ticking through
+  // section intros (switching sections doesn't stop the clock). It PAUSES on
+  // Start/Overview, Results and Review.
+  const isClockRunning = stage === 'assessment' || stage === 'sectionIntro';
+
+  // Shell countdown. Remaining time is derived from a fixed deadline timestamp
+  // rather than by decrementing per tick, so re-creating the interval at a
   // stage boundary can't accumulate drift.
   const deadlineRef = useRef<number | null>(null);
   useEffect(() => {
-    if (stage !== 'assessment' || timeRemaining == null) {
+    if (!isClockRunning || timeRemaining == null) {
       deadlineRef.current = null;
       return;
     }
@@ -207,9 +209,27 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
       if (remaining <= 0) clearInterval(id);
     }, 250);
     return () => clearInterval(id);
-    // Re-anchor only when entering/leaving the assessment stage, NOT every tick.
+    // Re-anchor only when the clock starts/stops, NOT every tick.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stage]);
+  }, [isClockRunning]);
+
+  // Count-up elapsed timer (Angular header showCountUp parity): when the
+  // assessment has NO time limit, the header shows time spent instead of a
+  // countdown. Same run/pause semantics as the countdown, anchored to a
+  // timestamp so it never drifts.
+  const [timeElapsed, setTimeElapsed] = useState(0);
+  const elapsedAnchorRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (!isClockRunning || overview.timeLimit > 0) return;
+    elapsedAnchorRef.current = Date.now() - timeElapsed * 1000;
+    const id = setInterval(() => {
+      setTimeElapsed(Math.floor((Date.now() - elapsedAnchorRef.current!) / 1000));
+    }, 250);
+    return () => clearInterval(id);
+    // Re-anchor only when the clock starts/stops; timeElapsed is read once as
+    // the resume point.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isClockRunning, overview.timeLimit]);
 
   // Time up → auto-submit straight to results (no confirmation dialog).
   useEffect(() => {
@@ -284,6 +304,7 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     initializeFromConfig();
     setAttempt(nextAttempt);
     setTimeRemaining(null);
+    setTimeElapsed(0);
     setSubmitDialog(false);
     setStage('overview');
   };
@@ -351,9 +372,16 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
       />
     );
   } else if (stage === 'results') {
+    // Total time spent: countdown mode → limit minus what was left; count-up
+    // mode → the elapsed counter (both tick only during the assessment stage).
+    const timeTaken =
+      overview.timeLimit > 0
+        ? overview.timeLimit - (timeRemaining ?? overview.timeLimit)
+        : timeElapsed;
     content = (
       <ResultsScreen
         summary={summary}
+        timeTaken={timeTaken}
         onReviewAll={handleReviewAll}
         onRetake={handleRetake}
         language={language}
@@ -392,6 +420,9 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
         />
       );
 
+    // The header timer ALWAYS shows (intentional deviation from Angular's
+    // content-driven showTimer flag): countdown when a time limit exists,
+    // count-up elapsed otherwise.
     content = (
       <>
         <PlayerHeader
@@ -400,6 +431,7 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
           currentSectionIndex={state.currentSectionIndex}
           completed={completed}
           timeRemaining={timeRemaining}
+          timeElapsed={overview.timeLimit === 0 ? timeElapsed : null}
           questionNumber={globalQuestionNumber}
           totalQuestions={overview.totalQuestions}
           onSubmit={handleSubmitAssessment}

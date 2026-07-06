@@ -42,6 +42,11 @@ describe('StartPage', () => {
     expect(screen.getByText(/progress is saved/i)).toBeInTheDocument();
   });
 
+  it('omits the minutes tile when there is no time limit', () => {
+    render(<StartPage {...baseProps} timeLimit={0} />);
+    expect(screen.queryByText(/minutes/i)).not.toBeInTheDocument();
+  });
+
   it('emits onStart when the CTA is clicked', () => {
     const onStart = vi.fn();
     render(<StartPage {...baseProps} onStart={onStart} />);

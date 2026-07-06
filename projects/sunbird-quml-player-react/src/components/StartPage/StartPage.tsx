@@ -40,7 +40,6 @@ export interface StartPageProps {
 
 /** Format seconds as mm:ss (e.g. 900 → "15:00"). */
 function formatMinutes(seconds: number): string {
-  if (seconds <= 0) return '—';
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
   return `${mins}:${String(secs).padStart(2, '0')}`;
@@ -63,7 +62,10 @@ export function StartPage({
 
   const stats = [
     { key: 'q', icon: <ClipboardIcon size={20} />, label: t(language, 'QUESTIONS'), value: String(totalQuestions) },
-    { key: 'm', icon: <TimerIcon size={20} />, label: t(language, 'MINUTES_LABEL'), value: formatMinutes(timeLimit) },
+    // No time limit → omit the tile entirely (nothing meaningful to show).
+    ...(timeLimit > 0
+      ? [{ key: 'm', icon: <TimerIcon size={20} />, label: t(language, 'MINUTES_LABEL'), value: formatMinutes(timeLimit) }]
+      : []),
     { key: 's', icon: <GridIcon size={20} />, label: t(language, 'SECTIONS'), value: String(totalSections) },
     { key: 'a', icon: <AttemptsIcon size={20} />, label: t(language, 'ATTEMPTS_LEFT'), value: String(attemptsLeft) },
   ];

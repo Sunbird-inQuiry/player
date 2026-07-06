@@ -16,8 +16,13 @@ export interface PlayerHeaderProps {
   sections: Section[];
   currentSectionIndex: number;
   completed: boolean[];
-  /** Seconds remaining; null/omitted hides the timer. */
+  /** Seconds remaining (countdown mode); null/omitted hides the countdown. */
   timeRemaining?: number | null;
+  /**
+   * Seconds elapsed (count-up mode — Angular header showCountUp parity, shown
+   * when there is no time limit). Ignored while a countdown is active.
+   */
+  timeElapsed?: number | null;
   questionNumber: number;
   totalQuestions: number;
   onSubmit: () => void;
@@ -39,6 +44,7 @@ export function PlayerHeader({
   currentSectionIndex,
   completed,
   timeRemaining = null,
+  timeElapsed = null,
   questionNumber,
   totalQuestions,
   onSubmit,
@@ -46,8 +52,10 @@ export function PlayerHeader({
   onBrandClick,
   language = 'en',
 }: PlayerHeaderProps) {
-  const showTimer = timeRemaining != null;
-  const isTimeLow = showTimer && timeRemaining <= 60;
+  // Countdown takes precedence; count-up shows when there is no time limit.
+  const showCountdown = timeRemaining != null;
+  const showTimer = showCountdown || timeElapsed != null;
+  const isTimeLow = showCountdown && timeRemaining <= 60;
   const [showLegend, setShowLegend] = useState(false);
 
   return (
@@ -106,7 +114,9 @@ export function PlayerHeader({
             aria-label={t(language, 'TIME_REMAINING')}
           >
             <TimerIcon size={16} />
-            <span className={styles.timerValue}>{formatMmSs(timeRemaining)}</span>
+            <span className={styles.timerValue}>
+              {formatMmSs(showCountdown ? timeRemaining! : timeElapsed!)}
+            </span>
           </div>
         )}
 
