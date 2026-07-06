@@ -5,6 +5,16 @@ import { QumlProvider } from '../../context/QumlContext';
 import { SectionPlayer } from './SectionPlayer';
 import type { PlayerConfig, Question, Section } from '../../types';
 
+// Capture ASSESS telemetry so we can assert the emitted score/maxScore pair.
+const { logAnswerSubmitted } = vi.hoisted(() => ({ logAnswerSubmitted: vi.fn() }));
+vi.mock('../../context/useTelemetry', () => ({
+  useTelemetry: () => ({
+    logOptionSelected: vi.fn(),
+    logAnswerSubmitted,
+    logPageViewed: vi.fn(),
+  }),
+}));
+
 const cfg: PlayerConfig = { context: {}, config: { language: 'en' } };
 
 const mcq = (id: string): Question =>
@@ -85,5 +95,15 @@ describe('SectionPlayer', () => {
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
     fireEvent.click(screen.getByRole('button', { name: /submit/i }));
     expect(onSectionEnd).toHaveBeenCalledTimes(1);
+  });
+
+  it('ASSESS telemetry emits earned marks (fraction × maxScore), not the fraction', () => {
+    logAnswerSubmitted.mockClear();
+    // A 2-mark MCQ, answered correctly → fraction 1 → earned 2 (must match results).
+    const q2 = { ...mcq('q1'), maxScore: 2 } as Question;
+    const twoMarkSection: Section = { ...section, children: [q2, mcq('q2')] };
+    wrap(<SectionPlayer section={twoMarkSection} />);
+    fireEvent.click(screen.getAllByRole('radio')[0]); // correct option (value 0)
+    expect(logAnswerSubmitted).toHaveBeenLastCalledWith('q1', expect.anything(), 2, 2);
   });
 });

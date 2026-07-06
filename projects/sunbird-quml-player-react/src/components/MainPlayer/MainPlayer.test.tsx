@@ -101,4 +101,32 @@ describe('MainPlayer', () => {
     fireEvent.click(screen.getByRole('button', { name: /retake/i }));
     expect(screen.getByRole('button', { name: /start assessment/i })).toBeInTheDocument();
   });
+
+  it('pauses the countdown during section intro and runs it only in the assessment', () => {
+    vi.useFakeTimers();
+    try {
+      // 5:00 assessment limit (read from data.timeLimits.questionSet.max).
+      const timedCfg = {
+        ...cfg,
+        data: { ...(cfg.data as object), timeLimits: { questionSet: { max: 300, min: 0 } } },
+      } as PlayerConfig;
+      render(
+        <QumlProvider playerConfig={timedCfg}>
+          <MainPlayer playerConfig={timedCfg} />
+        </QumlProvider>,
+      );
+      fireEvent.click(screen.getByRole('button', { name: /start assessment/i }));
+      // In the section intro the clock is paused — time does not advance.
+      expect(screen.getByText('5:00')).toBeInTheDocument();
+      act(() => vi.advanceTimersByTime(3000));
+      expect(screen.getByText('5:00')).toBeInTheDocument();
+      // Entering the assessment starts the countdown.
+      fireEvent.click(screen.getByRole('button', { name: /start section/i }));
+      act(() => vi.advanceTimersByTime(2000));
+      expect(screen.queryByText('5:00')).not.toBeInTheDocument();
+      expect(screen.getByText('4:58')).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

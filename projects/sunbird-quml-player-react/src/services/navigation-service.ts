@@ -1,3 +1,4 @@
+import { isAnswered } from '../utils/answered';
 import type { Question, AnswersMap } from '../types';
 
 /**
@@ -32,8 +33,7 @@ export function canGoToNextQuestion(
   // If requireAnswer is true, user must answer current question
   if (requireAnswer) {
     const currentQuestion = questions[currentIndex];
-    const hasAnswer = answers[currentQuestion.identifier];
-    return !!hasAnswer;
+    return isAnswered(answers[currentQuestion.identifier]);
   }
 
   return true;

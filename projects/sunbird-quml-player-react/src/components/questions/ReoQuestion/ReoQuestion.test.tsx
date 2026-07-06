@@ -49,6 +49,20 @@ describe('ReoQuestion', () => {
     expect(onOptionSelected).toHaveBeenLastCalledWith(expect.objectContaining({ order: [] }));
   });
 
+  it('returns a removed word to the bank exactly once (no loss/duplication)', () => {
+    const onOptionSelected = vi.fn();
+    withDnd(
+      <ReoQuestion question={reoQuestion} shuffleOptions={false} onOptionSelected={onOptionSelected} />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Water' })); // add
+    fireEvent.click(screen.getByRole('button', { name: /remove water/i })); // remove
+    // Exactly one "Water" control exists — back in the bank, not duplicated/lost.
+    expect(screen.getAllByRole('button', { name: 'Water' })).toHaveLength(1);
+    // And it can be re-added, emitting the correct order.
+    fireEvent.click(screen.getByRole('button', { name: 'Water' }));
+    expect(onOptionSelected).toHaveBeenLastCalledWith(expect.objectContaining({ order: ['w1'] }));
+  });
+
   it('restores saved order and locks in replay mode', () => {
     withDnd(<ReoQuestion question={reoQuestion} replayed savedResponse={{ order: ['w3', 'w1'] }} />);
     // bank not shown in replay; selected chips are present but disabled

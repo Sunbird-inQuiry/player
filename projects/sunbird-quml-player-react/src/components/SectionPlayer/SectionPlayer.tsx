@@ -10,6 +10,7 @@ import { useImageZoom } from '../ImageViewer/useImageZoom';
 import { PreviousIcon, NextIcon } from '../icons';
 import { t } from '../../i18n/translations';
 import { calculateScore } from '../../registry/scoring-registry';
+import { isAnswered } from '../../utils/answered';
 import { canGoToNextQuestion, isQuestionSkippable } from '../../services/navigation-service';
 import type { MediaItem, MediaResolveContext } from '../../utils/media';
 import type { Question, Section, UserResponse } from '../../types';
@@ -89,15 +90,23 @@ export function SectionPlayer({ section, onSectionEnd, isLastSection = true }: S
     storeAnswer(currentQuestion.identifier, answer);
 
     const selected =
-      answer.values ?? answer.value ?? answer.order ?? answer.responses ?? answer.matches;
+      answer.value ?? answer.order ?? answer.responses ?? answer.matches;
     logOptionSelected(currentQuestion.identifier, selected as string | string[]);
 
-    const score = calculateScore(currentQuestion, answer);
+    // An empty response (e.g. everything de-selected, a cleared blank) is not an
+    // attempt: skip the ASSESS event so it isn't counted or scored.
+    if (!isAnswered(answer)) return;
+
+    // calculateScore returns a 0..1 fraction; ASSESS must carry the EARNED marks
+    // (fraction × maxScore) so the reported score/maxScore pair is consistent
+    // with the results screen (which also scales by maxScore).
+    const maxScore = currentQuestion.maxScore ?? 1;
+    const earned = calculateScore(currentQuestion, answer) * maxScore;
     logAnswerSubmitted(
       currentQuestion.identifier,
       selected as string | string[],
-      score,
-      currentQuestion.maxScore ?? 1,
+      earned,
+      maxScore,
     );
   };
 
@@ -111,7 +120,7 @@ export function SectionPlayer({ section, onSectionEnd, isLastSection = true }: S
   const proceedWithFeedback = (proceed: () => void) => {
     const currentQuestion = questions[currentSlide];
     const answer = currentQuestion ? state.answers[currentQuestion.identifier] : undefined;
-    if (state.config?.showFeedback === false || !currentQuestion || !answer) {
+    if (state.config?.showFeedback === false || !currentQuestion || !isAnswered(answer)) {
       proceed();
       return;
     }
@@ -163,7 +172,7 @@ export function SectionPlayer({ section, onSectionEnd, isLastSection = true }: S
   const isLast = currentSlide === questions.length - 1;
   // "View Solution" unlocks once the learner has interacted with this question
   // (an answer is stored for it in Context).
-  const hasInteracted = Boolean(state.answers[currentQuestion.identifier]);
+  const hasInteracted = isAnswered(state.answers[currentQuestion.identifier]);
 
   // Media-resolution context for solution/hint assets (mirrors QuestionRenderer).
   const offline = state.playerConfig?.metadata;
@@ -221,6 +230,7 @@ export function SectionPlayer({ section, onSectionEnd, isLastSection = true }: S
           <QuestionRenderer
             key={currentQuestion.identifier}
             question={currentQuestion}
+            shuffleOptions={currentQuestion.shuffleOptions}
             onOptionSelected={handleQuestionAnswer}
             onGoToNext={handleNext}
           />
@@ -229,8 +239,6 @@ export function SectionPlayer({ section, onSectionEnd, isLastSection = true }: S
             hints={currentQuestion.hints}
             solutions={currentQuestion.solutions}
             canViewSolution={hasInteracted}
-            showHints={section?.showHints}
-            showSolutions={section?.showSolutions}
             language={language}
             mediaCtx={mediaCtx}
           />

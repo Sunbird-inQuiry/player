@@ -1,4 +1,5 @@
 import { t } from '../../i18n/translations';
+import { isAnswered } from '../../utils/answered';
 import type { Question, AnswersMap } from '../../types';
 import styles from './QuestionPalette.module.scss';
 
@@ -26,7 +27,7 @@ export function getQuestionStatus(
 ): QuestionStatus {
   if (index === currentIndex) return 'current';
   const isSubjective = question.primaryCategory?.toLowerCase() === 'subjective question';
-  if (answers[question.identifier]) {
+  if (isAnswered(answers[question.identifier])) {
     return isSubjective ? 'needs-review' : 'answered';
   }
   return index < currentIndex ? 'skipped' : 'unanswered';

@@ -42,7 +42,7 @@ export interface ResponseMapping {
 }
 
 export interface ResponseDeclarationItem {
-  cardinality: 'single' | 'multiple' | 'ordered' | string;
+  cardinality: 'single' | 'ordered' | string;
   type: 'integer' | 'string' | 'map' | string;
   correctResponse?: {
     value: number | string | number[] | string[] | Record<string, string>;
@@ -68,6 +68,14 @@ export interface Question {
   interactions?: Interactions; // keyed by responseN
   interactionTypes?: string[];
   responseDeclaration?: ResponseDeclaration; // keyed by responseN (absent for SA)
+  /**
+   * Scoring-mode hint (mirrors Angular). `template === 'MAP_RESPONSE'` enables
+   * per-item partial credit from `mapping`; otherwise the legacy fallback
+   * (rounded-proportional for map/ftb, all-or-nothing for ordered) applies.
+   */
+  responseProcessing?: { template?: string };
+  /** FTB only: accept correct answers in any blank order (MAP_RESPONSE). */
+  evalUnordered?: boolean;
   outcomeDeclaration?: OutcomeDeclaration;
   answer?: string | I18nValue; // SA model answer
   maxScore: number;
@@ -93,10 +101,6 @@ export interface Section {
   allowSkip: boolean;
   shuffle: boolean;
   showTimer?: boolean;
-  // Section-level visibility gates (Angular reads these from sectionConfig.metadata,
-  // NOT from individual questions). Combined with content presence + interaction rules.
-  showHints?: boolean;
-  showSolutions?: boolean;
 }
 
 export interface Assessment {
@@ -115,15 +119,13 @@ export interface Assessment {
  * One user's answer to one question (React-native runtime model — NOT the QuML
  * file format and NOT the Angular event wrapper). Each question type sets exactly
  * one of the answer fields; SA sets none.
- * - MCQ single   → value
- * - MCQ multiple → values
+ * - MCQ          → value       (single-select — exactly one correct option)
  * - FTB          → responses   (responseN → text)
  * - MTF          → matches     (leftValue → rightValue)
  * - SEQ / REO    → order       (ordered values)
  */
 export interface UserResponse {
-  value?: number | string; // MCQ single
-  values?: Array<number | string>; // MCQ multiple
+  value?: number | string; // MCQ (single-select)
   responses?: Record<string, string>; // FTB
   matches?: Record<string, string>; // MTF
   order?: Array<number | string>; // SEQ / REO
