@@ -1,0 +1,114 @@
+// =============================================================================
+// Sunbird Spark — Design Tokens (SCSS)
+//
+// Source of truth for VISUAL values, derived from the design reference
+// (Question Set Player.html). This file contains ONLY SCSS variables — no
+// emitted CSS — so it is safe to `@use` from every *.module.scss.
+//
+// Consume via:  @use '../../styles/variables' as v;  ->  color: v.$brick;
+// =============================================================================
+
+// ── Brand palette (warm / terracotta) ───────────────────────────────────────
+$brick:        #a85236; // primary accent — selection, links, alpha markers
+$brick-shade:  #8f4630; // pressed / active accent
+$brick-lt:     rgba(168, 82, 54, 0.12); // selected option fill
+$ginger:       #cc8545; // warm amber accent
+$ink:          #376673; // deep teal — headings / brand-dark surfaces
+$wave:         #70adbf; // secondary blue — info
+$sunflower:    #ffdb73; // accent yellow — highlights
+
+// ── Surfaces / backgrounds ───────────────────────────────────────────────────
+$cream-bg:     #f4f1ea; // app/body background (warm, light)
+$ivory:        #fffbf7; // warm off-white surface
+$white:        #ffffff;
+$dark:         #1c1c1c; // PRIMARY CTA buttons (dark, not terracotta)
+$obsidian:     #1c1c1c;
+
+// ── Neutral / ink scale ──────────────────────────────────────────────────────
+$g900:         #0a0a0a;
+$g800:         #1a1a1a;
+$g700:         #2d2d2d;
+$g600:         #4a4a4a;
+$g500:         #666666;
+$g400:         #999999;
+$g300:         #cccccc;
+$g200:         #e0e0e0;
+$g100:         #f5f5f5;
+
+$gray-200:     #e5e7eb; // dividers / hairlines / control borders
+$gray-300:     #d1d5db;
+$gray-400:     #9ca3af;
+$gray-500:     #6b7280; // muted text
+$gray-600:     #4b5563;
+$gray-700:     #374151;
+
+// ── Semantic / status ────────────────────────────────────────────────────────
+$success:      #2a9d8f;
+$success-bg:   #e6f5f3;
+$danger:       #dc2626;
+$danger-bg:    #fee2e2;
+$warning:      #d97706;
+$warning-bg:   #fef3c7;
+$info:         #70adbf;
+$info-bg:      #e3f2fd;
+
+// ── Typography ───────────────────────────────────────────────────────────────
+$ff-base:     'Rubik', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; // UI / body
+$ff-question: 'Noto Serif', Georgia, serif;  // question stem (editorial)
+$ff-display:  'Rubik', system-ui, sans-serif;
+
+$text-xs:    0.75rem;   // 12px — meta / captions / stats
+$text-sm:    0.875rem;  // 14px — body small / labels / buttons
+$text-base:  1rem;      // 16px — body
+$text-md:    1.125rem;  // 18px — section labels
+$text-lg:    1.25rem;   // 20px — card titles
+$text-xl:    1.625rem;  // 26px — content titles
+$text-2xl:   1.875rem;  // 30px — page / dialog headings
+
+$fw-regular:  400;
+$fw-medium:   500;
+$fw-semibold: 600;
+$fw-bold:     700;
+
+$lh-tight:   1.18;
+$lh-snug:    1.4;
+$lh-normal:  1.57;
+$lh-relaxed: 1.75;
+
+// ── Spacing scale (4px base) ─────────────────────────────────────────────────
+$space-1:   0.25rem; //  4
+$space-2:   0.5rem;  //  8
+$space-3:   0.75rem; // 12
+$space-4:   1rem;    // 16
+$space-5:   1.25rem; // 20
+$space-6:   1.5rem;  // 24
+$space-8:   2rem;    // 32
+$space-10:  2.5rem;  // 40
+$space-12:  3rem;    // 48
+$space-16:  4rem;    // 64
+
+// ── Radii ────────────────────────────────────────────────────────────────────
+$r-xxs:   0.25rem;  // 4px  — chip dots, tiny accents
+$r-xs:    0.625rem; // 10px — buttons / option rows
+$r-sm:    0.5rem;   // 8px  — inputs / small
+$r-md:    0.875rem; // 14px — cards / modals
+$r-lg:    1.25rem;  // 20px — large cards
+$r-pill:  9999px;   // pills / badges
+
+// ── Shadows (soft, warm, low-contrast) ───────────────────────────────────────
+$shadow-sm:   0 0.125rem 0.625rem rgba(0, 0, 0, 0.05);
+$shadow-md:   0 0.875rem 0.875rem rgba(0, 0, 0, 0.05);
+$shadow-lg:   0 0.25rem 1.25rem rgba(0, 0, 0, 0.10);
+$shadow-card: 0 0 0.75rem rgba(0, 0, 0, 0.12);
+
+// ── Motion ───────────────────────────────────────────────────────────────────
+$ease-out:  cubic-bezier(0.4, 0, 0.2, 1);
+$dur-fast:  0.2s;
+$dur-base:  0.3s;
+$dur-slow:  0.5s;
+
+// ── Layout / breakpoints ─────────────────────────────────────────────────────
+$sidebar-w:  280px;
+$header-h:   4rem;
+$bp-mobile:  768px;
+$bp-tablet:  1024px; // tablet/laptop boundary — ≤1023px is "tablet and below"

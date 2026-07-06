@@ -1,0 +1,33 @@
+@use './variables' as v;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: v.$cream-bg;
+  color: v.$g700;
+  font-family: v.$ff-base;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  // Never allow the page itself to scroll sideways — wide content scrolls
+  // inside its own container instead (tables, KaTeX, code).
+  overflow-x: hidden;
+}
+
+// Media never forces the viewport wider than itself.
+img,
+svg,
+video {
+  max-width: 100%;
+}

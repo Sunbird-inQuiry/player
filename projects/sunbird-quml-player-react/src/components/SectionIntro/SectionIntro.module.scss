@@ -1,0 +1,142 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.wrap {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 100%;
+  padding: v.$space-12 v.$space-8;
+
+  @include m.mobile {
+    padding: v.$space-6 v.$space-4;
+  }
+}
+
+.card {
+  width: 100%;
+  max-width: 800px;
+  background: v.$white;
+  border-radius: v.$r-lg;
+  box-shadow: v.$shadow-lg;
+  overflow: hidden;
+}
+
+// ── Banner ───────────────────────────────────────────────────────────────────
+.banner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: v.$space-5;
+  padding: v.$space-10;
+  background: v.$brick;
+  overflow: hidden;
+
+  @include m.mobile {
+    padding: v.$space-6;
+  }
+}
+
+.bannerBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 4rem;
+  height: 4rem;
+  border-radius: v.$r-md;
+  background: rgba(255, 255, 255, 0.22);
+  color: v.$white;
+  font-size: v.$text-2xl;
+  font-weight: v.$fw-bold;
+}
+
+.bannerText {
+  position: relative;
+  z-index: 1;
+}
+
+.bannerEyebrow {
+  margin: 0 0 v.$space-1;
+  font-size: v.$text-sm;
+  font-weight: v.$fw-semibold;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.bannerTitle {
+  margin: 0;
+  font-size: clamp(1.375rem, 4.5vw, #{v.$text-2xl});
+  font-weight: v.$fw-bold;
+  color: v.$white;
+}
+
+// Decorative translucent circle (top-right of the banner).
+.bannerDeco {
+  position: absolute;
+  top: -3rem;
+  right: -2rem;
+  width: 11rem;
+  height: 11rem;
+  border-radius: v.$r-pill;
+  background: rgba(255, 255, 255, 0.10);
+}
+
+// ── Body ─────────────────────────────────────────────────────────────────────
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-6;
+  padding: v.$space-8;
+
+  @include m.mobile {
+    padding: v.$space-5;
+  }
+}
+
+.instructions {
+  padding: v.$space-6;
+  background: v.$cream-bg;
+  border-radius: v.$r-md;
+}
+
+.instructionsHeading {
+  margin: 0 0 v.$space-3;
+  font-size: v.$text-sm;
+  font-weight: v.$fw-bold;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: v.$gray-400;
+}
+
+.instructionsBody {
+  margin: 0;
+  font-size: v.$text-md;
+  line-height: v.$lh-normal;
+  color: v.$g700;
+}
+
+.startBtn {
+  @include m.focus-ring($color: v.$g700);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: v.$space-2;
+  width: 100%;
+  padding: v.$space-5;
+  border: none;
+  border-radius: v.$r-md;
+  background: v.$dark;
+  color: v.$white;
+  font-family: v.$ff-base;
+  font-size: v.$text-md;
+  font-weight: v.$fw-semibold;
+  cursor: pointer;
+  transition: background v.$dur-fast v.$ease-out;
+
+  &:hover {
+    background: v.$g800;
+  }
+}

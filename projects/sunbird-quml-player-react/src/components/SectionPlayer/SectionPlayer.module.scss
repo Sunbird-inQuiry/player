@@ -1,0 +1,110 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.sectionPlayer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+// Shared centered column so the nav bar and question card line up 1:1.
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1088px;
+  margin-inline: auto;
+  padding: v.$space-6 v.$space-6 v.$space-8;
+  overflow-y: auto;
+
+  // The question card fills the column width and height, using the space instead
+  // of leaving a large empty area below.
+  > * {
+    width: 100%;
+    flex: 1;
+  }
+
+  @include m.mobile {
+    padding: v.$space-5 v.$space-4;
+  }
+}
+
+// Question navigation, now at the TOP of the player (was a bottom footer).
+// Same max-width + gutters as .content so its edges align with the card.
+.navBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: v.$space-4;
+  width: 100%;
+  max-width: 1088px;
+  margin-inline: auto;
+  padding: v.$space-4 v.$space-6;
+
+  @include m.mobile {
+    padding: v.$space-3 v.$space-4;
+  }
+}
+
+.counter {
+  font-family: v.$ff-base;
+  font-size: v.$text-sm;
+  font-weight: v.$fw-medium;
+  color: v.$g600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.navBtn {
+  @include m.button-base;
+  @include m.focus-ring;
+
+  background: v.$white;
+  color: v.$g700;
+  border: 1.5px solid v.$gray-200;
+  box-shadow: v.$shadow-sm;
+  transition: box-shadow v.$dur-fast v.$ease-out, transform v.$dur-fast v.$ease-out,
+    border-color v.$dur-fast v.$ease-out;
+
+  &:hover:not(:disabled) {
+    border-color: v.$g400;
+    color: v.$g900;
+    box-shadow: v.$shadow-md;
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    box-shadow: none;
+  }
+
+  // Icon-only on mobile (label hidden) — keep a comfortable touch target.
+  @include m.mobile {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+}
+
+.navLabel {
+  @include m.mobile {
+    display: none;
+  }
+}
+
+.submit {
+  @include m.button-base;
+  @include m.focus-ring;
+
+  background: v.$dark;
+  color: v.$white;
+
+  &:hover:not(:disabled) {
+    background: v.$g800;
+  }
+}
+
+.error {
+  padding: v.$space-6;
+  color: v.$danger;
+  font-family: v.$ff-base;
+}
