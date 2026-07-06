@@ -2,16 +2,13 @@ name: Publish sunbird-quml-player-web-component-react
 
 # Publish on a React-specific tag (e.g. react-v0.1.0). A tag push runs the
 # workflow file from the tagged commit's branch, so this works without the file
-# being on the default branch (unlike workflow_dispatch). Note: the Angular
-# publish_web_component.yml triggers on any tag ('*') and will also fire on these
-# tags — its run fails harmlessly on the duplicate version and does not affect
-# this publish. workflow_dispatch is kept so it can still be run manually if the
-# file is ever added to the default branch.
+# being on the default branch. Note: the Angular publish_web_component.yml
+# triggers on any tag ('*') and will also fire on these tags — its run fails
+# harmlessly on the duplicate version and does not affect this publish.
 on:
   push:
     tags:
       - 'react-v*'
-  workflow_dispatch:
 
 defaults:
   run:
