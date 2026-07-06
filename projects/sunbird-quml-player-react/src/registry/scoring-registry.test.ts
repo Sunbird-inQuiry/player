@@ -13,9 +13,10 @@ const mcq = {
 } as Question;
 
 describe('scoring-registry', () => {
-  it('registers a scorer for all six categories (+ ftb alias)', () => {
+  it('registers a scorer for all seven categories (+ ftb alias)', () => {
     [
       'multiple choice question',
+      'boolean question',
       'subjective question',
       'fill in the blank question',
       'ftb question',
@@ -23,7 +24,7 @@ describe('scoring-registry', () => {
       'sequence question',
       'reorder question',
     ].forEach((cat) => expect(getScoringFunction(cat)).toBeTypeOf('function'));
-    expect(scoringRegistry.size).toBe(7);
+    expect(scoringRegistry.size).toBe(8);
   });
 
   it('getScoringFunction is case-insensitive and null for unknown', () => {

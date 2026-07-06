@@ -13,9 +13,10 @@ const Dummy: QuestionComponent = () => null;
 
 // Default population (Phase 4) — must run BEFORE the helper tests that clear the registry.
 describe('question-type-registry (default population)', () => {
-  it('registers all six question types (+ ftb alias)', () => {
+  it('registers all seven question types (+ ftb alias)', () => {
     [
       'multiple choice question',
+      'boolean question',
       'subjective question',
       'fill in the blank question',
       'ftb question',
@@ -26,7 +27,7 @@ describe('question-type-registry (default population)', () => {
       expect(isQuestionTypeRegistered(cat)).toBe(true);
       expect(getQuestionComponent(cat)).toBeTypeOf('function');
     });
-    expect(questionTypeRegistry.size).toBe(7);
+    expect(questionTypeRegistry.size).toBe(8);
   });
 });
 
