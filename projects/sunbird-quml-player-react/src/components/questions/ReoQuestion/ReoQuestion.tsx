@@ -84,26 +84,40 @@ export function ReoQuestion({
     }
   }, [question.identifier]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const emit = (next: Option[]) =>
-    onOptionSelected?.({ order: next.map((o) => o.value), timestamp: Date.now() });
+  // Emit whenever the committed answer order actually changes. Deriving the emit
+  // from the committed state (via an effect keyed on `answer`) — instead of from
+  // a value computed in the click/drop handler — means two interactions in the
+  // same tick can't emit a stale order, and it avoids updating the parent during
+  // this component's render. `lastEmitted` seeds from mount/restore without
+  // emitting (also StrictMode-safe: the guarded effect never fires on mount).
+  const lastEmitted = useRef<string | null>(null);
+  useEffect(() => {
+    const sig = JSON.stringify(answer.map((o) => o.value));
+    if (lastEmitted.current === null) {
+      lastEmitted.current = sig;
+      return;
+    }
+    if (sig === lastEmitted.current) return;
+    lastEmitted.current = sig;
+    onOptionSelected?.({ order: answer.map((o) => o.value), timestamp: Date.now() });
+  }, [answer]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Both handlers use functional setState so rapid interactions always build on
+  // the latest state (never a stale render snapshot), and the appends are
+  // idempotent so a word can't be lost or duplicated.
   const addWord = (value: number | string) => {
     if (replayed) return;
     const opt = byValue.get(value);
-    if (!opt || answer.some((a) => a.value === value)) return;
-    const nextAnswer = [...answer, opt];
-    setAnswer(nextAnswer);
-    setBank(bank.filter((o) => o.value !== value));
-    emit(nextAnswer);
+    if (!opt) return;
+    setAnswer((prev) => (prev.some((a) => a.value === value) ? prev : [...prev, opt]));
+    setBank((prev) => prev.filter((o) => o.value !== value));
   };
 
-  const removeWord = (index: number) => {
+  const removeWord = (value: number | string) => {
     if (replayed) return;
-    const opt = answer[index];
-    const nextAnswer = answer.filter((_, i) => i !== index);
-    setAnswer(nextAnswer);
-    setBank([...bank, opt]);
-    emit(nextAnswer);
+    const opt = byValue.get(value);
+    setAnswer((prev) => prev.filter((a) => a.value !== value));
+    setBank((prev) => (opt && !prev.some((o) => o.value === value) ? [...prev, opt] : prev));
   };
 
   const [{ isOver }, drop] = useDrop<DragItem, void, { isOver: boolean }>({
@@ -135,7 +149,7 @@ export function ReoQuestion({
               className={styles.chip}
               disabled={replayed}
               aria-label={`Remove ${resolveLabel(word.label, language, ctx)}`}
-              onClick={() => removeWord(index)}
+              onClick={() => removeWord(word.value)}
             >
               <span dangerouslySetInnerHTML={{ __html: resolveLabel(word.label, language, ctx) }} />
               {!replayed && <span aria-hidden="true"> ×</span>}

@@ -1,4 +1,5 @@
 import { t, readI18n } from '../../i18n/translations';
+import { isAnswered } from '../../utils/answered';
 import type { Section, AnswersMap } from '../../types';
 import styles from './Sidebar.module.scss';
 
@@ -21,7 +22,7 @@ export interface SidebarProps {
 }
 
 function answeredCount(section: Section, answers: AnswersMap): number {
-  return section.children.reduce((n, q) => (answers[q.identifier] ? n + 1 : n), 0);
+  return section.children.reduce((n, q) => (isAnswered(answers[q.identifier]) ? n + 1 : n), 0);
 }
 
 export function Sidebar({

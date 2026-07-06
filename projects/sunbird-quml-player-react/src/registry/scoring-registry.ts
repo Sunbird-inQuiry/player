@@ -5,6 +5,7 @@ import {
   calculateOrderedScore,
   calculateSubjectiveScore,
 } from '../utils/score';
+import { isAnswered } from '../utils/answered';
 import type { Question, UserResponse } from '../types';
 
 /**
@@ -31,8 +32,13 @@ export function getScoringFunction(primaryCategory: string | null | undefined): 
   return scoringRegistry.get(primaryCategory.toLowerCase()) || null;
 }
 
-/** Calculate a score using the registry (no switch statement). */
+/**
+ * Calculate a score using the registry (no switch statement).
+ * An empty / unanswered response always scores 0 (single shared `isAnswered`
+ * check), before any type-specific scoring runs.
+ */
 export function calculateScore(question: Question, response: UserResponse | null): number {
+  if (!isAnswered(response)) return 0;
   const scoreFn = getScoringFunction(question.primaryCategory);
   if (!scoreFn) return 0;
   return scoreFn(question, response);

@@ -21,14 +21,6 @@ const singleQuestion = {
   },
 } as Question;
 
-const multiQuestion = {
-  ...singleQuestion,
-  identifier: 'q-mcq-multi',
-  responseDeclaration: {
-    response1: { cardinality: 'multiple', type: 'integer', correctResponse: { value: [0, 1] } },
-  },
-} as Question;
-
 describe('McqQuestion', () => {
   it('renders the body and options', () => {
     render(<McqQuestion question={singleQuestion} />);
@@ -46,15 +38,16 @@ describe('McqQuestion', () => {
     expect(radios[0]).toHaveAttribute('aria-checked', 'true');
   });
 
-  it('emits { values } and toggles for multiple cardinality', () => {
+  it('replaces the selection on a second single-select choice', () => {
     const onOptionSelected = vi.fn();
-    render(<McqQuestion question={multiQuestion} onOptionSelected={onOptionSelected} />);
-    const boxes = screen.getAllByRole('checkbox');
-    fireEvent.click(boxes[0]);
-    fireEvent.click(boxes[1]);
-    expect(onOptionSelected).toHaveBeenLastCalledWith(expect.objectContaining({ values: [0, 1] }));
-    fireEvent.click(boxes[0]); // toggle off
-    expect(onOptionSelected).toHaveBeenLastCalledWith(expect.objectContaining({ values: [1] }));
+    render(<McqQuestion question={singleQuestion} onOptionSelected={onOptionSelected} />);
+    const radios = screen.getAllByRole('radio');
+    fireEvent.click(radios[0]);
+    expect(onOptionSelected).toHaveBeenLastCalledWith(expect.objectContaining({ value: 0 }));
+    fireEvent.click(radios[1]);
+    expect(onOptionSelected).toHaveBeenLastCalledWith(expect.objectContaining({ value: 1 }));
+    expect(radios[1]).toHaveAttribute('aria-checked', 'true');
+    expect(radios[0]).toHaveAttribute('aria-checked', 'false');
   });
 
   it('calls onComponentLoaded once', () => {

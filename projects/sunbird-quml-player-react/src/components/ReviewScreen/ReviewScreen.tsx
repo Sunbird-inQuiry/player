@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { QuestionRenderer } from '../QuestionRenderer/QuestionRenderer';
 import { QuestionCard } from '../QuestionCard/QuestionCard';
+import { Hint } from '../Hint/Hint';
 import { Sidebar } from '../Sidebar/Sidebar';
 import { PreviousIcon, NextIcon } from '../icons';
 import { t } from '../../i18n/translations';
 import { calculateScore } from '../../registry/scoring-registry';
+import { isAnswered } from '../../utils/answered';
 import { useQuml } from '../../context/useQuml';
+import type { MediaItem, MediaResolveContext } from '../../utils/media';
 import type { Question, Section, AnswersMap, UserResponse } from '../../types';
 import styles from './ReviewScreen.module.scss';
 
@@ -33,7 +36,7 @@ type Correctness = 'correct' | 'incorrect' | 'partial' | 'skipped' | 'review';
 
 function correctnessOf(question: Question, answers: AnswersMap): { kind: Correctness; raw: number } {
   const answer = answers[question.identifier];
-  if (!answer) return { kind: 'skipped', raw: 0 };
+  if (!isAnswered(answer)) return { kind: 'skipped', raw: 0 };
   // Subjective questions are not auto-scored.
   if (question.primaryCategory?.toLowerCase() === 'subjective question') {
     return { kind: 'review', raw: 0 };
@@ -68,7 +71,7 @@ export function ReviewScreen({
   onExit,
   language = 'en',
 }: ReviewScreenProps) {
-  const { storeAnswer } = useQuml();
+  const { state, storeAnswer } = useQuml();
   const clampedStart = Math.min(Math.max(startIndex, 0), Math.max(questions.length - 1, 0));
   const [index, setIndex] = useState(clampedStart);
 
@@ -98,6 +101,19 @@ export function ReviewScreen({
   const { kind } = correctnessOf(question, answers);
   const isFirst = index === 0;
   const isLast = index === questions.length - 1;
+
+  // Section that owns the current question — drives the hint/solution gates.
+  const currentSection = sections[currentSectionIndex];
+
+  // Media-resolution context for solution/hint assets (mirrors SectionPlayer).
+  const offline = state.playerConfig?.metadata;
+  const mediaCtx: MediaResolveContext = {
+    media: question.media as MediaItem[] | undefined,
+    basePath: offline?.basePath,
+    isAvailableLocally: offline?.isAvailableLocally,
+    sectionId: currentSection?.identifier,
+    questionId: question.identifier,
+  };
 
   return (
     <section className={styles.review} aria-label={t(language, 'REVIEW')}>
@@ -156,7 +172,18 @@ export function ReviewScreen({
             <QuestionRenderer
               key={question.identifier}
               question={question}
+              shuffleOptions={question.shuffleOptions}
               onOptionSelected={(response: UserResponse) => storeAnswer(question.identifier, response)}
+            />
+
+            <Hint
+              hints={question.hints}
+              solutions={question.solutions}
+              // In review the assessment is complete, so solutions are always
+              // unlocked — visibility is presence-based (content exists).
+              canViewSolution
+              language={language}
+              mediaCtx={mediaCtx}
             />
           </QuestionCard>
         </div>

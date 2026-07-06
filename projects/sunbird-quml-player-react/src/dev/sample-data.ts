@@ -44,8 +44,8 @@ export const sampleConfig: PlayerConfig = {
             responseDeclaration: {
               response1: { cardinality: 'single', type: 'integer', correctResponse: { value: 2 } },
             },
-            // Demo: backend-supplied hint + solution. The Show Hint button appears
-            // because hints are present; View Solution unlocks after answering.
+            // Demo: backend-supplied hint + solution. Visibility is presence-based —
+            // Show Hint shows immediately, View Solution unlocks after answering.
             hints: [{ hint: '<p>Its surface is covered in iron-oxide (rust) dust.</p>' }],
             solutions: [
               { value: '<p><strong>Mars</strong> is the “Red Planet” — iron oxide gives it the reddish hue.</p>' },
@@ -77,7 +77,7 @@ export const sampleConfig: PlayerConfig = {
               },
             },
             responseDeclaration: {
-              response1: { cardinality: 'multiple', type: 'integer', correctResponse: { value: [0, 2] } },
+              response1: { cardinality: 'single', type: 'integer', correctResponse: { value: 2 } },
             },
           },
         ],

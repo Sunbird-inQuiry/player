@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -17,6 +17,7 @@ import { transformSection, transformQuestion } from '../../services/transformati
 import { loadQuestionSet } from '../../services/data-service';
 import { QumlApiError } from '../../types/api';
 import { calculateScore } from '../../registry/scoring-registry';
+import { isAnswered } from '../../utils/answered';
 import type { Question, Section, PlayerConfig } from '../../types';
 import styles from './MainPlayer.module.scss';
 
@@ -148,7 +149,7 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
         const max = q.maxScore ?? 1;
         maxScore += max;
         const answer = state.answers[q.identifier];
-        if (!answer) {
+        if (!isAnswered(answer)) {
           skipped += 1;
           continue;
         }
@@ -185,20 +186,29 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     };
   }, [metadata, playerConfig, state.sections, state.attemptNumber, language]);
 
-  // Shell countdown: tick while inside the section-intro / assessment stages.
+  // Shell countdown. Matches Angular: the clock only runs while the learner is
+  // actively taking the assessment. It PAUSES on Start/Overview, Section Intro,
+  // Results and Review (the effect early-returns for those stages, freezing
+  // `timeRemaining`). Remaining time is derived from a fixed deadline timestamp
+  // rather than by decrementing per tick, so re-creating the interval at each
+  // stage boundary can't accumulate drift.
+  const deadlineRef = useRef<number | null>(null);
   useEffect(() => {
-    if (stage !== 'sectionIntro' && stage !== 'assessment') return;
+    if (stage !== 'assessment' || timeRemaining == null) {
+      deadlineRef.current = null;
+      return;
+    }
+    // Anchor the deadline from whatever time was left when the assessment
+    // (re)started; a paused-then-resumed clock continues from the frozen value.
+    deadlineRef.current = Date.now() + timeRemaining * 1000;
     const id = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev == null) return prev;
-        if (prev <= 1) {
-          clearInterval(id);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+      const remaining = Math.max(0, Math.ceil((deadlineRef.current! - Date.now()) / 1000));
+      setTimeRemaining(remaining);
+      if (remaining <= 0) clearInterval(id);
+    }, 250);
     return () => clearInterval(id);
+    // Re-anchor only when entering/leaving the assessment stage, NOT every tick.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage]);
 
   // Time up → auto-submit straight to results (no confirmation dialog).
@@ -219,7 +229,7 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
   const completed = useMemo(
     () =>
       state.sections.map((s) =>
-        s.children.length > 0 && s.children.every((q) => Boolean(state.answers[q.identifier])),
+        s.children.length > 0 && s.children.every((q) => isAnswered(state.answers[q.identifier])),
       ),
     [state.sections, state.answers],
   );

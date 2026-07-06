@@ -67,7 +67,6 @@ export const TelemetryType = {
 // Question cardinality
 export const Cardinality = {
   SINGLE: 'single',
-  MULTIPLE: 'multiple',
   MAP: 'map',
   FTB: 'ftb',
   SEQ: 'ordered',

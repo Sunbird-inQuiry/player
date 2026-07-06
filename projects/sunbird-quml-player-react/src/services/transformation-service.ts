@@ -45,7 +45,8 @@ export function transformQuestion(question: any): Question | null {
     language: question.language || [],
     status: question.status || 'Draft',
     showFeedback: question.showFeedback === 'Yes' || question.showFeedback === true,
-    shuffleOptions: question.shuffleOptions === true,
+    // Default is to shuffle; only an explicit `false` preserves authored order.
+    shuffleOptions: question.shuffleOptions !== false,
   };
 
   if (isSubjective) {
@@ -53,6 +54,15 @@ export function transformQuestion(question: any): Question | null {
     normalized.answer = question.answer;
   } else {
     normalized.responseDeclaration = normalizeResponseDeclaration(question.responseDeclaration);
+    // Preserve the scoring-mode hints Angular's auto-scoring reads:
+    //   responseProcessing.template === 'MAP_RESPONSE' → per-item partial credit;
+    //   evalUnordered → FTB "answers accepted in any order".
+    if (question.responseProcessing?.template) {
+      normalized.responseProcessing = { template: question.responseProcessing.template };
+    }
+    if (question.evalUnordered === true || String(question.evalUnordered).toLowerCase() === 'true') {
+      normalized.evalUnordered = true;
+    }
   }
 
   return normalized;
@@ -153,10 +163,6 @@ export function transformSection(section: any): Section | null {
     shuffle: section.shuffle === true,
     timeLimits: transformTimeLimit(section.timeLimits),
     showTimer: section.showTimer !== false,
-    // Section-level hint/solution gates (Angular: sectionConfig.metadata.showHints /
-    // showSolutions). Accept boolean or the "Yes"/"No" string form the API uses.
-    showHints: section.showHints === 'Yes' || section.showHints === true,
-    showSolutions: section.showSolutions === 'Yes' || section.showSolutions === true,
   };
 }
 

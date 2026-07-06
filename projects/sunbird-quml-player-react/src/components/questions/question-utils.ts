@@ -22,13 +22,6 @@ export function mtfColumns(question: Question): { left: Option[]; right: Option[
   return { left: [], right: [] };
 }
 
-/** Cardinality of the first responseN declaration (defaults to 'single'). */
-export function firstCardinality(question: Question): string {
-  const rd = question.responseDeclaration || {};
-  const key = Object.keys(rd)[0];
-  return (key && rd[key]?.cardinality) || 'single';
-}
-
 /** Ordered responseN keys (FTB blanks come from these). */
 export function responseKeys(question: Question): string[] {
   return Object.keys(question.responseDeclaration || {});
