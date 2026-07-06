@@ -17,8 +17,15 @@ import fs from 'fs-extra';
 import path from 'path';
 
 const DIST = 'dist';
+const PKG_ROOT = 'web-component';
 const DEST = 'web-component/assets/quml-player';
 const BUNDLE = 'sunbird-quml-player.js';
+
+// npm package name for the React web component. Deliberately DISTINCT from the
+// Angular package (@project-sunbird/sunbird-quml-player-web-component) so the two
+// coexist rather than one superseding the other. The version is taken from this
+// project's package.json (single source of truth) — do not hardcode it here.
+const WC_PACKAGE_NAME = '@project-sunbird/sunbird-quml-player-web-component-react';
 
 const build = async () => {
   try {
@@ -68,8 +75,35 @@ const build = async () => {
 </html>`;
     await fs.writeFile(path.join(DEST, 'index.html'), exampleHtml);
 
+    // 4. Generate the package manifest so CI can `npm pack ./web-component`
+    //    without a committed (and drift-prone) copy. Version is derived from the
+    //    project package.json so it never diverges from the source of truth.
+    console.log('[Build] Writing package manifest...');
+    const projectPkg = await fs.readJson('package.json');
+    const manifest = {
+      name: WC_PACKAGE_NAME,
+      version: projectPkg.version,
+      description: 'React-based QUML player web component',
+      main: 'assets/quml-player/sunbird-quml-player.js',
+      exports: {
+        '.': './assets/quml-player/sunbird-quml-player.js',
+        './styles': './assets/quml-player/styles.css',
+      },
+      files: ['assets/quml-player/'],
+      homepage: 'https://github.com/Sunbird-inQuiry/player#readme',
+      repository: {
+        type: 'git',
+        url: 'https://github.com/Sunbird-inQuiry/player.git',
+      },
+      keywords: ['sunbird', 'quml', 'question', 'player', 'web-component', 'react'],
+      author: 'Sunbird',
+      license: 'MIT',
+    };
+    await fs.writeJson(path.join(PKG_ROOT, 'package.json'), manifest, { spaces: 2 });
+
     console.log('[Build] ✅ Web component built successfully!');
     console.log(`[Build] Output: ${DEST}/`);
+    console.log(`[Build] Package: ${WC_PACKAGE_NAME}@${projectPkg.version}`);
   } catch (error) {
     console.error('[Build] ❌ Error:', error);
     process.exit(1);
