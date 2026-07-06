@@ -21,19 +21,21 @@ describe('QuestionBody', () => {
     expect(container.textContent).toContain('cell');
   });
 
-  it('applies RTL (dir + lang) for Arabic', () => {
+  it('uses dir="auto" so content direction follows the text (Arabic)', () => {
     const { container } = render(
       <QuestionBody question={{ body: '<p>السلام عليكم</p>' }} language="ar" />,
     );
     const root = container.firstElementChild;
-    expect(root).toHaveAttribute('dir', 'rtl');
+    // dir="auto" (not a forced rtl): Arabic content resolves RTL, while
+    // English/math fallback keeps its LTR character order (e.g. "1+1=?").
+    expect(root).toHaveAttribute('dir', 'auto');
     expect(root).toHaveAttribute('lang', 'ar');
   });
 
-  it('defaults to LTR (no dir) for non-Arabic', () => {
+  it('uses dir="auto" and the given lang for non-Arabic', () => {
     const { container } = render(<QuestionBody question={{ body: '<p>Hello</p>' }} />);
     const root = container.firstElementChild;
-    expect(root).not.toHaveAttribute('dir');
+    expect(root).toHaveAttribute('dir', 'auto');
     expect(root).toHaveAttribute('lang', 'en');
   });
 

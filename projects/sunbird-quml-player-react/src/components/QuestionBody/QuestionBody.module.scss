@@ -48,16 +48,20 @@
     overflow-x: auto;
   }
 
-  // RTL language support
-  &.rtl {
-    direction: rtl;
-    text-align: right;
-
-    table {
-      td,
-      th {
-        text-align: right;
-      }
+  // RTL support comes from dir="auto" on the container (direction resolved
+  // from the content itself); `start` alignment follows whichever direction
+  // the browser resolves, so tables align correctly in both scripts.
+  table {
+    td,
+    th {
+      text-align: start;
     }
+  }
+
+  // In an RTL UI (renderer wrapper sets dir="rtl") the body BLOCK aligns right
+  // like the rest of the mirrored layout — while dir="auto" above still keeps
+  // the CHARACTER order of English/math fallback content intact (1+1=?).
+  [dir='rtl'] & {
+    text-align: right;
   }
 }

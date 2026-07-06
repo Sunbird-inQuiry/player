@@ -76,7 +76,9 @@ export function FtbQuestion({
   const hasTokens = parts.length > 1;
 
   return (
-    <div className={styles.ftb} lang={language} dir={language === 'ar' ? 'rtl' : undefined}>
+    // dir="auto": sentence direction follows the authored content (Arabic → RTL,
+    // English fallback keeps LTR order); layout mirroring comes from the renderer.
+    <div className={styles.ftb} lang={language} dir="auto">
       {hasTokens ? (
         <p className={styles.template}>
           {parts.map((part, i) =>

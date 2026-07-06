@@ -3,6 +3,12 @@
 
 .ftb {
   font-family: v.$ff-question;
+
+  // In an RTL UI the sentence block aligns right (dir="auto" on the container
+  // still keeps English-fallback character order intact).
+  [dir='rtl'] & {
+    text-align: right;
+  }
 }
 
 .template {

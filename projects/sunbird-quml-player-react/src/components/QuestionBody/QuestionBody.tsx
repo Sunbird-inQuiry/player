@@ -31,6 +31,12 @@ interface QuestionBodyProps {
 
 export function QuestionBody({ question, language = 'en', mediaCtx }: QuestionBodyProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  // The HTML most recently written to the container. Parents rebuild the
+  // `question`/`mediaCtx` props as fresh object literals on every render (and
+  // the shell timer re-renders the tree every second), so the effect must NOT
+  // rewrite innerHTML unless the RESOLVED content actually changed — rewriting
+  // destroys and recreates embedded <video>/<audio> elements mid-playback.
+  const renderedHtmlRef = useRef<string | null>(null);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -46,7 +52,10 @@ export function QuestionBody({ question, language = 'en', mediaCtx }: QuestionBo
         ...mediaCtx,
         media: mediaCtx?.media ?? (question.media as MediaItem[] | undefined),
       };
-      el.innerHTML = resolveMediaHtml(bodyHtml, ctx);
+      const resolvedHtml = resolveMediaHtml(bodyHtml, ctx);
+      if (resolvedHtml === renderedHtmlRef.current) return; // content unchanged
+      renderedHtmlRef.current = resolvedHtml;
+      el.innerHTML = resolvedHtml;
 
       // Find and render KaTeX expressions.
       const mathElements = el.querySelectorAll('.math');
@@ -62,16 +71,25 @@ export function QuestionBody({ question, language = 'en', mediaCtx }: QuestionBo
     } catch (err) {
       console.error('[QuestionBody] Error rendering body:', err);
     }
-  }, [question?.body, question?.media, mediaCtx, language]);
-
-  const isRtl = language === 'ar';
+    // Depend on the VALUES that affect the resolved HTML, not the (unstable)
+    // object identities of `question`/`mediaCtx`.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    question?.body,
+    mediaCtx?.media ?? question?.media,
+    mediaCtx?.basePath,
+    mediaCtx?.isAvailableLocally,
+    mediaCtx?.sectionId,
+    mediaCtx?.questionId,
+    language,
+  ]);
 
   return (
-    <div
-      ref={containerRef}
-      className={`${styles.body} ${isRtl ? styles.rtl : ''}`.trim()}
-      lang={language}
-      dir={isRtl ? 'rtl' : undefined}
-    />
+    // dir="auto": direction follows the CONTENT's first strong character —
+    // Arabic-authored bodies render RTL, while English/math fallback content
+    // (e.g. "1+1=?") keeps its LTR character order instead of being reversed
+    // by a forced RTL direction. Layout mirroring for `ar` is applied by the
+    // QuestionRenderer wrapper, not here.
+    <div ref={containerRef} className={styles.body} lang={language} dir="auto" />
   );
 }

@@ -28,7 +28,7 @@
   font-family: v.$ff-base;
   font-size: v.$text-sm;
   color: v.$g600;
-  text-align: left;
+  text-align: start;
   transition: border-color v.$dur-fast v.$ease-out, background v.$dur-fast v.$ease-out;
 
   &:hover:not(:disabled) {
@@ -95,7 +95,7 @@
 .review {
   padding: v.$space-3;
   background: v.$success-bg;
-  border-left: 3px solid v.$success;
+  border-inline-start: 3px solid v.$success;
   border-radius: v.$r-sm;
   font-weight: v.$fw-medium;
   color: v.$success;

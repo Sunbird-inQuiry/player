@@ -66,7 +66,10 @@ export function QuestionRenderer({
   }
 
   return (
-    <div className={styles.renderer}>
+    // Arabic mirrors the whole question area (options, controls, chips) so
+    // radios/letters sit on the right. Text content itself uses dir="auto"
+    // inside (QuestionBody/FTB) so English-fallback content keeps LTR order.
+    <div className={styles.renderer} dir={language === 'ar' ? 'rtl' : undefined}>
       <QuestionComponent
         question={question}
         replayed={replayed}

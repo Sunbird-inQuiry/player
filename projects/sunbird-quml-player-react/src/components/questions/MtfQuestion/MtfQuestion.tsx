@@ -121,8 +121,11 @@ export function MtfQuestion({
       <QuestionBody question={question} language={language} mediaCtx={ctx} />
 
       {/* Brown board: each row is a left prompt with its answer image on the
-          right; the right images are draggable and swap on drop. */}
-      <div className={styles.board}>
+          right; the right images are draggable and swap on drop.
+          dir="ltr": the board keeps its prompt-left / draggable-right layout
+          even in the RTL (Arabic) UI — mirroring it moved the DRAGGABLE column
+          to the left while learners kept grabbing the (static) right one. */}
+      <div className={styles.board} dir="ltr">
         {left.map((l, i) => (
           <div className={styles.row} key={String(l.value)}>
             <div className={styles.leftCard}>

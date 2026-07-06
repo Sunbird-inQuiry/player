@@ -82,7 +82,7 @@
 .review {
   padding: v.$space-3;
   background: v.$success-bg;
-  border-left: 3px solid v.$success;
+  border-inline-start: 3px solid v.$success;
   border-radius: v.$r-sm;
   font-weight: v.$fw-medium;
   color: v.$success;
