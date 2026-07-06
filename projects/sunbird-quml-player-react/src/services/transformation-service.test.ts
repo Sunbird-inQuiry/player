@@ -74,3 +74,43 @@ describe('transformSection — showSolutions/showHints flags (Angular parity)', 
     expect(s.showSolutions).toBe(false);
   });
 });
+
+describe('transformQuestion — showFeedback tri-state', () => {
+  it('is undefined when the author did not specify it', () => {
+    expect(transformQuestion(raw())?.showFeedback).toBeUndefined();
+  });
+  it('is true for true/"Yes"', () => {
+    expect(transformQuestion(raw({ showFeedback: true }))?.showFeedback).toBe(true);
+    expect(transformQuestion(raw({ showFeedback: 'Yes' }))?.showFeedback).toBe(true);
+  });
+  it('is false only when explicitly false/"No"', () => {
+    expect(transformQuestion(raw({ showFeedback: false }))?.showFeedback).toBe(false);
+    expect(transformQuestion(raw({ showFeedback: 'No' }))?.showFeedback).toBe(false);
+  });
+});
+
+describe('transformQuestion — maxScore', () => {
+  it('preserves an explicit maxScore of 0 (does not default to 1)', () => {
+    expect(transformQuestion(raw({ maxScore: 0 }))?.maxScore).toBe(0);
+  });
+  it('defaults to 1 when maxScore is absent', () => {
+    expect(transformQuestion(raw())?.maxScore).toBe(1);
+  });
+});
+
+describe('transformSection — showFeedback (tri-state, ON by default)', () => {
+  const base = { identifier: 's1', name: 'S', children: [] };
+  it('is undefined when absent (defers to config, does not suppress)', () => {
+    expect(transformSection({ ...base })!.showFeedback).toBeUndefined();
+  });
+  it('is false only when explicitly false/"No"', () => {
+    expect(transformSection({ ...base, showFeedback: false })!.showFeedback).toBe(false);
+    expect(transformSection({ ...base, showFeedback: 'No' })!.showFeedback).toBe(false);
+  });
+  it('is true for true/"Yes"', () => {
+    expect(transformSection({ ...base, showFeedback: 'Yes' })!.showFeedback).toBe(true);
+  });
+  it('falls back to metadata when nested there', () => {
+    expect(transformSection({ ...base, metadata: { showFeedback: false } })!.showFeedback).toBe(false);
+  });
+});

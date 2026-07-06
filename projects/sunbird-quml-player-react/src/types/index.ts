@@ -110,6 +110,13 @@ export interface Section {
    */
   showSolutions?: boolean;
   showHints?: boolean;
+  /**
+   * Gate answer feedback at the section level (Angular parity — showFeedback is a
+   * section booleanProp). Tri-state: true/false/undefined. Unlike show*Solutions/
+   * Hints, feedback is ON by default, so ONLY an explicit `false` suppresses;
+   * undefined defers to the assessment-level config.
+   */
+  showFeedback?: boolean;
 }
 
 export interface Assessment {

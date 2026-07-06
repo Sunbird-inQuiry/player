@@ -44,7 +44,15 @@ export function transformQuestion(question: any): Question | null {
     templateId: question.templateId || '',
     language: question.language || [],
     status: question.status || 'Draft',
-    showFeedback: question.showFeedback === 'Yes' || question.showFeedback === true,
+    // Tri-state: true ('Yes'/true), false ('No'/false), or undefined when the
+    // author didn't specify. Consumers gate on `=== false` so an unspecified
+    // flag does NOT suppress feedback (it defers to the assessment-level config).
+    showFeedback:
+      question.showFeedback === false || question.showFeedback === 'No'
+        ? false
+        : question.showFeedback === true || question.showFeedback === 'Yes'
+          ? true
+          : undefined,
     // Default is to shuffle; only an explicit `false` preserves authored order.
     shuffleOptions: question.shuffleOptions !== false,
   };
@@ -139,7 +147,9 @@ function normalizeContentEntries(entries: any): Array<{ value: string | I18nValu
 
 /** Extract max score from a raw question (defaults to 1). */
 function extractMaxScore(question: any): number {
-  if (question.maxScore) {
+  // Explicit 0 is a valid maxScore (e.g. an unscored survey item) — only treat
+  // null/undefined as "absent", not falsy 0.
+  if (question.maxScore !== undefined && question.maxScore !== null) {
     return Number(question.maxScore);
   }
   // QuML: outcomeDeclaration.maxScore.defaultValue
@@ -169,7 +179,24 @@ export function transformSection(section: any): Section | null {
     // `sectionConfig.metadata` (:241,244), so tolerate either shape.
     showSolutions: sectionBooleanFlag(section, 'showSolutions'),
     showHints: sectionBooleanFlag(section, 'showHints'),
+    // Tri-state (feedback is ON by default): only an explicit false/'No'
+    // suppresses; undefined defers to the assessment-level config. Read
+    // top-level then `metadata`, mirroring sectionBooleanFlag's source order.
+    showFeedback: sectionTriStateFlag(section, 'showFeedback'),
   };
+}
+
+/**
+ * Resolve a section flag that is ON by default as a tri-state: explicit
+ * false/'No' → false, explicit true/'Yes' → true, absent → undefined (so the
+ * consumer can defer to a higher-level default instead of forcing it off).
+ * Checks the top-level node first, then `section.metadata`.
+ */
+function sectionTriStateFlag(section: any, key: string): boolean | undefined {
+  const raw = section[key] ?? section.metadata?.[key];
+  if (raw === false || raw === 'No') return false;
+  if (raw === true || raw === 'Yes') return true;
+  return undefined;
 }
 
 /**

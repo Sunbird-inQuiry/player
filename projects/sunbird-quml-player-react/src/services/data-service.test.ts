@@ -110,6 +110,23 @@ describe('data-service', () => {
         { baseURL: 'https://host' },
       );
     });
+
+    it('chunks large id lists into batches of 50 and concatenates results', async () => {
+      const ids = Array.from({ length: 120 }, (_, i) => `q${i}`);
+      // Each POST echoes back one question per requested id so we can count merge.
+      mockPost.mockImplementation((_url, body: any) =>
+        Promise.resolve({
+          questions: body.request.search.identifier.map((id: string) => ({ identifier: id })),
+        }),
+      );
+      const result = await getQuestions(ids);
+      expect(mockPost).toHaveBeenCalledTimes(3); // 50 + 50 + 20
+      expect(result).toHaveLength(120);
+      // Each chunk stays within the cap.
+      for (const call of mockPost.mock.calls) {
+        expect(call[1].request.search.identifier.length).toBeLessThanOrEqual(50);
+      }
+    });
   });
 
   describe('loadQuestionSet', () => {

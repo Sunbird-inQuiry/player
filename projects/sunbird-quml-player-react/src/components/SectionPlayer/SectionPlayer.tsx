@@ -120,18 +120,30 @@ export function SectionPlayer({ section, onSectionEnd, isLastSection = true }: S
   const proceedWithFeedback = (proceed: () => void) => {
     const currentQuestion = questions[currentSlide];
     const answer = currentQuestion ? state.answers[currentQuestion.identifier] : undefined;
-    if (state.config?.showFeedback === false || !currentQuestion || !isAnswered(answer)) {
+    // Feedback is suppressed when disabled at ANY level — assessment config,
+    // section, or question (each explicit `false`; undefined = not set, so it
+    // does not suppress) — or when there is nothing scored to give feedback on.
+    if (
+      state.config?.showFeedback === false ||
+      section?.showFeedback === false ||
+      currentQuestion?.showFeedback === false ||
+      !currentQuestion ||
+      !isAnswered(answer)
+    ) {
       proceed();
       return;
     }
 
     // Show the verdict on the CURRENT question, hold briefly so it's clearly tied
-    // to this question (never bleeds onto the next), then clear + advance. Both
-    // correct and wrong auto-advance (non-blocking).
-    const isCorrect = calculateScore(currentQuestion, answer) >= 1;
+    // to this question (never bleeds onto the next), then clear + advance. All of
+    // correct / partial / wrong auto-advance (non-blocking). Partial covers any
+    // 0 < score < 1 (e.g. MAP_RESPONSE MTF with some pairs matched).
+    const score = calculateScore(currentQuestion, answer);
+    const kind: AlertKind = score >= 1 ? 'correct' : score > 0 ? 'partial' : 'incorrect';
+    const msgKey = score >= 1 ? 'CORRECT_ANSWER' : score > 0 ? 'PARTIAL_SCORE' : 'INCORRECT_ANSWER';
     setCurrentAlert({
-      type: isCorrect ? 'correct' : 'incorrect',
-      message: t(language, isCorrect ? 'CORRECT_ANSWER' : 'INCORRECT_ANSWER'),
+      type: kind,
+      message: t(language, msgKey),
     });
     clearFeedbackTimer();
     feedbackTimer.current = setTimeout(() => {

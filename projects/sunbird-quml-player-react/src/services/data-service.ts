@@ -56,6 +56,13 @@ export async function getQuestionSetHierarchy(
   return result.questionset;
 }
 
+/**
+ * Max identifiers per /question/v5/list POST. Large question sets are chunked to
+ * stay under backend request-body/item caps (Angular batched similarly via
+ * _.chunk); chunks are fetched concurrently and their results concatenated.
+ */
+const QUESTION_BATCH_SIZE = 50;
+
 /** Fetch raw question objects for the given identifiers (`result.questions`). */
 export async function getQuestions(
   identifiers: string[],
@@ -65,12 +72,22 @@ export async function getQuestions(
   const url = opts.language
     ? `${ApiEndPoints.questionList}?lang=${opts.language}`
     : ApiEndPoints.questionList;
-  const result = await httpPost<QuestionListResult>(
-    url,
-    { request: { search: { identifier: identifiers } } },
-    { baseURL: opts.baseUrl },
+
+  const chunks: string[][] = [];
+  for (let i = 0; i < identifiers.length; i += QUESTION_BATCH_SIZE) {
+    chunks.push(identifiers.slice(i, i + QUESTION_BATCH_SIZE));
+  }
+
+  const results = await Promise.all(
+    chunks.map((chunk) =>
+      httpPost<QuestionListResult>(
+        url,
+        { request: { search: { identifier: chunk } } },
+        { baseURL: opts.baseUrl },
+      ),
+    ),
   );
-  return result?.questions ?? [];
+  return results.flatMap((r) => r?.questions ?? []);
 }
 
 /** Top-level children that represent sections (question stubs live under them). */
@@ -80,6 +97,15 @@ function extractSectionNodes(questionSet: RawQuestionSet): RawQuestionSetChild[]
   // Flat set: questions directly under the root, no sections → wrap as one section.
   const allQuestions = children.every((c) => c.objectType === 'Question');
   if (allQuestions) return [questionSet as unknown as RawQuestionSetChild];
+  // Mixed layout (Section + bare Question siblings) is unsupported; the loose
+  // questions are not rendered. Warn instead of dropping them silently.
+  const loose = children.filter((c) => c.objectType === 'Question');
+  if (loose.length > 0) {
+    console.warn(
+      `[data-service] ${loose.length} root-level question(s) ignored (mixed section/question layout unsupported):`,
+      loose.map((q) => q.identifier),
+    );
+  }
   return children.filter((c) => c.objectType !== 'Question');
 }
 
