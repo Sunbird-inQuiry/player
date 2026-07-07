@@ -74,7 +74,7 @@ class SunbirdQumlPlayer extends HTMLElement {
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
-        .quml-player-root { all: initial; display: block; }
+        .quml-player-root { all: initial; display: block; height: 100%; }
       `;
       this.shadow.insertBefore(hostStyle, container);
 
@@ -141,7 +141,7 @@ class SunbirdQumlPlayer extends HTMLElement {
     styleEl.textContent = `
       ${typeof BUNDLED_CSS !== 'undefined' ? BUNDLED_CSS : ''}
       :host { display: block; }
-      .quml-player-root { all: initial; display: block; }
+      .quml-player-root { all: initial; display: block; height: 100%; }
     `;
     if (this.shadow.firstChild) {
       this.shadow.insertBefore(styleEl, this.shadow.firstChild);
