@@ -91,7 +91,11 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     setPlayerConfig(playerConfig);
 
     const data = (playerConfig.data as Record<string, unknown> | undefined) ?? {};
-    const rawSections = (data.sections as unknown[] | undefined) ?? [];
+    // Host-contract compatibility: the Sunbird editor/portal follow the Angular
+    // contract — they pass the questionset under `playerConfig.metadata` and leave
+    // `data` empty. Fall back to metadata so both config shapes load.
+    const meta = (playerConfig.metadata as Record<string, unknown> | undefined) ?? {};
+    const rawSections = ((data.sections ?? meta.sections) as unknown[] | undefined) ?? [];
 
     // EMBEDDED path (unchanged behavior).
     if (rawSections.length > 0) {
@@ -105,13 +109,14 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
           return { ...normalized, children };
         })
         .filter((s): s is Section => Boolean(s));
-      setMetadata(data);
+      // Overview metadata comes from whichever source carried the sections.
+      setMetadata(data.sections ? data : meta);
       setSections(sections);
       return;
     }
 
     // FETCHED path — delegate ALL network + normalization to the data service.
-    const identifier = data.identifier as string | undefined;
+    const identifier = (data.identifier ?? meta.identifier) as string | undefined;
     if (!identifier) return;
     // API base URL only — the content/asset base (config.baseUrl) is separate and
     // used for image resolution, so it must NOT leak into API requests.
