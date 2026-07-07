@@ -14,7 +14,11 @@ import { ResultsScreen } from '../ResultsScreen/ResultsScreen';
 import { ReviewScreen } from '../ReviewScreen/ReviewScreen';
 import { t, readI18n } from '../../i18n/translations';
 import { transformSection, transformQuestion } from '../../services/transformation-service';
-import { loadQuestionSet } from '../../services/data-service';
+import {
+  loadQuestionSet,
+  hasEmbeddedQuestions,
+  transformEmbeddedQuestionSet,
+} from '../../services/data-service';
 import { QumlApiError } from '../../types/api';
 import { calculateScore } from '../../registry/scoring-registry';
 import { isAnswered } from '../../utils/answered';
@@ -116,6 +120,19 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
       setMetadata(data.sections ? data : meta);
       setSections(sections);
       return;
+    }
+
+    // EMBEDDED-METADATA path: hosts (Sunbird editor/portal) pass the WHOLE
+    // questionset — with question content embedded in its hierarchy — as
+    // `metadata`. Render it directly, no network calls. This also avoids relying
+    // on the player's own API endpoints matching the host's proxy routing.
+    if (hasEmbeddedQuestions(meta)) {
+      const sections = transformEmbeddedQuestionSet(meta);
+      if (sections.length > 0) {
+        setMetadata(meta);
+        setSections(sections);
+        return;
+      }
     }
 
     // FETCHED path — delegate ALL network + normalization to the data service.
