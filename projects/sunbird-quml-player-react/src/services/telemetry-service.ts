@@ -39,8 +39,11 @@ function emit(event: TelemetryEvent): void {
 /** Initialize the telemetry SDK if one is available globally. */
 export function initializeTelemetry(context: TelemetryContext): void {
   const sdk = typeof window !== 'undefined' ? (window as any).EkTelemetry : undefined;
+  // Always reflect the CURRENT global SDK (or its absence). Otherwise a stale
+  // reference from a prior init can linger (multi-instance / tests) and receive
+  // logEvent calls after EkTelemetry is gone.
+  telemetrySDK = sdk ?? null;
   if (sdk) {
-    telemetrySDK = sdk;
     // Guard: not every host SDK exposes `initialize` (or it may already be
     // initialized by the host). Never assume the method exists.
     if (typeof sdk.initialize === 'function') {
@@ -56,14 +59,20 @@ export function initializeTelemetry(context: TelemetryContext): void {
  * `logEvent`. Many hosts (portal/editor) DON'T: they consume telemetry via the
  * `subscribeTelemetry` bridge (see emit) and their SDK has no `logEvent`. Calling
  * it blindly throws "logEvent is not a function" on every interaction, so we
- * feature-detect and otherwise queue. Returns true if the SDK accepted it.
+ * feature-detect first. Returns true if the SDK accepted it.
  */
 function sendToSdk(event: TelemetryEvent): boolean {
   if (telemetrySDK && typeof telemetrySDK.logEvent === 'function') {
     telemetrySDK.logEvent(event);
     return true;
   }
-  eventQueue.push(event);
+  // Queue ONLY while no SDK is present yet — it may initialize later and flush.
+  // If an SDK IS present but has no logEvent (portal/editor consume via the
+  // subscribeTelemetry bridge), never queue: flushQueuedEvents also requires
+  // logEvent, so the queue could never drain and would grow unbounded.
+  if (!telemetrySDK) {
+    eventQueue.push(event);
+  }
   return false;
 }
 
