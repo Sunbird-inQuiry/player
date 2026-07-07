@@ -10,6 +10,13 @@
   width: 100%;
   max-width: 100%;
   overflow-x: hidden; // hard guard: nothing scrolls the shell sideways
+  // Overview / results / review render their screen directly in the shell (the
+  // assessment stage scrolls via its inner .main). When the host constrains the
+  // player height, those screens overflow and their bottom CTA (e.g. "Start
+  // Assessment") gets clipped — so allow the shell itself to scroll vertically.
+  // Harmless for the assessment stage: its content fills exactly 100% and scrolls
+  // internally, so the shell never overflows.
+  overflow-y: auto;
   background: v.$cream-bg;
   font-family: v.$ff-base;
 }
