@@ -87,6 +87,16 @@ describe('data-service', () => {
       expect(mockGet).not.toHaveBeenCalled();
     });
 
+    it('honors a host-provided window.questionSetHierarchyUrl override', async () => {
+      (window as any).questionSetHierarchyUrl = '/action/questionset/v2/hierarchy/';
+      mockGet.mockResolvedValue({ questionset: hierarchy.questionset });
+      await getQuestionSetHierarchy('do_set');
+      expect(mockGet).toHaveBeenCalledWith('/action/questionset/v2/hierarchy/do_set', {
+        baseURL: undefined,
+      });
+      delete (window as any).questionSetHierarchyUrl;
+    });
+
     it('throws invalid when questionset is missing', async () => {
       mockGet.mockResolvedValue({});
       await expect(getQuestionSetHierarchy('do_set')).rejects.toMatchObject({ kind: 'invalid' });
@@ -109,6 +119,18 @@ describe('data-service', () => {
         { request: { search: { identifier: ['q1', 'q2'] } } },
         { baseURL: 'https://host' },
       );
+    });
+
+    it('honors a host-provided window.questionListUrl override', async () => {
+      (window as any).questionListUrl = '/action/question/v2/list';
+      mockPost.mockResolvedValue({ questions });
+      await getQuestions(['q1']);
+      expect(mockPost).toHaveBeenCalledWith(
+        '/action/question/v2/list',
+        { request: { search: { identifier: ['q1'] } } },
+        { baseURL: undefined },
+      );
+      delete (window as any).questionListUrl;
     });
 
     it('chunks large id lists into batches of 50 and concatenates results', async () => {

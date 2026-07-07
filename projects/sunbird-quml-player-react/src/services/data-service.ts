@@ -40,6 +40,19 @@ export interface LoadedQuestionSet {
   sections: Section[];
 }
 
+/**
+ * Host-provided endpoint override (the Sunbird QuestionCursor equivalent).
+ * The player's default API paths don't match every host's proxy routing (e.g.
+ * the portal serves the question list under `/action/…`, not `/api/…`, and does
+ * not proxy `/learner/…`). A host can set `window.questionListUrl` /
+ * `window.questionSetHierarchyUrl` to point the fetch at the right route; we fall
+ * back to the built-in defaults (which the editor's dev proxy serves) otherwise.
+ */
+function hostEndpoint(key: 'questionListUrl' | 'questionSetHierarchyUrl'): string | undefined {
+  const val = typeof window !== 'undefined' ? (window as unknown as Record<string, unknown>)[key] : undefined;
+  return typeof val === 'string' && val ? val : undefined;
+}
+
 /** Fetch the raw questionset hierarchy (`result.questionset`). */
 export async function getQuestionSetHierarchy(
   identifier: string,
@@ -48,7 +61,9 @@ export async function getQuestionSetHierarchy(
   if (!identifier) {
     throw new QumlApiError('invalid', 'getQuestionSetHierarchy: identifier is required');
   }
-  const url = `${ApiEndPoints.getQuestionSetHierarchy}${identifier}`;
+  const base = hostEndpoint('questionSetHierarchyUrl') ?? ApiEndPoints.getQuestionSetHierarchy;
+  // Base ends with `/` (identifier appended); tolerate a host value without one.
+  const url = base.endsWith('/') ? `${base}${identifier}` : `${base}/${identifier}`;
   const result = await httpGet<QuestionSetHierarchyResult>(url, { baseURL: opts.baseUrl });
   if (!result?.questionset) {
     throw new QumlApiError('invalid', 'Hierarchy response missing `questionset`');
@@ -69,9 +84,8 @@ export async function getQuestions(
   opts: LoadOptions = {},
 ): Promise<RawQuestion[]> {
   if (!identifiers || identifiers.length === 0) return [];
-  const url = opts.language
-    ? `${ApiEndPoints.questionList}?lang=${opts.language}`
-    : ApiEndPoints.questionList;
+  const listBase = hostEndpoint('questionListUrl') ?? ApiEndPoints.questionList;
+  const url = opts.language ? `${listBase}?lang=${opts.language}` : listBase;
 
   const chunks: string[][] = [];
   for (let i = 0; i < identifiers.length; i += QUESTION_BATCH_SIZE) {
@@ -150,4 +164,38 @@ export async function loadQuestionSet(
     .filter((s): s is Section => Boolean(s));
 
   return { metadata: questionSet, sections };
+}
+
+/**
+ * True when a raw questionset already carries fully-authored question content
+ * embedded in its hierarchy (a leaf question has `body` or `interactions`), so it
+ * can be rendered without any network fetch. Hosts like the Sunbird editor/portal
+ * pass the whole questionset (with content) as `playerConfig.metadata`; a plain
+ * hierarchy read, by contrast, contains only stub questions (no body).
+ */
+export function hasEmbeddedQuestions(questionSet: any): boolean {
+  if (!questionSet || typeof questionSet !== 'object') return false;
+  return extractSectionNodes(questionSet).some((section) =>
+    orderedQuestionStubs(section).some(
+      (q: any) => q && (q.body || (q.interactions && Object.keys(q.interactions).length > 0)),
+    ),
+  );
+}
+
+/**
+ * Build normalized sections from a questionset whose questions are ALREADY
+ * embedded (see hasEmbeddedQuestions) — no network calls. Mirrors loadQuestionSet
+ * minus the fetch/merge: each embedded question IS the full content.
+ */
+export function transformEmbeddedQuestionSet(questionSet: any): Section[] {
+  return extractSectionNodes(questionSet)
+    .map((node): Section | null => {
+      const normalizedSection = transformSection(node);
+      if (!normalizedSection) return null;
+      const children = orderedQuestionStubs(node)
+        .map((q) => transformQuestion(q))
+        .filter((q): q is Question => Boolean(q));
+      return { ...normalizedSection, children };
+    })
+    .filter((s): s is Section => Boolean(s));
 }

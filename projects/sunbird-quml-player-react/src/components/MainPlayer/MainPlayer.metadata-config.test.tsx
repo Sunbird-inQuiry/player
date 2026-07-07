@@ -8,7 +8,12 @@ import type { PlayerConfig } from '../../types';
 // (Angular contract) with `data` empty. Mock the data service to assert the
 // player fetches using the identifier taken from metadata.
 const { loadQuestionSet } = vi.hoisted(() => ({ loadQuestionSet: vi.fn() }));
-vi.mock('../../services/data-service', () => ({ loadQuestionSet }));
+// These configs carry no embedded question content, so force the fetch path.
+vi.mock('../../services/data-service', () => ({
+  loadQuestionSet,
+  hasEmbeddedQuestions: () => false,
+  transformEmbeddedQuestionSet: () => [],
+}));
 
 describe('MainPlayer — metadata config contract (editor/portal)', () => {
   it('fetches by identifier from playerConfig.metadata when data is empty', async () => {
