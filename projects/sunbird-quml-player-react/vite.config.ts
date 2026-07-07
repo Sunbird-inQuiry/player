@@ -24,6 +24,15 @@ export default defineConfig(({ command }) => {
       },
     },
 
+    // The IIFE web-component bundle runs in the browser, which has no `process`.
+    // React and other deps branch on `process.env.NODE_ENV`; Vite does NOT inline
+    // it in library mode, so without this the bundle throws "process is not
+    // defined" at load. Inline it to the production string — but ONLY for the
+    // build; in dev, Vite manages NODE_ENV (development) for HMR/React dev mode.
+    define: isBuild
+      ? { 'process.env.NODE_ENV': JSON.stringify('production') }
+      : {},
+
     // ── Development mode (vite / npm run dev) ──────────────────────────────
     server: {
       port: 3000,
