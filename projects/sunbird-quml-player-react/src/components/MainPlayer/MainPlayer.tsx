@@ -95,7 +95,10 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     // contract — they pass the questionset under `playerConfig.metadata` and leave
     // `data` empty. Fall back to metadata so both config shapes load.
     const meta = (playerConfig.metadata as Record<string, unknown> | undefined) ?? {};
-    const rawSections = ((data.sections ?? meta.sections) as unknown[] | undefined) ?? [];
+    // Guard with Array.isArray: a non-array `sections` (e.g. a string) would have
+    // a truthy `.length` and crash on `.map` in the embedded path below.
+    const sectionsCandidate = data.sections ?? meta.sections;
+    const rawSections = Array.isArray(sectionsCandidate) ? (sectionsCandidate as unknown[]) : [];
 
     // EMBEDDED path (unchanged behavior).
     if (rawSections.length > 0) {
@@ -116,7 +119,10 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     }
 
     // FETCHED path — delegate ALL network + normalization to the data service.
-    const identifier = (data.identifier ?? meta.identifier) as string | undefined;
+    // Require a real string id: a non-string (e.g. an object) would otherwise
+    // build a bad request URL like `.../[object Object]`.
+    const identifierCandidate = data.identifier ?? meta.identifier;
+    const identifier = typeof identifierCandidate === 'string' ? identifierCandidate : undefined;
     if (!identifier) return;
     // API base URL only — the content/asset base (config.baseUrl) is separate and
     // used for image resolution, so it must NOT leak into API requests.

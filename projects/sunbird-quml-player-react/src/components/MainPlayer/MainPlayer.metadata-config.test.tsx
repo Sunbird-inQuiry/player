@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import { QumlProvider } from '../../context/QumlContext';
 import { MainPlayer } from './MainPlayer';
 import type { PlayerConfig } from '../../types';
@@ -49,8 +49,26 @@ describe('MainPlayer — metadata config contract (editor/portal)', () => {
         <MainPlayer playerConfig={cfg} />
       </QumlProvider>,
     );
-    // Give effects a tick; loadQuestionSet must not be called.
-    await new Promise((r) => setTimeout(r, 50));
+    // Flush effects with a single microtask tick; the no-identifier path returns
+    // synchronously, so loadQuestionSet must not be called.
+    await act(async () => {});
+    expect(loadQuestionSet).not.toHaveBeenCalled();
+  });
+
+  it('does not fetch when the identifier is a non-string (guards against .../[object Object])', async () => {
+    loadQuestionSet.mockClear();
+    const cfg: PlayerConfig = {
+      context: {},
+      config: { language: 'en' },
+      metadata: { identifier: { bad: true } as unknown as string },
+      data: {},
+    };
+    render(
+      <QumlProvider playerConfig={cfg}>
+        <MainPlayer playerConfig={cfg} />
+      </QumlProvider>,
+    );
+    await act(async () => {});
     expect(loadQuestionSet).not.toHaveBeenCalled();
   });
 });
