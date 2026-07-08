@@ -209,10 +209,6 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
       totalQuestions,
       totalSections: state.sections.length,
       timeLimit: Number(timeLimits?.max) || 0,
-      // Angular parity (main-player.component.ts:172 → header *ngIf="showTimer"):
-      // the timer is shown ONLY when the content opts in via `showTimer`. Absent /
-      // false → no timer at all; the count-up fallback also requires it.
-      showTimer: data.showTimer === true || data.showTimer === 'true',
       maxScore,
       attemptsLeft: Math.max(0, (cfg.maxAttempts ?? 3) - (state.attemptNumber - 1)),
     };
@@ -252,7 +248,7 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
   const [timeElapsed, setTimeElapsed] = useState(0);
   const elapsedAnchorRef = useRef<number | null>(null);
   useEffect(() => {
-    if (!isClockRunning || overview.timeLimit > 0 || !overview.showTimer) return;
+    if (!isClockRunning || overview.timeLimit > 0) return;
     elapsedAnchorRef.current = Date.now() - timeElapsed * 1000;
     const id = setInterval(() => {
       setTimeElapsed(Math.floor((Date.now() - elapsedAnchorRef.current!) / 1000));
@@ -261,7 +257,7 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     // Re-anchor only when the clock starts/stops; timeElapsed is read once as
     // the resume point.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isClockRunning, overview.timeLimit, overview.showTimer]);
+  }, [isClockRunning, overview.timeLimit]);
 
   // Time up → auto-submit straight to results (no confirmation dialog).
   useEffect(() => {
@@ -288,11 +284,7 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
 
   // ── Flow transitions ───────────────────────────────────────────────────────
   const beginAssessmentTimer = () => {
-    // No countdown (and therefore no auto-submit on expiry) unless the content
-    // opts into the timer — Angular's header never starts the interval otherwise.
-    if (overview.showTimer && timeRemaining == null && overview.timeLimit > 0) {
-      setTimeRemaining(overview.timeLimit);
-    }
+    if (timeRemaining == null && overview.timeLimit > 0) setTimeRemaining(overview.timeLimit);
   };
 
   const handleStart = () => {
@@ -456,9 +448,9 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
         />
       );
 
-    // The header timer is gated by the content's `showTimer` flag (Angular parity).
-    // When enabled: countdown if a time limit exists, count-up elapsed otherwise.
-    // When disabled: both props are null, so PlayerHeader renders no timer at all.
+    // The header timer ALWAYS shows (intentional deviation from Angular's
+    // content-driven showTimer flag): countdown when a time limit exists,
+    // count-up elapsed otherwise.
     content = (
       <>
         <PlayerHeader
@@ -466,8 +458,8 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
           sections={state.sections}
           currentSectionIndex={state.currentSectionIndex}
           completed={completed}
-          timeRemaining={overview.showTimer ? timeRemaining : null}
-          timeElapsed={overview.showTimer && overview.timeLimit === 0 ? timeElapsed : null}
+          timeRemaining={timeRemaining}
+          timeElapsed={overview.timeLimit === 0 ? timeElapsed : null}
           questionNumber={globalQuestionNumber}
           totalQuestions={overview.totalQuestions}
           onSubmit={handleSubmitAssessment}
