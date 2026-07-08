@@ -215,9 +215,21 @@ export function SectionPlayer({ section, onSectionEnd, isLastSection = true }: S
         </span>
 
         {isLast && isLastSection ? (
-          // Final question of the final section → Submit.
-          <button type="button" className={styles.submit} onClick={handleSubmit}>
-            {t(language, 'SUBMIT')}
+          // Final question of the final section → no bottom action. The persistent
+          // header "Submit" finishes the assessment, so a bottom Submit here would
+          // duplicate it. Hidden placeholder MIRRORS the Next button's structure so
+          // it matches "Previous"'s width and the counter stays centered. It is
+          // non-interactive (aria-hidden, not focusable, disabled).
+          <button
+            type="button"
+            className={styles.navBtn}
+            style={{ visibility: 'hidden' }}
+            aria-hidden="true"
+            tabIndex={-1}
+            disabled
+          >
+            <span className={styles.navLabel}>{t(language, 'NEXT')}</span>
+            <NextIcon size={18} />
           </button>
         ) : (
           // Otherwise Next: advances within the section, or to the next section

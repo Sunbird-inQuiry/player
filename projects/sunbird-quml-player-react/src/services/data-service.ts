@@ -15,7 +15,7 @@
 
 import { httpGet, httpPost } from './http-client';
 import { transformSection, transformQuestion } from './transformation-service';
-import { ApiEndPoints } from '../utils/api-endpoints';
+import { ApiPaths, DEFAULT_API_PREFIX } from '../utils/api-endpoints';
 import { QumlApiError } from '../types/api';
 import type {
   QuestionSetHierarchyResult,
@@ -31,6 +31,20 @@ export interface LoadOptions {
   baseUrl?: string;
   /** Language passed to /question/v5/list as `?lang=`. */
   language?: string;
+  /**
+   * API path prefix (the host slug, e.g. the portal's `/portal`). Prepended to
+   * the resource paths in ApiPaths. This is the React equivalent of Angular's
+   * host-provided QuestionCursor deciding the URL. Falls back to `/api` when the
+   * host does not supply one. A full `window.question*Url` override still wins.
+   */
+  pathPrefix?: string;
+}
+
+/** Normalize the API path prefix (host slug); falls back to `/api`. */
+function apiPrefix(prefix?: string): string {
+  const p = typeof prefix === 'string' && prefix.trim() ? prefix.trim() : DEFAULT_API_PREFIX;
+  // ApiPaths already start with `/`, so drop any trailing slash on the prefix.
+  return p.replace(/\/+$/, '');
 }
 
 export interface LoadedQuestionSet {
@@ -61,7 +75,9 @@ export async function getQuestionSetHierarchy(
   if (!identifier) {
     throw new QumlApiError('invalid', 'getQuestionSetHierarchy: identifier is required');
   }
-  const base = hostEndpoint('questionSetHierarchyUrl') ?? ApiEndPoints.getQuestionSetHierarchy;
+  const base =
+    hostEndpoint('questionSetHierarchyUrl') ??
+    `${apiPrefix(opts.pathPrefix)}${ApiPaths.questionSetHierarchy}`;
   // Base ends with `/` (identifier appended); tolerate a host value without one.
   const path = base.endsWith('/') ? `${base}${identifier}` : `${base}/${identifier}`;
   // mode=edit so the editor can preview draft / in-progress question sets.
@@ -86,7 +102,8 @@ export async function getQuestions(
   opts: LoadOptions = {},
 ): Promise<RawQuestion[]> {
   if (!identifiers || identifiers.length === 0) return [];
-  const listBase = hostEndpoint('questionListUrl') ?? ApiEndPoints.questionList;
+  const listBase =
+    hostEndpoint('questionListUrl') ?? `${apiPrefix(opts.pathPrefix)}${ApiPaths.questionList}`;
   const url = opts.language ? `${listBase}?lang=${opts.language}` : listBase;
 
   const chunks: string[][] = [];

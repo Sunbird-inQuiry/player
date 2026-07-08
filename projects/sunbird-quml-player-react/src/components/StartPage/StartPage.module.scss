@@ -41,19 +41,6 @@
   margin-inline: auto;
 }
 
-.savedPill {
-  display: inline-flex;
-  align-items: center;
-  gap: v.$space-2;
-  padding: v.$space-2 v.$space-4;
-  margin-bottom: v.$space-8;
-  background: v.$success-bg;
-  color: v.$success;
-  border-radius: v.$r-pill;
-  font-size: v.$text-sm;
-  font-weight: v.$fw-semibold;
-}
-
 .heading {
   display: flex;
   align-items: flex-start;
@@ -72,14 +59,6 @@
   font-weight: v.$fw-bold;
   line-height: v.$lh-tight;
   color: v.$g900;
-}
-
-.description {
-  margin: 0;
-  max-width: 42rem;
-  font-size: v.$text-md;
-  line-height: v.$lh-normal;
-  color: v.$gray-600;
 }
 
 // Decorative stacked cards (top-right of the title).

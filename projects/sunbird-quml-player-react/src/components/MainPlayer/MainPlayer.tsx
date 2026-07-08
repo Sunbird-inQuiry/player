@@ -144,12 +144,22 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     // API base URL only — the content/asset base (config.baseUrl) is separate and
     // used for image resolution, so it must NOT leak into API requests.
     const baseUrl = (playerConfig.context?.host as string | undefined) ?? '';
+    // API path prefix (host slug, e.g. the portal's `/portal`). This is the React
+    // stand-in for Angular's host-provided QuestionCursor choosing the URL. The
+    // portal passes it as `config.apiSlug` (its existing convention — see
+    // QumlEditorService `apiSlug: '/portal'`); `slug` is accepted as an alias.
+    // data-service falls back to `/api` when neither is supplied.
+    const cfg = playerConfig.config ?? {};
+    const pathPrefix =
+      (typeof cfg.apiSlug === 'string' ? cfg.apiSlug : undefined) ??
+      (typeof cfg.slug === 'string' ? cfg.slug : undefined);
 
     setLoading(true);
     try {
       const { metadata: qsMetadata, sections } = await loadQuestionSet(identifier, {
         baseUrl,
         language: playerConfig.config?.language,
+        pathPrefix,
       });
       setMetadata(qsMetadata as Record<string, unknown>);
       setSections(sections);
@@ -396,7 +406,6 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     content = (
       <StartPage
         title={overview.title}
-        description={overview.description}
         sections={state.sections}
         totalQuestions={overview.totalQuestions}
         totalSections={overview.totalSections}

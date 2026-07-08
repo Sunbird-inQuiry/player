@@ -1,6 +1,5 @@
 import { t, readI18n } from '../../i18n/translations';
 import {
-  CheckIcon,
   ClipboardIcon,
   TimerIcon,
   GridIcon,
@@ -25,7 +24,6 @@ const BADGE_COLORS = ['#a85236', '#cc8545', '#c2703c', '#5f8268'];
 
 export interface StartPageProps {
   title: string;
-  description?: string;
   sections: Section[];
   totalQuestions: number;
   totalSections: number;
@@ -47,7 +45,6 @@ function formatMinutes(seconds: number): string {
 
 export function StartPage({
   title,
-  description,
   sections,
   totalQuestions,
   totalSections,
@@ -73,15 +70,9 @@ export function StartPage({
   return (
     <div className={styles.overview}>
       <main className={styles.main}>
-        <span className={styles.savedPill}>
-          <CheckIcon size={16} />
-          {t(language, 'PROGRESS_SAVED')}
-        </span>
-
         <div className={styles.heading}>
           <div className={styles.headingText}>
             <h1 className={styles.title}>{title}</h1>
-            {description && <p className={styles.description}>{description}</p>}
           </div>
           <span className={styles.decoCards} aria-hidden="true">
             <span className={styles.decoCard} />
