@@ -215,10 +215,10 @@ export function SectionPlayer({ section, onSectionEnd, isLastSection = true }: S
         </span>
 
         {isLast && isLastSection ? (
-          // Final question of the final section → Submit.
-          <button type="button" className={styles.submit} onClick={handleSubmit}>
-            {t(language, 'SUBMIT')}
-          </button>
+          // Final question of the final section → no bottom action. The persistent
+          // header "Submit" finishes the assessment, so a bottom Submit here would
+          // duplicate it. Invisible spacer keeps the counter centered in the bar.
+          <span className={styles.navBtn} style={{ visibility: 'hidden' }} aria-hidden="true" />
         ) : (
           // Otherwise Next: advances within the section, or to the next section
           // when on a section's last question.

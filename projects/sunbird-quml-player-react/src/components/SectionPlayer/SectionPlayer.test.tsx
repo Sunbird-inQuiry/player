@@ -46,11 +46,14 @@ describe('SectionPlayer', () => {
     expect(screen.getByText(/Question 1 of 2/i)).toBeInTheDocument();
   });
 
-  it('navigates to the next question and shows Submit on the last', () => {
-    wrap(<SectionPlayer section={section} />);
+  it('final section: no bottom Submit/Next on the last question (header submits)', () => {
+    wrap(<SectionPlayer section={section} />); // isLastSection defaults to true
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
     expect(screen.getByText(/Question 2 of 2/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument();
+    // The persistent header Submit finishes the assessment, so the bottom bar has
+    // no Submit (and no Next, since it's the last question).
+    expect(screen.queryByRole('button', { name: /submit/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /next/i })).not.toBeInTheDocument();
   });
 
   it('persists an answer across navigation (Context restore)', () => {
@@ -89,11 +92,12 @@ describe('SectionPlayer', () => {
     }
   });
 
-  it('calls onSectionEnd when Submit is clicked', () => {
+  it("calls onSectionEnd via Next on a non-final section's last question", () => {
     const onSectionEnd = vi.fn();
-    wrap(<SectionPlayer section={section} onSectionEnd={onSectionEnd} />);
-    fireEvent.click(screen.getByRole('button', { name: /next/i }));
-    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    // Not the final section → the last question shows Next (advances to next section).
+    wrap(<SectionPlayer section={section} onSectionEnd={onSectionEnd} isLastSection={false} />);
+    fireEvent.click(screen.getByRole('button', { name: /next/i })); // Q1 → Q2 (last)
+    fireEvent.click(screen.getByRole('button', { name: /next/i })); // last Q → onSectionEnd
     expect(onSectionEnd).toHaveBeenCalledTimes(1);
   });
 
