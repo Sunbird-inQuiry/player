@@ -97,6 +97,22 @@ describe('data-service', () => {
       delete (window as any).questionSetHierarchyUrl;
     });
 
+    it('prepends the host slug (pathPrefix) instead of the /api fallback', async () => {
+      mockGet.mockResolvedValue({ questionset: hierarchy.questionset });
+      await getQuestionSetHierarchy('do_set', { pathPrefix: '/portal' });
+      expect(mockGet).toHaveBeenCalledWith('/portal/questionset/v2/hierarchy/do_set?mode=edit', {
+        baseURL: undefined,
+      });
+    });
+
+    it('falls back to /api when no pathPrefix is given', async () => {
+      mockGet.mockResolvedValue({ questionset: hierarchy.questionset });
+      await getQuestionSetHierarchy('do_set');
+      expect(mockGet).toHaveBeenCalledWith('/api/questionset/v2/hierarchy/do_set?mode=edit', {
+        baseURL: undefined,
+      });
+    });
+
     it('throws invalid when questionset is missing', async () => {
       mockGet.mockResolvedValue({});
       await expect(getQuestionSetHierarchy('do_set')).rejects.toMatchObject({ kind: 'invalid' });
@@ -131,6 +147,16 @@ describe('data-service', () => {
         { baseURL: undefined },
       );
       delete (window as any).questionListUrl;
+    });
+
+    it('prepends the host slug (pathPrefix) to the question list, else /api', async () => {
+      mockPost.mockResolvedValue({ questions });
+      await getQuestions(['q1'], { pathPrefix: '/portal' });
+      expect(mockPost.mock.calls[0][0]).toBe('/portal/question/v2/list');
+
+      mockPost.mockClear();
+      await getQuestions(['q1']);
+      expect(mockPost.mock.calls[0][0]).toBe('/api/question/v2/list');
     });
 
     it('chunks large id lists into batches of 50 and concatenates results', async () => {
