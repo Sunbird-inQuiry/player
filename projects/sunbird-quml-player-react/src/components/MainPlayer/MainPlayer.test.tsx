@@ -9,6 +9,8 @@ const cfg: PlayerConfig = {
   context: {},
   config: { language: 'en', showFeedback: true },
   data: {
+    // Timer is opt-in (Angular parity): content must set showTimer for it to show.
+    showTimer: true,
     sections: [
       {
         identifier: 's1',
@@ -139,6 +141,32 @@ describe('MainPlayer', () => {
       fireEvent.click(screen.getByRole('button', { name: /start section/i }));
       act(() => vi.advanceTimersByTime(2000));
       expect(screen.getByText('4:55')).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('shows NO timer when showTimer is absent/false, even with a time limit', () => {
+    vi.useFakeTimers();
+    try {
+      // Time limit present, but showTimer omitted → the timer must not render
+      // (Angular parity: header *ngIf="showTimer").
+      const { showTimer: _omit, ...dataNoTimer } = cfg.data as Record<string, unknown>;
+      const noTimerCfg = {
+        ...cfg,
+        data: { ...dataNoTimer, timeLimits: { questionSet: { max: 300, min: 0 } } },
+      } as PlayerConfig;
+      render(
+        <QumlProvider playerConfig={noTimerCfg}>
+          <MainPlayer playerConfig={noTimerCfg} />
+        </QumlProvider>,
+      );
+      fireEvent.click(screen.getByRole('button', { name: /start assessment/i }));
+      act(() => vi.advanceTimersByTime(3000));
+      expect(screen.queryByRole('timer')).not.toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: /start section/i }));
+      act(() => vi.advanceTimersByTime(2000));
+      expect(screen.queryByRole('timer')).not.toBeInTheDocument();
     } finally {
       vi.useRealTimers();
     }
