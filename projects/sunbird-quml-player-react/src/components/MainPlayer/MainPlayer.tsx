@@ -396,7 +396,6 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     content = (
       <StartPage
         title={overview.title}
-        description={overview.description}
         sections={state.sections}
         totalQuestions={overview.totalQuestions}
         totalSections={overview.totalSections}
