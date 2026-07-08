@@ -410,8 +410,12 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
   } else if (stage === 'results') {
     // Total time spent: countdown mode → limit minus what was left; count-up
     // mode → the elapsed counter (both tick only during the assessment stage).
-    const timeTaken =
-      overview.timeLimit > 0
+    // When the timer is suppressed (showTimer off) neither clock runs, so there
+    // is no meaningful elapsed value — pass null so Results omits "Time Taken"
+    // rather than showing a misleading 0:00.
+    const timeTaken = !overview.showTimer
+      ? null
+      : overview.timeLimit > 0
         ? overview.timeLimit - (timeRemaining ?? overview.timeLimit)
         : timeElapsed;
     content = (
