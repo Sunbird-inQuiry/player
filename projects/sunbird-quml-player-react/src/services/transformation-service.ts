@@ -39,7 +39,7 @@ export function transformQuestion(question: any): Question | null {
     outcomeDeclaration: { maxScore: { defaultValue: extractMaxScore(question) } },
     maxScore: extractMaxScore(question),
     media: question.media || [],
-    solutions: normalizeContentEntries(question.solutions), // array form (may arrive as object map)
+    solutions: buildSolutions(question), // html/video/audio, resolved from editorState when the flat map dropped media
     hints: normalizeContentEntries(question.hints), // array form (may arrive as object map)
     templateId: question.templateId || '',
     language: question.language || [],
@@ -143,6 +143,64 @@ function normalizeContentEntries(entries: any): Array<{ value: string | I18nValu
     return Object.values(entries).map((value) => ({ value: value as string | I18nValue }));
   }
   return [];
+}
+
+/**
+ * Turn one `editorState.solutions` spec into renderable HTML, mirroring Angular's
+ * transformation.service.ts `getSolutionString`:
+ *   - html  → the raw HTML value
+ *   - video → <video controls><source ...> built from the matching media entry
+ *   - audio → <audio controls><source ...> (Angular omits audio; we support it
+ *             since the media ref is available)
+ * The media `src` is root-relative (e.g. /assets/public/content/...); we absolutise
+ * it with the media entry's baseUrl (as Angular's mcq-solutions panel does) so the
+ * asset loads. Returns '' when there is nothing renderable.
+ */
+function solutionSpecToHtml(spec: any, media: any[]): string {
+  if (!spec || typeof spec !== 'object') return '';
+  const type = spec.type;
+  const value = spec.value ?? '';
+  if (type === 'html') return typeof value === 'string' ? value : '';
+  if (type === 'video' || type === 'audio') {
+    const item = media.find((m) => m?.id === value);
+    const src = item?.src || '';
+    if (!src) return '';
+    const host = (item?.baseUrl || '').replace(/\/$/, '');
+    const abs = /^https?:|^blob:|^data:/.test(src) ? src : `${host}${src}`;
+    return type === 'video'
+      ? `<video width="400" controls><source src="${abs}"></video>`
+      : `<audio controls><source src="${abs}"></audio>`;
+  }
+  return '';
+}
+
+/**
+ * Build the normalized solutions array. The v5 list API delivers `solutions` as a
+ * flat `{id: value}` map where media solutions are empty strings (only HTML
+ * survives); the real `{type, value}` lives in `editorState.solutions`. Prefer
+ * that structured source (so video/audio solutions render), and fall back to the
+ * flat map / offline array form when it is absent.
+ */
+function buildSolutions(question: any): Array<{ value: string | I18nValue }> {
+  const editorSolutions = question?.editorState?.solutions;
+  if (Array.isArray(editorSolutions) && editorSolutions.length > 0) {
+    const media: any[] = Array.isArray(question.media) ? question.media : [];
+    const entries = editorSolutions
+      .map((entry: any) => {
+        const langMap = entry?.value;
+        if (!langMap || typeof langMap !== 'object') return null;
+        // Render one HTML string per language so readI18n picks the right one.
+        const htmlByLang: Record<string, string> = {};
+        for (const [lang, spec] of Object.entries(langMap)) {
+          const html = solutionSpecToHtml(spec, media);
+          if (html) htmlByLang[lang] = html;
+        }
+        return Object.keys(htmlByLang).length > 0 ? { value: htmlByLang as I18nValue } : null;
+      })
+      .filter((e): e is { value: I18nValue } => Boolean(e));
+    if (entries.length > 0) return entries;
+  }
+  return normalizeContentEntries(question.solutions);
 }
 
 /** Extract max score from a raw question (defaults to 1). */

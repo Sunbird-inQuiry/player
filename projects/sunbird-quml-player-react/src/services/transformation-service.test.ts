@@ -75,6 +75,40 @@ describe('transformSection — showSolutions/showHints flags (Angular parity)', 
   });
 });
 
+describe('transformQuestion — solutions (media from editorState)', () => {
+  it('renders a video solution from editorState + media when the flat map is empty', () => {
+    const q = raw({
+      solutions: { s1: '' }, // v5 flat map drops media → empty
+      media: [{ id: 'do_vid', type: 'video', src: '/assets/x/bunny.webm', baseUrl: 'https://host' }],
+      editorState: { solutions: [{ id: 's1', value: { en: { type: 'video', value: 'do_vid' } } }] },
+    });
+    const html = readI18n((transformQuestion(q)!.solutions![0] as { value: unknown }).value as never, 'en');
+    expect(html).toContain('<video');
+    expect(html).toContain('src="https://host/assets/x/bunny.webm"');
+  });
+
+  it('renders an audio solution from editorState + media', () => {
+    const q = raw({
+      solutions: { s1: '' },
+      media: [{ id: 'do_aud', type: 'audio', src: '/assets/x/clip.mp3', baseUrl: 'https://host' }],
+      editorState: { solutions: [{ id: 's1', value: { en: { type: 'audio', value: 'do_aud' } } }] },
+    });
+    const html = readI18n((transformQuestion(q)!.solutions![0] as { value: unknown }).value as never, 'en');
+    expect(html).toContain('<audio');
+    expect(html).toContain('src="https://host/assets/x/clip.mp3"');
+  });
+
+  it('passes html solutions through and falls back to the flat map without editorState', () => {
+    const fromEditor = transformQuestion(
+      raw({ solutions: { s1: '<b>ans</b>' }, editorState: { solutions: [{ id: 's1', value: { en: { type: 'html', value: '<b>ans</b>' } } }] } }),
+    );
+    expect(readI18n((fromEditor!.solutions![0] as { value: unknown }).value as never, 'en')).toBe('<b>ans</b>');
+
+    const fallback = transformQuestion(raw({ solutions: { s1: '<i>x</i>' } }));
+    expect((fallback!.solutions![0] as { value: unknown }).value).toBe('<i>x</i>');
+  });
+});
+
 describe('transformQuestion — showFeedback tri-state', () => {
   it('is undefined when the author did not specify it', () => {
     expect(transformQuestion(raw())?.showFeedback).toBeUndefined();
