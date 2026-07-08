@@ -146,15 +146,17 @@ describe('MainPlayer', () => {
     }
   });
 
-  it('shows NO timer when showTimer is absent/false, even with a time limit', () => {
+  // Both the omitted case and an explicit `showTimer: false` must suppress the
+  // timer (Angular parity: header *ngIf="showTimer"), even with a time limit.
+  it.each([
+    ['omitted', (() => { const { showTimer: _o, ...rest } = cfg.data as Record<string, unknown>; return rest; })()],
+    ['explicit false', { ...(cfg.data as Record<string, unknown>), showTimer: false }],
+  ])('shows NO timer when showTimer is %s, even with a time limit', (_label, data) => {
     vi.useFakeTimers();
     try {
-      // Time limit present, but showTimer omitted → the timer must not render
-      // (Angular parity: header *ngIf="showTimer").
-      const { showTimer: _omit, ...dataNoTimer } = cfg.data as Record<string, unknown>;
       const noTimerCfg = {
         ...cfg,
-        data: { ...dataNoTimer, timeLimits: { questionSet: { max: 300, min: 0 } } },
+        data: { ...data, timeLimits: { questionSet: { max: 300, min: 0 } } },
       } as PlayerConfig;
       render(
         <QumlProvider playerConfig={noTimerCfg}>
