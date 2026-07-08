@@ -63,7 +63,9 @@ export async function getQuestionSetHierarchy(
   }
   const base = hostEndpoint('questionSetHierarchyUrl') ?? ApiEndPoints.getQuestionSetHierarchy;
   // Base ends with `/` (identifier appended); tolerate a host value without one.
-  const url = base.endsWith('/') ? `${base}${identifier}` : `${base}/${identifier}`;
+  const path = base.endsWith('/') ? `${base}${identifier}` : `${base}/${identifier}`;
+  // mode=edit so the editor can preview draft / in-progress question sets.
+  const url = path.includes('?') ? `${path}&mode=edit` : `${path}?mode=edit`;
   const result = await httpGet<QuestionSetHierarchyResult>(url, { baseURL: opts.baseUrl });
   if (!result?.questionset) {
     throw new QumlApiError('invalid', 'Hierarchy response missing `questionset`');
