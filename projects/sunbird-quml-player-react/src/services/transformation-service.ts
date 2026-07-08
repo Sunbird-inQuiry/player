@@ -156,6 +156,15 @@ function normalizeContentEntries(entries: any): Array<{ value: string | I18nValu
  * it with the media entry's baseUrl (as Angular's mcq-solutions panel does) so the
  * asset loads. Returns '' when there is nothing renderable.
  */
+/** Escape a value for safe interpolation into an HTML attribute. */
+function escAttr(value: string): string {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 function solutionSpecToHtml(spec: any, media: any[]): string {
   if (!spec || typeof spec !== 'object') return '';
   const type = spec.type;
@@ -165,11 +174,15 @@ function solutionSpecToHtml(spec: any, media: any[]): string {
     const item = media.find((m) => m?.id === value);
     const src = item?.src || '';
     if (!src) return '';
-    const host = (item?.baseUrl || '').replace(/\/$/, '');
-    const abs = /^https?:|^blob:|^data:/.test(src) ? src : `${host}${src}`;
+    // Emit `data-asset-variable` (the media id) + the AUTHORED src, and let the
+    // render-time resolver (resolveMediaHtml via mediaCtx) rewrite the <source> —
+    // that covers BOTH online (media.baseUrl) and offline (basePath), matching the
+    // question stem and Angular's getSolutionString. Attribute values are escaped.
+    const id = escAttr(String(value));
+    const s = escAttr(src);
     return type === 'video'
-      ? `<video width="400" controls><source src="${abs}"></video>`
-      : `<audio controls><source src="${abs}"></audio>`;
+      ? `<video data-asset-variable="${id}" width="400" controls><source src="${s}"></video>`
+      : `<audio data-asset-variable="${id}" controls><source src="${s}"></audio>`;
   }
   return '';
 }

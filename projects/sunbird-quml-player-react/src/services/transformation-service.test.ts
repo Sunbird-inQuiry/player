@@ -84,7 +84,9 @@ describe('transformQuestion — solutions (media from editorState)', () => {
     });
     const html = readI18n((transformQuestion(q)!.solutions![0] as { value: unknown }).value as never, 'en');
     expect(html).toContain('<video');
-    expect(html).toContain('src="https://host/assets/x/bunny.webm"');
+    // data-asset-variable + authored src → resolved to absolute at render time.
+    expect(html).toContain('data-asset-variable="do_vid"');
+    expect(html).toContain('src="/assets/x/bunny.webm"');
   });
 
   it('renders an audio solution from editorState + media', () => {
@@ -95,7 +97,8 @@ describe('transformQuestion — solutions (media from editorState)', () => {
     });
     const html = readI18n((transformQuestion(q)!.solutions![0] as { value: unknown }).value as never, 'en');
     expect(html).toContain('<audio');
-    expect(html).toContain('src="https://host/assets/x/clip.mp3"');
+    expect(html).toContain('data-asset-variable="do_aud"');
+    expect(html).toContain('src="/assets/x/clip.mp3"');
   });
 
   it('passes html solutions through and falls back to the flat map without editorState', () => {
