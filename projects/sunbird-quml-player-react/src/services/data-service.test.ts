@@ -77,7 +77,7 @@ describe('data-service', () => {
       const qs = await getQuestionSetHierarchy('do_set', { baseUrl: 'https://host' });
       expect(qs.identifier).toBe('do_set');
       expect(mockGet).toHaveBeenCalledWith(
-        `${ApiEndPoints.getQuestionSetHierarchy}do_set`,
+        `${ApiEndPoints.getQuestionSetHierarchy}do_set?mode=edit`,
         { baseURL: 'https://host' },
       );
     });
@@ -91,7 +91,7 @@ describe('data-service', () => {
       (window as any).questionSetHierarchyUrl = '/action/questionset/v2/hierarchy/';
       mockGet.mockResolvedValue({ questionset: hierarchy.questionset });
       await getQuestionSetHierarchy('do_set');
-      expect(mockGet).toHaveBeenCalledWith('/action/questionset/v2/hierarchy/do_set', {
+      expect(mockGet).toHaveBeenCalledWith('/action/questionset/v2/hierarchy/do_set?mode=edit', {
         baseURL: undefined,
       });
       delete (window as any).questionSetHierarchyUrl;

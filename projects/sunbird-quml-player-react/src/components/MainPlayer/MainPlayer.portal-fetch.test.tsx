@@ -87,7 +87,7 @@ describe('MainPlayer — full portal path (shallow metadata → /portal fetch �
 
     // Hierarchy fetched from the portal gateway route (not /learner).
     await waitFor(() =>
-      expect(mockGet).toHaveBeenCalledWith('/portal/questionset/v2/hierarchy/do_qs', expect.anything()),
+      expect(mockGet).toHaveBeenCalledWith('/portal/questionset/v2/hierarchy/do_qs?mode=edit', expect.anything()),
     );
     // Question list fetched from the portal gateway route (not /api or /action);
     // a ?lang= suffix is appended from config.language.

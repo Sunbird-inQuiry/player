@@ -4,7 +4,11 @@
 .sectionPlayer {
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  // Fill (not just min) the bounded assessment area so `.content`'s overflow-y
+  // scrolls the question internally while the nav bar stays fixed, instead of the
+  // whole player growing past a fixed-height host.
+  height: 100%;
+  min-height: 0;
 }
 
 // Shared centered column so the nav bar and question card line up 1:1.

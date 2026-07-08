@@ -43,13 +43,13 @@ export default defineConfig(({ command }) => {
         // The source calls PRODUCTION v2 paths (api-endpoints.ts), but the local
         // port-forwarded backend serves v5 only — so the dev proxy rewrites
         // v2 → v5 (and adds the channel header + edit-mode the v5 routes need).
-        '/learner/questionset/v2/hierarchy': {
+        '/api/questionset/v2/hierarchy': {
           target: 'http://localhost:9000',
           headers: { 'X-Channel-Id': '01309282781705830427' },
-          rewrite: (p: string) => {
-            const v5 = p.replace('/learner/questionset/v2/hierarchy', '/questionset/v5/hierarchy');
-            return v5.includes('?') ? v5 : `${v5}?mode=edit`;
-          },
+          // Player calls /api/questionset/v2/hierarchy/<id>?mode=edit; the local
+          // KP backend serves /questionset/v5/hierarchy. Swap the prefix, keep
+          // the ?mode=edit the player already appends.
+          rewrite: (p: string) => p.replace('/api/questionset/v2/hierarchy', '/questionset/v5/hierarchy'),
         },
         '/api/questionset/v2/read': {
           target: 'http://localhost:9000',

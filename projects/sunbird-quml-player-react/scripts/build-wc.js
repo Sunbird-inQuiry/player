@@ -37,11 +37,14 @@ const build = async () => {
     // 1. Locate the single compiled stylesheet (cssCodeSplit:false → one .css).
     const cssFile = fs.readdirSync(DIST).find((f) => f.endsWith('.css'));
     let bundleJs = fs.readFileSync(bundlePath, 'utf-8');
+    const css = cssFile ? fs.readFileSync(path.join(DIST, cssFile), 'utf-8') : '';
 
     if (cssFile) {
       console.log(`[Build] Embedding ${cssFile} into the bundle...`);
-      const css = fs.readFileSync(path.join(DIST, cssFile), 'utf-8');
       // Escape backticks and ${ so the CSS is a safe template-literal value.
+      // BUNDLED_CSS is the FULL stylesheet — reset + component classes + fonts —
+      // injected into the shadow root, where it styles the player in isolation.
+      // This must stay complete; the player's own CSS depends on it.
       const safeCss = css.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
       const embedded = `var BUNDLED_CSS = \`${safeCss}\`;\n`;
       bundleJs = embedded + bundleJs;
@@ -50,12 +53,22 @@ const build = async () => {
       console.warn('[Build] No CSS emitted; the bundle will ship without embedded styles.');
     }
 
-    // 2. Copy the self-contained bundle (+ raw stylesheet for the ./styles export).
+    // 2. Copy the self-contained bundle.
     console.log('[Build] Copying built files...');
     await fs.ensureDir(DEST);
     await fs.copy(bundlePath, path.join(DEST, BUNDLE));
     if (cssFile) {
-      await fs.copy(path.join(DIST, cssFile), path.join(DEST, 'styles.css'));
+      // The `./styles` export (styles.css) is loaded into the HOST document by
+      // some consumers. The player is fully styled via BUNDLED_CSS inside its
+      // shadow root (above), so this file must NOT carry the global reset (`*{}`)
+      // or the hashed component classes — those would leak into / mutate any host
+      // page that links it (a web component must never restyle its host). Ship
+      // ONLY document-level @font-face (KaTeX), which is safe to load anywhere.
+      const fontFaces = (css.match(/@font-face\s*\{[^}]*\}/g) || []).join('\n');
+      await fs.writeFile(path.join(DEST, 'styles.css'), fontFaces);
+      console.log(
+        `[Build] Wrote host-safe styles.css (@font-face only): ${(fontFaces.length / 1024).toFixed(0)}KB`,
+      );
     }
 
     // 3. Example HTML.
