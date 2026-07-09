@@ -73,15 +73,21 @@ function resolveImageSrc(val: MediaItem, ctx: MediaResolveContext, currentSrc?: 
 
 /**
  * Resolve a <video>/<audio>/<source>/poster src.
- * Mirrors Angular util-service.ts:resolveMediaElements() exactly. NOTE: the
- * offline branch here differs from images — it uses basePath directly with only
- * the question folder (no last-segment strip, no section folder). This
- * inconsistency is intentional parity with Angular. Uses the AUTHORED src.
+ * Mirrors Angular util-service.ts:resolveMediaElements(). NOTE: the offline path
+ * differs from images — it uses basePath directly with only the question folder
+ * (no last-segment strip, no section folder), which is intentional Angular
+ * parity. Like images, the offline branch is gated on isAvailableLocally so an
+ * online host that also supplies a basePath still resolves via the entry baseUrl.
  */
 function resolveAvSrc(src: string, val: MediaItem | undefined, ctx: MediaResolveContext): string {
   // Callers already skip absolute srcs; kept defensive.
   if (isHttpAbsolute(src)) return src;
-  return ctx.basePath
+  // Only take the offline (basePath) branch for packaged content, exactly like
+  // resolveImageSrc. Hosts (the mobile app) may pass a basePath even for ONLINE
+  // content; gating on basePath alone would then wrongly build an offline path
+  // for online media and break <video>/<audio> playback. isAvailableLocally is
+  // the authoritative offline flag — online media always uses the entry baseUrl.
+  return ctx.isAvailableLocally && ctx.basePath
     ? `${ctx.basePath}/${ctx.questionId}/${src}`
     : (val?.baseUrl ?? '') + src;
 }
