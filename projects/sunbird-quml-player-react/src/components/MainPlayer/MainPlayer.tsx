@@ -439,8 +439,11 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
   const globalQuestionNumber = priorQuestions + state.currentQuestionIndex + 1;
 
   let content: ReactNode;
-  if (stage === 'overview' && skipStartPage) {
-    // Auto-advancing (effect above) — don't flash the overview we're skipping.
+  if (stage === 'overview' && skipStartPage && !autoStartedRef.current) {
+    // Initial auto-start still pending (effect above) — don't flash the overview
+    // we're skipping. Gated on the ref so that an EXPLICIT later return to
+    // overview (Retake / brand click) shows the real overview instead of a
+    // permanent loading screen (the one-shot effect won't re-fire).
     content = <div className={styles.status}>{t(language, 'LOADING')}</div>;
   } else if (stage === 'overview') {
     content = (

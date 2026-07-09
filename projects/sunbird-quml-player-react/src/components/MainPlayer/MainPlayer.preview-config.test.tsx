@@ -78,6 +78,25 @@ describe('MainPlayer — preview parity (showStartPage / requiresSubmit)', () =>
     expect(screen.getByText('Apple')).toBeInTheDocument();
   });
 
+  it('with showStartPage:"No", an explicit return to overview (Retake) shows it, not a stuck loader', () => {
+    vi.useFakeTimers();
+    try {
+      renderPlayer(buildConfig({ showStartPage: 'No', requiresSubmit: 'No' }));
+      // Initial: skipped overview, landed on the question.
+      expect(screen.getByText('Apple')).toBeInTheDocument();
+      // Submit (no confirmation) → results.
+      const submits = screen.getAllByRole('button', { name: /^submit$/i });
+      fireEvent.click(submits[submits.length - 1]);
+      act(() => vi.advanceTimersByTime(1000));
+      // Retake → returns to overview. The one-shot auto-start does NOT re-fire,
+      // so the overview must actually render (regression: was a stuck loader).
+      fireEvent.click(screen.getByRole('button', { name: /retake/i }));
+      expect(screen.getByRole('button', { name: /start assessment/i })).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('requiresSubmit:"No" submits straight to results with no confirmation dialog', () => {
     vi.useFakeTimers();
     try {
