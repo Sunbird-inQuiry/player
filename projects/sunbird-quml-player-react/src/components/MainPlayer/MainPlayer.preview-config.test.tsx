@@ -54,17 +54,10 @@ const renderPlayer = (cfg: PlayerConfig) =>
   );
 
 describe('MainPlayer — preview parity (showStartPage / requiresSubmit)', () => {
-  it('showStartPage:"No" skips the overview and lands on the section intro', () => {
+  it('showStartPage:"No" lands directly on the question (skips overview AND section intro — Angular parity)', () => {
+    // Section intros are enabled by default (no showSectionIntro), yet the entry
+    // still bypasses both the overview and the intro screen.
     renderPlayer(buildConfig({ showStartPage: 'No' }));
-    // The overview "Start Assessment" CTA is never shown…
-    expect(screen.queryByRole('button', { name: /start assessment/i })).not.toBeInTheDocument();
-    // …we auto-advance to where Start would land (section intro, since intros
-    // are enabled by default).
-    expect(screen.getByRole('button', { name: /start section/i })).toBeInTheDocument();
-  });
-
-  it('showStartPage:"No" + showSectionIntro:false lands directly on the question', () => {
-    renderPlayer(buildConfig({ showStartPage: 'No', showSectionIntro: false }));
     expect(screen.queryByRole('button', { name: /start assessment/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /start section/i })).not.toBeInTheDocument();
     // Straight into the first question.
@@ -72,9 +65,17 @@ describe('MainPlayer — preview parity (showStartPage / requiresSubmit)', () =>
     expect(screen.getByText(/Question 1 of 1/i)).toBeInTheDocument();
   });
 
-  it('still shows the overview by default (showStartPage absent)', () => {
-    renderPlayer(buildConfig({}));
-    expect(screen.getByRole('button', { name: /start assessment/i })).toBeInTheDocument();
+  it('normal content still shows the overview then the section intro (feature intact)', () => {
+    renderPlayer(buildConfig({})); // no showStartPage → default flow
+    // 1. Overview first.
+    const start = screen.getByRole('button', { name: /start assessment/i });
+    expect(screen.queryByText('Apple')).not.toBeInTheDocument();
+    // 2. Start → section intro (intros default on, NOT skipped for normal content).
+    fireEvent.click(start);
+    const begin = screen.getByRole('button', { name: /start section/i });
+    // 3. Begin → the question.
+    fireEvent.click(begin);
+    expect(screen.getByText('Apple')).toBeInTheDocument();
   });
 
   it('requiresSubmit:"No" submits straight to results with no confirmation dialog', () => {

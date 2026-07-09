@@ -392,15 +392,22 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     setStage('assessment');
   };
 
-  // showStartPage:'No' → auto-advance past the overview once sections are ready,
-  // landing exactly where "Start" would. One-shot (ref-guarded) so an explicit
-  // later return to overview (retake / brand click) is still respected.
+  // showStartPage:'No' → auto-advance past the overview once sections are ready.
+  // Angular parity (section-player.component.ts:195,248): with showStartPage:'No'
+  // the player renders the FIRST QUESTION directly — no overview AND no section
+  // intro (the intro screen is a React-only addition). So land on 'assessment',
+  // not 'sectionIntro'. Later section-to-section intros are unaffected.
+  // One-shot (ref-guarded) so an explicit later return to overview (retake /
+  // brand click) is still respected.
   useEffect(() => {
     if (autoStartedRef.current || !skipStartPage) return;
     if (stage !== 'overview' || state.sections.length === 0) return;
     autoStartedRef.current = true;
-    handleStart();
-    // Guarded by the ref; handleStart is intentionally not a dependency.
+    setCurrentSection(0);
+    setCurrentQuestion(0);
+    beginAssessmentTimer();
+    setStage('assessment');
+    // Guarded by the ref; the setters/timer are stable enough here.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skipStartPage, stage, state.sections.length]);
 
