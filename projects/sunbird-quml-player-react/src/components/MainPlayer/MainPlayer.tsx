@@ -76,10 +76,22 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
   const [reviewStartIndex, setReviewStartIndex] = useState(0);
   // Assessment-level countdown (owned by the shell, not Context). Null = no limit.
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+  // One-shot guard for the showStartPage:'No' auto-advance past the overview.
+  const autoStartedRef = useRef(false);
 
   // Section intros can be disabled via config (spec §6.0).
   const sectionIntrosEnabled =
     (playerConfig?.config as { showSectionIntro?: boolean } | undefined)?.showSectionIntro !== false;
+
+  // Preview parity (Angular): the host can ask the player to skip the overview /
+  // start page and the submit-confirmation step. These arrive on the questionset
+  // metadata as 'Yes'/'No' strings. Absent → the full behaviour (show overview,
+  // confirm on submit), so existing content is unaffected.
+  //   showStartPage:'No'  → land straight in the assessment (see auto-start effect)
+  //   requiresSubmit:'No' → Submit goes straight to results, no confirmation modal
+  const skipStartPage = metadata.showStartPage === 'No' || metadata.showStartPage === false;
+  const requiresSubmitConfirmation =
+    metadata.requiresSubmit !== 'No' && metadata.requiresSubmit !== false;
 
   // Initialize config + normalized sections.
   //
@@ -325,8 +337,12 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     setStage(sectionIntrosEnabled ? 'sectionIntro' : 'assessment');
   };
 
-  // Submit (header) → open the confirmation dialog (spec §7.1).
-  const handleSubmitAssessment = () => setSubmitDialog(true);
+  // Submit (header) → open the confirmation dialog (spec §7.1), unless the host
+  // opted out via requiresSubmit:'No' (then submit straight to results).
+  const handleSubmitAssessment = () => {
+    if (requiresSubmitConfirmation) setSubmitDialog(true);
+    else handleConfirmSubmit();
+  };
 
   const handleConfirmSubmit = () => {
     setSubmitDialog(false);
@@ -362,9 +378,11 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
       setCurrentQuestion(0);
       setStage(sectionIntrosEnabled ? 'sectionIntro' : 'assessment');
       onPlayerEvent?.({ type: 'sectionEnd', sectionIndex: state.currentSectionIndex });
-    } else {
+    } else if (requiresSubmitConfirmation) {
       // End of the last section → confirm before submitting.
       setSubmitDialog(true);
+    } else {
+      handleConfirmSubmit();
     }
   };
 
@@ -373,6 +391,25 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     setCurrentQuestion(0);
     setStage('assessment');
   };
+
+  // showStartPage:'No' → auto-advance past the overview once sections are ready.
+  // Angular parity (section-player.component.ts:195,248): with showStartPage:'No'
+  // the player renders the FIRST QUESTION directly — no overview AND no section
+  // intro (the intro screen is a React-only addition). So land on 'assessment',
+  // not 'sectionIntro'. Later section-to-section intros are unaffected.
+  // One-shot (ref-guarded) so an explicit later return to overview (retake /
+  // brand click) is still respected.
+  useEffect(() => {
+    if (autoStartedRef.current || !skipStartPage) return;
+    if (stage !== 'overview' || state.sections.length === 0) return;
+    autoStartedRef.current = true;
+    setCurrentSection(0);
+    setCurrentQuestion(0);
+    beginAssessmentTimer();
+    setStage('assessment');
+    // Guarded by the ref; the setters/timer are stable enough here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [skipStartPage, stage, state.sections.length]);
 
   if (!state.playerConfig || state.loading) {
     return <div className={styles.status}>{t(language, 'LOADING')}</div>;
@@ -402,7 +439,13 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
   const globalQuestionNumber = priorQuestions + state.currentQuestionIndex + 1;
 
   let content: ReactNode;
-  if (stage === 'overview') {
+  if (stage === 'overview' && skipStartPage && !autoStartedRef.current) {
+    // Initial auto-start still pending (effect above) — don't flash the overview
+    // we're skipping. Gated on the ref so that an EXPLICIT later return to
+    // overview (Retake / brand click) shows the real overview instead of a
+    // permanent loading screen (the one-shot effect won't re-fire).
+    content = <div className={styles.status}>{t(language, 'LOADING')}</div>;
+  } else if (stage === 'overview') {
     content = (
       <StartPage
         title={overview.title}
