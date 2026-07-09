@@ -1,0 +1,320 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: v.$space-4;
+  height: v.$header-h;
+  padding: 0 v.$space-6;
+  background: v.$white;
+  border-bottom: 1px solid v.$gray-200;
+
+  @include m.mobile {
+    padding: 0 v.$space-4;
+  }
+}
+
+.left,
+.right {
+  display: flex;
+  align-items: center;
+  gap: v.$space-4;
+  min-width: 0;
+
+  @include m.mobile {
+    gap: v.$space-2;
+  }
+}
+
+.left {
+  flex: 1 1 auto;
+  // No overflow:hidden here — it was clipping the brand badge. The brand NAME
+  // truncates itself (its own ellipsis) and is hidden on mobile anyway.
+}
+
+.right {
+  flex-shrink: 0;
+}
+
+.menuBtn {
+  @include m.focus-ring;
+
+  display: none;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: v.$space-1;
+  border: 1.5px solid v.$gray-200;
+  border-radius: v.$r-sm;
+  background: v.$white;
+  color: v.$g700;
+  cursor: pointer;
+
+  &:hover {
+    border-color: v.$g400;
+    color: v.$g900;
+  }
+
+  // Visible on mobile (≤768px) where the sidebar is hidden — this is the entry
+  // point to the sections/palette bottom sheet.
+  @include m.mobile {
+    display: inline-flex;
+  }
+}
+
+// ── Brand ────────────────────────────────────────────────────────────────────
+.brand {
+  @include m.focus-ring;
+
+  display: inline-flex;
+  align-items: center;
+  gap: v.$space-3;
+  min-width: 0;
+  padding: v.$space-1;
+  border: none;
+  border-radius: v.$r-sm;
+  background: transparent;
+  cursor: pointer;
+
+  &:hover .brandName {
+    color: v.$brick;
+  }
+}
+
+.brandBadge {
+  flex-shrink: 0;
+}
+
+.brandBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: v.$r-pill;
+  background: v.$brick;
+  color: v.$white;
+  font-size: v.$text-sm;
+  font-weight: v.$fw-bold;
+}
+
+.brandName {
+  min-width: 0;
+  font-size: v.$text-md;
+  font-weight: v.$fw-bold;
+  color: v.$g900;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  // On mobile the header is tight (timer + counter + Submit); drop the brand
+  // NAME but keep the badge as the home affordance, leaving room for the
+  // sections menu button.
+  @include m.mobile {
+    display: none;
+  }
+}
+
+// ── Section steps ────────────────────────────────────────────────────────────
+.steps {
+  display: flex;
+  align-items: center;
+  gap: v.$space-2;
+  margin: 0 0 0 v.$space-3;
+  padding: 0 0 0 v.$space-4;
+  border-inline-start: 1px solid v.$gray-200;
+  list-style: none;
+
+  // Hide the section-step rail on tablet and below — it competes for width
+  // with the brand + timer/counter/submit cluster. The sidebar/drawer still
+  // shows section progress.
+  @include m.tablet {
+    display: none;
+  }
+}
+
+.step {
+  display: flex;
+  align-items: center;
+
+  // Connector line between steps.
+  &:not(:first-child)::before {
+    content: '';
+    width: v.$space-4;
+    height: 1.5px;
+    margin-inline-end: v.$space-2;
+    background: v.$gray-300;
+  }
+}
+
+.stepDot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: v.$r-pill;
+  background: v.$g100;
+  color: v.$gray-400;
+  font-size: v.$text-xs;
+  font-weight: v.$fw-bold;
+}
+
+.active .stepDot {
+  background: v.$brick;
+  color: v.$white;
+}
+
+.completed .stepDot {
+  background: v.$success-bg;
+  color: v.$success;
+}
+
+// ── Right cluster ────────────────────────────────────────────────────────────
+.timer {
+  display: inline-flex;
+  align-items: center;
+  gap: v.$space-2;
+  padding: v.$space-2 v.$space-3;
+  border-radius: v.$r-pill;
+  background: v.$g100;
+  color: v.$g700;
+  font-size: v.$text-sm;
+  font-weight: v.$fw-semibold;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+
+  @include m.mobile {
+    padding: v.$space-1 v.$space-2;
+  }
+}
+
+.timerLow {
+  background: v.$danger-bg;
+  color: v.$danger;
+}
+
+.helpWrap {
+  position: relative;
+  display: flex;
+
+  @include m.mobile {
+    display: none;
+  }
+}
+
+.help {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: v.$r-pill;
+  border: 1.5px solid v.$gray-300;
+  background: transparent;
+  color: v.$gray-500;
+  font-size: v.$text-sm;
+  font-weight: v.$fw-bold;
+  cursor: pointer;
+
+  &:hover,
+  &[aria-expanded='true'] {
+    border-color: v.$brick;
+    color: v.$brick;
+  }
+}
+
+.legendBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.legend {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 41;
+  min-width: 13.5rem;
+  padding: v.$space-4;
+  background: v.$white;
+  border: 1px solid v.$gray-200;
+  border-radius: v.$r-md;
+  box-shadow: v.$shadow-lg;
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-3;
+}
+
+.legendTitle {
+  margin: 0;
+  font-size: v.$text-xs;
+  font-weight: v.$fw-bold;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: v.$g500;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: v.$space-3;
+  font-size: v.$text-sm;
+  color: v.$g700;
+}
+
+.legendDot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: v.$r-pill;
+  background: v.$g100;
+  color: v.$gray-400;
+  font-size: v.$text-xs;
+  font-weight: v.$fw-bold;
+
+  &.active {
+    background: v.$brick;
+    color: v.$white;
+  }
+
+  &.completed {
+    background: v.$success-bg;
+    color: v.$success;
+  }
+}
+
+.counter {
+  font-size: v.$text-sm;
+  font-weight: v.$fw-semibold;
+  color: v.$g700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.submitBtn {
+  @include m.button-base;
+  @include m.focus-ring($color: v.$g700);
+
+  flex-shrink: 0;
+  background: v.$dark;
+  color: v.$white;
+
+  &:hover:not(:disabled) {
+    background: v.$g800;
+  }
+
+  @include m.mobile {
+    padding: v.$space-2 v.$space-3;
+  }
+}

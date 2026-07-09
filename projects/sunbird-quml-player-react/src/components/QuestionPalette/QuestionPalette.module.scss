@@ -1,0 +1,76 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.palette {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(2.25rem, 1fr));
+  gap: v.$space-2;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  // Larger touch targets where the palette appears on mobile (bottom sheet).
+  @include m.mobile {
+    grid-template-columns: repeat(auto-fill, minmax(2.75rem, 1fr));
+  }
+}
+
+.item {
+  display: block;
+}
+
+.chip {
+  @include m.focus-ring;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1;
+  min-width: 2.25rem;
+  padding: 0;
+  border: 1.5px solid v.$gray-200;
+  border-radius: v.$r-sm;
+  background: v.$white;
+  color: v.$g700;
+  font-family: v.$ff-base;
+  font-size: v.$text-sm;
+  font-weight: v.$fw-semibold;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: all v.$dur-fast v.$ease-out;
+
+  &:hover {
+    border-color: v.$g400;
+  }
+}
+
+.current {
+  border-color: v.$brick;
+  background: v.$brick;
+  color: v.$white;
+}
+
+.answered {
+  border-color: v.$success;
+  background: v.$success-bg;
+  color: v.$success;
+}
+
+.needs-review {
+  border-color: v.$warning;
+  background: v.$warning-bg;
+  color: v.$warning;
+}
+
+.skipped {
+  border-color: v.$danger;
+  background: v.$danger-bg;
+  color: v.$danger;
+}
+
+.unanswered {
+  border-color: v.$gray-200;
+  background: v.$white;
+  color: v.$g500;
+}
