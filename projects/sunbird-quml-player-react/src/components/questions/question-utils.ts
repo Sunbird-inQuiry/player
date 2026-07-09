@@ -11,6 +11,25 @@ export function firstInteractionOptions(question: Question): Option[] {
   return Array.isArray(opts) ? opts : [];
 }
 
+/**
+ * Options of the first interaction, localized to `language`.
+ *
+ * REO is unlike MCQ/SEQ: its top-level `options[].label` are plain English
+ * strings, and each language ships a DISTINCT option set (the word count itself
+ * varies by language) under `interaction.i18n[lang].options`. Prefer that
+ * language-specific set; fall back to the top-level options when the language
+ * has no override (or none is provided — MCQ/SEQ, which localize labels inline).
+ */
+export function localizedInteractionOptions(question: Question, language: string): Option[] {
+  const interactions = question.interactions || {};
+  const key = Object.keys(interactions)[0];
+  if (!key) return [];
+  const interaction = interactions[key] as { options?: unknown; i18n?: Record<string, { options?: unknown }> };
+  const localized = interaction.i18n?.[language]?.options;
+  if (Array.isArray(localized) && localized.length > 0) return localized as Option[];
+  return Array.isArray(interaction.options) ? (interaction.options as Option[]) : [];
+}
+
 /** Left/right columns of the first responseN interaction (MTF). */
 export function mtfColumns(question: Question): { left: Option[]; right: Option[] } {
   const interactions = question.interactions || {};

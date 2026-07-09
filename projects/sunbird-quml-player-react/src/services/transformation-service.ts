@@ -89,6 +89,9 @@ function normalizeResponseDeclaration(rd: any): ResponseDeclaration {
       type: item.type || 'string',
       correctResponse: normalizeCorrectResponse(item.correctResponse, item.type),
       mapping: normalizeMapping(item.mapping),
+      // Preserve per-language correct answers (REO's correct order differs by
+      // language). Normalized with the same type rules as the top-level value.
+      i18n: normalizeResponseI18n(item.i18n, item.type),
     } as ResponseDeclarationItem;
   }
   return out;
@@ -107,6 +110,25 @@ function normalizeCorrectResponse(
       : parseInt(value, 10);
   }
   return { value };
+}
+
+/**
+ * Normalize the per-language `i18n` block of a responseDeclaration item into
+ * `{ [lang]: { correctResponse } }`. Each language's correctResponse is run
+ * through the same type normalization as the top-level value. Returns undefined
+ * when there are no usable language entries (keeps normal content lean).
+ */
+function normalizeResponseI18n(
+  i18n: any,
+  type: string,
+): ResponseDeclarationItem['i18n'] {
+  if (!i18n || typeof i18n !== 'object') return undefined;
+  const out: NonNullable<ResponseDeclarationItem['i18n']> = {};
+  for (const lang of Object.keys(i18n)) {
+    const cr = normalizeCorrectResponse(i18n[lang]?.correctResponse, type);
+    if (cr) out[lang] = { correctResponse: cr };
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
 }
 
 /** Convert legacy mapping ({response,outcomes.score}) → {value,score}; pass new shape through. */

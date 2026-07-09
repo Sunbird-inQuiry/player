@@ -196,4 +196,34 @@ describe('score utils (Angular evaluateAutoScored parity, normalized to 0..1)', 
     expect(calculateOrderedScore(q, { order: ['a', 'b'] })).toBe(0);
     expect(calculateOrderedScore(q, null)).toBe(0);
   });
+
+  it('ordered (REO) i18n: scores against the language-specific correct order', () => {
+    // English correct order = A..F (6); Arabic = A,B,C (3). Same question, per
+    // the reo-i18n payload where the option/word set differs by language.
+    const q = mk({
+      response1: {
+        cardinality: 'ordered',
+        type: 'string',
+        correctResponse: { value: ['A', 'B', 'C', 'D', 'E', 'F'] },
+        i18n: {
+          en: { correctResponse: { value: ['A', 'B', 'C', 'D', 'E', 'F'] } },
+          ar: { correctResponse: { value: ['A', 'B', 'C'] } },
+        },
+      },
+    });
+
+    // Arabic answer (3 words) scored WITH language → matches the Arabic order.
+    expect(calculateOrderedScore(q, { order: ['A', 'B', 'C'] }, 'ar')).toBe(1);
+    expect(calculateOrderedScore(q, { order: ['A', 'C', 'B'] }, 'ar')).toBe(0);
+
+    // The bug this fixes: the same Arabic answer WITHOUT language falls back to
+    // the English 6-item order → length mismatch → wrongly 0.
+    expect(calculateOrderedScore(q, { order: ['A', 'B', 'C'] })).toBe(0);
+
+    // English answer still scores against the English order.
+    expect(calculateOrderedScore(q, { order: ['A', 'B', 'C', 'D', 'E', 'F'] }, 'en')).toBe(1);
+
+    // Unknown language → falls back to the top-level (English) order.
+    expect(calculateOrderedScore(q, { order: ['A', 'B', 'C', 'D', 'E', 'F'] }, 'zz')).toBe(1);
+  });
 });
