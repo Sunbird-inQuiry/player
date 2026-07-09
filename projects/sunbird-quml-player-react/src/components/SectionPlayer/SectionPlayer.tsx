@@ -101,7 +101,7 @@ export function SectionPlayer({ section, onSectionEnd, isLastSection = true }: S
     // (fraction × maxScore) so the reported score/maxScore pair is consistent
     // with the results screen (which also scales by maxScore).
     const maxScore = currentQuestion.maxScore ?? 1;
-    const earned = calculateScore(currentQuestion, answer) * maxScore;
+    const earned = calculateScore(currentQuestion, answer, language) * maxScore;
     logAnswerSubmitted(
       currentQuestion.identifier,
       selected as string | string[],
@@ -138,7 +138,7 @@ export function SectionPlayer({ section, onSectionEnd, isLastSection = true }: S
     // to this question (never bleeds onto the next), then clear + advance. All of
     // correct / partial / wrong auto-advance (non-blocking). Partial covers any
     // 0 < score < 1 (e.g. MAP_RESPONSE MTF with some pairs matched).
-    const score = calculateScore(currentQuestion, answer);
+    const score = calculateScore(currentQuestion, answer, language);
     const kind: AlertKind = score >= 1 ? 'correct' : score > 0 ? 'partial' : 'incorrect';
     const msgKey = score >= 1 ? 'CORRECT_ANSWER' : score > 0 ? 'PARTIAL_SCORE' : 'INCORRECT_ANSWER';
     setCurrentAlert({

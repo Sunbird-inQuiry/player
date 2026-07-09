@@ -11,6 +11,35 @@ const raw = (extra: Record<string, unknown> = {}) => ({
   ...extra,
 });
 
+describe('transformQuestion — responseDeclaration i18n (REO per-language correctResponse)', () => {
+  it('preserves the per-language correctResponse so scoring can use it', () => {
+    const q = transformQuestion(
+      raw({
+        primaryCategory: 'reorder question',
+        responseDeclaration: {
+          response1: {
+            cardinality: 'ordered',
+            type: 'string',
+            correctResponse: { value: ['A', 'B', 'C', 'D', 'E', 'F'] },
+            i18n: {
+              en: { correctResponse: { value: ['A', 'B', 'C', 'D', 'E', 'F'] } },
+              ar: { correctResponse: { value: ['A', 'B', 'C'] } },
+            },
+          },
+        },
+      }),
+    );
+    const decl = q!.responseDeclaration!.response1;
+    expect(decl.i18n?.ar?.correctResponse?.value).toEqual(['A', 'B', 'C']);
+    expect(decl.i18n?.en?.correctResponse?.value).toEqual(['A', 'B', 'C', 'D', 'E', 'F']);
+  });
+
+  it('leaves i18n undefined when the item has none (normal content stays lean)', () => {
+    const q = transformQuestion(raw());
+    expect(q!.responseDeclaration!.response1.i18n).toBeUndefined();
+  });
+});
+
 describe('transformQuestion — shuffleOptions', () => {
   it('defaults to shuffle when the flag is absent', () => {
     expect(transformQuestion(raw())?.shuffleOptions).toBe(true);

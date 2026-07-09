@@ -69,4 +69,59 @@ describe('ReoQuestion', () => {
     const chips = screen.getAllByRole('button');
     expect(chips.every((c) => (c as HTMLButtonElement).disabled)).toBe(true);
   });
+
+  // REO ships a distinct option set per language under interaction.i18n[lang];
+  // the top-level `options` labels are English-only. The bank must render the
+  // selected language's words and re-seed when the language switches.
+  const reoI18n = {
+    identifier: 'q-reo-i18n',
+    body: '<p>reorder</p>',
+    primaryCategory: 'reorder question',
+    maxScore: 1,
+    interactions: {
+      response1: {
+        options: [
+          { value: 'A', label: 'The' },
+          { value: 'B', label: 'tree' },
+          { value: 'C', label: 'is' },
+        ],
+        i18n: {
+          en: {
+            options: [
+              { value: 'A', label: 'The' },
+              { value: 'B', label: 'tree' },
+              { value: 'C', label: 'is' },
+            ],
+          },
+          ar: {
+            // Note: fewer words than English — the option set itself differs.
+            options: [
+              { value: 'A', label: 'الشجرة' },
+              { value: 'B', label: 'طويلة' },
+            ],
+          },
+        },
+      },
+    },
+    responseDeclaration: {
+      response1: { cardinality: 'ordered', type: 'string', correctResponse: { value: ['A', 'B', 'C'] } },
+    },
+  } as unknown as Question;
+
+  it('renders the language-specific option set and re-seeds on language switch', () => {
+    const { rerender } = withDnd(<ReoQuestion question={reoI18n} language="ar" shuffleOptions={false} />);
+    // Arabic labels, not the English top-level ones; Arabic set has 2 words.
+    expect(screen.getByRole('button', { name: 'الشجرة' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'The' })).not.toBeInTheDocument();
+
+    // Switch to English → English words appear, Arabic gone.
+    rerender(
+      <DndProvider backend={HTML5Backend}>
+        <ReoQuestion question={reoI18n} language="en" shuffleOptions={false} />
+      </DndProvider>,
+    );
+    expect(screen.getByRole('button', { name: 'The' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'is' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'الشجرة' })).not.toBeInTheDocument();
+  });
 });

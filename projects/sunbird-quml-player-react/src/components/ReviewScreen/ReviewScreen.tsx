@@ -34,14 +34,18 @@ export interface ReviewScreenProps {
 
 type Correctness = 'correct' | 'incorrect' | 'partial' | 'skipped' | 'review';
 
-function correctnessOf(question: Question, answers: AnswersMap): { kind: Correctness; raw: number } {
+function correctnessOf(
+  question: Question,
+  answers: AnswersMap,
+  language: string,
+): { kind: Correctness; raw: number } {
   const answer = answers[question.identifier];
   if (!isAnswered(answer)) return { kind: 'skipped', raw: 0 };
   // Subjective questions are not auto-scored.
   if (question.primaryCategory?.toLowerCase() === 'subjective question') {
     return { kind: 'review', raw: 0 };
   }
-  const raw = calculateScore(question, answer);
+  const raw = calculateScore(question, answer, language);
   if (raw >= 1) return { kind: 'correct', raw };
   if (raw > 0) return { kind: 'partial', raw };
   return { kind: 'incorrect', raw };
@@ -98,7 +102,7 @@ export function ReviewScreen({
   }
 
   const question = questions[index];
-  const { kind } = correctnessOf(question, answers);
+  const { kind } = correctnessOf(question, answers, language);
   const isFirst = index === 0;
   const isLast = index === questions.length - 1;
 

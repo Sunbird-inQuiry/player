@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { QuestionBody } from '../../QuestionBody/QuestionBody';
-import { firstInteractionOptions, resolveLabel } from '../question-utils';
+import { localizedInteractionOptions, resolveLabel } from '../question-utils';
 import { fisherYatesShuffle } from '../../../utils/shuffle';
 import type { Option } from '../../../types';
 import type { QuestionComponentProps } from '../types';
@@ -60,21 +60,39 @@ export function ReoQuestion({
     ...mediaCtx,
     media: mediaCtx?.media ?? (question.media as MediaItem[] | undefined),
   };
+  // REO options are language-specific: the label text AND the option set both
+  // vary by language (see localizedInteractionOptions). Recompute on language
+  // switch so the word bank renders in the selected language.
   const options = useMemo(
-    () => firstInteractionOptions(question),
-    [question.identifier], // eslint-disable-line react-hooks/exhaustive-deps
+    () => localizedInteractionOptions(question, language),
+    [question.identifier, language], // eslint-disable-line react-hooks/exhaustive-deps
   );
   const byValue = useMemo(() => new Map(options.map((o) => [o.value, o])), [options]);
 
-  const [answer, setAnswer] = useState<Option[]>(() => {
-    if (!savedResponse?.order) return [];
-    return savedResponse.order.map((v) => byValue.get(v)).filter((o): o is Option => Boolean(o));
-  });
-  const [bank, setBank] = useState<Option[]>(() => {
+  const buildAnswer = (): Option[] =>
+    (savedResponse?.order ?? [])
+      .map((v) => byValue.get(v))
+      .filter((o): o is Option => Boolean(o));
+  const buildBank = (): Option[] => {
     const used = new Set(savedResponse?.order ?? []);
     const remaining = options.filter((o) => !used.has(o.value));
     return shuffleOptions ? fisherYatesShuffle(remaining) : remaining;
-  });
+  };
+
+  const [answer, setAnswer] = useState<Option[]>(buildAnswer);
+  const [bank, setBank] = useState<Option[]>(buildBank);
+
+  // Language switch → the option set changes (different words, even a different
+  // count), so re-seed the bank/answer from the new language's options. Skips
+  // the initial render (state was already seeded above).
+  const prevLangRef = useRef(language);
+  useEffect(() => {
+    if (prevLangRef.current === language) return;
+    prevLangRef.current = language;
+    setAnswer(buildAnswer());
+    setBank(buildBank());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
 
   const loadedRef = useRef(false);
   useEffect(() => {

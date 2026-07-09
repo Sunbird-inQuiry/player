@@ -13,7 +13,11 @@ import type { Question, UserResponse } from '../types';
  * Parallels the question-type registry; used by the orchestrator (Phase 5)
  * instead of a switch statement. Scoring logic itself lives in `utils/score`.
  */
-export type ScoreFn = (question: Question, response: UserResponse | null) => number;
+export type ScoreFn = (
+  question: Question,
+  response: UserResponse | null,
+  language?: string,
+) => number;
 
 export const scoringRegistry = new Map<string, ScoreFn>([
   ['multiple choice question', calculateMCQScore],
@@ -37,9 +41,13 @@ export function getScoringFunction(primaryCategory: string | null | undefined): 
  * An empty / unanswered response always scores 0 (single shared `isAnswered`
  * check), before any type-specific scoring runs.
  */
-export function calculateScore(question: Question, response: UserResponse | null): number {
+export function calculateScore(
+  question: Question,
+  response: UserResponse | null,
+  language?: string,
+): number {
   if (!isAnswered(response)) return 0;
   const scoreFn = getScoringFunction(question.primaryCategory);
   if (!scoreFn) return 0;
-  return scoreFn(question, response);
+  return scoreFn(question, response, language);
 }

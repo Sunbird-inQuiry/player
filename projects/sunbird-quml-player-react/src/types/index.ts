@@ -48,6 +48,13 @@ export interface ResponseDeclarationItem {
     value: number | string | number[] | string[] | Record<string, string>;
   };
   mapping?: ResponseMapping[];
+  /**
+   * Per-language correct answer. REO ships a distinct correct order per language
+   * (the option set/word-count itself varies by language), so scoring a
+   * non-English answer against the top-level (English) correctResponse is wrong.
+   * Keyed by language code; falls back to `correctResponse` when absent.
+   */
+  i18n?: Record<string, { correctResponse?: ResponseDeclarationItem['correctResponse'] }>;
 }
 
 /** `responseDeclaration` is keyed by responseN, e.g. { response1: { ... } } */

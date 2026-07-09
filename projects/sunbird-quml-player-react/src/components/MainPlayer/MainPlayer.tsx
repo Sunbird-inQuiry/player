@@ -203,7 +203,7 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
           skipped += 1;
           continue;
         }
-        const score = calculateScore(q, answer);
+        const score = calculateScore(q, answer, language);
         totalScore += score * max;
         if (score >= 1) correct += 1;
         else if (score > 0) partial += 1;
@@ -211,7 +211,7 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
       }
     }
     return { correct, incorrect, partial, skipped, totalScore: Math.round(totalScore), maxScore };
-  }, [state.sections, state.answers]);
+  }, [state.sections, state.answers, language]);
 
   // Overview / details data, derived from Context + raw config (spec §6.1–§6.2).
   const overview = useMemo(() => {
