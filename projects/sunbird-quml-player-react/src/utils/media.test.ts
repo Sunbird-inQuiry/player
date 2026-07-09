@@ -99,5 +99,20 @@ describe('resolveMediaHtml', () => {
       // A/V offline differs from images: basePath used directly + question only.
       expect(out).toContain('src="/data/content/set.json/do_q/clip.mp4"');
     });
+
+    it('online with a basePath present (host quirk) still uses media.baseUrl — not the offline path', () => {
+      // Regression guard: hosts (e.g. the mobile app) may pass a basePath even
+      // for ONLINE content. The offline branch is gated on isAvailableLocally, so
+      // A/V must resolve via the media entry baseUrl, NOT build a basePath path.
+      const html = '<video data-asset-variable="v1"><source src="/clip.mp4"></video>';
+      const ctx: MediaResolveContext = {
+        media,
+        basePath: '/data/content/set.json', // present, but isAvailableLocally is falsy
+        questionId: 'do_q',
+      };
+      const out = resolveMediaHtml(html, ctx);
+      expect(out).toContain('src="https://host/clip.mp4"');
+      expect(out).not.toContain('/data/content/set.json/');
+    });
   });
 });
