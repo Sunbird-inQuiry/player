@@ -67,14 +67,23 @@ class SunbirdQumlPlayer extends HTMLElement {
       const hostStyle = document.createElement('style');
       hostStyle.textContent = `
         :host {
-          display: block;
+          /* all:initial isolates us from host-page styles, but it also resets
+             display + height — so re-declare them AFTER it, or the element falls
+             back to an inline, auto-height box that can't fill its container. */
           all: initial;
+          display: block;
+          /* Fill the host's container height. Without this the custom element is
+             auto-height (content-sized), so every inner height:100% collapses and
+             the assessment stage — whose .appBody is overflow:hidden — clips the
+             question with no scroll viewport, freezing the screen on mobile. */
+          height: 100%;
+          box-sizing: border-box;
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
             'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
-        .quml-player-root { all: initial; display: block; height: 100%; }
+        .quml-player-root { all: initial; display: block; height: 100%; box-sizing: border-box; }
       `;
       this.shadow.insertBefore(hostStyle, container);
 
@@ -140,8 +149,8 @@ class SunbirdQumlPlayer extends HTMLElement {
     const styleEl = document.createElement('style');
     styleEl.textContent = `
       ${typeof BUNDLED_CSS !== 'undefined' ? BUNDLED_CSS : ''}
-      :host { display: block; }
-      .quml-player-root { all: initial; display: block; height: 100%; }
+      :host { display: block; height: 100%; box-sizing: border-box; }
+      .quml-player-root { all: initial; display: block; height: 100%; box-sizing: border-box; }
     `;
     if (this.shadow.firstChild) {
       this.shadow.insertBefore(styleEl, this.shadow.firstChild);
