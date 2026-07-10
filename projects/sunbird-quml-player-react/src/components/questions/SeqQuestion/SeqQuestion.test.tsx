@@ -39,10 +39,9 @@ describe('SeqQuestion', () => {
 
   it('restores saved order', () => {
     render(<SeqQuestion question={seqQuestion} savedResponse={{ order: ['c', 'b', 'a'] }} />);
-    // Query labels in DOM (row) order; the sortable <li> carries role="button"
-    // (dnd-kit), so we can't rely on the listitem role here.
-    const labels = screen.getAllByText(/First|Second|Third/).map((el) => el.textContent);
-    expect(labels[0]).toContain('Third');
-    expect(labels[2]).toContain('First');
+    // Each sortable row is a role="button" (dnd-kit) whose accessible name is the
+    // option text; read them in DOM order to assert the arrangement deterministically.
+    const order = screen.getAllByRole('button').map((el) => el.getAttribute('aria-label'));
+    expect(order).toEqual(['Third', 'Second', 'First']);
   });
 });

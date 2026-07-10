@@ -48,12 +48,17 @@ function SeqRow({ id, index, label, disabled }: SeqRowProps) {
     transform: CSS.Transform.toString(transform),
     transition,
   };
+  // Accessible name = the option's own text (labels are HTML, so strip tags),
+  // NOT a generic "Item N" — otherwise the screen reader can't tell items apart.
+  // dnd-kit's attributes add the "sortable" roledescription + pick-up/move
+  // instructions, so we don't repeat "drag to reorder" here.
+  const name = label.replace(/<[^>]*>/g, '').trim() || `Item ${index + 1}`;
   return (
     <li
       ref={setNodeRef}
       style={style}
       className={`${styles.row} ${isDragging ? styles.dragging : ''}`.trim()}
-      aria-label={`Item ${index + 1}: drag to reorder`}
+      aria-label={name}
       {...attributes}
       {...listeners}
     >
