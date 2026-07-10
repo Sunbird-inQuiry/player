@@ -14,7 +14,10 @@
   display: flex;
   justify-content: center;
   width: max-content;
-  max-width: min(92vw, 36rem);
+  // `%` (not `vw`) so the cap tracks the player box, not the browser viewport:
+  // in a narrow embedded frame the toast stays within .appShell. Identical to
+  // `92vw` when the player fills the viewport (.appShell == viewport).
+  max-width: min(92%, 36rem);
   pointer-events: none;
 }
 
