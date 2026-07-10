@@ -1,5 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useDrag, useDrop } from 'react-dnd';
+import {
+  DndContext,
+  MouseSensor,
+  TouchSensor,
+  KeyboardSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { QuestionBody } from '../../QuestionBody/QuestionBody';
 import { firstInteractionOptions, resolveLabel } from '../question-utils';
 import { fisherYatesShuffle } from '../../../utils/shuffle';
@@ -8,80 +25,49 @@ import type { QuestionComponentProps } from '../types';
 import type { MediaItem, MediaResolveContext } from '../../../utils/media';
 import styles from './SeqQuestion.module.scss';
 
-const ITEM_TYPE = 'seq-item';
-interface DragItem {
-  index: number;
-}
-
 interface SeqRowProps {
+  /** Stable sortable id (the option value). */
+  id: string;
   index: number;
-  total: number;
   label: string;
   disabled: boolean;
-  onMove: (from: number, to: number) => void;
-  onNudge: (index: number, delta: number) => void;
 }
 
-function SeqRow({ index, total, label, disabled, onMove, onNudge }: SeqRowProps) {
-  const ref = useRef<HTMLLIElement>(null);
-
-  const [{ isDragging }, drag] = useDrag<DragItem, void, { isDragging: boolean }>({
-    type: ITEM_TYPE,
-    item: { index },
-    canDrag: !disabled,
-    collect: (monitor) => ({ isDragging: monitor.isDragging() }),
+/**
+ * One sequence item — a dnd-kit sortable row. The WHOLE row is the drag handle
+ * (drag from anywhere on it), working on desktop AND touch (react-dnd's HTML5
+ * backend was mouse-only), matching the Angular CDK ordered component. The grip
+ * (⠿) is a purely visual "draggable" affordance.
+ */
+function SeqRow({ id, index, label, disabled }: SeqRowProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+    disabled,
   });
-
-  const [{ isOver }, drop] = useDrop<DragItem, void, { isOver: boolean }>({
-    accept: ITEM_TYPE,
-    collect: (monitor) => ({ isOver: monitor.isOver() }),
-    hover: (item) => {
-      if (item.index !== index) {
-        onMove(item.index, index);
-        item.index = index;
-      }
-    },
-  });
-
-  drag(drop(ref));
-
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
   return (
     <li
-      ref={ref}
-      className={`${styles.row} ${isDragging ? styles.dragging : ''} ${isOver ? styles.over : ''}`.trim()}
+      ref={setNodeRef}
+      style={style}
+      className={`${styles.row} ${isDragging ? styles.dragging : ''}`.trim()}
+      aria-label={`Item ${index + 1}: drag to reorder`}
+      {...attributes}
+      {...listeners}
     >
       <span className={styles.grip} aria-hidden="true">
         ⠿
       </span>
       <span className={styles.label} dangerouslySetInnerHTML={{ __html: label }} />
-      <span className={styles.controls}>
-        <button
-          type="button"
-          className={styles.nudge}
-          aria-label={`Move item ${index + 1} up`}
-          disabled={disabled || index === 0}
-          onClick={() => onNudge(index, -1)}
-        >
-          ↑
-        </button>
-        <button
-          type="button"
-          className={styles.nudge}
-          aria-label={`Move item ${index + 1} down`}
-          disabled={disabled || index === total - 1}
-          onClick={() => onNudge(index, 1)}
-        >
-          ↓
-        </button>
-      </span>
     </li>
   );
 }
 
 /**
- * SEQ (Sequence) — pure renderer with drag-and-drop reordering (react-dnd) plus
- * keyboard move-up/down controls. Emits { order: [values…] }. Assumes a
- * DndProvider ancestor (provided by the app / tests).
+ * SEQ (Sequence) — pure renderer with dnd-kit drag-and-drop reordering (mouse +
+ * touch + keyboard). Emits { order: [values…] }.
  */
 export function SeqQuestion({
   question,
@@ -126,30 +112,43 @@ export function SeqQuestion({
     onOptionSelected?.({ order: next.map((o) => o.value), timestamp: Date.now() });
   };
 
-  const move = (from: number, to: number) => {
-    if (replayed || to < 0 || to >= items.length) return;
-    const next = [...items];
-    const [moved] = next.splice(from, 1);
-    next.splice(to, 0, moved);
-    commit(next);
+  // dnd-kit sensors: Mouse for desktop (immediate), Touch with a short press
+  // delay so the page can still scroll until a drag is intended, Keyboard for a11y.
+  const sensors = useSensors(
+    useSensor(MouseSensor),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (replayed || !over || active.id === over.id) return;
+    const from = items.findIndex((o) => String(o.value) === active.id);
+    const to = items.findIndex((o) => String(o.value) === over.id);
+    if (from < 0 || to < 0) return;
+    commit(arrayMove(items, from, to));
   };
+
+  const sortableIds = items.map((o) => String(o.value));
 
   return (
     <div className={styles.seqWrap}>
       <QuestionBody question={question} language={language} mediaCtx={ctx} />
-      <ol className={styles.seq} aria-label="Arrange in order">
-        {items.map((item, index) => (
-          <SeqRow
-            key={String(item.value)}
-            index={index}
-            total={items.length}
-            disabled={replayed}
-            label={resolveLabel(item.label, language, ctx)}
-            onMove={move}
-            onNudge={(i, delta) => move(i, i + delta)}
-          />
-        ))}
-      </ol>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
+          <ol className={styles.seq} aria-label="Arrange in order">
+            {items.map((item, index) => (
+              <SeqRow
+                key={String(item.value)}
+                id={String(item.value)}
+                index={index}
+                disabled={replayed}
+                label={resolveLabel(item.label, language, ctx)}
+              />
+            ))}
+          </ol>
+        </SortableContext>
+      </DndContext>
     </div>
   );
 }

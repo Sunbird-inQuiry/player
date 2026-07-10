@@ -1,5 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useDrag, useDrop } from 'react-dnd';
+import {
+  DndContext,
+  MouseSensor,
+  TouchSensor,
+  KeyboardSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { QuestionBody } from '../../QuestionBody/QuestionBody';
 import { mtfColumns, resolveLabel } from '../question-utils';
 import { fisherYatesShuffle } from '../../../utils/shuffle';
@@ -8,46 +25,38 @@ import type { QuestionComponentProps } from '../types';
 import type { MediaItem, MediaResolveContext } from '../../../utils/media';
 import styles from './MtfQuestion.module.scss';
 
-const ITEM_TYPE = 'mtf-right';
-interface DragItem {
-  index: number;
-}
-
 interface RightCellProps {
   option: Option;
-  index: number;
+  /** Stable sortable id (the option value). */
+  id: string;
   language: string;
   mediaCtx: MediaResolveContext;
   disabled: boolean;
-  /** Swap the right images at positions `from` and `to`. */
-  onSwap: (from: number, to: number) => void;
 }
 
 /**
- * A right-column image that is both a drag source and a drop target, so the
- * learner rearranges the right images (by swapping) until the correct one sits
- * next to each left prompt.
+ * A right-column image that is a dnd-kit sortable item, so the learner drags it
+ * to a new row to rearrange the right column. dnd-kit's Mouse/Touch/Keyboard
+ * sensors make the drag work on desktop AND touch (react-dnd's HTML5 backend was
+ * mouse-only), matching the Angular CDK MTF behaviour.
  */
-function RightCell({ option, index, language, mediaCtx, disabled, onSwap }: RightCellProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [{ isDragging }, drag] = useDrag<DragItem, void, { isDragging: boolean }>({
-    type: ITEM_TYPE,
-    item: { index },
-    canDrag: !disabled,
-    collect: (monitor) => ({ isDragging: monitor.isDragging() }),
+function RightCell({ option, id, language, mediaCtx, disabled }: RightCellProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+    disabled,
   });
-  const [{ isOver }, drop] = useDrop<DragItem, void, { isOver: boolean }>({
-    accept: ITEM_TYPE,
-    collect: (monitor) => ({ isOver: monitor.isOver() }),
-    drop: (item) => onSwap(item.index, index),
-  });
-  drag(drop(ref));
-
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
   const label = resolveLabel(option.label, language, mediaCtx);
   return (
     <div
-      ref={ref}
-      className={`${styles.rightCell} ${isDragging ? styles.dragging : ''} ${isOver ? styles.over : ''}`.trim()}
+      ref={setNodeRef}
+      style={style}
+      className={`${styles.rightCell} ${isDragging ? styles.dragging : ''}`.trim()}
+      {...attributes}
+      {...listeners}
       dangerouslySetInnerHTML={{ __html: label }}
     />
   );
@@ -56,9 +65,9 @@ function RightCell({ option, index, language, mediaCtx, disabled, onSwap }: Righ
 /**
  * MTF (Match The Following) — pure renderer. Each left prompt sits on a row with
  * its answer image on the right; the right images start shuffled and the learner
- * drags/swaps them so the correct image lands next to each prompt. Emits
- * { matches: { leftValue: rightValue } } (rightValue = whatever sits in that
- * row's right cell). Assumes a DndProvider ancestor.
+ * drags them to reorder the right column so the correct image lands next to each
+ * prompt. Emits { matches: { leftValue: rightValue } } (rightValue = whatever
+ * sits in that row's right cell).
  */
 export function MtfQuestion({
   question,
@@ -108,48 +117,64 @@ export function MtfQuestion({
     onOptionSelected?.({ matches, timestamp: Date.now() });
   };
 
-  const swap = (from: number, to: number) => {
-    if (replayed || from === to) return;
-    const next = [...order];
-    [next[from], next[to]] = [next[to], next[from]];
+  // dnd-kit sensors: Mouse for desktop (immediate), Touch with a short press
+  // delay so the page can still scroll until a drag is intended, Keyboard for a11y.
+  const sensors = useSensors(
+    useSensor(MouseSensor),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (replayed || !over || active.id === over.id) return;
+    const from = order.findIndex((o) => String(o.value) === active.id);
+    const to = order.findIndex((o) => String(o.value) === over.id);
+    if (from < 0 || to < 0) return;
+    const next = arrayMove(order, from, to);
     setOrder(next);
     emit(next);
   };
+
+  const sortableIds = order.map((o) => String(o.value));
 
   return (
     <div className={styles.mtf}>
       <QuestionBody question={question} language={language} mediaCtx={ctx} />
 
       {/* Brown board: each row is a left prompt with its answer image on the
-          right; the right images are draggable and swap on drop.
+          right; the right images are draggable and reorder on drop.
           dir="ltr": the board keeps its prompt-left / draggable-right layout
           even in the RTL (Arabic) UI — mirroring it moved the DRAGGABLE column
           to the left while learners kept grabbing the (static) right one. */}
-      <div className={styles.board} dir="ltr">
-        {left.map((l, i) => (
-          <div className={styles.row} key={String(l.value)}>
-            <div className={styles.leftCard}>
-              <span
-                className={styles.term}
-                dangerouslySetInnerHTML={{ __html: resolveLabel(l.label, language, ctx) }}
-              />
-            </div>
-            <span className={styles.arrow} aria-hidden="true">
-              →
-            </span>
-            {order[i] && (
-              <RightCell
-                option={order[i]}
-                index={i}
-                language={language}
-                mediaCtx={ctx}
-                disabled={replayed}
-                onSwap={swap}
-              />
-            )}
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
+          <div className={styles.board} dir="ltr">
+            {left.map((l, i) => (
+              <div className={styles.row} key={String(l.value)}>
+                <div className={styles.leftCard}>
+                  <span
+                    className={styles.term}
+                    dangerouslySetInnerHTML={{ __html: resolveLabel(l.label, language, ctx) }}
+                  />
+                </div>
+                <span className={styles.arrow} aria-hidden="true">
+                  →
+                </span>
+                {order[i] && (
+                  <RightCell
+                    id={String(order[i].value)}
+                    option={order[i]}
+                    language={language}
+                    mediaCtx={ctx}
+                    disabled={replayed}
+                  />
+                )}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </SortableContext>
+      </DndContext>
     </div>
   );
 }

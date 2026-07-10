@@ -10,6 +10,10 @@
   gap: v.$space-3;
 }
 
+// The whole row is the drag handle. The dnd-kit TouchSensor press-delay (150ms)
+// disambiguates a drag from a scroll, so we DON'T set touch-action:none (that
+// would block page scrolling) — same setup as the MTF draggable. cursor:grab is
+// the desktop affordance; user-select:none stops text selection mid-drag.
 .row {
   display: flex;
   align-items: center;
@@ -20,7 +24,13 @@
   border-radius: v.$r-md;
   box-shadow: v.$shadow-card;
   cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
   transition: border-color v.$dur-fast v.$ease-out, background v.$dur-fast v.$ease-out;
+
+  &:active {
+    cursor: grabbing;
+  }
 }
 
 .dragging {
@@ -28,15 +38,10 @@
   border-color: v.$brick;
 }
 
-.over {
-  border-color: v.$wave;
-  background: v.$info-bg;
-}
-
+// Visual "draggable" affordance only — the whole row is draggable, not just this.
 .grip {
   color: v.$g300;
   font-size: v.$text-md;
-  cursor: grab;
 }
 
 .label {
@@ -47,43 +52,6 @@
 
   :global(p) {
     margin: 0;
-  }
-}
-
-.controls {
-  display: inline-flex;
-  gap: v.$space-1;
-}
-
-.nudge {
-  @include m.focus-ring;
-
-  width: 28px;
-  height: 28px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: v.$white;
-  border: 1.5px solid v.$gray-200;
-  border-radius: v.$r-sm;
-  color: v.$g600;
-  cursor: pointer;
-
-  &:hover:not(:disabled) {
-    border-color: v.$brick;
-    color: v.$brick;
-  }
-
-  &:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-
-  // Comfortable touch target on mobile (drag is hard on touch — these are the
-  // primary reordering control there).
-  @include m.mobile {
-    width: 2.75rem;
-    height: 2.75rem;
   }
 }
 

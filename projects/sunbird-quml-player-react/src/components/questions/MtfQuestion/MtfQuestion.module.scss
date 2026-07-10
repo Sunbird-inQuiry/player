@@ -48,6 +48,9 @@ $mtf-row-height: 6.5rem;
   border: 1.5px solid v.$gray-200;
   cursor: grab;
   box-shadow: v.$shadow-card;
+  // Guard against text/image selection during a mouse drag.
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .arrow {
@@ -63,11 +66,6 @@ $mtf-row-height: 6.5rem;
 .dragging {
   opacity: 0.45;
   border-color: v.$brick;
-}
-
-.over {
-  border: 2px dashed v.$brick;
-  background: v.$brick-lt;
 }
 
 .term {
