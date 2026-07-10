@@ -170,7 +170,6 @@ export function ReoQuestion({
               onClick={() => removeWord(word.value)}
             >
               <span dangerouslySetInnerHTML={{ __html: resolveLabel(word.label, language, ctx) }} />
-              {!replayed && <span aria-hidden="true"> ×</span>}
             </button>
           ))
         )}
