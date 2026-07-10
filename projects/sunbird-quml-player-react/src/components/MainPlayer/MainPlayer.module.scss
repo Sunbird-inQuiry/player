@@ -9,6 +9,24 @@
   height: 100%;
   width: 100%;
   max-width: 100%;
+  // Query container for the player's responsive rules (m.mobile / m.tablet).
+  // `inline-size` contains ONLY the inline (width) axis, so the height:100%
+  // chain — and the :host height:100% freeze fix — is untouched. Every
+  // responsive component is a descendant of this element, so they respond to
+  // the player's own available width instead of the browser viewport (needed
+  // for the editor's narrow mobile preview).
+  container-type: inline-size;
+  container-name: quml;
+  // Positioning context for the player's overlays. The overlays (submit modal,
+  // mobile sections drawer, feedback toast) are `position: absolute` and anchor
+  // to THIS box, so they stay within the player instead of covering the whole
+  // browser window when the player is embedded in a small frame (editor mobile
+  // preview). When the player fills the viewport (portal, real mobile,
+  // standalone) this box == the viewport, so it is visually identical to the
+  // previous `position: fixed` behavior. (container-type does not reliably
+  // establish a fixed-positioning containing block across browsers, so we rely
+  // on absolute positioning + this explicit relative anchor instead.)
+  position: relative;
   overflow-x: hidden; // hard guard: nothing scrolls the shell sideways
   // Overview / results / review render their screen directly in the shell (the
   // assessment stage scrolls via its inner .main). When the host constrains the

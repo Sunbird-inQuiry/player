@@ -1,8 +1,12 @@
 @use '../../styles/variables' as v;
 @use '../../styles/mixins' as m;
 
+// `absolute` (anchored to MainPlayer's .appShell), not `fixed`, so the toast
+// stays within the player box when embedded in a small frame (editor preview).
+// When the player fills the viewport (.appShell == viewport) it is identical to
+// fixed.
 .viewport {
-  position: fixed;
+  position: absolute;
   bottom: v.$space-8;
   left: 50%;
   transform: translateX(-50%);
@@ -10,7 +14,10 @@
   display: flex;
   justify-content: center;
   width: max-content;
-  max-width: min(92vw, 36rem);
+  // `%` (not `vw`) so the cap tracks the player box, not the browser viewport:
+  // in a narrow embedded frame the toast stays within .appShell. Identical to
+  // `92vw` when the player fills the viewport (.appShell == viewport).
+  max-width: min(92%, 36rem);
   pointer-events: none;
 }
 

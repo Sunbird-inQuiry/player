@@ -10,8 +10,18 @@
 @use 'variables' as v;
 
 // Respond below the mobile breakpoint (≤768px).
+//
+// Uses a CONTAINER query (against the `quml` container declared on MainPlayer's
+// `.appShell`), NOT a viewport `@media`. The player is an embeddable web
+// component: hosts (e.g. the Sunbird editor's mobile preview) render it in a
+// narrow box while the browser viewport stays desktop-width, so viewport media
+// queries never fired and the layout overflowed. Querying the player's own
+// width makes it responsive to the space it's actually given.
+// When the player fills the viewport (portal, real mobile, standalone) the
+// container width == viewport width, so the breakpoints trigger identically to
+// before — no behavior change in those environments.
 @mixin mobile {
-  @media (max-width: v.$bp-mobile) {
+  @container quml (max-width: #{v.$bp-mobile}) {
     @content;
   }
 }
@@ -19,7 +29,7 @@
 // Respond at tablet and below (≤1023px). Combine with `mobile` (which is more
 // specific / placed after) for progressive collapse: tablet 2-up → mobile 1-up.
 @mixin tablet {
-  @media (max-width: v.$bp-tablet - 1px) {
+  @container quml (max-width: #{v.$bp-tablet - 1px}) {
     @content;
   }
 }
