@@ -1,8 +1,9 @@
-import { Component, OnInit, Input, SecurityContext, Output, EventEmitter, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnChanges, SimpleChanges, Input, SecurityContext, Output, EventEmitter, AfterViewInit } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { katex } from 'katex';
 import { UtilService } from '../util-service';
 import * as _ from 'lodash-es';
+import { readI18n, getBodyField } from '../i18n/i18nField';
 
 declare const katex: any;
 
@@ -13,18 +14,18 @@ declare const katex: any;
   styleUrls: ['./mcq.component.scss', '../quml-library.component.scss'],
 
 })
-export class McqComponent implements OnInit, AfterViewInit {
+export class McqComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() shuffleOptions?: boolean;
+  @Input() savedResponse?: any;
   @Input() question?: any;
-  @Input() identifier: any;
   @Input() layout?: string;
+  @Input() language: string = 'en';
   @Input() replayed: boolean;
   @Input() tryAgain?: boolean;
   @Output() componentLoaded = new EventEmitter<any>();
   @Output() answerChanged = new EventEmitter<any>();
   @Output() optionSelected = new EventEmitter<number>();
 
-  mcqQuestion: any;
   options: any;
   mcqOptions: any[] = [];
   selectedOptionTarget: any;
@@ -32,6 +33,11 @@ export class McqComponent implements OnInit, AfterViewInit {
   solutions: Array<[]>;
   cardinality: string;
   numberOfCorrectOptions: number;
+
+  get mcqQuestion(): string {
+    return this.domSanitizer.sanitize(SecurityContext.HTML,
+      this.domSanitizer.bypassSecurityTrustHtml(readI18n(getBodyField(this.question), this.language))) || '';
+  }
   
 
   constructor(
@@ -61,14 +67,41 @@ export class McqComponent implements OnInit, AfterViewInit {
         this.layout = 'MULTIIMAGEGRID';
         break;
       default:
-        console.error("Invalid templateId");
+        this.layout = 'DEFAULT';
     }
 
     this.renderLatex();
-    this.mcqQuestion = this.domSanitizer.sanitize(SecurityContext.HTML,
-      this.domSanitizer.bypassSecurityTrustHtml(this.question.body));
     this.options = this.question.interactions[key].options;
     this.initOptions();
+    this.applySavedResponse();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['language'] && !changes['language'].firstChange) {
+      this.mcqOptions = [];
+      this.initOptions();
+      this.applySavedResponse();
+    }
+  }
+
+  /**
+   * Re-applies a previously saved answer to the freshly built options so the
+   * learner's prior selection is shown on revisit. Matches by option `value`
+   * (stable identity), so it is correct regardless of shuffled display order.
+   * Visual only — does not emit, to avoid scoring on mount.
+   * Public: the renderer also calls this when savedResponse changes (not just at mount).
+   */
+  applySavedResponse(): void {
+    const option = this.savedResponse?.option;
+    if (_.isEmpty(option)) { return; }
+    // Normalize to string before comparing (mtf/ordered do the same): the saved
+    // value and the option value share an in-memory source today, but a real
+    // persistence layer may serialize numeric values to strings, and a strict
+    // === would then silently fail to restore the selection.
+    const selectedValues = _.castArray(option).map((o: any) => String(o?.value));
+    this.mcqOptions.forEach(mo => {
+      mo.selected = selectedValues.includes(String(mo.value));
+    });
   }
 
   ngAfterViewInit() {
@@ -80,19 +113,17 @@ export class McqComponent implements OnInit, AfterViewInit {
 
   initOptions() {
     for (let j = 0; j < this.options.length; j++) {
-      let imageUrl;
-      if (this.options[j].url) {
-        imageUrl = this.options[j].url;
-      }
       const option = this.options[j];
-      const optionValue = option.value.body;
-      const optionHtml = this.domSanitizer.sanitize(SecurityContext.HTML, this.domSanitizer.bypassSecurityTrustHtml(optionValue));
-      const optionToBePushed: any = {};
-      optionToBePushed.index = j;
-      optionToBePushed.optionHtml = optionHtml;
-      optionToBePushed.selected = false;
-      optionToBePushed.url = imageUrl;
-      this.mcqOptions.push(optionToBePushed);
+      const resolvedLabel = readI18n(option.label, this.language);
+      const sanitizedLabel = this.domSanitizer.sanitize(
+        SecurityContext.HTML, this.domSanitizer.bypassSecurityTrustHtml(resolvedLabel)
+      ) || '';
+      this.mcqOptions.push({
+        label: sanitizedLabel,
+        selected: false,
+        value: option.value,
+        url: option.url,
+      });
     }
   }
 
@@ -103,7 +134,7 @@ export class McqComponent implements OnInit, AfterViewInit {
   }
 
   replaceLatexText() {
-    const questionElement = document.getElementById(this.identifier);
+    const questionElement = document.getElementById(this.question?.identifier ?? this.question?.id);
     if (questionElement != null) {
       const mathTextDivs = questionElement.getElementsByClassName('mathText');
       for (let i = 0; i < mathTextDivs.length; i++) {

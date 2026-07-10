@@ -4,7 +4,8 @@
 <sb-player-side-menu-icon *ngIf="parentConfig?.sideMenuConfig?.enable && !endPageReached" (sidebarMenuEvent)="sideBarEvents($event)"></sb-player-side-menu-icon>
 <quml-header *ngIf="loadScoreBoard && parentConfig?.requiresSubmit && !endPageReached" [showLegend]="parentConfig?.showLegend"
   [disablePreviousNavigation]="true" [disableNext]="true" [attempts]="attempts" [loadScoreBoard]="true"
-  [showDeviceOrientation]="playerConfig?.config?.showDeviceOrientation" (toggleScreenRotate)="toggleScreenRotate()"></quml-header>
+  [showDeviceOrientation]="playerConfig?.config?.showDeviceOrientation" (toggleScreenRotate)="toggleScreenRotate()"
+  [language]="parentConfig.language"></quml-header>
 <sb-player-sidebar [title]="parentConfig?.contentName" [config]="parentConfig?.sideMenuConfig" (sidebarEvent)="sideBarEvents($event)">
 </sb-player-sidebar>
 
@@ -22,24 +23,26 @@
     (scoreBoardLoaded)="onScoreBoardLoaded($event)" (submitClicked)="onScoreBoardSubmitted()"
     [contentName]="parentConfig.contentName" [scores]="mainProgressBar" [totalNoOfQuestions]="totalNoOfQuestions"
     [showFeedBack]="showFeedBack" (emitQuestionNo)="goToQuestion($event)"
-    [isSections]="parentConfig?.isSectionsAvailable" [summary]="summary">
+    [isSections]="parentConfig?.isSectionsAvailable" [summary]="summary"
+    [language]="parentConfig.language">
   </quml-scoreboard>
 
   <!-- Show player end page -->
   <div class="endPage-container" *ngIf="endPageReached" [ngClass]="endPageReached ? 'endPage-container-height': ''">
     <sb-player-end-page *ngIf="endPageReached && showEndPage" [contentName]="parentConfig.contentName"
-      [outcome]="outcomeLabel" [outcomeLabel]="'Score: '" [userName]="userName" [timeSpentLabel]="durationSpent"
+      [outcome]="outcomeLabel" [outcomeLabel]="translate('SCORE')" [userName]="userName" [timeSpentLabel]="durationSpent"
       (replayContent)="replayContent()" (exitContent)="exitContent($event)"
-      [showExit]="parentConfig?.sideMenuConfig.showExit" [showReplay]="showReplay" [nextContent]="nextContent"
+      [showExit]="parentConfig?.sideMenuConfig.showExit" [showReplay]="showReplay" [nextContent]="null"
       (playNextContent)="playNextContent($event)">
 
       <span class="sb-color-primary mt-8 fnormal font-weight-bold d-block"
-        *ngIf="attempts?.max && attempts?.current && attempts.max !== attempts.current">Attempt no
-        {{attempts.current}}/{{attempts.max}}
+        *ngIf="attempts?.max && attempts?.current && attempts.max !== attempts.current">
+        {{ translate('ATTEMPT_NO') }} {{attempts.current}}/{{attempts.max}}
       </span>
 
       <span class="attempts sb-color-primary mt-8 fnormal font-weight-bold d-block"
-        *ngIf="attempts?.max === attempts?.current">{{attempts.current}}/{{attempts.max}} attempts completed
+        *ngIf="attempts?.max === attempts?.current">
+        {{attempts.current}}/{{attempts.max}} {{ translate('ATTEMPTS_COMPLETED') }}
       </span>
     </sb-player-end-page>
   </div>

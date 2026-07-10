@@ -1,6 +1,7 @@
 import { Component, OnInit, Output, EventEmitter, Input, OnChanges, OnDestroy, AfterViewInit, HostListener } from '@angular/core';
 import { ViewerService } from '../services/viewer-service/viewer-service';
 import { eventName, TelemetryType } from '../telemetry-constants';
+import { t } from '../i18n/translations';
 
 
 @Component({
@@ -32,6 +33,14 @@ export class HeaderComponent implements OnInit, OnChanges, AfterViewInit, OnDest
   @Input() attempts?: { max: number, current: number };
   @Input() showDeviceOrientation: boolean = false;
   @Input() showLegend: boolean;
+  @Input() language: string = 'en';
+
+  /**
+   * Direction for the navigation arrows. For Arabic ('ar') the nav is rendered
+   * RTL so prev/next mirror and the pair still reads "< >". Set explicitly on the
+   * nav container so it's correct regardless of the host document's dir.
+   */
+  get dir(): 'ltr' | 'rtl' { return this.language === 'ar' ? 'rtl' : 'ltr'; }
 
   @Output() nextSlideClicked = new EventEmitter<any>();
   @Output() prevSlideClicked = new EventEmitter<any>();
@@ -47,7 +56,10 @@ export class HeaderComponent implements OnInit, OnChanges, AfterViewInit, OnDest
   isMobilePortrait = false;
   time: any;
   showProgressIndicatorPopUp = false;
-  constructor(private viewerService: ViewerService) {
+  constructor(private viewerService: ViewerService) { }
+
+  translate(key: string): string {
+    return t(this.language, key);
   }
 
 

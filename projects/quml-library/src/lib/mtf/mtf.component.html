@@ -1,0 +1,40 @@
+<div class="question-container" [id]="question.identifier" [dir]="dir">
+  <div class="mtf-question" [innerHTML]="resolvedBody | safeHtml"></div>
+
+  <div class="mtf-board">
+    <!-- Fixed left column -->
+    <div class="mtf-col left-col">
+      <div class="mtf-pill left-pill"
+           *ngFor="let l of left"
+           [innerHTML]="l.label | safeHtml">
+      </div>
+    </div>
+
+    <!-- Arrow connectors -->
+    <div class="mtf-col center-col" aria-hidden="true">
+      <div class="mtf-arrow" *ngFor="let l of left">
+        <svg viewBox="0 0 40 24" xmlns="http://www.w3.org/2000/svg">
+          <line x1="2" y1="12" x2="30" y2="12"
+                stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round"/>
+          <polyline points="22,4 32,12 22,20"
+                    fill="none" stroke="rgba(255,255,255,0.7)"
+                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Draggable right column -->
+    <div class="mtf-col right-col"
+         cdkDropList
+         (cdkDropListDropped)="drop($event)">
+      <div class="mtf-pill right-pill"
+           cdkDrag
+           *ngFor="let r of right">
+        <span class="pill-text" [innerHTML]="r.label | safeHtml"></span>
+
+        <!-- Placeholder shown while this card is being dragged -->
+        <div class="mtf-drag-placeholder" *cdkDragPlaceholder></div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,90 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+// app-shell (column) → app-body (row: sidebar + main), collapsing to a single
+// column with a drawer < 768px (spec §6.6 / §6.11).
+.appShell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden; // hard guard: nothing scrolls the shell sideways
+  // Overview / results / review render their screen directly in the shell (the
+  // assessment stage scrolls via its inner .main). When the host constrains the
+  // player height, those screens overflow and their bottom CTA (e.g. "Start
+  // Assessment") gets clipped — so allow the shell itself to scroll vertically.
+  // Harmless for the assessment stage: its content fills exactly 100% and scrolls
+  // internally, so the shell never overflows.
+  overflow-y: auto;
+  background: v.$cream-bg;
+  font-family: v.$ff-base;
+}
+
+.appBody {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden; // sidebar + main scroll independently (design .app-body)
+}
+
+.sidebarSlot {
+  flex-shrink: 0;
+
+  @include m.mobile {
+    display: none;
+  }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.sectionStepsBar {
+  display: flex;
+  justify-content: center;
+  padding: v.$space-4 v.$space-6;
+  background: v.$ivory;
+  border-bottom: 1px solid v.$gray-200;
+
+  @include m.mobile {
+    padding: v.$space-3 v.$space-4;
+  }
+}
+
+.endPage {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: v.$space-12 v.$space-6;
+  text-align: center;
+}
+
+.title {
+  margin: 0 0 v.$space-2;
+  font-size: v.$text-2xl;
+  font-weight: v.$fw-bold;
+  color: v.$dark;
+}
+
+.subtitle {
+  margin: 0 0 v.$space-8;
+  color: v.$g500;
+}
+
+.status,
+.error {
+  padding: v.$space-12;
+  text-align: center;
+  font-family: v.$ff-base;
+  color: v.$g600;
+}
+
+.error {
+  color: v.$danger;
+}

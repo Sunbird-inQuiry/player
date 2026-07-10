@@ -64,6 +64,29 @@ describe('MainPlayerComponent', () => {
     expect(component.initializeSections).toHaveBeenCalled();
   });
 
+  it('should clear persisted responses on a playerConfig swap (non-first change)', () => {
+    const viewerService = TestBed.inject(ViewerService);
+    spyOn(viewerService, 'clearUserResponses');
+    spyOn(component, 'ngOnInit');
+    component.ngOnChanges({
+      playerConfig: { firstChange: false, currentValue: {}, previousValue: {}, isFirstChange: () => false } as any
+    });
+    expect(viewerService.clearUserResponses).toHaveBeenCalled();
+    expect(component.ngOnInit).not.toHaveBeenCalled();
+  });
+
+  it('should re-run init (and not clear responses) on the first playerConfig change', () => {
+    const viewerService = TestBed.inject(ViewerService);
+    component.isInitialized = true;
+    spyOn(component, 'ngOnInit');
+    spyOn(viewerService, 'clearUserResponses');
+    component.ngOnChanges({
+      playerConfig: { firstChange: true, currentValue: {}, previousValue: undefined, isFirstChange: () => true } as any
+    });
+    expect(component.ngOnInit).toHaveBeenCalled();
+    expect(viewerService.clearUserResponses).not.toHaveBeenCalled();
+  });
+
   it('should initialize the sections, if available', () => {
     const viewerService = TestBed.inject(ViewerService);
     component.playerConfig = playerConfig;
@@ -490,7 +513,7 @@ describe('MainPlayerComponent', () => {
     component.playerConfig = playerConfig;
     component.disabledHandle = {
       disengage: () => { }
-    };
+    } as any;
     component.subscription = of(1, 2, 3).subscribe();
     component.handleSideBarAccessibility({ type: 'CLOSE_MENU' });
     expect(component.disabledHandle).toBeNull();

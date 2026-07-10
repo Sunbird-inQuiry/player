@@ -6,7 +6,7 @@
           aria-label="player-close-btn"></button>
       </div>
       <div class="progress-indicators__metadata">
-        <h5 class="progress-indicators__title text-left">Progress bar indicators</h5>
+        <h5 class="progress-indicators__title text-left">{{ translate('PROGRESS_BAR_TITLE') }}</h5>
         <div class="progress-indicators__content">
           <div class="progress-indicators__item" *ngFor="let item of indicators">
             <span class="default" [ngClass]="item.class ? item.class : ''" [innerHtml]="item.iconText"></span>
@@ -15,7 +15,7 @@
         </div>
         <div class="progress-indicators__action-btns">
           <button type="button" class="sb-btn sb-btn-normal sb-btn-primary sb-btn-radius submit-btn"
-            (click)="close.emit(true)">Close</button>
+            (click)="close.emit(true)">{{ translate('CLOSE') }}</button>
         </div>
       </div>
     </div>

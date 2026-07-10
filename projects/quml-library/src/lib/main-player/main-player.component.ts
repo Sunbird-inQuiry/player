@@ -11,6 +11,7 @@ import { eventName, pageId, TelemetryType, MimeType } from './../telemetry-const
 import { UtilService } from './../util-service';
 import { fromEvent, Subscription } from 'rxjs';
 import { WARNING_TIME_CONFIG } from './../player-constants';
+import { t } from '../i18n/translations';
 @Component({
   standalone: false,
   selector: 'quml-main-player',
@@ -53,7 +54,8 @@ export class MainPlayerComponent implements OnInit, OnChanges {
     showFeedback: false,
     showLegend: true,
     warningTime: WARNING_TIME_CONFIG.DEFAULT_TIME,
-    showWarningTimer: WARNING_TIME_CONFIG.SHOW_TIMER
+    showWarningTimer: WARNING_TIME_CONFIG.SHOW_TIMER,
+    language: 'en'
   };
 
   showEndPage: boolean;
@@ -92,6 +94,10 @@ export class MainPlayerComponent implements OnInit, OnChanges {
     private transformationService: TransformationService,
     private focusTrapFactory: FocusTrapFactory) { }
 
+  translate(key: string): string {
+    return t(this.parentConfig?.language || 'en', key);
+  }
+
   @HostListener('document:TelemetryEvent', ['$event'])
   onTelemetryEvent(event) {
     this.telemetryEvent.emit(event.detail);
@@ -122,6 +128,14 @@ export class MainPlayerComponent implements OnInit, OnChanges {
     if (changes.playerConfig.firstChange && this.isInitialized) {
       // This explicitly calling ngOnInit is for the web-component. Life cycle methods works in different order there.
       this.ngOnInit();
+    } else if (!changes.playerConfig.firstChange) {
+      // Web-component host reusing the same <sunbird-quml-player> element and
+      // assigning a new playerConfig (without the in-player Replay) → init is not
+      // re-run, so the root-singleton ViewerService would keep the previous
+      // content's saved answers / assess flags. For shared question identifiers
+      // that suppresses ASSESS on first answer and pre-fills a stale answer.
+      // Clear the persisted state on any content (re)load, not just firstChange.
+      this.viewerService.clearUserResponses();
     }
   }
 
@@ -130,6 +144,8 @@ export class MainPlayerComponent implements OnInit, OnChanges {
     this.parentConfig.isSectionsAvailable = this.isSectionsAvailable = childMimeType[0] === MimeType.questionSet;
     this.parentConfig.metadata = { ...this.playerConfig.metadata };
     this.viewerService.sectionQuestions = [];
+    // Reset persisted answers at the start of each attempt (fresh load or replay).
+    this.viewerService.clearUserResponses();
     if (this.isSectionsAvailable) {
       this.isMultiLevelSection = this.getMultilevelSection(this.playerConfig.metadata);
 
@@ -213,10 +229,11 @@ export class MainPlayerComponent implements OnInit, OnChanges {
     this.parentConfig.showLegend = this.playerConfig.config?.showLegend !== undefined ? this.playerConfig.config.showLegend : true;
     this.nextContent = this.playerConfig.config?.nextContent;
     this.showEndPage = this.playerConfig.metadata?.showEndPage?.toLowerCase() !== 'no';
-    this.parentConfig.showFeedback = this.showFeedBack = this.playerConfig.metadata?.showFeedback;
+    this.parentConfig.showFeedback = this.showFeedBack = this.playerConfig.metadata?.showFeedback ?? this.playerConfig.config?.showFeedback;
     this.parentConfig.sideMenuConfig = { ...this.parentConfig.sideMenuConfig, ...this.playerConfig.config.sideMenu };
     this.parentConfig.warningTime =  _.get(this.playerConfig,'config.warningTime', this.parentConfig.warningTime);
-    this.parentConfig.showWarningTimer =  _.get(this.playerConfig,'config.showWarningTimer', this.parentConfig.showWarningTimer)
+    this.parentConfig.showWarningTimer =  _.get(this.playerConfig,'config.showWarningTimer', this.parentConfig.showWarningTimer);
+    this.parentConfig.language = localStorage.getItem('app-language') || 'en';
     if (this.playerConfig?.context?.userData) {
       const firstName = this.playerConfig.context.userData?.firstName ?? '';
       const lastName = this.playerConfig.context.userData?.lastName ?? '';
@@ -232,7 +249,7 @@ export class MainPlayerComponent implements OnInit, OnChanges {
       max: this.playerConfig.metadata?.maxAttempts,
       current: this.playerConfig.metadata?.currentAttempt ? this.playerConfig.metadata.currentAttempt + 1 : 1
     };
-    this.totalScore = this.playerConfig.metadata.outcomeDeclaration.maxScore.defaultValue;
+    this.totalScore = this.playerConfig.metadata?.outcomeDeclaration?.maxScore?.defaultValue || 0;
     this.showReplay = this.attempts?.max && this.attempts?.current >= this.attempts.max ? false : true;
     if (typeof this.playerConfig.metadata?.timeLimits === 'string') {
       this.playerConfig.metadata.timeLimits = JSON.parse(this.playerConfig.metadata.timeLimits);

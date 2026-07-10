@@ -7,7 +7,8 @@
       [showFeedBack]="showFeedBack" [currentSolutions]="currentSolutions" (showSolution)="viewSolution()"
       [initializeTimer]="initializeTimer" [replayed]="parentConfig?.isReplayed" [disableNext]="disableNext"
       [startPageInstruction]="startPageInstruction" [attempts]="attempts" [showStartPage]="showStartPage"
-      [showDeviceOrientation]="sectionConfig?.config?.showDeviceOrientation" (toggleScreenRotate)="toggleScreenRotate()">
+      [showDeviceOrientation]="sectionConfig?.config?.showDeviceOrientation" (toggleScreenRotate)="toggleScreenRotate()"
+      [language]="parentConfig?.language">
     </quml-header>
 
     <div class="landscape-mode">
@@ -27,21 +28,24 @@
               [instructions]="showRootInstruction ? parentConfig?.instructions : sectionConfig.metadata?.instructions"
               [points]="points" [time]="showRootInstruction ? timeLimit : null" [showTimer]="showTimer"
               [totalNoOfQuestions]="showRootInstruction ? parentConfig?.questionCount : noOfQuestions"
-              [contentName]="showRootInstruction ? parentConfig?.contentName : parentConfig?.isSectionsAvailable ? sectionConfig?.metadata?.name : parentConfig?.contentName">
+              [contentName]="showRootInstruction ? parentConfig?.contentName : parentConfig?.isSectionsAvailable ? sectionConfig?.metadata?.name : parentConfig?.contentName"
+              [language]="parentConfig?.language">
             </quml-startpage>
           </slide>
-          <slide *ngFor="let question of questions; let i= index" #questionSlide>
+          <slide *ngFor="let question of questions; let i= index; trackBy: trackByQuestionIdentifier" #questionSlide>
             <div [id]="question.identifier">
-              <div *ngIf="question?.primaryCategory.toLowerCase() === 'multiple choice question'">
-                <quml-mcq [shuffleOptions]='shuffleOptions' [question]='question' [replayed]="parentConfig?.isReplayed"
-                  (optionSelected)="getOptionSelected($event)" [identifier]="question.id" [tryAgain]="tryAgainClicked">
-                </quml-mcq>
-              </div>
-              <div *ngIf="question?.primaryCategory.toLowerCase() === 'subjective question'">
-                <quml-sa [questions]='question' [replayed]="parentConfig?.isReplayed" [baseUrl]="parentConfig?.baseUrl"
-                  (showAnswerClicked)="showAnswerClicked($event, question)">
-                </quml-sa>
-              </div>
+              <quml-question-renderer
+                [question]="question"
+                [replayed]="parentConfig?.isReplayed"
+                [baseUrl]="parentConfig?.baseUrl"
+                [tryAgain]="tryAgainClicked"
+                [shuffleOptions]="shuffleOptions"
+                [savedResponse]="savedResponses[question.identifier]"
+                [language]="parentConfig?.language"
+                (optionSelected)="getOptionSelected($event)"
+                (showAnswerClicked)="showAnswerClicked($event, question)"
+                (goToNext)="nextSlideClicked({type: 'next'})">
+              </quml-question-renderer>
             </div>
           </slide>
         </carousel>
@@ -124,7 +128,8 @@
     (closeAlert)="closeAlertBox($event)"></quml-alert>
 
   <quml-mcq-solutions *ngIf="showSolution" [question]="currentQuestion" [options]="currentOptions"
-    [solutions]="currentSolutions" [baseUrl]="parentConfig?.baseUrl" [media]="media" [identifier]="currentQuestionIndetifier" (close)="closeSolution()"></quml-mcq-solutions>
+    [solutions]="currentSolutions" [baseUrl]="parentConfig?.baseUrl" [media]="media" [identifier]="currentQuestionIndetifier"
+    [language]="parentConfig?.language" [optionsLayout]="currentOptionsLayout" (close)="closeSolution()"></quml-mcq-solutions>
 </div>
 
 <div class="info-popup" *ngIf="infoPopup">

@@ -1,0 +1,190 @@
+$teal-start: #3bbcac;
+$teal-end:   #2a9e8d;
+$pill-min-h: 52px;
+$pill-gap:   10px;
+// Uniform, device-scaled row height so left pills, arrows and right pills
+// line up exactly regardless of each image's aspect ratio.
+$pill-row-h: clamp(4rem, 13vh, 7.5rem);
+
+.question-container {
+  margin-top: 2.5rem;
+}
+
+.mtf-question {
+  margin-bottom: 1.25rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  p { margin: 0; }
+
+  // Prompt images (innerHTML) — scale with device, bounded.
+  ::ng-deep figure.image,
+  ::ng-deep .image { max-width: 100%; }
+  ::ng-deep img {
+    max-width: 100%;
+    max-height: clamp(9rem, 35vh, 22rem);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
+}
+
+// ── Main card ────────────────────────────────────────────
+.mtf-board {
+  background: linear-gradient(145deg, $teal-start, $teal-end);
+  border-radius: 16px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0;
+}
+
+// ── Columns ──────────────────────────────────────────────
+.mtf-col {
+  display: flex;
+  flex-direction: column;
+  gap: $pill-gap;
+}
+
+.left-col  { flex: 1; }
+.right-col { flex: 1; }
+
+.center-col {
+  flex-shrink: 0;
+  width: 52px;
+  padding-top: 0;
+}
+
+// ── Pills ─────────────────────────────────────────────────
+.mtf-pill {
+  height: $pill-row-h;
+  background: white;
+  border-radius: 10px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #222;
+  box-sizing: border-box;
+  overflow: hidden;
+  p { margin: 0; }
+
+  // Option images (innerHTML) — fit within the uniform pill height
+  // (row height minus vertical padding) without relying on % heights.
+  ::ng-deep figure.image,
+  ::ng-deep .image { max-width: 100%; margin: 0; }
+  ::ng-deep img {
+    max-width: 100%;
+    max-height: calc(#{$pill-row-h} - 1.25rem);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
+}
+
+.left-pill {
+  justify-content: center;
+  text-align: center;
+}
+
+// Right pill: drag handle + text
+.right-pill {
+  gap: 8px;
+  cursor: grab;
+  user-select: none;
+  position: relative;
+
+  &:active { cursor: grabbing; }
+
+  // CDK drag preview (floating card while dragging)
+  &.cdk-drag-preview {
+    box-shadow: 0 8px 28px rgba(0,0,0,0.22);
+    border-radius: 10px;
+    background: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    min-height: $pill-min-h;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #222;
+  }
+
+  &.cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0,0,0.2,1);
+  }
+}
+
+.cdk-drop-list-dragging .right-pill:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0,0,0.2,1);
+}
+
+// Placeholder hole while dragging
+.mtf-drag-placeholder {
+  background: rgba(255,255,255,0.35);
+  border: 2px dashed rgba(255,255,255,0.6);
+  border-radius: 10px;
+  min-height: $pill-min-h;
+  width: 100%;
+  transition: transform 250ms cubic-bezier(0,0,0.2,1);
+}
+
+
+.pill-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  p { margin: 0; }
+}
+
+// ── Arrow connector ───────────────────────────────────────
+.mtf-arrow {
+  height: $pill-row-h;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    display: block;
+    width: 40px;
+    height: 24px;
+  }
+}
+
+// ── RTL ──────────────────────────────────────────────────
+[dir="rtl"] {
+  .mtf-board    { flex-direction: row-reverse; }
+  .center-col   { transform: scaleX(-1); }
+  .right-pill   { flex-direction: row-reverse; }
+}
+
+// ── Mobile ────────────────────────────────────────────────
+// On small screens reclaim width for the pills: shrink the arrow gutter,
+// tighten padding, and reduce the (still device-scaled) row height.
+@media only screen and (max-width: 480px) {
+  $pill-row-h-sm: clamp(3rem, 11vh, 5.5rem);
+
+  .mtf-board  { padding: 12px 8px; }
+  .center-col { width: 32px; }
+
+  .mtf-arrow {
+    height: $pill-row-h-sm;
+    svg { width: 24px; height: 18px; }
+  }
+
+  .mtf-pill {
+    height: $pill-row-h-sm;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+
+    ::ng-deep img { max-height: calc(#{$pill-row-h-sm} - 0.75rem); }
+  }
+
+  .mtf-drag-placeholder { min-height: $pill-row-h-sm; }
+}

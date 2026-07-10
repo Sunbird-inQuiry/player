@@ -210,6 +210,17 @@ describe('McqComponent', () => {
     expect(component.mcqOptions.length).toEqual(4);
   });
 
+  it('should restore a saved response when value types differ (numeric option vs string saved)', () => {
+    component.options = options;
+    component.mcqOptions = [];
+    component.initOptions();
+    // A real persistence layer may serialize the numeric value to a string.
+    component.savedResponse = { option: { value: '1' } };
+    component['applySavedResponse']();
+    expect(component.mcqOptions.find(o => String(o.value) === '1').selected).toBe(true);
+    expect(component.mcqOptions.find(o => String(o.value) === '0').selected).toBe(false);
+  });
+
   it('should call emit event on option selected', () => {
     spyOn(component.optionSelected, 'emit');
     component.getSelectedOptionAndResult({ title: 'option 1', selected: true });
@@ -234,7 +245,7 @@ describe('McqComponent', () => {
   });
 
   it('should call replaceLatexText', () => {
-    component.identifier = 'do_123';
+    (component as any).identifier = 'do_123';
     const element = document.createElement('div');
     const mathElement = document.createElement('div');
     mathElement.classList.add('mathText');

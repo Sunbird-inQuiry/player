@@ -1,0 +1,64 @@
+// =============================================================================
+// Sunbird Spark — Reusable SCSS mixins
+//
+// Contains ONLY @mixin / @function definitions (no emitted CSS), so it is safe
+// to `@use` from every *.module.scss. Pulls tokens from variables.scss.
+//
+// Consume via:  @use '../../styles/mixins' as m;  ->  @include m.mobile { ... }
+// =============================================================================
+
+@use 'variables' as v;
+
+// Respond below the mobile breakpoint (≤768px).
+@mixin mobile {
+  @media (max-width: v.$bp-mobile) {
+    @content;
+  }
+}
+
+// Respond at tablet and below (≤1023px). Combine with `mobile` (which is more
+// specific / placed after) for progressive collapse: tablet 2-up → mobile 1-up.
+@mixin tablet {
+  @media (max-width: v.$bp-tablet - 1px) {
+    @content;
+  }
+}
+
+// Accessible focus ring — white halo + primary outline (keyboard focus).
+@mixin focus-ring($color: v.$brick) {
+  outline: none;
+
+  &:focus-visible {
+    box-shadow:
+      0 0 0 0.125rem v.$white,
+      0 0 0 0.25rem $color;
+  }
+}
+
+// Shared base for interactive buttons (layout + typography, no theme colors).
+@mixin button-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: v.$space-2;
+  padding: v.$space-3 v.$space-6;
+  border: none;
+  border-radius: v.$r-xs;
+  font-family: v.$ff-base;
+  font-size: v.$text-sm;
+  font-weight: v.$fw-semibold;
+  cursor: pointer;
+  transition: all v.$dur-fast v.$ease-out;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// Flex centering helper.
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

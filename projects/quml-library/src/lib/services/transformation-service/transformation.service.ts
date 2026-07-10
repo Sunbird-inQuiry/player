@@ -59,7 +59,7 @@ export class TransformationService {
 
   processBooleanProps(data: any) {
     const booleanProps = ["showSolutions", "showFeedback", "showHints", "showTimer"];
-    const getBooleanValue = (str: any) => str === "Yes";
+    const getBooleanValue = (str: any) => typeof str === 'boolean' ? str : str === "Yes";
 
     _.forEach(booleanProps, (prop: any) => {
       if (_.has(data, prop)) {
@@ -185,11 +185,15 @@ export class TransformationService {
   getUpdatedMapping(responseData) {
     const mappingData = responseData.mapping || [];
     if (!_.isEmpty(mappingData)) {
-      const updatedMapping = mappingData.map(mapData => ({
+      // New QUML 1.1 format already has { value, score, caseSensitive }
+      if (mappingData[0]?.value !== undefined) {
+        return mappingData;
+      }
+      // Old format: { response, outcomes: { score } }
+      return mappingData.map(mapData => ({
         value: mapData.response,
         score: _.get(mapData, 'outcomes.score', 0),
       }));
-      return updatedMapping;
     }
     return mappingData;
   }
@@ -288,15 +292,18 @@ export class TransformationService {
       let answerData = _.get(responseData, 'cardinality');
 
       if (answerData === 'single') {
-        const correctResp = _.get(_.get(responseData, 'correctResponse', {}), 'value', 0);
+        const correctResp = _.get(responseData, 'correctResponse.value', 0);
         const label = options[correctResp];
-
-        formatedAnswer = `<div class="answer-container"><div class="answer-body">${label.label}</div></div>`;
+        // Guard: non-MCQ types (FTB/MTF/SEQ/REO) don't expose a choice `options`
+        // array indexable by correctResponse.value, so `label` can be undefined.
+        if (!_.isEmpty(label)) {
+          formatedAnswer = `<div class="answer-container"><div class="answer-body">${_.get(label, 'label', '')}</div></div>`;
+        }
       } else {
         const correctResp = _.get(responseData, 'correctResponse.value');
         let singleAns = '<div class="answer-body">answer_html</div>';
-        const answerList = [];
-        _.forEach(options, (option) => {
+        const answerList: string[] = [];
+        _.forEach(options, (option: any) => {
           if (_.includes(correctResp, option.value,)) {
             const replAns = _.replace(singleAns, 'answer_html', _.get(option, 'label'))
             answerList.push(replAns)

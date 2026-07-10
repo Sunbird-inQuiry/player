@@ -1,0 +1,97 @@
+@use '../../../styles/variables' as v;
+@use '../../../styles/mixins' as m;
+
+.mtf {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-4;
+}
+
+// Brown board wrapping all match rows (matches the app's brick theme).
+.board {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-4;
+  padding: v.$space-5;
+  background: v.$brick;
+  border-radius: v.$r-lg;
+}
+
+$mtf-row-height: 6.5rem;
+
+// One row: [left prompt card] → [arrow] → [draggable right image].
+.row {
+  display: flex;
+  align-items: stretch;
+  gap: v.$space-4;
+
+  @include m.mobile {
+    gap: v.$space-2;
+  }
+}
+
+.leftCard,
+.rightCell {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: $mtf-row-height;
+  padding: v.$space-3;
+  background: v.$white;
+  border-radius: v.$r-md;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.rightCell {
+  border: 1.5px solid v.$gray-200;
+  cursor: grab;
+  box-shadow: v.$shadow-card;
+  // Guard against text/image selection during a mouse drag.
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  font-size: 1.75rem;
+  color: v.$white;
+  opacity: 0.9;
+}
+
+.dragging {
+  opacity: 0.45;
+  border-color: v.$brick;
+}
+
+.term {
+  font-family: v.$ff-base;
+  font-size: v.$text-sm;
+  color: v.$g700;
+
+  :global(p) {
+    margin: 0;
+  }
+}
+
+// Uniform option-image sizing across prompt cards and draggable right cells.
+.leftCard,
+.rightCell {
+  :global(figure.image) {
+    margin: 0;
+    display: inline-block;
+    position: relative;
+  }
+
+  :global(img) {
+    display: block;
+    height: 4.5rem;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+  }
+}

@@ -1,0 +1,90 @@
+@use '../../styles/variables' as v;
+
+.progressBar {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-2;
+  font-family: v.$ff-base;
+}
+
+.progressMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.progressLabel {
+  font-size: v.$text-xs;
+  font-weight: v.$fw-semibold;
+  color: v.$g600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.progressCount {
+  font-size: v.$text-xs;
+  font-weight: v.$fw-medium;
+  color: v.$g500;
+  font-variant-numeric: tabular-nums;
+}
+
+.track {
+  width: 100%;
+  height: 0.5rem;
+  background: v.$gray-200;
+  border-radius: v.$r-pill;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  background: v.$brick;
+  border-radius: v.$r-pill;
+  transition: width v.$dur-base v.$ease-out;
+}
+
+.steps {
+  display: flex;
+  align-items: center;
+  gap: v.$space-2;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  display: flex;
+}
+
+.dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: v.$r-pill;
+  border: 1.5px solid v.$gray-300;
+  background: v.$white;
+  color: v.$g500;
+  font-family: v.$ff-base;
+  font-size: v.$text-xs;
+  font-weight: v.$fw-semibold;
+  font-variant-numeric: tabular-nums;
+  transition: all v.$dur-fast v.$ease-out;
+}
+
+.active .dot {
+  border-color: v.$brick;
+  background: v.$brick;
+  color: v.$white;
+}
+
+.completed .dot {
+  border-color: v.$success;
+  background: v.$success-bg;
+  color: v.$success;
+}
+
+.upcoming .dot {
+  opacity: 0.85;
+}

@@ -1,7 +1,7 @@
 <div class="quml-header__container">
   <div class="quml-header__features pl-64">
     <div *ngIf="attempts?.max && attempts?.current" class="attempts sb-color-primary fnormal font-weight-bold">
-      Attempt no {{attempts.current}}/{{attempts.max}}</div>
+      {{ translate('ATTEMPT_NO') }} {{attempts.current}}/{{attempts.max}}</div>
     <img src="assets/question-mark-round.svg" *ngIf="showLegend" alt="Progress Indicators" title="Progress Indicators" height="20" width="20" (click)="openProgressIndicatorPopup()">
   </div>
 
@@ -24,7 +24,7 @@
       </div>
     </ng-container>
 
-    <div class="quml-navigation" *ngIf="!disableNext && !isMobilePortrait">
+    <div class="quml-navigation" [attr.dir]="dir" *ngIf="!disableNext && !isMobilePortrait">
       <div class="quml-navigation__previous" (click)="prevSlide()" aria-label="preview slide" title="preview slide"
         role="navigation"
         [ngClass]="(startPageInstruction && currentSlideIndex === 0) || (!showStartPage && currentSlideIndex === 1) ? 'navigation-icon-disabled': '' "
@@ -46,7 +46,7 @@
   <div class="ml-16" *ngIf="currentSolutions && showFeedBack">
     <quml-ans (click)="showSolution.emit()" (keydown)="onAnswerKeyDown($event)"></quml-ans>
   </div>
-  <div class="quml-navigation ml-auto">
+  <div class="quml-navigation ml-auto" [attr.dir]="dir">
     <div class="quml-navigation__previous" tabindex="0" (click)="prevSlide()" (keydown.enter)="prevSlide()"
       aria-label="preview slide"></div>
     <div class="quml-navigation__next ml-8" tabindex="0" (click)="nextSlide()" (keydown.enter)="nextSlide()"
@@ -57,4 +57,4 @@
 
 </div>
 
-<quml-progress-indicators *ngIf="showProgressIndicatorPopUp" (close)="onProgressPopupClose()"></quml-progress-indicators>
+<quml-progress-indicators *ngIf="showProgressIndicatorPopUp" (close)="onProgressPopupClose()" [language]="language"></quml-progress-indicators>

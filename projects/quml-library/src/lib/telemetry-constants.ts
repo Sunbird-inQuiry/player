@@ -45,11 +45,18 @@ export enum MimeType {
 }
 
 export enum Cardinality {
-    single = 'single',
-    multiple = 'multiple'
+    single   = 'single',
+    multiple = 'multiple',
+    map      = 'map',      // MTF event discriminator
+    ftb      = 'ftb',      // FTB event discriminator
+    ordered  = 'ordered',  // SEQ + REO event discriminator
 }
 
 export enum QuestionType {
     mcq = 'MCQ',
-    sa = 'SA'
+    sa  = 'SA',
+    mtf = 'MTF',
+    ftb = 'FTB',
+    seq = 'SEQ',
+    reo = 'REO',
 }

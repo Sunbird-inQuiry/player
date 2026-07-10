@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ElementRef, EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
 import { waitForAsync, ComponentFixture, fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
 import { ErrorService, PLAYER_CONFIG } from '@project-sunbird/sunbird-player-sdk-v9';
-import { CarouselComponent } from 'ngx-bootstrap/carousel';
+import { CarouselModule } from 'ngx-bootstrap/carousel';
 import { of, Subject } from 'rxjs';
 import { fakeMainProgressBar } from '../main-player/main-player.component.spec.data';
 import { QumlLibraryService } from '../quml-library.service';
@@ -11,6 +11,7 @@ import { UtilService } from '../util-service';
 import { QuestionCursor } from './../quml-question-cursor.service';
 import { SectionPlayerComponent } from './section-player.component';
 import { mockSectionPlayerConfig } from './section-player.component.spec.data';
+import { Cardinality } from '../telemetry-constants';
 
 
 describe('SectionPlayerComponent', () => {
@@ -29,6 +30,10 @@ describe('SectionPlayerComponent', () => {
     raiseResponseEvent() { }
     getSectionQuestions() { }
     raiseAssesEvent() { }
+    saveUserResponse() { }
+    getUserResponse() { return undefined; }
+    clearAssessed() { }
+    clearUserResponses() { }
     qumlPlayerEvent = new EventEmitter<any>();
     qumlQuestionEvent = new EventEmitter<any>();
     pauseVideo() { }
@@ -49,9 +54,10 @@ describe('SectionPlayerComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [SectionPlayerComponent, CarouselComponent],
+      declarations: [SectionPlayerComponent],
       imports: [
-        CommonModule
+        CommonModule,
+        CarouselModule
       ],
       providers: [
         QumlLibraryService,
@@ -201,6 +207,36 @@ describe('SectionPlayerComponent', () => {
     expect(component.clearTimeInterval).toHaveBeenCalled();
   });
 
+  it('should select slide, set media and run setImageZoom when jumping to an already-loaded question (review)', fakeAsync(() => {
+    component.myCarousel = jasmine.createSpyObj("CarouselComponent", { selectSlide: {}, getCurrentSlideIndex: 1 });
+    component.questions = mockSectionQuestions;
+    spyOn(viewerService, 'getQuestions');
+    spyOn(component, 'setImageZoom');
+    spyOn(component, 'highlightQuestion');
+    component.goToQuestion({ questionNo: 1 });
+    tick();
+    expect(component.currentSlideIndex).toBe(1);
+    expect(viewerService.getQuestions).not.toHaveBeenCalled();
+    expect(component.myCarousel.selectSlide).toHaveBeenCalledWith(1);
+    expect(component.currentQuestionsMedia).toEqual(mockSectionQuestions[0].media);
+    expect(component.setImageZoom).toHaveBeenCalled();
+  }));
+
+  it('should fetch and defer slide/zoom to the subscription when jumping to a not-yet-loaded question', fakeAsync(() => {
+    component.myCarousel = jasmine.createSpyObj("CarouselComponent", { selectSlide: {}, getCurrentSlideIndex: 1 });
+    component.questions = [];
+    spyOn(viewerService, 'getQuestions');
+    spyOn(component, 'setImageZoom');
+    spyOn(component, 'highlightQuestion');
+    component.goToQuestion({ questionNo: 1 });
+    tick();
+    expect(viewerService.getQuestions).toHaveBeenCalledWith(0, 1);
+    // Fetch path returns early: the qumlQuestionEvent subscription handles these.
+    expect(component.myCarousel.selectSlide).not.toHaveBeenCalled();
+    expect(component.setImageZoom).not.toHaveBeenCalled();
+    expect(component.highlightQuestion).not.toHaveBeenCalled();
+  }));
+
   it('should navigate to previous slide', () => {
     spyOn(viewerService, 'raiseHeartBeatEvent');
     spyOn(component, 'setImageZoom');
@@ -225,6 +261,35 @@ describe('SectionPlayerComponent', () => {
     component.activeSlideChange({});
     expect(component.initialSlideDuration > 0).toBeTruthy();
     expect(viewerService.pauseVideo).toHaveBeenCalled();
+  });
+
+  it('should restore a previously saved response on slide change', () => {
+    const saved = { cardinality: 'single', option: { value: 2 }, solutions: [{ type: 'video', value: 'v1' }] };
+    spyOn(viewerService, 'pauseVideo');
+    spyOn(viewerService, 'getUserResponse').and.returnValue(saved);
+    component.myCarousel = myCarousel;
+    component.questions = mockSectionQuestions;
+    component.activeSlideChange({});
+    expect(component.optionSelectedObj).toBe(saved);
+    expect(component.currentOptionSelected).toBe(saved);
+    expect(component.currentSolutions).toEqual(saved.solutions);
+    expect(component.active).toBe(true);
+  });
+
+  it('should clear a stale selection when landing on a slide with no saved response', () => {
+    spyOn(viewerService, 'pauseVideo');
+    spyOn(viewerService, 'getUserResponse').and.returnValue(undefined);
+    component.myCarousel = myCarousel;
+    component.questions = mockSectionQuestions;
+    // Stale state leaked from a previously-restored slide (prev/jump don't reset).
+    component.optionSelectedObj = { option: { value: 9 } };
+    component.currentOptionSelected = { option: { value: 9 } };
+    component.active = true;
+    component.activeSlideChange({});
+    expect(component.optionSelectedObj).toBeUndefined();
+    expect(component.currentOptionSelected).toBeUndefined();
+    expect(component.currentSolutions).toBeUndefined();
+    expect(component.active).toBe(false);
   });
 
   it('should getQuestion', () => {
@@ -448,6 +513,37 @@ describe('SectionPlayerComponent', () => {
     // expect(component.currentOptionSelected).toEqual({ option: { value: 2 } });
     expect(viewerService.raiseHeartBeatEvent).toHaveBeenCalledWith('OPTION_CLICKED', 'interact', 1);
     expect(component.validateSelectedOption).toHaveBeenCalled()
+  });
+
+  it('should NOT clear the assessed flag when skipping (empty option)', () => {
+    component.myCarousel = myCarousel;
+    component.questions = mockSectionQuestions;
+    component.parentConfig = mockParentConfig;
+    component.showFeedBack = true;
+    component.progressBarClass = [{ index: 1, class: 'unattempted', score: 0 }];
+    spyOn(component, 'focusOnNextButton');
+    spyOn(viewerService, 'raiseHeartBeatEvent');
+    spyOn(viewerService, 'clearAssessed');
+    spyOn(viewerService, 'saveUserResponse');
+    component.getOptionSelected({ option: {}, cardinality: 'single' });
+    expect(viewerService.clearAssessed).not.toHaveBeenCalled();
+    expect(viewerService.saveUserResponse).toHaveBeenCalledWith(jasmine.any(String), null);
+  });
+
+  it('should clear the assessed flag when a real (non-empty) option is selected', () => {
+    component.myCarousel = myCarousel;
+    component.questions = mockSectionQuestions;
+    component.parentConfig = mockParentConfig;
+    component.showFeedBack = true;
+    component.progressBarClass = [{ index: 1, class: 'unattempted', score: 0 }];
+    spyOn(component, 'focusOnNextButton');
+    spyOn(viewerService, 'raiseHeartBeatEvent');
+    spyOn(viewerService, 'clearAssessed');
+    spyOn(viewerService, 'saveUserResponse');
+    const selection = { option: { value: 2 }, cardinality: 'single' };
+    component.getOptionSelected(selection);
+    expect(viewerService.clearAssessed).toHaveBeenCalled();
+    expect(viewerService.saveUserResponse).toHaveBeenCalledWith(jasmine.any(String), selection);
   });
 
   it('should mark it as selected option and solution as empty if not exists', () => {
@@ -761,7 +857,9 @@ describe('SectionPlayerComponent', () => {
     spyOn(component, 'highlightQuestion');
     component.goToQuestion({ questionNo: 2 });
     expect(viewerService.getQuestions).toHaveBeenCalled();
-    expect(component.highlightQuestion).toHaveBeenCalled();
+    // Fetch path returns early; highlightQuestion is handled by the
+    // qumlQuestionEvent subscription once the questions arrive.
+    expect(component.highlightQuestion).not.toHaveBeenCalled();
   });
 
   it('should hight light the question on click of question', () => {
@@ -788,6 +886,54 @@ describe('SectionPlayerComponent', () => {
     expect(component.clearTimeInterval).toHaveBeenCalled();
   });
 
+  it('should build MTF correct pairs (interleaved) with pairs layout', () => {
+    component.myCarousel = myCarousel;
+    component.questions = [{
+      identifier: 'q_mtf', body: 'b',
+      responseDeclaration: { response1: { correctResponse: { value: { '0': 'b', '1': 'a' } } } },
+      interactions: { response1: { options: {
+        left:  [{ value: '0', label: 'L0' }, { value: '1', label: 'L1' }],
+        right: [{ value: 'a', label: 'Ra' }, { value: 'b', label: 'Rb' }]
+      } } },
+      media: []
+    }] as any;
+    component.currentSolutions = {};
+    spyOn(viewerService, 'raiseHeartBeatEvent');
+    spyOn(component, 'clearTimeInterval');
+    component.getSolutions();
+    // left0 -> 'b' (Rb), left1 -> 'a' (Ra); interleaved left,right per pair
+    expect(component.currentOptions.map((o: any) => o.value)).toEqual(['0', 'b', '1', 'a']);
+    expect(component.currentOptionsLayout).toBe('pairs');
+  });
+
+  it('should fall back to positional MTF pairing when no correctResponse', () => {
+    component.myCarousel = myCarousel;
+    component.questions = [{
+      identifier: 'q_mtf2', body: 'b',
+      interactions: { response1: { options: {
+        left:  [{ value: '0', label: 'L0' }],
+        right: [{ value: 'a', label: 'Ra' }]
+      } } },
+      media: []
+    }] as any;
+    component.currentSolutions = {};
+    spyOn(viewerService, 'raiseHeartBeatEvent');
+    spyOn(component, 'clearTimeInterval');
+    component.getSolutions();
+    expect(component.currentOptions.map((o: any) => o.value)).toEqual(['0', 'a']);
+    expect(component.currentOptionsLayout).toBe('pairs');
+  });
+
+  it('should set [] options for a question type without options', () => {
+    component.myCarousel = myCarousel;
+    component.questions = [{ identifier: 'q_ftb', body: 'b', interactions: { response1: { type: 'text' } }, media: [] }] as any;
+    component.currentSolutions = {};
+    spyOn(viewerService, 'raiseHeartBeatEvent');
+    spyOn(component, 'clearTimeInterval');
+    component.getSolutions();
+    expect(component.currentOptions).toEqual([]);
+  });
+
   it('should show solution page if solution is available', () => {
     component.showSolution = false;
     component.myCarousel = myCarousel;
@@ -797,6 +943,20 @@ describe('SectionPlayerComponent', () => {
     expect(component.showSolution).toBeTruthy();
     expect(component.showAlert).toBeFalsy();
     expect(window.clearTimeout).toHaveBeenCalled();
+  });
+
+  it('viewSolution should populate the panel question and options', () => {
+    component.myCarousel = myCarousel;
+    component.questions = [{
+      identifier: 'q', body: '<p>Q</p>',
+      interactions: { response1: { options: [{ value: 0, label: 'A' }, { value: 1, label: 'B' }] } },
+      media: []
+    }] as any;
+    spyOn(viewerService, 'raiseHeartBeatEvent');
+    component.viewSolution();
+    expect(component.currentQuestion).toBe('<p>Q</p>');
+    expect(component.currentOptions.length).toBe(2);
+    expect(component.currentOptionsLayout).toBe('list');
   });
 
   it('should close the solution Modal', () => {
@@ -889,6 +1049,34 @@ describe('SectionPlayerComponent', () => {
   it('should call setImageZoom', () => {
     component.myCarousel = myCarousel;
     component.setImageZoom();
+  });
+
+  it('setImageZoom should use an absolute http(s) image url as-is (case-insensitive) and not prepend baseUrl', () => {
+    component.myCarousel = myCarousel; // getCurrentSlideIndex => 1
+    component.questions = [{ identifier: 'do_q1' }] as any;
+    component.parentConfig = { isAvailableLocally: false, baseUrl: '' } as any;
+    component.currentQuestionsMedia = [
+      { id: 'a1', src: 'https://cdn.example.com/lower.png', baseUrl: 'https://test.sunbirded.org' },
+      { id: 'a2', src: 'HTTPS://cdn.example.com/upper.png', baseUrl: 'https://test.sunbirded.org' }
+    ] as any;
+
+    const makeImg = (assetId: string) => ({
+      nodeName: 'IMG',
+      getAttribute: () => assetId,
+      setAttribute: jasmine.createSpy('setAttribute'),
+      parentNode: { insertBefore: jasmine.createSpy('insertBefore') },
+      nextSibling: null,
+    } as any);
+    const img1 = makeImg('a1');
+    const img2 = makeImg('a2');
+    spyOn(document, 'querySelectorAll').and.returnValue([img1, img2] as any);
+
+    component.setImageZoom();
+
+    // absolute URL is used directly — no 'https://test.sunbirded.org' prefix,
+    // and the uppercase scheme still matches the case-insensitive check.
+    expect(img1.src).toBe('https://cdn.example.com/lower.png');
+    expect(img2.src).toBe('HTTPS://cdn.example.com/upper.png');
   });
 
   it('should zoom in the image', () => {
@@ -994,5 +1182,213 @@ describe('SectionPlayerComponent', () => {
     component.setImageHeightWidthClass();
     expect(document.querySelectorAll).toHaveBeenCalled();
     expect(element.classList.contains('neutral'))
+  });
+
+  /* ── Auto-scoring (MTF map / FTB ftb / SEQ-REO ordered) ───────────────── */
+  describe('Auto-scoring', () => {
+
+    describe('capScore', () => {
+      it('should cap the earned score at maxScore when a ceiling is declared', () => {
+        expect(component.capScore(7, 5)).toBe(5);
+      });
+      it('should return the earned score when it is below the ceiling', () => {
+        expect(component.capScore(3, 5)).toBe(3);
+      });
+      it('should return the earned score untouched when maxScore is undefined', () => {
+        expect(component.capScore(8, undefined)).toBe(8);
+      });
+      it('should return the earned score untouched when maxScore is null', () => {
+        expect(component.capScore(8, null)).toBe(8);
+      });
+    });
+
+    describe('evaluateAutoScored - MTF (map)', () => {
+      it('should award per-item scores and full credit on a complete MAP_RESPONSE match', () => {
+        const question = {
+          responseProcessing: { template: 'MAP_RESPONSE' },
+          outcomeDeclaration: { maxScore: { defaultValue: 5 } },
+          responseDeclaration: {
+            response1: { mapping: [{ key: 'a', value: '1', score: 2 }, { key: 'b', value: '2', score: 3 }] }
+          }
+        };
+        const option = { cardinality: Cardinality.map, option: { userResponse: { a: '1', b: '2' } } };
+        expect(component.evaluateAutoScored(question, 'response1', option)).toEqual({ earned: 5, isFull: true });
+      });
+
+      it('should award partial credit for a partially-correct MAP_RESPONSE match', () => {
+        const question = {
+          responseProcessing: { template: 'MAP_RESPONSE' },
+          responseDeclaration: {
+            response1: { mapping: [{ key: 'a', value: '1', score: 2 }, { key: 'b', value: '2', score: 3 }] }
+          }
+        };
+        const option = { cardinality: Cardinality.map, option: { userResponse: { a: '1', b: 'wrong' } } };
+        expect(component.evaluateAutoScored(question, 'response1', option)).toEqual({ earned: 2, isFull: false });
+      });
+
+      it('should cap the summed MAP_RESPONSE score at maxScore', () => {
+        const question = {
+          responseProcessing: { template: 'MAP_RESPONSE' },
+          outcomeDeclaration: { maxScore: { defaultValue: 4 } },
+          responseDeclaration: {
+            response1: { mapping: [{ key: 'a', value: '1', score: 3 }, { key: 'b', value: '2', score: 3 }] }
+          }
+        };
+        const option = { cardinality: Cardinality.map, option: { userResponse: { a: '1', b: '2' } } };
+        expect(component.evaluateAutoScored(question, 'response1', option)).toEqual({ earned: 4, isFull: true });
+      });
+
+      it('should fall back to proportional maxScore × hits/total for legacy (non MAP_RESPONSE) maps', () => {
+        const question = {
+          outcomeDeclaration: { maxScore: { defaultValue: 10 } },
+          responseDeclaration: { response1: { correctResponse: { value: { a: '1', b: '2', c: '3', d: '4' } } } }
+        };
+        const option = { cardinality: Cardinality.map, option: { userResponse: { a: '1', b: '2', c: 'x', d: 'y' } } };
+        // 2 of 4 correct → round(10 * 2/4) = 5
+        expect(component.evaluateAutoScored(question, 'response1', option)).toEqual({ earned: 5, isFull: false });
+      });
+    });
+
+    describe('evaluateAutoScored - FTB (ftb)', () => {
+      it('should score each blank against its own mapping for ordered MAP_RESPONSE', () => {
+        const question = {
+          responseProcessing: { template: 'MAP_RESPONSE' },
+          responseDeclaration: {
+            response1: { mapping: [{ value: 'cat', score: 1 }] },
+            response2: { mapping: [{ value: 'dog', score: 1 }] }
+          }
+        };
+        const option = { cardinality: Cardinality.ftb, option: { responses: { response1: 'cat', response2: 'dog' } } };
+        expect(component.evaluateAutoScored(question, 'response1', option)).toEqual({ earned: 2, isFull: true });
+      });
+
+      it('should honour caseSensitive mappings for FTB blanks', () => {
+        const question = {
+          responseProcessing: { template: 'MAP_RESPONSE' },
+          responseDeclaration: {
+            response1: { mapping: [{ value: 'Cat', score: 1, caseSensitive: true }] }
+          }
+        };
+        const lower = { cardinality: Cardinality.ftb, option: { responses: { response1: 'cat' } } };
+        const exact = { cardinality: Cardinality.ftb, option: { responses: { response1: 'Cat' } } };
+        expect(component.evaluateAutoScored(question, 'response1', lower)).toEqual({ earned: 0, isFull: false });
+        expect(component.evaluateAutoScored(question, 'response1', exact)).toEqual({ earned: 1, isFull: true });
+      });
+
+      it('should award each distinct correct answer once for evalUnordered FTB', () => {
+        // Editor places every correct answer in every blank's mapping.
+        const mapping = [{ value: 'red', score: 1 }, { value: 'blue', score: 1 }];
+        const question = {
+          responseProcessing: { template: 'MAP_RESPONSE' },
+          evalUnordered: true,
+          responseDeclaration: { response1: { mapping }, response2: { mapping } }
+        };
+        // Answers given in the opposite order — still full credit.
+        const swapped = { cardinality: Cardinality.ftb, option: { responses: { response1: 'blue', response2: 'red' } } };
+        expect(component.evaluateAutoScored(question, 'response1', swapped)).toEqual({ earned: 2, isFull: true });
+
+        // Same correct answer repeated in both blanks → credited once, not full.
+        const repeated = { cardinality: Cardinality.ftb, option: { responses: { response1: 'red', response2: 'red' } } };
+        expect(component.evaluateAutoScored(question, 'response1', repeated)).toEqual({ earned: 1, isFull: false });
+      });
+
+      it('should fall back to proportional scoring for legacy (non MAP_RESPONSE) FTB', () => {
+        const question = {
+          outcomeDeclaration: { maxScore: { defaultValue: 4 } },
+          responseDeclaration: {
+            response1: { correctResponse: { value: 'cat' } },
+            response2: { correctResponse: { value: 'dog' } }
+          }
+        };
+        const option = { cardinality: Cardinality.ftb, option: { responses: { response1: 'cat', response2: 'fish' } } };
+        // 1 of 2 → round(4 * 1/2) = 2
+        expect(component.evaluateAutoScored(question, 'response1', option)).toEqual({ earned: 2, isFull: false });
+      });
+    });
+
+    describe('evaluateAutoScored - SEQ/REO (ordered)', () => {
+      it('should take position from correctResponse and score from mapping for MAP_RESPONSE', () => {
+        const question = {
+          responseProcessing: { template: 'MAP_RESPONSE' },
+          responseDeclaration: {
+            response1: {
+              correctResponse: { value: ['a', 'b', 'c'] },
+              mapping: [{ value: 'a', score: 1 }, { value: 'b', score: 2 }, { value: 'c', score: 3 }]
+            }
+          }
+        };
+        const full = { cardinality: Cardinality.ordered, option: { userOrder: ['a', 'b', 'c'] } };
+        expect(component.evaluateAutoScored(question, 'response1', full)).toEqual({ earned: 6, isFull: true });
+
+        const partial = { cardinality: Cardinality.ordered, option: { userOrder: ['a', 'c', 'b'] } };
+        // only position 0 ('a') is right → score 1
+        expect(component.evaluateAutoScored(question, 'response1', partial)).toEqual({ earned: 1, isFull: false });
+      });
+
+      it('should be all-or-nothing for legacy (non MAP_RESPONSE) ordered questions', () => {
+        const question = {
+          outcomeDeclaration: { maxScore: { defaultValue: 5 } },
+          responseDeclaration: { response1: { correctResponse: { value: ['a', 'b', 'c'] } } }
+        };
+        const exact = { cardinality: Cardinality.ordered, option: { userOrder: ['a', 'b', 'c'] } };
+        const wrong = { cardinality: Cardinality.ordered, option: { userOrder: ['a', 'c', 'b'] } };
+        expect(component.evaluateAutoScored(question, 'response1', exact)).toEqual({ earned: 5, isFull: true });
+        expect(component.evaluateAutoScored(question, 'response1', wrong)).toEqual({ earned: 0, isFull: false });
+      });
+
+      it('should default the legacy ordered maxScore to 1 when none is declared', () => {
+        const question = { responseDeclaration: { response1: { correctResponse: { value: ['a'] } } } };
+        const exact = { cardinality: Cardinality.ordered, option: { userOrder: ['a'] } };
+        expect(component.evaluateAutoScored(question, 'response1', exact)).toEqual({ earned: 1, isFull: true });
+      });
+    });
+
+    describe('applyAutoScore', () => {
+      const edataItem = { id: 'q1' };
+      const option = { option: { value: 'x' } };
+
+      beforeEach(() => {
+        spyOn(component, 'updateScoreBoard');
+        spyOn(viewerService, 'raiseAssesEvent');
+        spyOn(component, 'correctFeedBackTimeOut');
+        component.isAssessEventRaised = false;
+        component.slideDuration = 12;
+      });
+
+      it('should mark correct and raise an affirmative assess event on full credit', () => {
+        component.applyAutoScore(0, edataItem, option, 'mtf', 5, true);
+        expect(component.showAlert).toBe(true);
+        expect(component.alertType).toBe('correct');
+        expect(component.updateScoreBoard).toHaveBeenCalledWith(0, 'correct', undefined, 5);
+        expect(viewerService.raiseAssesEvent).toHaveBeenCalledWith(edataItem, 1, 'Yes', 5, [option.option], 12);
+      });
+
+      it('should mark partial on the scoreboard (alert stays wrong) when some credit is earned', () => {
+        component.applyAutoScore(1, edataItem, option, 'ftb', 3, false);
+        expect(component.alertType).toBe('wrong');
+        expect(component.updateScoreBoard).toHaveBeenCalledWith(1, 'partial', undefined, 3);
+        expect(viewerService.raiseAssesEvent).toHaveBeenCalledWith(edataItem, 2, 'No', 3, [option.option], 12);
+      });
+
+      it('should mark wrong with a zero score when nothing is earned', () => {
+        component.applyAutoScore(2, edataItem, option, 'ordered', 0, false);
+        expect(component.alertType).toBe('wrong');
+        expect(component.updateScoreBoard).toHaveBeenCalledWith(2, 'wrong', undefined, 0);
+        expect(viewerService.raiseAssesEvent).toHaveBeenCalledWith(edataItem, 3, 'No', 0, [option.option], 12);
+      });
+
+      it('should not raise a second assess event when one was already raised', () => {
+        component.isAssessEventRaised = true;
+        component.applyAutoScore(0, edataItem, option, 'mtf', 5, true);
+        expect(viewerService.raiseAssesEvent).not.toHaveBeenCalled();
+      });
+
+      it('should trigger the feedback timeout only when showFeedBack is enabled', () => {
+        component.showFeedBack = true;
+        component.applyAutoScore(0, edataItem, option, 'mtf', 5, true);
+        expect(component.correctFeedBackTimeOut).toHaveBeenCalledWith('mtf');
+        expect(component.optionSelectedObj).toBeUndefined();
+      });
+    });
   });
 });

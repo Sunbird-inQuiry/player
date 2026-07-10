@@ -41,6 +41,14 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
   showStartPage = true;
   threshold: number;
   questions = [];
+  /**
+   * Saved answers for the current section's questions, keyed by identifier, so the
+   * template binds a plain property read instead of calling viewerService on every
+   * change-detection tick. Rebuilt whenever `questions` (re)load — slides only read
+   * it at mount, and trackBy reuses views within a section, so a per-save refresh
+   * isn't needed (the child owns its live state once mounted).
+   */
+  savedResponses: Record<string, any> = {};
   questionIds: string[];
   noOfQuestions: number;
   initialTime: number;
@@ -70,6 +78,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
   active = false;
   showAlert: boolean;
   currentOptions: any;
+  currentOptionsLayout: 'list' | 'pairs' = 'list';
   currentQuestion: any;
   currentQuestionIndetifier: string;
   media: any;
@@ -145,9 +154,17 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
         if (!res?.questions) {
           return;
         }
-        const unCommonQuestions = _.xorBy(this.questions, res.questions, 'identifier');
-        this.questions = _.uniqBy(this.questions.concat(unCommonQuestions), 'identifier');
+        // Merge API question data into existing questions, keyed by identifier:
+        // - existing order is preserved; each stub is replaced by its full API version when available
+        // - any questions only present in the API response are appended
+        // Using a Map gives O(1) lookups and guarantees uniqueness by identifier.
+        const apiById = new Map(res.questions.map((q: any) => [q.identifier, q]));
+        const mergedById = new Map<string, any>();
+        this.questions.forEach((q: any) => mergedById.set(q.identifier, apiById.get(q.identifier) || q));
+        res.questions.forEach((q: any) => { if (!mergedById.has(q.identifier)) { mergedById.set(q.identifier, q); } });
+        this.questions = Array.from(mergedById.values());
         this.sortQuestions();
+        this.refreshSavedResponses();
         this.viewerService.updateSectionQuestions(this.sectionConfig.metadata.identifier, this.questions);
         this.cdRef.detectChanges();
         this.noOfTimesApiCalled++;
@@ -217,11 +234,9 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.showWarningTimer = this.parentConfig.showWarningTimer;
     this.showTimer = this.sectionConfig.metadata?.showTimer;
 
-    if (this.sectionConfig.metadata?.showFeedback) {
-      this.showFeedBack = this.sectionConfig.metadata?.showFeedback; // prioritize the section level config
-    } else {
-      this.showFeedBack = this.parentConfig.showFeedback; // Fallback to parent config
-    }
+    this.showFeedBack = this.sectionConfig.metadata?.showFeedback
+      ?? this.parentConfig.showFeedback
+      ?? 'Yes';
 
     this.showUserSolution = this.sectionConfig.metadata?.showSolutions;
     this.startPageInstruction = this.sectionConfig.metadata?.instructions || this.parentConfig.instructions;
@@ -240,6 +255,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
 
     this.questions = this.viewerService.getSectionQuestions(this.sectionConfig.metadata.identifier);
     this.sortQuestions();
+    this.refreshSavedResponses();
     this.viewerService.updateSectionQuestions(this.sectionConfig.metadata.identifier, this.questions);
     this.resetQuestionState();
     if (this.jumpToQuestion) {
@@ -269,6 +285,17 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
         firstSlide.removeAttribute("tabindex");
       }
     }, 100);
+  }
+
+  /**
+   * Tracks carousel slides by question identifier so the slide views are reused
+   * across re-renders (e.g. when `questions` is reassigned by the per-section
+   * re-fetch/merge on returning to a section). Without this, Angular tracks by
+   * object identity, tears down and rebuilds every slide, and the carousel can
+   * desync and show two questions on one page.
+   */
+  trackByQuestionIdentifier(index: number, question: any): string | number {
+    return question?.identifier ?? index;
   }
 
   sortQuestions() {
@@ -313,12 +340,10 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     }
 
     /* istanbul ignore else */
-    if (this.myCarousel.getCurrentSlideIndex() > 0 &&
-      this.questions[this.myCarousel.getCurrentSlideIndex() - 1].qType === QuestionType.mcq && this.currentOptionSelected) {
+    if (this.myCarousel.getCurrentSlideIndex() > 0 && this.currentOptionSelected) {
+      const prevQuestion = this.questions[this.myCarousel.getCurrentSlideIndex() - 1];
       const option = this.currentOptionSelected?.option ? this.currentOptionSelected['option'] : undefined;
-      const identifier = this.questions[this.myCarousel.getCurrentSlideIndex() - 1].identifier;
-      const qType = this.questions[this.myCarousel.getCurrentSlideIndex() - 1].qType;
-      this.viewerService.raiseResponseEvent(identifier, qType, option);
+      this.viewerService.raiseResponseEvent(prevQuestion.identifier, prevQuestion.qType, option);
     }
 
     /* istanbul ignore else */
@@ -332,9 +357,13 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       this.emitSectionEnd();
       return;
     }
+    // Reset BEFORE moving: myCarousel.move() fires activeSlideChange →
+    // restoreSavedResponseForCurrentSlide(), which is the single point that
+    // (re)establishes per-slide state. Resetting after move() would wipe that
+    // restore, making it take effect only on backward/jump navigation.
+    this.resetQuestionState();
     this.myCarousel.move(this.carouselConfig.NEXT);
     this.setImageZoom();
-    this.resetQuestionState();
     this.clearTimeInterval();
   }
 
@@ -405,6 +434,50 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     }
 
     this.viewerService.pauseVideo();
+    this.restoreSavedResponseForCurrentSlide();
+  }
+
+  /**
+   * Re-establishes section-player state for a previously-answered question when
+   * the learner lands on its slide (e.g. returning to an earlier section). The
+   * component itself restores the visible selection from `savedResponse`; here we
+   * restore optionSelectedObj so navigation/feedback behave as if it were answered.
+   * Scoring/ASSESS are NOT re-run here — the score already lives in mainProgressBar
+   * and ASSESS is deduped by identifier in viewerService.
+   */
+  private restoreSavedResponseForCurrentSlide(): void {
+    if (!this.myCarousel) { return; }
+    const currentIndex = this.myCarousel.getCurrentSlideIndex() - 1;
+    if (currentIndex < 0 || !this.questions[currentIndex]) { return; }
+    const saved = this.viewerService.getUserResponse(this.questions[currentIndex].identifier);
+    if (saved) {
+      this.optionSelectedObj = saved;
+      this.currentOptionSelected = saved;
+      this.currentSolutions = !_.isEmpty(saved.solutions) ? saved.solutions : undefined;
+      this.active = true;
+    } else {
+      // No saved answer for this question — clear any selection that may have been
+      // restored on a previously-visited slide. prevSlide()/goToSlide() don't call
+      // resetQuestionState(), so without this an answered slide's optionSelectedObj
+      // would leak forward and the next (unanswered) question would be scored with it.
+      this.optionSelectedObj = undefined;
+      this.currentOptionSelected = undefined;
+      this.currentSolutions = undefined;
+      this.active = false;
+    }
+  }
+
+  /**
+   * Rebuilds the saved-answer lookup for the current section's questions from the
+   * ViewerService store. Called whenever `questions` are (re)loaded.
+   */
+  private refreshSavedResponses(): void {
+    const map: Record<string, any> = {};
+    (this.questions || []).forEach((q: any) => {
+      const saved = this.viewerService.getUserResponse(q?.identifier);
+      if (saved) { map[q.identifier] = saved; }
+    });
+    this.savedResponses = map;
   }
 
   nextSlideClicked(event) {
@@ -527,10 +600,14 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     if (optionSelected.cardinality === Cardinality.single && JSON.stringify(this.currentOptionSelected) === JSON.stringify(optionSelected)) {
       return; // Same option selected
     }
-    this.focusOnNextButton();
+    // Don't steal focus for text-input question types (FTB) where the user is mid-typing
+    if (optionSelected.cardinality !== Cardinality.ftb) {
+      this.focusOnNextButton();
+    }
     this.active = true;
     this.currentOptionSelected = optionSelected;
     const currentIndex = this.myCarousel.getCurrentSlideIndex() - 1;
+    if (currentIndex < 0 || !this.questions[currentIndex]) return;
     this.viewerService.raiseHeartBeatEvent(eventName.optionClicked, TelemetryType.interact, this.myCarousel.getCurrentSlideIndex());
 
     // This optionSelected comes empty whenever the try again is clicked on feedback popup
@@ -545,7 +622,21 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     }
     this.currentQuestionIndetifier = this.questions[currentIndex].identifier;
     this.media = _.get(this.questions[currentIndex], 'media', []);
-   
+
+    // Persist the learner's answer so it survives section navigation (and is
+    // re-shown on revisit). A real (non-empty) user selection also clears the
+    // assessed flag so a changed answer is re-assessed. The empty-option path
+    // (skip / try-again) only clears the stored answer — it must NOT re-open the
+    // ASSESS dedup gate, or a skip-then-reselect-the-same-answer would emit a
+    // redundant ASSESS for an answer already assessed this attempt.
+    if (!_.isEmpty(optionSelected?.option)) {
+      this.viewerService.clearAssessed(this.currentQuestionIndetifier);
+    }
+    this.viewerService.saveUserResponse(
+      this.currentQuestionIndetifier,
+      _.isEmpty(optionSelected?.option) ? null : optionSelected,
+    );
+
     /* istanbul ignore else */
     if (!this.showFeedBack) {
       this.validateSelectedOption(this.optionSelectedObj);
@@ -627,18 +718,21 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
   validateSelectedOption(option, type?: string) {
     const selectedOptionValue = option?.option?.value;
     const currentIndex = this.myCarousel.getCurrentSlideIndex() - 1;
-    const isQuestionSkipAllowed = !this.optionSelectedObj &&
-      this.allowSkip && this.utilService.getQuestionType(this.questions, currentIndex) === QuestionType.mcq;
-    const isSubjectiveQuestion = this.utilService.getQuestionType(this.questions, currentIndex) === QuestionType.sa;
+    const questionType = this.utilService.getQuestionType(this.questions, currentIndex)?.toUpperCase();
+    const isSubjectiveQuestion = questionType === QuestionType.sa;
+    const isQuestionSkipAllowed = !this.optionSelectedObj && this.allowSkip &&
+      (questionType === QuestionType.mcq || questionType === QuestionType.mtf ||
+       questionType === QuestionType.ftb || questionType === QuestionType.seq ||
+       questionType === QuestionType.reo);
     const onStartPage = this.startPageInstruction && this.myCarousel.getCurrentSlideIndex() === 0;
     const isActive = !this.optionSelectedObj && this.active;
     const selectedQuestion = this.questions[currentIndex];
     const key = selectedQuestion.responseDeclaration ? this.utilService.getKeyValue(Object.keys(selectedQuestion.responseDeclaration)) : '';
     this.slideDuration = Math.round((new Date().getTime() - this.initialSlideDuration) / 1000);
     const getParams = () => {
-      if (selectedQuestion.qType.toUpperCase() === QuestionType.mcq && selectedQuestion?.editorState?.options) {
+      if (selectedQuestion.qType?.toUpperCase() === QuestionType.mcq && selectedQuestion?.editorState?.options) {
         return selectedQuestion.editorState.options;
-      } else if (selectedQuestion.qType.toUpperCase() === QuestionType.mcq && !_.isEmpty(selectedQuestion?.editorState)) {
+      } else if (selectedQuestion.qType?.toUpperCase() === QuestionType.mcq && !_.isEmpty(selectedQuestion?.editorState)) {
         return [selectedQuestion?.editorState];
       } else {
         return [];
@@ -648,8 +742,8 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
       'id': selectedQuestion.identifier,
       'title': selectedQuestion.name,
       'desc': selectedQuestion.description,
-      'type': selectedQuestion.qType.toLowerCase(),
-      'maxscore': key.length === 0 ? 0 : selectedQuestion.outcomeDeclaration.maxScore.defaultValue || 0,
+      'type': selectedQuestion.qType?.toLowerCase() || '',
+      'maxscore': key.length === 0 ? 0 : selectedQuestion.outcomeDeclaration?.maxScore?.defaultValue || 0,
       'params': getParams()
     };
 
@@ -659,14 +753,36 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     }
 
     /* istanbul ignore else */
-    if (!this.optionSelectedObj && !this.isAssessEventRaised && selectedQuestion.qType.toUpperCase() !== QuestionType.sa) {
+    if (!this.optionSelectedObj && !this.isAssessEventRaised && selectedQuestion.qType?.toUpperCase() !== QuestionType.sa) {
       this.isAssessEventRaised = true;
       this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'No', 0, [], this.slideDuration);
     }
 
+    if (isSubjectiveQuestion && !this.isAssessEventRaised) {
+      this.isAssessEventRaised = true;
+      this.updateScoreBoard(currentIndex, 'correct', undefined, 0);
+    }
+
     if (this.optionSelectedObj) {
       this.currentQuestion = selectedQuestion.body;
-      this.currentOptions = selectedQuestion.interactions[key].options;
+      this.currentOptions = selectedQuestion.interactions?.[key]?.options;
+
+      // A question with no correct-answer definition (responseDeclaration) — e.g. a stub
+      // left in place because the API didn't return its full data — cannot be scored.
+      // Mark it wrong and continue instead of crashing validateSelectedOption.
+      if (!selectedQuestion.responseDeclaration || !key || !selectedQuestion.responseDeclaration[key]) {
+        console.warn('[SectionPlayer] Missing responseDeclaration for question; cannot score:', selectedQuestion?.identifier);
+        this.showAlert = true;
+        this.alertType = 'wrong';
+        this.updateScoreBoard(currentIndex, 'wrong', undefined, 0);
+        if (!this.isAssessEventRaised) {
+          this.isAssessEventRaised = true;
+          this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'No', 0, [option.option], this.slideDuration);
+        }
+        if (this.showFeedBack) { this.correctFeedBackTimeOut(type); }
+        this.optionSelectedObj = undefined;
+        return;
+      }
 
       if (option.cardinality === Cardinality.single) {
         const correctOptionValue = Number(selectedQuestion.responseDeclaration[key].correctResponse.value);
@@ -718,17 +834,36 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
           this.alertType = 'correct';
         }
       }
+
+      // Auto-scored types (MTF map / FTB / SEQ-REO ordered). One shared path:
+      //   responseProcessing.template === 'MAP_RESPONSE' → partial credit
+      //     (sum the per-item `score` from responseDeclaration.mapping)
+      //   otherwise → all-or-nothing / legacy proportional (no mapping).
+      if (
+        option.cardinality === Cardinality.map ||
+        option.cardinality === Cardinality.ftb ||
+        option.cardinality === Cardinality.ordered
+      ) {
+        const { earned, isFull } = this.evaluateAutoScored(selectedQuestion, key, option);
+        this.applyAutoScore(currentIndex, edataItem, option, type, earned, isFull);
+      }
+
       this.optionSelectedObj = undefined;
     } else if ((isQuestionSkipAllowed) || isSubjectiveQuestion || onStartPage || isActive) {
       if(!_.isUndefined(type)) {
         this.nextSlide();
       }
     } else if (this.startPageInstruction && !this.optionSelectedObj && !this.active && !this.allowSkip &&
-      this.myCarousel.getCurrentSlideIndex() > 0 && this.utilService.getQuestionType(this.questions, currentIndex) === QuestionType.mcq
+      this.myCarousel.getCurrentSlideIndex() > 0 &&
+      (questionType === QuestionType.mcq  || questionType === QuestionType.mtf ||
+       questionType === QuestionType.ftb  || questionType === QuestionType.seq ||
+       questionType === QuestionType.reo)
       && this.utilService.canGo(this.progressBarClass[this.myCarousel.getCurrentSlideIndex()])) {
       this.infoPopupTimeOut();
-    } else if (!this.optionSelectedObj && !this.active && !this.allowSkip && this.myCarousel.getCurrentSlideIndex() >= 0
-      && this.utilService.getQuestionType(this.questions, currentIndex) === QuestionType.mcq
+    } else if (!this.optionSelectedObj && !this.active && !this.allowSkip && this.myCarousel.getCurrentSlideIndex() >= 0 &&
+      (questionType === QuestionType.mcq  || questionType === QuestionType.mtf ||
+       questionType === QuestionType.ftb  || questionType === QuestionType.seq ||
+       questionType === QuestionType.reo)
       && this.utilService.canGo(this.progressBarClass[this.myCarousel.getCurrentSlideIndex()])) {
       this.infoPopupTimeOut();
     }
@@ -761,6 +896,8 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
 
   goToSlide(index) {
     this.viewerService.raiseHeartBeatEvent(eventName.goToQuestion, TelemetryType.interact, this.myCarousel.getCurrentSlideIndex());
+    this.clearTimeInterval();
+    this.showAlert = false;
     this.disableNext = false;
     this.currentSlideIndex = index;
     this.showRootInstruction = false;
@@ -800,9 +937,27 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.disableNext = false;
     this.initializeTimer = true;
     const index = event.questionNo;
-    this.viewerService.getQuestions(0, index);
     this.currentSlideIndex = index;
+    // Only fetch when the target question isn't already loaded. Calling
+    // getQuestions() unconditionally re-splices identifiers and re-emits the
+    // question event, which rebuilds the questions array and desyncs the
+    // carousel — the jumped-to question briefly renders twice. Mirrors goToSlide.
+    if (this.questions[index - 1] === undefined) {
+      // Not loaded yet: fetch. The qumlQuestionEvent subscription selects the
+      // slide, sets media, and runs setImageZoom()/highlightQuestion() once the
+      // questions arrive and the DOM has updated — doing it here would run
+      // against the previous slide's DOM (duplicate magnify icons / wrong srcs).
+      this.showQuestions = false;
+      this.viewerService.getQuestions(0, index);
+      return;
+    }
+    // Already loaded (review): no fetch will fire, so set the slide media and
+    // re-run setImageZoom() here. Otherwise the jumped-to (first reviewed)
+    // question keeps its relative <img src> and the image 404s until the learner
+    // navigates to the next slide. Mirrors goToSlide/nextSlide.
     this.myCarousel.selectSlide(index);
+    this.currentQuestionsMedia = _.get(this.questions[index - 1], 'media');
+    setTimeout(() => { this.setImageZoom(); });
     this.highlightQuestion();
   }
 
@@ -833,10 +988,7 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.showAlert = false;
     this.viewerService.raiseHeartBeatEvent(eventName.showAnswer, TelemetryType.interact, this.myCarousel.getCurrentSlideIndex());
     this.viewerService.raiseHeartBeatEvent(eventName.showAnswer, TelemetryType.impression, this.myCarousel.getCurrentSlideIndex());
-    const currentIndex = this.myCarousel.getCurrentSlideIndex() - 1;
-    this.currentQuestion = this.questions[currentIndex].body;
-    this.currentOptions = this.questions[currentIndex].interactions.response1.options;
-    this.currentQuestionsMedia = _.get(this.questions[currentIndex], 'media');
+    this.prepareSolutionView();
     setTimeout(() => {
       this.setImageZoom();
     });
@@ -850,11 +1002,61 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     this.clearTimeInterval();
   }
 
+  /**
+   * Populates the solution panel's question/options/media for the current slide.
+   * Shared by getSolutions() (left "answer" button) and viewSolution() (feedback
+   * popup) so both entry points render a fully populated panel — previously
+   * viewSolution() only toggled showSolution, leaving question/options stale.
+   */
+  private prepareSolutionView(): void {
+    const currentIndex = this.myCarousel.getCurrentSlideIndex() - 1;
+    const question: any = this.questions[currentIndex];
+    if (!question) { return; }
+    this.currentQuestion = question.body;
+    // The solution panel renders options via *ngFor, so it needs an iterable.
+    // MCQ-style options are already an array; MTF stores them as {left, right},
+    // which we flatten into one list so the pairs still show; anything else (no
+    // options) falls back to [] to avoid an NgFor error.
+    const options = question.interactions?.response1?.options;
+    if (_.isArray(options)) {
+      this.currentOptions = options;
+      this.currentOptionsLayout = 'list';
+    } else if (options && (options.left || options.right)) {
+      // MTF: interleave each left with its CORRECT right (per correctResponse) so
+      // the panel's two-column 'pairs' layout shows the matched pairs side by side.
+      this.currentOptions = this.buildMatchPairs(question, options.left || [], options.right || []);
+      this.currentOptionsLayout = 'pairs';
+    } else {
+      this.currentOptions = [];
+      this.currentOptionsLayout = 'list';
+    }
+    this.currentQuestionsMedia = _.get(question, 'media');
+  }
+
+  /**
+   * Builds the MTF correct-pair list for the solution panel: each left option
+   * followed by the right option it correctly maps to (per correctResponse,
+   * leftValue -> rightValue). Falls back to positional pairing when there is no
+   * correctResponse. The flat [left, right, left, right, ...] order fills the
+   * panel's two-column 'pairs' grid so each pair lands on one row.
+   */
+  private buildMatchPairs(question: any, left: any[], right: any[]): any[] {
+    const correct = question?.responseDeclaration?.response1?.correctResponse?.value || {};
+    const rightByValue = new Map(right.map((r: any) => [String(r.value), r]));
+    const pairs: any[] = [];
+    left.forEach((l: any, i: number) => {
+      pairs.push(l);
+      const match = rightByValue.get(String(correct[l.value])) ?? right[i];
+      if (match) { pairs.push(match); }
+    });
+    return pairs;
+  }
+
   viewSolution() {
     this.viewerService.raiseHeartBeatEvent(eventName.viewSolutionClicked, TelemetryType.interact, this.myCarousel.getCurrentSlideIndex());
+    this.prepareSolutionView();
     this.showSolution = true;
     this.showAlert = false;
-    this.currentQuestionsMedia = _.get(this.questions[this.myCarousel.getCurrentSlideIndex() - 1], 'media');
     setTimeout(() => {
       this.setImageZoom();
       this.setImageHeightWidthClass();
@@ -903,13 +1105,190 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
     }
   }
 
+  /** Cap an earned score at the question's maxScore ceiling (when one is declared). */
+  capScore(earned: number, maxScore: number | undefined): number {
+    return (maxScore !== undefined && maxScore !== null) ? Math.min(earned, maxScore) : earned;
+  }
+
+  /**
+   * Auto-scoring for map (MTF), ftb (FTB) and ordered (SEQ / REO) questions.
+   *
+   * `responseProcessing.template` decides the mode:
+   *  - `MAP_RESPONSE`  → partial credit. Each correctly-answered item contributes its
+   *    own `score` from the response declaration's `mapping`:
+   *      FTB → per-blank `mapping[{ value, score, caseSensitive }]`;
+   *      MTF → `mapping[{ key, value, score }]` (key = left id, value = right id);
+   *      SEQ/REO → correct position from `correctResponse.value`, score from `mapping[{ value, score }]`.
+   *  - anything else (`MATCH_CORRECT` / legacy with no mapping) → existing behaviour:
+   *    all-or-nothing for ordered, proportional `maxScore × hits/total` for map/ftb.
+   *
+   * Returns the earned score and whether every item was answered correctly.
+   */
+  evaluateAutoScored(question: any, key: string, option: any): { earned: number; isFull: boolean } {
+    const rd = question?.responseDeclaration?.[key];
+    const isMapResponse =
+      String(question?.responseProcessing?.template || '').toUpperCase() === 'MAP_RESPONSE';
+    const maxScore: number | undefined = question?.outcomeDeclaration?.maxScore?.defaultValue;
+
+    // ── MTF (map) ─────────────────────────────────────────────
+    if (option.cardinality === Cardinality.map) {
+      const userResp: Record<string, string> = option.option?.userResponse ?? {};
+      const mapping: any[] = Array.isArray(rd?.mapping) ? rd.mapping : [];
+
+      if (isMapResponse && mapping.length) {
+        // mapping: [{ key: leftId, value: rightId, score }]
+        let earned = 0; let matched = 0;
+        for (const m of mapping) {
+          if (userResp[m.key] === m.value) { earned += Number(m.score) || 0; matched++; }
+        }
+        return { earned: this.capScore(earned, maxScore), isFull: matched === mapping.length };
+      }
+
+      const correctMap: Record<string, string> = rd?.correctResponse?.value ?? {};
+      const total = Object.keys(correctMap).length;
+      const matched = Object.keys(correctMap).filter(k => userResp[k] === correctMap[k]).length;
+      const max = maxScore ?? total;
+      return { earned: total ? Math.round((max * matched) / total) : 0, isFull: total > 0 && matched === total };
+    }
+
+    // ── FTB (ftb) ─────────────────────────────────────────────
+    if (option.cardinality === Cardinality.ftb) {
+      const responseKeys = Object.keys(question?.responseDeclaration ?? {})
+        .filter(k => k.includes('response')).sort();
+      const userResponses: Record<string, string> = option.option?.responses ?? {};
+
+      // Score earned for a single blank (0 when no match). Honours per-blank `mapping`
+      // (each entry has its own `score`); falls back to `correctResponse.value` (score 1).
+      const blankScore = (rk: string): number => {
+        const r = question.responseDeclaration[rk];
+        const user = String(userResponses[rk] ?? '').trim();
+        const mappings: any[] = Array.isArray(r?.mapping) ? r.mapping : [];
+        if (mappings.length) {
+          const hit = mappings.find(m => {
+            const mv = String(m.value ?? '').trim();
+            return m.caseSensitive ? user === mv : user.toLowerCase() === mv.toLowerCase();
+          });
+          return hit ? (Number(hit.score) || 0) : 0;
+        }
+        const correct = String(r?.correctResponse?.value ?? '').trim();
+        return user && user.toLowerCase() === correct.toLowerCase() ? 1 : 0;
+      };
+
+      const total = responseKeys.length;
+      if (isMapResponse) {
+        // "Allow answers in any order" — strict set-intersection. The editor puts every
+        // correct answer in every blank's mapping; we award each DISTINCT correct answer
+        // once, no matter which blank(s) the student used it in (so repeating the same
+        // answer in two blanks does not earn double credit).
+        const evalUnordered =
+          question?.evalUnordered === true ||
+          String(question?.evalUnordered).toLowerCase() === 'true';
+
+        if (evalUnordered) {
+          // Pool of unique correct answers across all blanks.
+          const pool: { value: string; score: number; caseSensitive: boolean }[] = [];
+          const seen = new Set<string>();
+          for (const rk of responseKeys) {
+            const r = question.responseDeclaration[rk];
+            for (const m of (Array.isArray(r?.mapping) ? r.mapping : [])) {
+              const cs = !!m.caseSensitive;
+              const raw = String(m.value ?? '').trim();
+              if (!raw) continue;
+              const dedupKey = (cs ? raw : raw.toLowerCase()) + '\u0000' + cs;
+              if (!seen.has(dedupKey)) { seen.add(dedupKey); pool.push({ value: raw, score: Number(m.score) || 0, caseSensitive: cs }); }
+            }
+          }
+          const studentAnswers = responseKeys
+            .map(rk => String(userResponses[rk] ?? '').trim())
+            .filter(Boolean);
+
+          let earned = 0; let matched = 0;
+          for (const p of pool) {
+            const hit = studentAnswers.some(a => p.caseSensitive ? a === p.value : a.toLowerCase() === p.value.toLowerCase());
+            if (hit) { earned += p.score; matched++; }
+          }
+          return { earned: this.capScore(earned, maxScore), isFull: total > 0 && matched === total };
+        }
+
+        // Ordered: each blank checked against its own mapping.
+        let earned = 0; let matched = 0;
+        for (const rk of responseKeys) { const s = blankScore(rk); if (s > 0) { earned += s; matched++; } }
+        return { earned: this.capScore(earned, maxScore), isFull: total > 0 && matched === total };
+      }
+
+      const matched = responseKeys.filter(rk => blankScore(rk) > 0).length;
+      const max = maxScore ?? total;
+      return { earned: total ? Math.round((max * matched) / total) : 0, isFull: total > 0 && matched === total };
+    }
+
+    // ── SEQ / REO (ordered) ───────────────────────────────────
+    if (option.cardinality === Cardinality.ordered) {
+      const userOrder: string[] = option.option?.userOrder ?? [];
+      const mapping: any[] = Array.isArray(rd?.mapping) ? rd.mapping : [];
+      const correctOrder: string[] = rd?.correctResponse?.value ?? [];
+
+      if (isMapResponse && mapping.length && correctOrder.length) {
+        // Correct position is authoritative from correctResponse.value; the per-item
+        // score is looked up from `mapping` by value (mapping: [{ value, score }]).
+        const scoreByValue = new Map<string, number>(
+          mapping.map((m: any) => [String(m.value), Number(m.score) || 0]),
+        );
+        let earned = 0; let matched = 0;
+        correctOrder.forEach((correctVal, i) => {
+          if (userOrder[i] === correctVal) { earned += scoreByValue.get(String(correctVal)) ?? 0; matched++; }
+        });
+        return { earned: this.capScore(earned, maxScore), isFull: matched === correctOrder.length };
+      }
+
+      const isExact = correctOrder.length === userOrder.length &&
+        correctOrder.every((v, i) => v === userOrder[i]);
+      const max = maxScore ?? 1;
+      return { earned: isExact ? max : 0, isFull: isExact };
+    }
+
+    return { earned: 0, isFull: false };
+  }
+
+  /**
+   * Shared alert + scoreboard + assess handling for auto-scored questions.
+   * Full credit → 'correct'; some credit → 'partial' (alert stays 'wrong' — there is
+   * no partial alert UI); no credit → 'wrong'.
+   */
+  applyAutoScore(currentIndex: number, edataItem: any, option: any, type: string | undefined, earned: number, isFull: boolean): void {
+    this.showAlert = true;
+    if (isFull) {
+      this.alertType = 'correct';
+      this.updateScoreBoard(currentIndex, 'correct', undefined, earned);
+      if (!this.isAssessEventRaised) {
+        this.isAssessEventRaised = true;
+        this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'Yes', earned, [option.option], this.slideDuration);
+      }
+    } else if (earned > 0) {
+      this.alertType = 'wrong';
+      this.updateScoreBoard(currentIndex, 'partial', undefined, earned);
+      if (!this.isAssessEventRaised) {
+        this.isAssessEventRaised = true;
+        this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'No', earned, [option.option], this.slideDuration);
+      }
+    } else {
+      this.alertType = 'wrong';
+      this.updateScoreBoard(currentIndex, 'wrong', undefined, 0);
+      if (!this.isAssessEventRaised) {
+        this.isAssessEventRaised = true;
+        this.viewerService.raiseAssesEvent(edataItem, currentIndex + 1, 'No', 0, [option.option], this.slideDuration);
+      }
+    }
+    if (this.showFeedBack) { this.correctFeedBackTimeOut(type); }
+    this.optionSelectedObj = undefined;
+  }
+
   getScore(currentIndex, key, isCorrectAnswer, selectedOption?) {
     /* istanbul ignore else */
     if (isCorrectAnswer) {
       if (this.isShuffleQuestions) {
         return DEFAULT_SCORE;
       }
-      return this.questions[currentIndex].outcomeDeclaration.maxScore.defaultValue ?
+      return this.questions[currentIndex].outcomeDeclaration?.maxScore?.defaultValue ?
         this.questions[currentIndex].outcomeDeclaration.maxScore.defaultValue : DEFAULT_SCORE;
     } else {
       const selectedOptionValue = selectedOption.option.value;
@@ -982,6 +1361,8 @@ export class SectionPlayerComponent implements OnChanges, AfterViewInit {
             if (currentQuestionId) {
               image['src'] = `${baseUrl}/${currentQuestionId}/${val.src}`;
             }
+          } else if (/^https?:\/\//i.test(val.src ?? '')) {
+            image['src'] = val.src;
           } else if (val.baseUrl) {
             image['src'] = val.baseUrl + val.src;
           }

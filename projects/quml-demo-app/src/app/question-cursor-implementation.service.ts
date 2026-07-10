@@ -4,6 +4,7 @@ import { QuestionCursor } from '@project-sunbird/sunbird-quml-player';
 import { Observable, of, throwError as observableThrowError } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import { ApiEndPoints } from './app.constant';
+import { environment } from '../environments/environment';
 
 @Injectable({
     providedIn: 'root'
@@ -11,9 +12,11 @@ import { ApiEndPoints } from './app.constant';
 export class QuestionCursorImplementationService implements QuestionCursor {
     constructor(private http: HttpClient) { }
 
-    getQuestions(identifiers: string[]): Observable<any> {
+    getQuestions(identifiers: string[], parentId?: string, language?: string): Observable<any> {
+        const base = `${environment.baseUrl}${ApiEndPoints.questionList}`;
+        const url = language ? `${base}?lang=${language}` : base;
         const option: any = {
-            url: `${ApiEndPoints.questionList}`,
+            url,
             data: {
                 request: {
                     search: { identifier: identifiers }
@@ -23,9 +26,11 @@ export class QuestionCursorImplementationService implements QuestionCursor {
         return this.post(option).pipe(map((data) => data.result));
     }
 
-    getQuestion(identifier: string): Observable<any> {
+    getQuestion(identifier: string, language?: string): Observable<any> {
+        const base = `${environment.baseUrl}${ApiEndPoints.questionList}`;
+        const url = language ? `${base}?lang=${language}` : base;
         const option: any = {
-            url: `${ApiEndPoints.questionList}`,
+            url,
             data: {
                 request: {
                     search: { identifier: [identifier] }

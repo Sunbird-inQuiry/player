@@ -1,0 +1,34 @@
+<div class="question-container" [id]="question.identifier" [dir]="dir">
+  <div class="ftb-body">
+    <ng-container *ngFor="let seg of segments">
+      <span *ngIf="seg.type === 'html'" [innerHTML]="seg.content | safeHtml" class="ftb-text"></span>
+      <input
+        *ngIf="seg.type === 'blank'"
+        class="ftb-inline-input"
+        type="text"
+        [attr.aria-label]="'Blank ' + seg.key"
+        [(ngModel)]="userAnswers[seg.key]"
+        (ngModelChange)="onAnswerChange()"
+        (keydown)="onKeyDown($event)"
+        autocomplete="off"
+        spellcheck="false"
+      />
+    </ng-container>
+  </div>
+
+  <!-- Fallback: when body has no [[responseN]] tokens, show separate labelled inputs -->
+  <div class="ftb-fallback-inputs" *ngIf="segments.length === 1 && segments[0].type === 'html'">
+    <div *ngFor="let rk of responseKeys; let i = index" class="ftb-input-row">
+      <label class="ftb-label">{{ translate('BLANK', i + 1) }}</label>
+      <input
+        class="ftb-fallback-field"
+        type="text"
+        [(ngModel)]="userAnswers[rk]"
+        (ngModelChange)="onAnswerChange()"
+        (keydown)="onKeyDown($event)"
+        autocomplete="off"
+        spellcheck="false"
+      />
+    </div>
+  </div>
+</div>
