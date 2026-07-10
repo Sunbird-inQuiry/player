@@ -2,8 +2,12 @@
 @use '../../styles/mixins' as m;
 
 // Mobile sections navigator — bottom sheet (matches the design's `sheetUp`).
+// `absolute` (anchored to MainPlayer's .appShell), not `fixed`, so the sheet
+// stays within the player box when embedded in a small frame (editor preview).
+// When the player fills the viewport (.appShell == viewport) it is identical to
+// fixed.
 .overlay {
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: 1000;
   display: flex;
@@ -15,7 +19,11 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-height: 80vh;
+  // `%` (not `vh`) so the sheet height tracks the player box, not the browser
+  // viewport: in a short embedded frame it can't grow taller than .appShell.
+  // The overlay is absolute inset:0 (== .appShell height), so 80% == 80% of the
+  // player; identical to `80vh` when the player fills the viewport.
+  max-height: 80%;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   background: v.$ivory;

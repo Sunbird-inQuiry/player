@@ -89,7 +89,7 @@ describe('score utils (Angular evaluateAutoScored parity, normalized to 0..1)', 
     expect(calculateMTFScore(q, { matches: { a: '1', b: '2' } })).toBe(1); // min(6,4)/4
   });
 
-  it('MTF legacy: proportional round(maxScore × hits/total)', () => {
+  it('MTF partial disabled (not MAP_RESPONSE): all-or-nothing', () => {
     const q = mk(
       {
         response1: {
@@ -100,8 +100,10 @@ describe('score utils (Angular evaluateAutoScored parity, normalized to 0..1)', 
       },
       { maxScore: 10 },
     );
-    // 2 of 4 → round(10 × 0.5) = 5 → 0.5
-    expect(calculateMTFScore(q, { matches: { a: '1', b: '2', c: 'x', d: 'y' } })).toBe(0.5);
+    // 2 of 4 correct → no partial credit → 0.
+    expect(calculateMTFScore(q, { matches: { a: '1', b: '2', c: 'x', d: 'y' } })).toBe(0);
+    // All 4 correct → full marks → 1.
+    expect(calculateMTFScore(q, { matches: { a: '1', b: '2', c: '3', d: '4' } })).toBe(1);
   });
 
   // ── FTB (ftb) ────────────────────────────────────────────────────────────
@@ -150,7 +152,7 @@ describe('score utils (Angular evaluateAutoScored parity, normalized to 0..1)', 
     expect(calculateFTBScore(q, { responses: { response1: 'red', response2: 'red' } })).toBe(0.5);
   });
 
-  it('FTB legacy: proportional round(maxScore × hits/total)', () => {
+  it('FTB partial disabled (not MAP_RESPONSE): all-or-nothing', () => {
     const q = mk(
       {
         response1: { cardinality: 'single', type: 'string', correctResponse: { value: 'cat' } },
@@ -158,8 +160,10 @@ describe('score utils (Angular evaluateAutoScored parity, normalized to 0..1)', 
       },
       { maxScore: 4 },
     );
-    // 1 of 2 → round(4 × 0.5) = 2 → 0.5
-    expect(calculateFTBScore(q, { responses: { response1: 'cat', response2: 'fish' } })).toBe(0.5);
+    // 1 of 2 correct → no partial credit → 0.
+    expect(calculateFTBScore(q, { responses: { response1: 'cat', response2: 'fish' } })).toBe(0);
+    // Both correct → full marks → 1.
+    expect(calculateFTBScore(q, { responses: { response1: 'cat', response2: 'dog' } })).toBe(1);
     expect(calculateFTBScore(q, null)).toBe(0);
   });
 
