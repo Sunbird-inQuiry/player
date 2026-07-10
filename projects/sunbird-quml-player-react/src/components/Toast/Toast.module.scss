@@ -1,8 +1,12 @@
 @use '../../styles/variables' as v;
 @use '../../styles/mixins' as m;
 
+// `absolute` (anchored to MainPlayer's .appShell), not `fixed`, so the toast
+// stays within the player box when embedded in a small frame (editor preview).
+// When the player fills the viewport (.appShell == viewport) it is identical to
+// fixed.
 .viewport {
-  position: fixed;
+  position: absolute;
   bottom: v.$space-8;
   left: 50%;
   transform: translateX(-50%);

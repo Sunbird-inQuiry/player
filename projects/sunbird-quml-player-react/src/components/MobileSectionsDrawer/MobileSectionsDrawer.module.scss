@@ -2,8 +2,12 @@
 @use '../../styles/mixins' as m;
 
 // Mobile sections navigator — bottom sheet (matches the design's `sheetUp`).
+// `absolute` (anchored to MainPlayer's .appShell), not `fixed`, so the sheet
+// stays within the player box when embedded in a small frame (editor preview).
+// When the player fills the viewport (.appShell == viewport) it is identical to
+// fixed.
 .overlay {
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: 1000;
   display: flex;
