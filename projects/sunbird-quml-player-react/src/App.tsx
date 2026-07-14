@@ -24,10 +24,13 @@ function resolveConfig(): PlayerConfig {
       context: { uid: 'dev-user', sid: 'dev-session', channel: 'dev', host: '' },
       // Only set language when ?lang is present; otherwise let the language
       // precedence (localStorage['app-language'] → 'en') apply.
-      config: { language: params.get('lang') ?? undefined, maxAttempts: 3 },
+      config: { language: params.get('lang') ?? undefined },
       // API mode: only an identifier, no embedded sections. Online asset hosts
       // come from each media[].baseUrl in the backend response (Angular parity).
       data: { identifier },
+      // maxAttempts is host/backend data (Angular parity: playerConfig.metadata),
+      // not a player UI setting.
+      metadata: { maxAttempts: 3 },
     };
   }
 

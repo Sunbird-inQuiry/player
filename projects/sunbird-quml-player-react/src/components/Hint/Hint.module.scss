@@ -6,6 +6,10 @@
   flex-direction: column;
   gap: v.$space-4;
   margin-top: v.$space-8;
+
+  @include m.short {
+    margin-top: v.$space-3;
+  }
 }
 
 .actions {

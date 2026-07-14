@@ -91,6 +91,12 @@
   font-size: v.$text-sm;
   font-weight: v.$fw-medium;
   cursor: grab;
+  // Touch drag: prevent the webview from consuming the finger-drag as a scroll
+  // so react-dnd's TouchBackend receives the move (else the chip won't move on
+  // mobile).
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 
   &:hover:not(:disabled) {
     border-color: v.$brick;

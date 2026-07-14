@@ -11,11 +11,46 @@
   @include m.mobile {
     padding: v.$space-6 v.$space-4;
   }
+
+  @include m.short {
+    padding: v.$space-3 v.$space-4;
+  }
+}
+
+// Groups the back link + card into a single column so `.wrap`'s existing
+// row-centering (over one child) still centers everything as a unit.
+.column {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+}
+
+// Mirrors StartPage.module.scss .backBtn (back to Overview — the "first page").
+.backBtn {
+  @include m.focus-ring;
+
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: v.$space-1;
+  margin-bottom: v.$space-3;
+  padding: v.$space-1 0;
+  background: none;
+  border: none;
+  color: v.$gray-500;
+  font-family: v.$ff-base;
+  font-size: v.$text-sm;
+  font-weight: v.$fw-semibold;
+  cursor: pointer;
+
+  &:hover {
+    color: v.$g900;
+  }
 }
 
 .card {
   width: 100%;
-  max-width: 800px;
   background: v.$white;
   border-radius: v.$r-lg;
   box-shadow: v.$shadow-lg;
@@ -35,6 +70,11 @@
   @include m.mobile {
     padding: v.$space-6;
   }
+
+  @include m.short {
+    padding: v.$space-3;
+    gap: v.$space-3;
+  }
 }
 
 .bannerBadge {
@@ -49,6 +89,12 @@
   color: v.$white;
   font-size: v.$text-2xl;
   font-weight: v.$fw-bold;
+
+  @include m.short {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: v.$text-lg;
+  }
 }
 
 .bannerText {
@@ -70,6 +116,10 @@
   font-size: clamp(1.25rem, 3.5vw, #{v.$text-xl});
   font-weight: v.$fw-bold;
   color: v.$white;
+
+  @include m.short {
+    font-size: v.$text-md;
+  }
 }
 
 // Decorative translucent circle (top-right of the banner).
@@ -81,6 +131,10 @@
   height: 11rem;
   border-radius: v.$r-pill;
   background: rgba(255, 255, 255, 0.10);
+
+  @include m.short {
+    display: none;
+  }
 }
 
 // ── Body ─────────────────────────────────────────────────────────────────────
@@ -93,12 +147,21 @@
   @include m.mobile {
     padding: v.$space-5;
   }
+
+  @include m.short {
+    gap: v.$space-3;
+    padding: v.$space-3;
+  }
 }
 
 .instructions {
   padding: v.$space-6;
   background: v.$cream-bg;
   border-radius: v.$r-md;
+
+  @include m.short {
+    padding: v.$space-3;
+  }
 }
 
 .instructionsHeading {
@@ -108,6 +171,10 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: v.$gray-400;
+
+  @include m.short {
+    margin-bottom: v.$space-1;
+  }
 }
 
 .instructionsBody {
@@ -115,6 +182,10 @@
   font-size: v.$text-md;
   line-height: v.$lh-normal;
   color: v.$g700;
+
+  @include m.short {
+    font-size: v.$text-sm;
+  }
 }
 
 .startBtn {
@@ -138,5 +209,10 @@
 
   &:hover {
     background: v.$g800;
+  }
+
+  @include m.short {
+    padding: v.$space-3;
+    font-size: v.$text-base;
   }
 }

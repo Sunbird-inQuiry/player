@@ -35,6 +35,7 @@ export const translations: Record<string, string> = {
   MINUTES: 'minutes',
 
   // Scoring
+  QUIZ_SUMMARY: 'Quiz Summary',
   SCORE: 'Score',
   TOTAL_SCORE: 'Total Score',
   CORRECT: 'Correct',
@@ -92,9 +93,12 @@ export const translations: Record<string, string> = {
   ASSESSMENT_SECTIONS: 'Assessment sections',
   SECTIONS_COVER_NOTE: "Here's what you'll be covering in this assessment.",
   START_ASSESSMENT: 'Start assessment',
+  RESUME_ASSESSMENT: 'Resume assessment',
   ATTEMPTS_LEFT: 'Attempts Left',
   MINUTES_LABEL: 'Minutes',
+  NO_LIMIT: 'No Limit',
   TIMER_START_NOTE: 'The timer starts when you click. You have {attempts} attempts for this assessment.',
+  TIMER_RESUME_NOTE: 'Your timer is still running. You have {attempts} attempts for this assessment.',
 
   // Assessment shell header / section intro (Phase 6 design)
   START_SECTION: 'Start section',

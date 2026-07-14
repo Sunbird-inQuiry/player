@@ -38,6 +38,7 @@ export const translations: Record<string, string> = {
   MINUTES: 'دقائق',
 
   // Scoring
+  QUIZ_SUMMARY: 'ملخّص الاختبار',
   SCORE: 'الدرجة',
   TOTAL_SCORE: 'الدرجة الكلية',
   CORRECT: 'صحيح',
@@ -95,9 +96,12 @@ export const translations: Record<string, string> = {
   ASSESSMENT_SECTIONS: 'أقسام التقييم',
   SECTIONS_COVER_NOTE: 'إليك ما ستغطّيه في هذا التقييم.',
   START_ASSESSMENT: 'بدء التقييم',
+  RESUME_ASSESSMENT: 'استئناف التقييم',
   ATTEMPTS_LEFT: 'المحاولات المتبقية',
   MINUTES_LABEL: 'دقائق',
+  NO_LIMIT: 'بلا حدّ',
   TIMER_START_NOTE: 'يبدأ المؤقّت عند النقر. لديك {attempts} محاولات لهذا التقييم.',
+  TIMER_RESUME_NOTE: 'المؤقّت ما زال يعمل. لديك {attempts} محاولات لهذا التقييم.',
 
   // Assessment shell header / section intro (Phase 6 design)
   START_SECTION: 'بدء القسم',

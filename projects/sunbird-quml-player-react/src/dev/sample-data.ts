@@ -10,7 +10,10 @@ import type { PlayerConfig } from '../types';
  */
 export const sampleConfig: PlayerConfig = {
   context: { uid: 'dev-user', sid: 'dev-session', channel: 'dev' },
-  config: { language: 'en', showFeedback: true, maxAttempts: 3 },
+  config: { language: 'en', showFeedback: true },
+  // maxAttempts is host/backend data (Angular parity: playerConfig.metadata),
+  // not a player UI setting.
+  metadata: { maxAttempts: 3 },
   data: {
     identifier: 'do_sample_set',
     name: 'Sunbird Assessment',

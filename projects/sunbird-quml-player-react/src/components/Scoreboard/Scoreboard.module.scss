@@ -11,6 +11,10 @@
   box-shadow: v.$shadow-card;
   text-align: center;
   font-family: v.$ff-base;
+
+  @include m.short {
+    padding: v.$space-4 v.$space-3;
+  }
 }
 
 .heading {
@@ -18,6 +22,11 @@
   font-size: v.$text-xl;
   font-weight: v.$fw-bold;
   color: v.$dark;
+
+  @include m.short {
+    margin-bottom: v.$space-3;
+    font-size: v.$text-md;
+  }
 }
 
 .stats {
@@ -31,6 +40,10 @@
   @include m.mobile {
     flex-wrap: wrap;
   }
+
+  @include m.short {
+    margin-bottom: v.$space-3;
+  }
 }
 
 .stat {
@@ -38,6 +51,10 @@
   min-width: 70px;
   padding: v.$space-3 v.$space-2;
   background: v.$white;
+
+  @include m.short {
+    padding: v.$space-2;
+  }
 }
 
 .statValue {
@@ -74,6 +91,10 @@
   margin: 0 0 v.$space-6;
   font-size: v.$text-md;
   color: v.$g700;
+
+  @include m.short {
+    margin-bottom: v.$space-3;
+  }
 }
 
 .submit {

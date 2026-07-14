@@ -20,8 +20,17 @@ export interface ResultsScreenProps {
   };
   /** Total seconds spent answering (shell timer); null/omitted hides the line. */
   timeTaken?: number | null;
+  /**
+   * Angular parity (main-player.component.ts:488-524) — 'Complete' shows the
+   * score as a `score/max` fraction; 'Duration' hides the score entirely;
+   * anything else (including absent) shows a plain score number. Does NOT
+   * affect the correct/incorrect/partial/skipped breakdown below, which has
+   * no Angular equivalent and is intentionally always shown.
+   */
+  summaryType?: string;
   onReviewAll: () => void;
-  onRetake: () => void;
+  /** Omit to hide the Retake CTA (Angular parity: `showReplay=false` once attempts are exhausted). */
+  onRetake?: () => void;
   language?: string;
 }
 
@@ -35,11 +44,16 @@ function formatMmSs(seconds: number): string {
 export function ResultsScreen({
   summary,
   timeTaken = null,
+  summaryType,
   onReviewAll,
   onRetake,
   language = 'en',
 }: ResultsScreenProps) {
   const { totalScore } = summary;
+  const showScore = summaryType !== 'Duration';
+  const showDuration = summaryType !== 'Score';
+  const scoreLabel =
+    summaryType === 'Complete' && summary.maxScore ? `${totalScore} / ${summary.maxScore}` : undefined;
 
   return (
     <section className={styles.results} aria-label={t(language, 'YOUR_RESULTS')}>
@@ -52,9 +66,12 @@ export function ResultsScreen({
           partial={summary.partial}
           skipped={summary.skipped}
           totalScore={totalScore}
+          showScore={showScore}
+          scoreLabel={scoreLabel}
+          language={language}
         />
 
-        {timeTaken != null && (
+        {timeTaken != null && showDuration && (
           <p className={styles.timeTaken}>
             {t(language, 'TIME_TAKEN')}: <strong>{formatMmSs(timeTaken)}</strong>
           </p>
@@ -64,9 +81,11 @@ export function ResultsScreen({
           <button type="button" className={styles.reviewBtn} onClick={onReviewAll}>
             {t(language, 'REVIEW_ALL')}
           </button>
-          <button type="button" className={styles.retakeBtn} onClick={onRetake}>
-            {t(language, 'RETAKE')}
-          </button>
+          {onRetake && (
+            <button type="button" className={styles.retakeBtn} onClick={onRetake}>
+              {t(language, 'RETAKE')}
+            </button>
+          )}
         </div>
       </div>
     </section>

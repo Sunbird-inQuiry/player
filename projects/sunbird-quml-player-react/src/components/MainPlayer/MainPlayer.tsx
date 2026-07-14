@@ -78,6 +78,12 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   // One-shot guard for the showStartPage:'No' auto-advance past the overview.
   const autoStartedRef = useRef(false);
+  // True once the assessment has been entered at least once this attempt — the
+  // brand-click (onBrandClick) returns to Overview WITHOUT resetting progress
+  // or the clock, so the CTA there must read "Resume", not "Start" (Retake is
+  // the only path that clears this, since it's the only path that actually
+  // restarts from zero).
+  const [hasStarted, setHasStarted] = useState(false);
 
   // Section intros can be disabled via config (spec §6.0).
   const sectionIntrosEnabled =
@@ -93,6 +99,16 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
   const requiresSubmitConfirmation =
     metadata.requiresSubmit !== 'No' && metadata.requiresSubmit !== false;
 
+  // Angular parity (main-player.component.ts:249) — host/backend data under
+  // `playerConfig.metadata`, not the player's own `config` (UI-only settings).
+  // Read once here since it's needed beyond the overview (Retake gating below
+  // + the exdata event effect further down).
+  const maxAttempts =
+    (playerConfig?.metadata as { maxAttempts?: number } | undefined)?.maxAttempts ?? null;
+  // Angular parity (main-player.component.ts:253 `showReplay`) — once this
+  // attempt IS the last allowed one, Retake must not offer another.
+  const canRetake = maxAttempts == null || state.attemptNumber < maxAttempts;
+
   // Initialize config + normalized sections.
   //
   // Two data sources, decided by shape (never both):
@@ -105,6 +121,17 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
   const initializeFromConfig = useCallback(async () => {
     if (!playerConfig) return;
     setPlayerConfig(playerConfig);
+
+    // Angular parity (main-player.component.ts:250) — the host tracks attempts
+    // used across PAST sessions and passes the count back; this session's
+    // attempt number is one past that. Retake's own `setAttempt(nextAttempt)`
+    // (called right after this function) overrides this for the in-session
+    // case, so this only matters on a fresh mount.
+    const seedAttempt = (playerConfig.metadata as { currentAttempt?: number } | undefined)
+      ?.currentAttempt;
+    if (typeof seedAttempt === 'number') {
+      setAttempt(seedAttempt + 1);
+    }
 
     const data = (playerConfig.data as Record<string, unknown> | undefined) ?? {};
     // Host-contract compatibility: the Sunbird editor/portal follow the Angular
@@ -181,7 +208,7 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
         err instanceof QumlApiError ? err.message : 'Failed to load the assessment.';
       setError(message);
     }
-  }, [playerConfig, setPlayerConfig, setSections, setLoading, setError]);
+  }, [playerConfig, setPlayerConfig, setSections, setLoading, setError, setAttempt]);
 
   useEffect(() => {
     initializeFromConfig();
@@ -223,7 +250,6 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     );
     const timeLimits = (data.timeLimits as { questionSet?: { max?: number } } | undefined)
       ?.questionSet;
-    const cfg = (playerConfig?.config as { maxAttempts?: number } | undefined) ?? {};
     return {
       title: readI18n(data.name as I18nValue | undefined, language) || t(language, 'ASSESSMENT_OVERVIEW'),
       description: readI18n(data.description as I18nValue | undefined, language) || undefined,
@@ -235,10 +261,43 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
       // the timer is shown ONLY when the content opts in via `showTimer`. Absent /
       // false → no timer at all; the count-up fallback also requires it.
       showTimer: data.showTimer === true || data.showTimer === 'true',
+      // Angular parity (main-player.component.ts:488-524) — gates score/duration
+      // visibility on the results screen. 'Complete'→score as a fraction,
+      // 'Duration'→score hidden, 'Score'→duration hidden, 'Score and Duration'/
+      // absent→both shown as plain values.
+      summaryType: data.summaryType as string | undefined,
       maxScore,
-      attemptsLeft: Math.max(0, (cfg.maxAttempts ?? 3) - (state.attemptNumber - 1)),
+      // Absent (not sent by the backend) → unlimited attempts: null, distinct
+      // from an explicit 0/low maxAttempts, so StartPage can show "No Limit"
+      // instead of a fabricated default.
+      attemptsLeft:
+        maxAttempts == null ? null : Math.max(0, maxAttempts - (state.attemptNumber - 1)),
     };
-  }, [metadata, playerConfig, state.sections, state.attemptNumber, language]);
+  }, [metadata, maxAttempts, state.sections, state.attemptNumber, language]);
+
+  // Angular parity (main-player.component.ts:258,276-282,415-417 emitMaxAttemptEvents
+  // + replayContent) — tell the host when the CURRENT attempt is the last one
+  // allowed, or already past the limit (the host decides how to react, e.g. its
+  // own "no attempts left" messaging). Keyed on attemptNumber, so this covers
+  // BOTH Angular call sites (component init AND Retake) in one place — Retake
+  // changes attemptNumber, which re-fires this effect with the new value.
+  useEffect(() => {
+    if (maxAttempts == null) return;
+    const current = state.attemptNumber;
+    if (current < maxAttempts) return;
+    onPlayerEvent?.({
+      eid: 'exdata',
+      edata: {
+        type: 'exdata',
+        currentattempt: current,
+        isLastAttempt: current === maxAttempts,
+        maxLimitExceeded: current > maxAttempts,
+      },
+    });
+    // onPlayerEvent identity isn't guaranteed stable across host re-renders;
+    // only the attempt boundary itself should re-trigger this.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.attemptNumber, maxAttempts]);
 
   // Stages where the exam clock runs: once started, it keeps ticking through
   // section intros (switching sections doesn't stop the clock). It PAUSES on
@@ -268,13 +327,25 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
   }, [isClockRunning]);
 
   // Count-up elapsed timer (Angular header showCountUp parity): when the
-  // assessment has NO time limit, the header shows time spent instead of a
+  // assessment has NO time limit, this tracks time spent instead of a
   // countdown. Same run/pause semantics as the countdown, anchored to a
   // timestamp so it never drifts.
+  //
+  // Angular parity — NOT gated on `showTimer`: showTimer only controls whether
+  // the live widget is *visible* (main-player.component.ts:172, section-player
+  // .component.ts:58,235 — fed straight into the timer display component,
+  // nothing else). Duration tracking itself (main-player.component.ts:257
+  // initialTime, :488-493 setDurationSpent) and time-limit enforcement
+  // (section-player.component.ts:232-233) both run unconditionally in
+  // Angular. Previously this effect also required `overview.showTimer`, so a
+  // hidden timer (showTimer:false/unset) meant elapsed time was never tracked
+  // at all — the results screen had nothing to show regardless of
+  // `summaryType`. The header's OWN display of this value is still gated on
+  // `showTimer` separately, further down — only the tracking moved.
   const [timeElapsed, setTimeElapsed] = useState(0);
   const elapsedAnchorRef = useRef<number | null>(null);
   useEffect(() => {
-    if (!isClockRunning || overview.timeLimit > 0 || !overview.showTimer) return;
+    if (!isClockRunning || overview.timeLimit > 0) return;
     elapsedAnchorRef.current = Date.now() - timeElapsed * 1000;
     const id = setInterval(() => {
       setTimeElapsed(Math.floor((Date.now() - elapsedAnchorRef.current!) / 1000));
@@ -283,7 +354,7 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     // Re-anchor only when the clock starts/stops; timeElapsed is read once as
     // the resume point.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isClockRunning, overview.timeLimit, overview.showTimer]);
+  }, [isClockRunning, overview.timeLimit]);
 
   // Time up → auto-submit straight to results (no confirmation dialog).
   useEffect(() => {
@@ -310,9 +381,11 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
 
   // ── Flow transitions ───────────────────────────────────────────────────────
   const beginAssessmentTimer = () => {
-    // No countdown (and therefore no auto-submit on expiry) unless the content
-    // opts into the timer — Angular's header never starts the interval otherwise.
-    if (overview.showTimer && timeRemaining == null && overview.timeLimit > 0) {
+    // Angular parity — NOT gated on `showTimer` (see the count-up effect's
+    // comment above for the citations): a real `timeLimit` always counts down
+    // and enforces auto-submit-at-zero, whether or not the content shows the
+    // live widget. `showTimer` only gates the header's own display, below.
+    if (timeRemaining == null && overview.timeLimit > 0) {
       setTimeRemaining(overview.timeLimit);
     }
   };
@@ -321,6 +394,7 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     setCurrentSection(0);
     setCurrentQuestion(0);
     beginAssessmentTimer();
+    setHasStarted(true);
     setStage(sectionIntrosEnabled ? 'sectionIntro' : 'assessment');
   };
 
@@ -334,6 +408,7 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     setCurrentSection(index);
     setCurrentQuestion(0);
     beginAssessmentTimer();
+    setHasStarted(true);
     setStage(sectionIntrosEnabled ? 'sectionIntro' : 'assessment');
   };
 
@@ -348,6 +423,19 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     setSubmitDialog(false);
     setStage('results');
     onPlayerEvent?.({ type: 'quizEnd', summary });
+    // Angular parity (main-player.component.ts:483-485 raiseEndEvent) — flag
+    // to the host that this attempt, now finished, was the last one allowed.
+    if (maxAttempts != null && state.attemptNumber >= maxAttempts) {
+      onPlayerEvent?.({
+        eid: 'exdata',
+        edata: {
+          type: 'exdata',
+          currentattempt: state.attemptNumber,
+          isLastAttempt: false,
+          maxLimitExceeded: true,
+        },
+      });
+    }
   };
 
   const handleCancelSubmit = () => setSubmitDialog(false);
@@ -368,6 +456,7 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     setTimeRemaining(null);
     setTimeElapsed(0);
     setSubmitDialog(false);
+    setHasStarted(false);
     setStage('overview');
   };
 
@@ -406,6 +495,7 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     setCurrentSection(0);
     setCurrentQuestion(0);
     beginAssessmentTimer();
+    setHasStarted(true);
     setStage('assessment');
     // Guarded by the ref; the setters/timer are stable enough here.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -454,6 +544,7 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
         totalSections={overview.totalSections}
         timeLimit={overview.timeLimit}
         attemptsLeft={overview.attemptsLeft}
+        hasStarted={hasStarted}
         onStart={handleStart}
         onSectionSelect={handleSectionSelectFromOverview}
         language={language}
@@ -461,21 +552,20 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     );
   } else if (stage === 'results') {
     // Total time spent: countdown mode → limit minus what was left; count-up
-    // mode → the elapsed counter (both tick only during the assessment stage).
-    // When the timer is suppressed (showTimer off) neither clock runs, so there
-    // is no meaningful elapsed value — pass null so Results omits "Time Taken"
-    // rather than showing a misleading 0:00.
-    const timeTaken = !overview.showTimer
-      ? null
-      : overview.timeLimit > 0
-        ? overview.timeLimit - (timeRemaining ?? overview.timeLimit)
-        : timeElapsed;
+    // mode → the elapsed counter (both tick unconditionally once the
+    // assessment stage starts — Angular parity, see the count-up effect's
+    // comment above: NOT gated on `showTimer`, which only controls the live
+    // widget's visibility, not whether time is tracked). `summaryType:'Score'`
+    // hides duration on-screen — that gating lives in ResultsScreen, not here.
+    const timeTaken =
+      overview.timeLimit > 0 ? overview.timeLimit - (timeRemaining ?? overview.timeLimit) : timeElapsed;
     content = (
       <ResultsScreen
         summary={summary}
         timeTaken={timeTaken}
+        summaryType={overview.summaryType}
         onReviewAll={handleReviewAll}
-        onRetake={handleRetake}
+        onRetake={canRetake ? handleRetake : undefined}
         language={language}
       />
     );
@@ -501,6 +591,7 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
           sectionIndex={state.currentSectionIndex}
           totalSections={state.sections.length}
           onBegin={handleBegin}
+          onPrevious={() => setStage('overview')}
           language={language}
         />
       ) : (

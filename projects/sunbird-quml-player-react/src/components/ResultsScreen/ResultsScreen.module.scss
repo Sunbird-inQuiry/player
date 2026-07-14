@@ -8,6 +8,10 @@
   padding: v.$space-10 v.$space-6;
   background: v.$cream-bg;
   font-family: v.$ff-base;
+
+  @include m.short {
+    padding: v.$space-3;
+  }
 }
 
 .card {
@@ -22,6 +26,10 @@
   @include m.mobile {
     padding: v.$space-6 v.$space-5;
   }
+
+  @include m.short {
+    padding: v.$space-4;
+  }
 }
 
 .title {
@@ -29,6 +37,11 @@
   font-size: v.$text-2xl;
   font-weight: v.$fw-bold;
   color: v.$g900;
+
+  @include m.short {
+    margin-bottom: v.$space-3;
+    font-size: v.$text-xl;
+  }
 }
 
 .timeTaken {
@@ -36,6 +49,10 @@
   font-size: v.$text-sm;
   color: v.$gray-500;
   font-variant-numeric: tabular-nums;
+
+  @include m.short {
+    margin-top: v.$space-2;
+  }
 }
 
 .actions {
@@ -43,6 +60,10 @@
   justify-content: center;
   gap: v.$space-3;
   margin-top: v.$space-8;
+
+  @include m.short {
+    margin-top: v.$space-3;
+  }
 }
 
 .reviewBtn {
@@ -55,6 +76,10 @@
   &:hover:not(:disabled) {
     background: v.$g800;
   }
+
+  @include m.short {
+    padding: v.$space-2 v.$space-4;
+  }
 }
 
 .retakeBtn {
@@ -64,6 +89,10 @@
   background: transparent;
   color: v.$g700;
   border: 1.5px solid v.$gray-300;
+
+  @include m.short {
+    padding: v.$space-2 v.$space-4;
+  }
 
   &:hover:not(:disabled) {
     border-color: v.$g400;
