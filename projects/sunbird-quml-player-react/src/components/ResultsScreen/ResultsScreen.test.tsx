@@ -31,4 +31,10 @@ describe('ResultsScreen', () => {
     expect(onReviewAll).toHaveBeenCalledTimes(1);
     expect(onRetake).toHaveBeenCalledTimes(1);
   });
+
+  it('hides Retake when omitted (attempts exhausted — Angular parity: showReplay=false)', () => {
+    render(<ResultsScreen summary={summary} onReviewAll={vi.fn()} />);
+    expect(screen.queryByRole('button', { name: /retake/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /review all/i })).toBeInTheDocument();
+  });
 });

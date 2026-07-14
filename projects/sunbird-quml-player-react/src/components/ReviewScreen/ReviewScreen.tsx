@@ -143,7 +143,7 @@ export function ReviewScreen({
           <div className={styles.navBar}>
             <button
               type="button"
-              className={styles.navBtn}
+              className={`${styles.navBtn} ${styles.navPrev}`}
               onClick={() => setIndex((i) => Math.max(0, i - 1))}
               disabled={isFirst}
               aria-label={t(language, 'PREVIOUS')}
@@ -158,7 +158,7 @@ export function ReviewScreen({
 
             <button
               type="button"
-              className={styles.navBtn}
+              className={`${styles.navBtn} ${styles.navNext}`}
               onClick={() => setIndex((i) => Math.min(questions.length - 1, i + 1))}
               disabled={isLast}
               aria-label={t(language, 'NEXT')}
@@ -172,7 +172,11 @@ export function ReviewScreen({
             {t(language, LABEL_KEY[kind])}
           </div>
 
-          <QuestionCard question={question} meta={{ category: question.primaryCategory }}>
+          <QuestionCard
+            question={question}
+            meta={{ category: question.primaryCategory }}
+            progress={{ current: index + 1, total: questions.length }}
+          >
             <QuestionRenderer
               key={question.identifier}
               question={question}

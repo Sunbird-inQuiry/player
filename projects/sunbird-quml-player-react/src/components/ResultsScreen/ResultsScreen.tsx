@@ -21,7 +21,8 @@ export interface ResultsScreenProps {
   /** Total seconds spent answering (shell timer); null/omitted hides the line. */
   timeTaken?: number | null;
   onReviewAll: () => void;
-  onRetake: () => void;
+  /** Omit to hide the Retake CTA (Angular parity: `showReplay=false` once attempts are exhausted). */
+  onRetake?: () => void;
   language?: string;
 }
 
@@ -52,6 +53,7 @@ export function ResultsScreen({
           partial={summary.partial}
           skipped={summary.skipped}
           totalScore={totalScore}
+          language={language}
         />
 
         {timeTaken != null && (
@@ -64,9 +66,11 @@ export function ResultsScreen({
           <button type="button" className={styles.reviewBtn} onClick={onReviewAll}>
             {t(language, 'REVIEW_ALL')}
           </button>
-          <button type="button" className={styles.retakeBtn} onClick={onRetake}>
-            {t(language, 'RETAKE')}
-          </button>
+          {onRetake && (
+            <button type="button" className={styles.retakeBtn} onClick={onRetake}>
+              {t(language, 'RETAKE')}
+            </button>
+          )}
         </div>
       </div>
     </section>

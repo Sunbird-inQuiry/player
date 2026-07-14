@@ -1,3 +1,4 @@
+import { t } from '../../i18n/translations';
 import styles from './Scoreboard.module.scss';
 
 /**
@@ -14,6 +15,7 @@ interface ScoreboardProps {
   skipped?: number;
   totalScore?: number;
   onSubmit?: () => void;
+  language?: string;
 }
 
 export function Scoreboard({
@@ -23,17 +25,18 @@ export function Scoreboard({
   skipped = 0,
   totalScore = 0,
   onSubmit,
+  language = 'en',
 }: ScoreboardProps) {
   const stats: Array<{ key: string; label: string; value: number; variant: string }> = [
-    { key: 'correct', label: 'Correct', value: correct, variant: styles.correct },
-    { key: 'incorrect', label: 'Incorrect', value: incorrect, variant: styles.incorrect },
-    { key: 'partial', label: 'Partial', value: partial, variant: styles.partial },
-    { key: 'skipped', label: 'Skipped', value: skipped, variant: styles.skipped },
+    { key: 'correct', label: t(language, 'CORRECT'), value: correct, variant: styles.correct },
+    { key: 'incorrect', label: t(language, 'INCORRECT'), value: incorrect, variant: styles.incorrect },
+    { key: 'partial', label: t(language, 'PARTIAL'), value: partial, variant: styles.partial },
+    { key: 'skipped', label: t(language, 'SKIPPED'), value: skipped, variant: styles.skipped },
   ];
 
   return (
-    <section className={styles.scoreboard} aria-label="Quiz Summary">
-      <h2 className={styles.heading}>Quiz Summary</h2>
+    <section className={styles.scoreboard} aria-label={t(language, 'QUIZ_SUMMARY')}>
+      <h2 className={styles.heading}>{t(language, 'QUIZ_SUMMARY')}</h2>
 
       <dl className={styles.stats}>
         {stats.map(({ key, label, value, variant }) => (
@@ -45,12 +48,12 @@ export function Scoreboard({
       </dl>
 
       <p className={styles.score}>
-        Score: <strong>{totalScore}</strong>
+        {t(language, 'SCORE')}: <strong>{totalScore}</strong>
       </p>
 
       {onSubmit && (
         <button type="button" className={styles.submit} onClick={onSubmit}>
-          Submit
+          {t(language, 'SUBMIT')}
         </button>
       )}
     </section>

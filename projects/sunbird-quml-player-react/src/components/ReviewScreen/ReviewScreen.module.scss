@@ -59,7 +59,11 @@
   border-inline-end: 1px solid v.$gray-200;
   background: v.$ivory;
 
-  @include m.mobile {
+  // Mobile-app only — was width-only (`m.mobile`), so a landscape phone (short
+  // height, but wide enough to miss that width tier) still showed the full
+  // section list with its per-section question counts, same crowding problem
+  // as everything else we've compacted. `m.compact` covers both orientations.
+  @include m.compact {
     display: none;
   }
 }
@@ -71,6 +75,8 @@
   min-width: 0;
   overflow-y: auto;
   padding: v.$space-8 v.$space-12;
+  // Positioning context for .navBtn in compact mode (see below).
+  position: relative;
 
   @include m.tablet {
     padding: v.$space-6 v.$space-6;
@@ -78,6 +84,17 @@
 
   @include m.mobile {
     padding: v.$space-5 v.$space-4;
+  }
+
+  // Mobile-app only (see SectionPlayer.module.scss .content for the same
+  // treatment) — widen the inline gutter so the floating Prev/Next buttons
+  // land beside the question, not over it. Also shrink the top padding: with
+  // the counter hidden and the buttons floated out of flow, `.navBar` collapses
+  // to ~0 height, so the old top padding (sized for a full nav row) just left
+  // a tall gap above the verdict pill and card.
+  @include m.compact {
+    padding-block: v.$space-3 v.$space-4;
+    padding-inline: 2.75rem;
   }
 }
 
@@ -88,6 +105,10 @@
   border-radius: v.$r-pill;
   font-size: v.$text-sm;
   font-weight: v.$fw-semibold;
+
+  @include m.compact {
+    margin-bottom: v.$space-3;
+  }
 }
 
 .correct {
@@ -121,6 +142,13 @@
   justify-content: space-between;
   gap: v.$space-4;
   margin-bottom: v.$space-6;
+
+  // Mobile-app only: the counter is hidden and the buttons float out of flow
+  // (see .counter/.navBtn below), so this row has no in-flow content left —
+  // drop the margin it no longer needs to reserve.
+  @include m.compact {
+    margin-bottom: 0;
+  }
 }
 
 .counter {
@@ -128,6 +156,12 @@
   font-weight: v.$fw-medium;
   color: v.$g600;
   font-variant-numeric: tabular-nums;
+
+  // Mobile-app only: replaced by QuestionCard's progress badge next to the
+  // question-type tag (same treatment as SectionPlayer.module.scss .counter).
+  @include m.compact {
+    display: none;
+  }
 }
 
 .navBtn {
@@ -143,10 +177,48 @@
     color: v.$g900;
     background: v.$cream-bg;
   }
+
+  // Mobile-app only — float beside the question, vertically centered on the
+  // full main-column height (`.main`, not `.navBar`), icon-only circle. Same
+  // treatment as SectionPlayer.module.scss .navBtn.
+  @include m.compact {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    min-width: 0;
+    min-height: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border-radius: v.$r-pill;
+    background: v.$white;
+    box-shadow: v.$shadow-sm;
+
+    &:hover:not(:disabled) {
+      transform: translateY(-50%);
+    }
+  }
+}
+
+.navPrev {
+  @include m.compact {
+    left: v.$space-1;
+  }
+}
+
+.navNext {
+  @include m.compact {
+    right: v.$space-1;
+  }
 }
 
 .navLabel {
   @include m.mobile {
+    display: none;
+  }
+
+  @include m.compact {
     display: none;
   }
 }

@@ -13,13 +13,15 @@ export interface QuestionCardProps {
   question: Question;
   children: ReactNode;
   meta?: { category?: string; difficulty?: string };
+  /** Position within the section, e.g. { current: 2, total: 4 } → "2/4". */
+  progress?: { current: number; total: number };
   footer?: ReactNode;
 }
 
-export function QuestionCard({ question, children, meta, footer }: QuestionCardProps) {
+export function QuestionCard({ question, children, meta, progress, footer }: QuestionCardProps) {
   const category = meta?.category ?? question.primaryCategory;
   const difficulty = meta?.difficulty;
-  const hasMeta = Boolean(category || difficulty);
+  const hasMeta = Boolean(category || difficulty || progress);
 
   return (
     <article className={styles.card}>
@@ -27,6 +29,11 @@ export function QuestionCard({ question, children, meta, footer }: QuestionCardP
         <div className={styles.meta}>
           {category && <span className={styles.category}>{category}</span>}
           {difficulty && <span className={styles.difficulty}>{difficulty}</span>}
+          {progress && (
+            <span className={styles.progress}>
+              {progress.current}/{progress.total}
+            </span>
+          )}
         </div>
       )}
 

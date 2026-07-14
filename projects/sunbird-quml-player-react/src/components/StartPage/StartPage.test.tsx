@@ -45,9 +45,15 @@ describe('StartPage', () => {
     expect(screen.queryByText(/progress is saved/i)).not.toBeInTheDocument();
   });
 
-  it('omits the minutes tile when there is no time limit', () => {
-    render(<StartPage {...baseProps} timeLimit={0} />);
-    expect(screen.queryByText(/minutes/i)).not.toBeInTheDocument();
+  it('shows "No Limit" for the minutes tile when there is no time limit', () => {
+    render(<StartPage {...baseProps} timeLimit={0} attemptsLeft={3} />);
+    expect(screen.getByText(/minutes/i)).toBeInTheDocument();
+    expect(screen.getByText('No Limit')).toBeInTheDocument();
+  });
+
+  it('shows "No Limit" attempts when the backend does not send a cap', () => {
+    render(<StartPage {...baseProps} attemptsLeft={null} />);
+    expect(screen.getAllByText('No Limit').length).toBeGreaterThanOrEqual(1);
   });
 
   it('emits onStart when the CTA is clicked', () => {

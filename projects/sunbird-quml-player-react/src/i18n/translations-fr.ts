@@ -38,6 +38,7 @@ export const translations: Record<string, string> = {
   MINUTES: 'minutes',
 
   // Scoring
+  QUIZ_SUMMARY: 'Résumé du quiz',
   SCORE: 'Score',
   TOTAL_SCORE: 'Score total',
   CORRECT: 'Correct',
@@ -95,10 +96,14 @@ export const translations: Record<string, string> = {
   ASSESSMENT_SECTIONS: 'Sections de l’évaluation',
   SECTIONS_COVER_NOTE: 'Voici ce que vous allez aborder dans cette évaluation.',
   START_ASSESSMENT: 'Commencer l’évaluation',
+  RESUME_ASSESSMENT: 'Reprendre l’évaluation',
   ATTEMPTS_LEFT: 'Tentatives restantes',
   MINUTES_LABEL: 'Minutes',
+  NO_LIMIT: 'Sans limite',
   TIMER_START_NOTE:
     'Le minuteur démarre lorsque vous cliquez. Vous avez {attempts} tentatives pour cette évaluation.',
+  TIMER_RESUME_NOTE:
+    'Votre minuteur est toujours en cours. Vous avez {attempts} tentatives pour cette évaluation.',
 
   // Assessment shell header / section intro (Phase 6 design)
   START_SECTION: 'Commencer la section',

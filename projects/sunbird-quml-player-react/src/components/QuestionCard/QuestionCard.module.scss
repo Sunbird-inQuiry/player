@@ -12,13 +12,22 @@
   @include m.mobile {
     padding: v.$space-5;
   }
+
+  @include m.short {
+    padding: v.$space-4;
+  }
 }
 
 .meta {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   gap: v.$space-2;
   margin-bottom: v.$space-5;
+
+  @include m.short {
+    margin-bottom: v.$space-3;
+  }
 }
 
 .category,
@@ -43,6 +52,23 @@
   color: v.$g600;
 }
 
+// Mobile-app only — replaces the top nav bar's counter, which is hidden in
+// compact mode (see SectionPlayer.module.scss .counter). Desktop/tablet/
+// portal/editor keep the top-bar counter and never show this.
+.progress {
+  display: none;
+  font-family: v.$ff-base;
+  font-size: v.$text-xs;
+  font-weight: v.$fw-semibold;
+  color: v.$g400;
+  font-variant-numeric: tabular-nums;
+
+  @include m.compact {
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
 .body {
   font-family: v.$ff-question;
 }
@@ -51,4 +77,9 @@
   margin-top: v.$space-6;
   padding-top: v.$space-5;
   border-top: 1px solid v.$gray-200;
+
+  @include m.short {
+    margin-top: v.$space-3;
+    padding-top: v.$space-3;
+  }
 }

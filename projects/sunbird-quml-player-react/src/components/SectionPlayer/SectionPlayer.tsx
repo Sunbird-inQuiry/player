@@ -201,7 +201,7 @@ export function SectionPlayer({ section, onSectionEnd, isLastSection = true }: S
       <div className={styles.navBar}>
         <button
           type="button"
-          className={styles.navBtn}
+          className={`${styles.navBtn} ${styles.navPrev}`}
           onClick={handlePrevious}
           disabled={isFirst}
           aria-label={t(language, 'PREVIOUS')}
@@ -210,6 +210,8 @@ export function SectionPlayer({ section, onSectionEnd, isLastSection = true }: S
           <span className={styles.navLabel}>{t(language, 'PREVIOUS')}</span>
         </button>
 
+        {/* Desktop/tablet only (hidden in compact mode via QuestionCard's
+            progress badge) — kept here so the counter stays centered. */}
         <span className={styles.counter}>
           {t(language, 'QUESTION')} {currentSlide + 1} {t(language, 'OF')} {questions.length}
         </span>
@@ -222,7 +224,7 @@ export function SectionPlayer({ section, onSectionEnd, isLastSection = true }: S
           // non-interactive (aria-hidden, not focusable, disabled).
           <button
             type="button"
-            className={styles.navBtn}
+            className={`${styles.navBtn} ${styles.navNext}`}
             style={{ visibility: 'hidden' }}
             aria-hidden="true"
             tabIndex={-1}
@@ -236,7 +238,7 @@ export function SectionPlayer({ section, onSectionEnd, isLastSection = true }: S
           // when on a section's last question.
           <button
             type="button"
-            className={styles.navBtn}
+            className={`${styles.navBtn} ${styles.navNext}`}
             onClick={isLast ? handleSubmit : handleNext}
             // Last question: enabled once answered (or section is skippable) so the
             // learner can move to the next section. Otherwise gate on canAdvance.
@@ -250,7 +252,11 @@ export function SectionPlayer({ section, onSectionEnd, isLastSection = true }: S
       </div>
 
       <div className={styles.content} ref={contentRef}>
-        <QuestionCard question={currentQuestion} meta={{ category: currentQuestion.primaryCategory }}>
+        <QuestionCard
+          question={currentQuestion}
+          meta={{ category: currentQuestion.primaryCategory }}
+          progress={{ current: currentSlide + 1, total: questions.length }}
+        >
           <QuestionRenderer
             key={currentQuestion.identifier}
             question={currentQuestion}

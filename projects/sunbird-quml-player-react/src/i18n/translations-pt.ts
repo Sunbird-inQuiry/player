@@ -38,6 +38,7 @@ export const translations: Record<string, string> = {
   MINUTES: 'minutos',
 
   // Scoring
+  QUIZ_SUMMARY: 'Resumo do questionário',
   SCORE: 'Pontuação',
   TOTAL_SCORE: 'Pontuação total',
   CORRECT: 'Correto',
@@ -95,10 +96,14 @@ export const translations: Record<string, string> = {
   ASSESSMENT_SECTIONS: 'Seções da avaliação',
   SECTIONS_COVER_NOTE: 'Veja o que você abordará nesta avaliação.',
   START_ASSESSMENT: 'Iniciar avaliação',
+  RESUME_ASSESSMENT: 'Continuar avaliação',
   ATTEMPTS_LEFT: 'Tentativas restantes',
   MINUTES_LABEL: 'Minutos',
+  NO_LIMIT: 'Sem limite',
   TIMER_START_NOTE:
     'O cronômetro começa quando você clica. Você tem {attempts} tentativas para esta avaliação.',
+  TIMER_RESUME_NOTE:
+    'Seu cronômetro continua em execução. Você tem {attempts} tentativas para esta avaliação.',
 
   // Assessment shell header / section intro (Phase 6 design)
   START_SECTION: 'Iniciar seção',

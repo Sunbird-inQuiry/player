@@ -45,4 +45,24 @@ describe('SectionIntro', () => {
     fireEvent.click(screen.getByRole('button', { name: /start section b/i }));
     expect(onBegin).toHaveBeenCalledTimes(1);
   });
+
+  it('omits the Previous link when onPrevious is not provided', () => {
+    render(<SectionIntro section={section} sectionIndex={0} totalSections={3} onBegin={vi.fn()} />);
+    expect(screen.queryByRole('button', { name: /previous/i })).not.toBeInTheDocument();
+  });
+
+  it('emits onPrevious (back to the overview) from the Previous link', () => {
+    const onPrevious = vi.fn();
+    render(
+      <SectionIntro
+        section={section}
+        sectionIndex={0}
+        totalSections={3}
+        onBegin={vi.fn()}
+        onPrevious={onPrevious}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: /previous/i }));
+    expect(onPrevious).toHaveBeenCalledTimes(1);
+  });
 });
