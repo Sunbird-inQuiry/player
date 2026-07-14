@@ -37,4 +37,61 @@ describe('ResultsScreen', () => {
     expect(screen.queryByRole('button', { name: /retake/i })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: /review all/i })).toBeInTheDocument();
   });
+
+  // Angular parity (main-player.component.ts:488-524) — summaryType gates
+  // score/duration visibility. The correct/incorrect/partial/skipped breakdown
+  // has no Angular equivalent and is intentionally always shown regardless.
+  describe('summaryType (Angular parity)', () => {
+    it('"Complete" shows the score as a fraction', () => {
+      render(
+        <ResultsScreen summary={summary} summaryType="Complete" onReviewAll={vi.fn()} />,
+      );
+      expect(screen.getByText('7 / 10')).toBeInTheDocument();
+    });
+
+    it('"Score" shows a plain score and hides duration', () => {
+      render(
+        <ResultsScreen
+          summary={summary}
+          summaryType="Score"
+          timeTaken={204}
+          onReviewAll={vi.fn()}
+        />,
+      );
+      expect(screen.getByText('7')).toBeInTheDocument();
+      expect(screen.queryByText(/time taken/i)).not.toBeInTheDocument();
+    });
+
+    it('"Duration" hides the score entirely', () => {
+      render(
+        <ResultsScreen
+          summary={summary}
+          summaryType="Duration"
+          timeTaken={204}
+          onReviewAll={vi.fn()}
+        />,
+      );
+      expect(screen.queryByText(/^score/i)).not.toBeInTheDocument();
+      expect(screen.getByText('3:24')).toBeInTheDocument();
+    });
+
+    it('"Score and Duration" (and absent) shows a plain score and duration', () => {
+      render(
+        <ResultsScreen
+          summary={summary}
+          summaryType="Score and Duration"
+          timeTaken={204}
+          onReviewAll={vi.fn()}
+        />,
+      );
+      expect(screen.getByText('7')).toBeInTheDocument();
+      expect(screen.getByText('3:24')).toBeInTheDocument();
+    });
+
+    it('always shows the correct/incorrect/partial/skipped breakdown regardless of summaryType', () => {
+      render(<ResultsScreen summary={summary} summaryType="Duration" onReviewAll={vi.fn()} />);
+      expect(screen.getByRole('region', { name: /quiz summary/i })).toBeInTheDocument();
+      expect(screen.getByText('6')).toBeInTheDocument(); // correct count
+    });
+  });
 });

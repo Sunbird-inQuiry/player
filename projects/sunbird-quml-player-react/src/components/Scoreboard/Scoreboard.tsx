@@ -16,6 +16,10 @@ interface ScoreboardProps {
   totalScore?: number;
   onSubmit?: () => void;
   language?: string;
+  /** Angular parity (summaryType:'Duration') — hide the score line entirely. Default true. */
+  showScore?: boolean;
+  /** Override the displayed score value (e.g. "7 / 10" for summaryType:'Complete'). Defaults to the plain `totalScore`. */
+  scoreLabel?: string;
 }
 
 export function Scoreboard({
@@ -26,6 +30,8 @@ export function Scoreboard({
   totalScore = 0,
   onSubmit,
   language = 'en',
+  showScore = true,
+  scoreLabel,
 }: ScoreboardProps) {
   const stats: Array<{ key: string; label: string; value: number; variant: string }> = [
     { key: 'correct', label: t(language, 'CORRECT'), value: correct, variant: styles.correct },
@@ -47,9 +53,11 @@ export function Scoreboard({
         ))}
       </dl>
 
-      <p className={styles.score}>
-        {t(language, 'SCORE')}: <strong>{totalScore}</strong>
-      </p>
+      {showScore && (
+        <p className={styles.score}>
+          {t(language, 'SCORE')}: <strong>{scoreLabel ?? totalScore}</strong>
+        </p>
+      )}
 
       {onSubmit && (
         <button type="button" className={styles.submit} onClick={onSubmit}>

@@ -261,6 +261,11 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
       // the timer is shown ONLY when the content opts in via `showTimer`. Absent /
       // false → no timer at all; the count-up fallback also requires it.
       showTimer: data.showTimer === true || data.showTimer === 'true',
+      // Angular parity (main-player.component.ts:488-524) — gates score/duration
+      // visibility on the results screen. 'Complete'→score as a fraction,
+      // 'Duration'→score hidden, 'Score'→duration hidden, 'Score and Duration'/
+      // absent→both shown as plain values.
+      summaryType: data.summaryType as string | undefined,
       maxScore,
       // Absent (not sent by the backend) → unlimited attempts: null, distinct
       // from an explicit 0/low maxAttempts, so StartPage can show "No Limit"
@@ -322,13 +327,25 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
   }, [isClockRunning]);
 
   // Count-up elapsed timer (Angular header showCountUp parity): when the
-  // assessment has NO time limit, the header shows time spent instead of a
+  // assessment has NO time limit, this tracks time spent instead of a
   // countdown. Same run/pause semantics as the countdown, anchored to a
   // timestamp so it never drifts.
+  //
+  // Angular parity — NOT gated on `showTimer`: showTimer only controls whether
+  // the live widget is *visible* (main-player.component.ts:172, section-player
+  // .component.ts:58,235 — fed straight into the timer display component,
+  // nothing else). Duration tracking itself (main-player.component.ts:257
+  // initialTime, :488-493 setDurationSpent) and time-limit enforcement
+  // (section-player.component.ts:232-233) both run unconditionally in
+  // Angular. Previously this effect also required `overview.showTimer`, so a
+  // hidden timer (showTimer:false/unset) meant elapsed time was never tracked
+  // at all — the results screen had nothing to show regardless of
+  // `summaryType`. The header's OWN display of this value is still gated on
+  // `showTimer` separately, further down — only the tracking moved.
   const [timeElapsed, setTimeElapsed] = useState(0);
   const elapsedAnchorRef = useRef<number | null>(null);
   useEffect(() => {
-    if (!isClockRunning || overview.timeLimit > 0 || !overview.showTimer) return;
+    if (!isClockRunning || overview.timeLimit > 0) return;
     elapsedAnchorRef.current = Date.now() - timeElapsed * 1000;
     const id = setInterval(() => {
       setTimeElapsed(Math.floor((Date.now() - elapsedAnchorRef.current!) / 1000));
@@ -337,7 +354,7 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     // Re-anchor only when the clock starts/stops; timeElapsed is read once as
     // the resume point.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isClockRunning, overview.timeLimit, overview.showTimer]);
+  }, [isClockRunning, overview.timeLimit]);
 
   // Time up → auto-submit straight to results (no confirmation dialog).
   useEffect(() => {
@@ -364,9 +381,11 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
 
   // ── Flow transitions ───────────────────────────────────────────────────────
   const beginAssessmentTimer = () => {
-    // No countdown (and therefore no auto-submit on expiry) unless the content
-    // opts into the timer — Angular's header never starts the interval otherwise.
-    if (overview.showTimer && timeRemaining == null && overview.timeLimit > 0) {
+    // Angular parity — NOT gated on `showTimer` (see the count-up effect's
+    // comment above for the citations): a real `timeLimit` always counts down
+    // and enforces auto-submit-at-zero, whether or not the content shows the
+    // live widget. `showTimer` only gates the header's own display, below.
+    if (timeRemaining == null && overview.timeLimit > 0) {
       setTimeRemaining(overview.timeLimit);
     }
   };
@@ -533,19 +552,18 @@ export function MainPlayer({ playerConfig, onPlayerEvent }: MainPlayerProps) {
     );
   } else if (stage === 'results') {
     // Total time spent: countdown mode → limit minus what was left; count-up
-    // mode → the elapsed counter (both tick only during the assessment stage).
-    // When the timer is suppressed (showTimer off) neither clock runs, so there
-    // is no meaningful elapsed value — pass null so Results omits "Time Taken"
-    // rather than showing a misleading 0:00.
-    const timeTaken = !overview.showTimer
-      ? null
-      : overview.timeLimit > 0
-        ? overview.timeLimit - (timeRemaining ?? overview.timeLimit)
-        : timeElapsed;
+    // mode → the elapsed counter (both tick unconditionally once the
+    // assessment stage starts — Angular parity, see the count-up effect's
+    // comment above: NOT gated on `showTimer`, which only controls the live
+    // widget's visibility, not whether time is tracked). `summaryType:'Score'`
+    // hides duration on-screen — that gating lives in ResultsScreen, not here.
+    const timeTaken =
+      overview.timeLimit > 0 ? overview.timeLimit - (timeRemaining ?? overview.timeLimit) : timeElapsed;
     content = (
       <ResultsScreen
         summary={summary}
         timeTaken={timeTaken}
+        summaryType={overview.summaryType}
         onReviewAll={handleReviewAll}
         onRetake={canRetake ? handleRetake : undefined}
         language={language}
